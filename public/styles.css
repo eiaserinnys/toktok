@@ -1,7 +1,8 @@
+@import url('/shared/tokens.css');
 @font-face{font-family:Tok Sans;src:url(/assets/tok-sans.woff2) format('woff2');font-weight:100 900;font-display:swap}
 @font-face{font-family:Tok Sans;src:url(/assets/tok-bold.woff2) format('woff2');font-weight:650 950;font-display:swap}
 @font-face{font-family:Tok Serif;src:url(/assets/tok-serif.woff2) format('woff2');font-weight:400 900;font-display:swap}
-:root{--ink:#204436;--green:#224b39;--lime:#e5f38f;--paper:#f6f5ee;--muted:#71796d;--line:#dcded3;--white:#fffef9;--ease:cubic-bezier(.2,.8,.2,1)}
+
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:90px}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:Tok Sans,Arial,sans-serif;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}

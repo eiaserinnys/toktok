@@ -3,10 +3,10 @@ import {applyPage,ownsResponse,retryDelay,cancel} from './session.js';
 import {createPublicState,startPublic,bindPublic,leavePublic} from './public-demo.js';
 import {catalog} from './public-demo-view.js';
 import {consumeFragment} from './public-demo-session.js';
+import {resolveRoute} from './shared/routes.js';
 const app=document.querySelector('#app'),states=new Map();
 let active=null,toastTimer=null;
 const $=(selector)=>active?.root.querySelector(selector);
-const shared=/^\/r\/([a-f0-9-]{36})\/([\w-]{43})$/;
 function status(copy){const e=$('#watch-status');if(e)e.textContent=copy;}
 function showTerminal(state,code){
  cancel(state);state.gone=true;state.root.innerHTML=terminal(code);state.cursor=0;state.senders.clear();
@@ -139,18 +139,17 @@ function navigate(){
  document.querySelector('#toast').classList.remove('visible');active=null;
  const error=document.body.dataset.error;
  if(error){app.innerHTML=terminal(error);return;}
- const publicMatch=/^\/public\/([a-z0-9-]+)$/.exec(location.pathname);
- if(publicMatch){
-  const grant=consumeFragment(location,history),key='public:'+publicMatch[1];let state=states.get(key);
-  if(!state){const root=document.createElement('div');root.innerHTML=room();state=createPublicState(root,publicMatch[1],location.origin+location.pathname,grant);states.set(key,state);bind(state);bindPublic(state,publicUI);}
+ const resolved=resolveRoute(location.pathname);
+ if(resolved?.routeId==='public-room'){
+  const grant=consumeFragment(location,history),key='public:'+resolved.params.slug;let state=states.get(key);
+  if(!state){const root=document.createElement('div');root.innerHTML=room();state=createPublicState(root,resolved.params.slug,location.origin+location.pathname,grant);states.set(key,state);bind(state);bindPublic(state,publicUI);}
   active=state;app.replaceChildren(state.root);scrollTo({top:state.pageY,behavior:'instant'});if(!state.paused)start(state);return;
  }
- const match=shared.exec(location.pathname);
- if(!match){app.innerHTML=location.pathname==='/guide'?guide():introduction();if(location.pathname==='/')catalog(app);return;}
- const key=match[1]+':'+match[2];let state=states.get(key);
+ if(resolved?.routeId!=='private-room'){app.innerHTML=resolved?.screenId==='guide'?guide():introduction();if(location.pathname==='/')catalog(app);return;}
+ const {id,cap}=resolved.params,key=id+':'+cap;let state=states.get(key);
  if(!state){
   const root=document.createElement('div');root.innerHTML=room();
-  state={id:match[1],cap:match[2],url:location.origin+location.pathname,root,cursor:0,senders:new Map(),paused:false,gone:false,metadata:null,controller:null,attempt:0,retryTimer:null,expiryTimer:null,pageY:0,feedTop:0,follow:true};states.set(key,state);bind(state);
+  state={id,cap,url:location.origin+location.pathname,root,cursor:0,senders:new Map(),paused:false,gone:false,metadata:null,controller:null,attempt:0,retryTimer:null,expiryTimer:null,pageY:0,feedTop:0,follow:true};states.set(key,state);bind(state);
  }
  active=state;app.replaceChildren(state.root);scrollTo({top:state.pageY,behavior:'instant'});
  if(state.paused)clock(state);else start(state);

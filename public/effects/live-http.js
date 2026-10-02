@@ -1,0 +1,86 @@
+// Product-only HTTP adapter. No fixture import, storage, synthetic identity or retry loop.
+export class EffectError extends Error {
+ constructor(code,status=null,retryAfter=null){super(code);this.code=code;this.status=status;this.retryAfter=retryAfter;}
+}
+const invalid=kind=>{throw new EffectError('INVALID_'+kind);};
+export function mapSession(data){
+ if(typeof data?.authenticated!=='boolean'||!['anonymous','member','admin'].includes(data.role)
+  ||data.authenticated===(data.role==='anonymous')
+  ||typeof data.entitlements?.can_create_private!=='boolean'||typeof data.entitlements?.can_persist_private!=='boolean'
+  ||!(data.owner_ack===null||(typeof data.owner_ack?.version==='string'&&Number.isFinite(data.owner_ack.confirmed_at))))invalid('SESSION');
+ return {authenticated:data.authenticated,role:data.role,entitlements:{
+  can_create_private:data.entitlements.can_create_private,can_persist_private:data.entitlements.can_persist_private},
+  owner_ack:data.owner_ack===null?null:{version:data.owner_ack.version,confirmed_at:data.owner_ack.confirmed_at}};
+}
+export function mapConfig(data){
+ if(!Number.isSafeInteger(data?.revision)||!['demo','hosted'].includes(data.mode)||typeof data.enabled!=='boolean'
+  ||!['closed','invite','open'].includes(data.signup)||!Array.isArray(data.public?.catalog)||!data.private)invalid('CONFIG');
+ const limits={public:{},private:{}};
+ for(const key of ['firstWindowSeconds','pageSize','agentReadCadenceSeconds','browserReadCadenceSeconds']){
+  if(!Number.isFinite(data.public[key]))invalid('CONFIG');limits.public[key]=data.public[key];
+ }
+ for(const key of ['anonymousDefaultTtlSeconds','anonymousMaxTtlSeconds','authenticatedDefaultTtlSeconds','authenticatedMaxTtlSeconds','defaultRetentionSeconds','maxRetentionSeconds']){
+  if(!Number.isFinite(data.private[key]))invalid('CONFIG');limits.private[key]=data.private[key];
+ }
+ if(data.private.defaultPersist!==false||typeof data.private.anonymousEnabled!=='boolean')invalid('CONFIG');
+ limits.private.defaultPersist=false;limits.private.anonymousEnabled=data.private.anonymousEnabled;
+ const catalog=data.public.catalog.map(room=>{
+  if(typeof room.slug!=='string'||typeof room.title!=='string'||room.enabled!==true)invalid('CONFIG');
+  return {slug:room.slug,title:room.title};
+ });
+ return {revision:data.revision,mode:data.mode==='demo'?'DEMO':'HOSTED',enabled:data.enabled,signup:data.signup,catalog,limits};
+}
+function settingsEffects(schema,path='',out={}){
+ if(schema?.applyTo)out[path]=schema.applyTo;
+ if(schema?.fields)for(const [key,field] of Object.entries(schema.fields))settingsEffects(field,path?path+'.'+key:key,out);
+ if(schema?.items)settingsEffects(schema.items,path+'[]',out);
+ return out;
+}
+export function createLiveAdapter({fetch:fetchHTTP=globalThis.fetch}={}){
+ let csrf=null;
+ async function request(path,{method='GET',body,sessionMutation=false}={}){
+  if(sessionMutation&&!csrf)throw new EffectError('SESSION_REQUIRED',401);
+  const headers={Accept:'application/json'};
+  if(body!==undefined)headers['Content-Type']='application/json';
+  if(sessionMutation)headers['X-CSRF-Token']=csrf;
+  const response=await fetchHTTP(path,{method,credentials:'same-origin',cache:'no-store',headers,
+   ...(body===undefined?{}:{body:JSON.stringify(body)})});
+  let data;try{data=await response.json();}catch{throw new EffectError('INVALID_RESPONSE',response.status);}
+  if(!response.ok)throw new EffectError(data.error?.code??'HTTP_ERROR',response.status,response.headers.get('Retry-After'));
+  return data;
+ }
+ return Object.freeze({
+  getConfig:async()=>mapConfig(await request('/api/config')),
+  getSession:async()=>{
+   csrf=null;const data=await request('/api/session');
+   const session=mapSession(data);
+   if(session.authenticated&&typeof data.csrf_token!=='string')invalid('SESSION');
+   csrf=session.authenticated?data.csrf_token:null;return session;
+  },
+  validateInvitation:code=>request('/api/auth/invitations/validate',{method:'POST',body:{code}}),
+  startAuth:({purpose,invite_validation_id,claim_id,claim_token})=>request('/api/auth/start',{method:'POST',body:{purpose,
+   ...(invite_validation_id===undefined?{}:{invitation_validation_id:invite_validation_id}),
+   ...(claim_id===undefined?{}:{claim_id,claim_token})}}),
+  sendEmail:({flow,email,client_request_id})=>request('/api/auth/email/send',{method:'POST',body:{flow_id:flow,email,client_request_id}}),
+  completeAuth:({flow,nonce,otp,claim_id,claim_token})=>request('/api/auth/complete',{method:'POST',body:{flow,nonce,otp,
+   ...(claim_id===undefined?{}:{claim_id,claim_token})}}),
+  getAdminSettings:async()=>{
+   const data=await request('/api/admin/settings'),schema=await request('/api/admin/settings/schema');
+   if(!Number.isSafeInteger(data.revision)||!data.settings||!schema.schema)invalid('ADMIN_SETTINGS');
+   return {revision:data.revision,settings:data.settings,schema:schema.schema,effects:settingsEffects(schema.schema)};
+  },
+  getInvitations:()=>request('/api/admin/invitations'),
+  getAudit:()=>request('/api/admin/audit'),
+  saveSettings:({revision,settings})=>request('/api/admin/settings',{method:'PUT',sessionMutation:true,body:{expected_revision:revision,settings}}),
+  createInvitation:ttl_seconds=>request('/api/admin/invitations',{method:'POST',sessionMutation:true,body:ttl_seconds===undefined?{}:{ttl_seconds}}),
+  revokeInvitation:id=>request('/api/admin/invitations/'+encodeURIComponent(id)+'/revoke',{method:'POST',sessionMutation:true,body:{}}),
+  logout:async()=>{const result=await request('/api/auth/logout',{method:'POST',sessionMutation:true,body:{}});csrf=null;return result;},
+  createContext:()=>request('/api/private/create-context',{method:'POST',sessionMutation:!!csrf,body:{}}),
+  creationGrant:({nonce,risk_ack})=>request('/api/private/create-grants',{method:'POST',sessionMutation:!!csrf,
+   body:{nonce,risk_ack,risk_ack_version:'toktok-risk-v1'}}),
+  // The response contains one-time owner material; controllers must never put it in a normal ViewModel/DOM.
+  createRoom:({purpose,ttl_seconds,persist,retention_seconds,client_request_id,creation_grant})=>request('/api/v1/rooms',{
+   method:'POST',sessionMutation:!!csrf,body:{purpose,ttl_seconds,persist,client_request_id,creation_grant,
+    ...(persist?{retention_seconds}:{})}})
+ });
+}
