@@ -1,6 +1,6 @@
 # 서버 control plane 계약과 재개 지점
 
-2026-10-02. 기존 claim/OTP WIP를 보존하고 DEMO/HOSTED의 DB 설정, 관리자 bootstrap, 가입 초대 계약을 확인했습니다. 이번 control-plane 소스 구현과 새 검증은 아직 시작하지 않았습니다. self-host SQLite 기본 설치 및 기존 PostgreSQL DSN 지원 요구가 추가되었으며 runtime/DB adapter의 이식 설계는 root가 확정합니다. 현재 identity 코드를 즉석 분리하거나 새 DB 환경을 설치하지 않습니다.
+2026-10-02 14:26:36 사용자 결정까지 반영한 계약입니다. DEMO에서도 유효 초대와 OTP로 가입을 완료한 계정은 새 private room에서 persist를 opt-in할 수 있으며 기본값은 OFF입니다. 이전 DEMO all-body-nostore·회원 저장 불허 계약은 폐기되었습니다. 이번 control-plane 소스 구현과 새 검증은 아직 시작하지 않았습니다. self-host runtime/DB adapter 설계 정본은 root PR #3의 `docs/self-host-design.md@4aca939`이며 최신 저장 자격은 이 사용자 결정을 따릅니다. 현재 identity 코드를 즉석 분리하거나 새 DB 환경을 설치하지 않습니다.
 
 ## 보존 경계
 
@@ -10,7 +10,7 @@
 | 워크트리 | `.projects/toktok--feat-claim-foundation-0ac9c22f` |
 | 기존 코드 WIP | `d0470bfd8fd01a1fe19f0c42018743faa289aab6` |
 | 기준 main | `2f666d689ac0dfd6f2a34c565a12a844d14ec8da` |
-| 이번 추가 | 이 문서와 `modes-settings.md`만 추가합니다. |
+| 이번 추가 | 이 문서와 `modes-settings.md`의 최신 정책만 보완합니다. 소스·테스트·운영 변경은 없습니다. |
 | 현재 foreground | 이번 재개에서는 서버·브라우저·테스트 프로세스를 시작하지 않았습니다. 이전 2215 실행은 정상 회수 보고를 받았습니다. |
 | 원격 보존 | 이 문서를 포함한 WIP를 같은 브랜치로 푸시합니다. 최종 HEAD와 clean 여부는 커밋·푸시 뒤 보고합니다. |
 
@@ -24,7 +24,7 @@
 
 ## 설정과 저장소
 
-Cloudflare 경로는 IdentityRegistry singleton SQLite에 설정, 관리자 role, 가입 초대, 감사 기록, human admission을 둡니다. OTP 성공과 초대 소비, 신규 human admission, flow 소비, session 발급은 같은 `transactionSync`에서 확정합니다. self-host adapter에서도 이 원자 경계를 유지해야 하며 별도 데이터베이스로 분산하지 않습니다. 구체 adapter 인터페이스와 이식 경계는 root 설계를 기다립니다.
+Cloudflare 경로는 IdentityRegistry singleton SQLite에 설정, 관리자 role, 가입 초대, 감사 기록, human admission 및 account entitlement를 둡니다. OTP 성공과 초대 소비, 신규 human admission·entitlement, flow 소비, session 발급은 같은 `transactionSync`에서 확정합니다. root의 self-host 설계에서도 선택한 backend 한 개의 transaction으로 이 원자 경계를 유지하며 동시에 여러 DB에 분산하지 않습니다. 지원 예정 backend는 Cloudflare DO SQLite, self-host SQLite, self-host PostgreSQL이고 D1은 미확정입니다. backend는 설치·시작 시 선택하며 관리자 제품 설정으로 전환하지 않습니다. adapter 구현은 미착수입니다.
 
 설정 레코드는 `schema_version=1`, 정수 `revision`, `updated_at`, `updated_by`를 가집니다. DB가 처음 만들어질 때만 DEFAULT_SETTINGS를 seed합니다. 요청·재시작·재배포 때 env/default로 덮지 않습니다. 손상된 설정은 fail closed하며 조용히 초기화하지 않습니다. 알 수 없는 키, 잘못된 타입, NaN·무한·비정수, 범위와 교차 필드 모순을 거부합니다. 공개 schema metadata와 seed·적용 시점은 [모드 설정 계약](modes-settings.md)에 정리했습니다.
 
@@ -57,11 +57,19 @@ DB bootstrap_consumed=false이고 사전 지정한 정확한 한 이메일만 OT
 
 초대 secret은 crypto random 32바이트의 URLsafe 43자 token이며 DB에는 SHA256 hash만 둡니다. UUID는 관리 id이며 secret을 대신하지 않습니다. 기본 7일, 설정 상한 30일, 1회 사용, 폐기 가능입니다. 목록·감사에는 원문이나 hash를 넣지 않습니다. 초대는 가입 자격만 제공하며 admin role이나 agent ownership을 주지 않습니다.
 
-auth start에서 invite hash를 flow에 결합합니다. send 단계에서는 정규화 이메일을 고정하여 claim/nonce/browser와 함께 묶으며 주소 변경은 새 flow가 필요합니다. 미허용 주소의 고정을 위해 원문 이메일을 영속 보관하지 않습니다. send 시 초대를 소비하지 않습니다. OTP complete 성공 transaction에서 유효·미사용·미폐기 초대를 확인하고 초대 소비, admitted human 생성, flow 소비, session 발급을 함께 수행합니다. 두 flow가 같은 초대를 경쟁하면 신규 가입은 하나만 성립합니다. 오입력과 메일 실패는 초대를 소진하지 않습니다.
+신규 초대 가입 UX는 invite code 필수 입력 → validate → email OTP → signup 순서입니다. missing/invalid/expired/used/revoked 코드는 이메일 OTP 등 다음 단계로 진행할 수 없습니다. 입력한 코드의 사용 가능/불가 안내는 허용하지만 이메일 존재 여부는 노출하지 않습니다. 검증한 초대는 보유자 세션과 flow/browser binding에 결합합니다. 정확한 validation API와 세션 결합 구현은 미착수이며 추가 설계가 필요합니다.
+
+auth start에서 검증된 invite hash를 flow에 결합합니다. send 단계에서는 정규화 이메일을 고정하여 claim/nonce/browser와 함께 묶으며 주소 변경은 새 flow가 필요합니다. 미허용 주소의 고정을 위해 원문 이메일을 영속 보관하지 않습니다. validate/send 시 초대를 소비하거나 보관 권한을 발급하지 않습니다. OTP complete 성공 transaction에서 초대가 여전히 유효·미사용·미폐기인지 확인하고 초대 소비, admitted human·account entitlement 기록, flow 소비, session 발급을 함께 수행합니다. 두 flow가 같은 초대를 경쟁하면 신규 가입은 하나만 성립합니다. 오입력과 메일 실패는 초대를 소진하지 않습니다.
 
 기존 admitted member의 로그인은 새 초대가 필요 없습니다. 유효 session의 새 agent claim은 추가 OTP를 요구하지 않으며 명시 위험 확인·승인은 별도입니다. admission과 identity 검증, ownership, risk ack를 구분합니다. 과거 env allowlist를 운영 정본으로 유지하지 않고 DB admission과 signup policy로 옮깁니다. 기존 WIP의 `SIGNUP_POLICY_JSON` 기반 판단은 아직 남아 있으므로 재개 후 교체가 필요합니다.
 
-invalid/expired/used/revoked invite와 미허용 이메일의 send 응답은 일반 accepted입니다. 허용 여부와 무관하게 동일 HMAC 이메일/IP 요청 예산과 전역 월 상태를 검사합니다. 자격 있는 요청만 OTP 생성·provider 호출·월 발송 예약을 합니다. 기존 가입자는 closed/invite 정책에서도 로그인할 수 있으나 전체 서비스/provider 준비 상태를 우회하지 않습니다. 실제 정책 적용 순서와 bootstrap 예외는 focused 테스트로 확인해야 합니다.
+초대 코드의 유효 여부 안내와 이메일 존재 여부 비노출은 별개입니다. 무효 초대는 다음 단계 진입과 발송을 차단하며, 유효한 가입 흐름에서 이메일 관련 응답으로 기존 계정 유무를 노출하지 않습니다. 허용 여부와 무관하게 동일 HMAC 이메일/IP 요청 예산과 전역 월 상태를 검사합니다. 자격 있는 요청만 OTP 생성·provider 호출·월 발송 예약을 합니다. 기존 가입자는 closed/invite 정책에서도 로그인할 수 있으나 전체 서비스/provider 준비 상태를 우회하지 않습니다. 실제 정책 적용 순서와 bootstrap 예외는 focused 테스트로 확인해야 합니다.
+
+## private persist 자격
+
+public과 anonymous private의 body는 항상 memory only입니다. DEMO의 초대+OTP 가입 완료 계정도 새 private room에서 persist opt-in이 가능하며 기본 OFF입니다. 서버는 mode만으로 저장을 허용하거나 거부하지 않고 DB account entitlement(유효 초대 소비와 OTP 가입 완료), visibility/private, authenticated creator authority 및 현재 서버 설정을 함께 확인합니다. 미소비 invite 코드 소지나 클라이언트 persist/entitlement 플래그는 보관 권한의 근거가 아닙니다.
+
+retention과 participant notice는 방 생성 때 고정하며 기존 memory room→persist 전환은 허용하지 않습니다. 30일 보관 UI는 시나리오일 뿐 production retention 값의 확정이 아닙니다. entitlement 기록 형식과 최종 retention/생성 계약은 추가 설계·구현이 필요하며 아직 미착수입니다.
 
 ## OTP 불변 경계
 
@@ -82,13 +90,13 @@ subject는 고정 일반 문구이며 OTP는 메일 본문에만 둡니다. Clou
 | 기존 2215 브라우저 | [JSON](qa/claim-wip-20261002/20261002-2215-otp-claim-ui-evidence.json) 및 viewport PNG. 기존 OTP UI 1440/390 회수 결과입니다. 새 admin UI·두 모드·invite UI의 증거가 아닙니다. |
 | 새 control-plane | 소스·RED·Workers SQLite targeted·typecheck·review·PR·CI 모두 미착수입니다. 이번 재개에서 기존 gate를 반복하지 않았습니다. |
 
-재개 후 새 runtime gate는 seed 재시작 유지, revision 동시 충돌, nonadmin/Origin/CSRF, client mode/persist spoof, budget readiness와 mode drain, bootstrap 정확 이메일/OTP/1회 경합/미설정, invite 두 flow 소비/만료/폐기/오입력 미소비/기존 회원 로그인, DEMO 가입자 저장 불허, email cap 축소 뒤 기존 session 유지를 확인합니다. 각 케이스는 local alarm/storage reset 또는 독립 namespace를 쓰고 DI clock과 edge를 분리합니다. 실패 전에 status/errorcode와 비밀 없는 원시 상태를 보존합니다.
+재개 후 새 runtime gate는 seed 재시작 유지, revision 동시 충돌, nonadmin/Origin/CSRF, client mode/persist/entitlement spoof, budget readiness와 mode drain, bootstrap 정확 이메일/OTP/1회 경합/미설정, invite 선검증과 보유자 세션 결합/무효 코드 다음 단계 차단/두 flow 소비/만료/폐기/오입력 미소비/기존 회원 로그인을 확인합니다. 저장 자격 fixture는 DEMO 초대+OTP 가입 완료 계정의 권한 있는 새 private persist opt-in 허용, 기본 OFF, 미소비 invite·anonymous private·public 저장 거부, 생성 시 retention/notice 고정과 기존 memory room 전환 거부로 정정합니다. email cap 축소 뒤 기존 session 유지도 확인합니다. 각 케이스는 local alarm/storage reset 또는 독립 namespace를 쓰고 DI clock과 edge를 분리합니다. 실패 전에 status/errorcode와 비밀 없는 원시 상태를 보존합니다. 이 계획을 이번 문서 보완에서 실행한 것은 아닙니다.
 
 runtime targeted와 strict tsc는 각각 최초 1회+실패 보정 1회 상한입니다. 통과한 기존 gate는 새 변경이 무효화한 범위만 선택합니다. UI browser·전체 회귀·새 환경 설치는 이번 checkpoint에서 실행하지 않습니다. 최종 통합 CI는 root 책임입니다. 무거운 명령은 heavy-work-verify runner로 하나씩, worker 최대 2개를 유지합니다.
 
 ## 재개에 필요한 입력
 
-- root의 self-host runtime/DB adapter 설계와 SQLite·기존 PostgreSQL DSN 설치 경계를 기다립니다. 같은 OTP/invite/setting revision transaction 및 cursor/throttle/retention 계약을 유지해야 합니다.
+- root PR #3 `docs/self-host-design.md@4aca939`를 self-host 구현 정본으로 사용합니다. backend는 한 번에 하나이며 D1은 미확정입니다. 최신 account entitlement/persist와 invite validation 계약의 구체 연결 설계는 남아 있고 같은 OTP/invite/setting revision transaction 및 cursor/throttle/retention 계약을 유지해야 합니다.
 - budget typed workload cap의 최종 key·단위·수치·원자 예약/enforcing path가 필요합니다. seed=[]와 readiness=false는 unlimited가 아닙니다.
 - 엔진 lifecycle/policy revision wiring과 공개 UI 연결은 다른 소유 세션 및 root의 통합 대상입니다.
 - 실제 초기 admin 이메일, EMAIL sender/binding/DNS/secret, preview OFF 실측, 실제 메일·배포는 별도 승인 대상입니다.
