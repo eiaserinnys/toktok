@@ -95,6 +95,6 @@ production 배포/부하, browser UI, exact-Origin cookie/nonce 승인 경로, �
 - A~E 비교는 각 60초 첫 실행과 최대30초 관측을 모두 회수했습니다. B/C는 199/200 수락, 각 1건이 측정 경계에서 재시도 대기 종료이며 실제 수락분의 전달 누락은 0입니다. 모든 시나리오의 leave 뒤 wait/handler/lease/timer는 0이고 retention 안의 ring은 남아 있습니다. [원시 자료와 비용 계산](public-cost-comparison.md)을 보존합니다.
 - 비교 코드/문서의 최종 독립 검수와 WIP 이후 CI 확인은 아직 하지 않았습니다. 엔진 단계3 검수 통과와 비용 문서 검수 완료를 혼동하지 않습니다. 현재 비용 추가분에서 제품 `src`는 변경하지 않았습니다.
 - 최신 DEMO/HOSTED, body 미저장 private 전환, 관리자 UI+DB revision 설정, 중앙 예산 원자 예약/유한 grant, self-host SQLite 기본/기존 Postgres DSN 설치는 후속 설계 입력입니다. 현재 런타임/DB adapter를 즉석 재구조화하거나 구현하지 않았습니다. Cloudflare 유지와 동일 retention/cursor/throttle/OTP/초대 계약이 이식의 요구사항입니다.
-- 후속에 root의 공통 settings schema/revision 적용·budget 비용 단위/원자 소진·private metadata/epoch 계약과 runtime/DB adapter 이식 설계가 필요합니다. 이메일 실제 provider 견적과 metadata backend, edge pre-Worker 권한/실행 순서는 미확인입니다. 월 $100은 deployment 목표이고 앱 cutoff로 무한 Worker 호출의 bill hard cap을 보장하지 않습니다.
+- runtime/DB adapter 이식 설계 v1은 이후 root가 확정하여 [설계 확정/구현 미착수 문서](self-host-design.md)에 보존했습니다. root의 공통 settings schema/revision 적용·budget 비용 단위/원자 소진·private metadata/epoch 계약은 여전히 후속 입력입니다. 이메일 실제 provider 견적과 metadata backend, edge pre-Worker 권한/실행 순서는 미확인입니다. 월 $100은 deployment 목표이고 앱 cutoff로 무한 Worker 호출의 bill hard cap을 보장하지 않습니다.
 
 모든 QA는 mock fixture입니다. 원시 파일에는 본문/secret/IP/실제 credential을 보존하지 않았으며 타세션 파일은 stage하지 않습니다. 재개 때 비용 산식은 저장된 JSON으로 재계산할 수 있지만 추가 runtime/부하/전체 검증/설치는 별도 승인 없이 실행하지 않습니다.
