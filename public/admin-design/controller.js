@@ -64,7 +64,8 @@ export function mountDesignReview(root,view='flows'){
  function redraw(){
   selects.clear();
   const rendered=renderFlowBoard(graph,state);layout=rendered.layout;
-  root.innerHTML=rendered.markup;board=root.querySelector('.flowboard');
+  const host=expanded?.dialog??root;
+  host.innerHTML=rendered.markup;board=host.querySelector('.flowboard');
   for(const select of board.querySelectorAll('select')){
    const replacement=renderSelect({label:select.closest('label').firstChild.textContent.trim(),ariaLabel:select.getAttribute('aria-label'),id:select.id,value:select.value,
     options:Array.from(select.options).map(o=>({value:o.value,label:o.textContent,disabled:o.disabled}))},root.ownerDocument);
@@ -90,17 +91,23 @@ export function mountDesignReview(root,view='flows'){
    if(action==='board-minus')zoom(state.boardZoom-.1);
    else if(action==='board-plus')zoom(state.boardZoom+.1);
    else if(action==='board-fit')zoom(Math.min(viewport.clientWidth/layout.width,viewport.clientHeight/layout.height),false);
+   else if(action==='board-download'){
+    const data=board.querySelector('.graph-data pre').textContent;
+    const url=URL.createObjectURL(new Blob([data],{type:'application/json'})),link=document.createElement('a');
+    link.href=url;link.download='toktok-design-graph.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),0);
+   }
    else if(action==='board-references'){state.boardReferences=!state.boardReferences;redraw();}
    else if(action==='board-expand'){
     if(expanded){expanded.dialog.close();return;}
     const camera={zoom:state.boardZoom,left:viewport.scrollLeft,top:viewport.scrollTop},dialog=document.createElement('dialog');
     dialog.className='board-client-dialog';dialog.setAttribute('aria-label','화면 흐름 크게 보기');
-    const parent=board.parentElement,next=board.nextSibling;expanded={dialog};document.body.append(dialog);dialog.append(board);
+    const parent=board.parentElement,next=board.nextSibling;expanded={dialog};state.boardExpanded=true;document.body.append(dialog);dialog.append(board);
     button.textContent='원래 크기로';button.setAttribute('aria-expanded','true');
     dialog.addEventListener('close',()=>{
-     parent.insertBefore(board,next);dialog.remove();expanded=null;mountPreviews();zoom(camera.zoom,false);
-     button.textContent='크게 보기';button.setAttribute('aria-expanded','false');button.focus({preventScroll:true});
-     requestAnimationFrame(()=>{viewport.scrollLeft=camera.left;viewport.scrollTop=camera.top;board.dataset.cameraRestored='true';});
+     parent.insertBefore(board,next);dialog.remove();expanded=null;state.boardExpanded=false;mountPreviews();zoom(camera.zoom,false);
+     const toggle=board.querySelector('[data-x=board-expand]'),currentViewport=board.querySelector('#flowViewport');
+     toggle.textContent='크게 보기';toggle.setAttribute('aria-expanded','false');toggle.focus({preventScroll:true});
+     requestAnimationFrame(()=>{currentViewport.scrollLeft=camera.left;currentViewport.scrollTop=camera.top;board.dataset.cameraRestored='true';});
     },{once:true});
     delete board.dataset.cameraRestored;dialog.showModal();mountPreviews();button.focus({preventScroll:true});viewport.scrollLeft=camera.left;viewport.scrollTop=camera.top;
    }

@@ -30,3 +30,5 @@ export function layout(graph,filter={}){
  const height=maxBottom+(filter.showReferences&&referenceIndex?220+referenceIndex*140:90);
  return {nodes,edges,layers,width,height,geometry,diagnostics:{orphan:nodes.filter(n=>!edges.some(e=>e.from===n.id||e.to===n.id)).map(n=>n.id),referenceEdges:referenceIndex}};
 }
+
+export function edgeResult(e){if(e.result)return e.result;if(e.eventType==='time'||e.eventType==='timeout')return e.kind==='error'?'시간 경과 · 만료':'시간 경과';if(e.kind==='error')return '오류 상태';if(e.kind==='back')return '이전 화면으로';if(e.eventType==='entry')return '직접 진입 · 상태 확인';if(e.kind==='conditional'||e.eventType==='guard')return '조건 확인 후 이동';if(e.kind==='reference'||e.routeType==='reference')return '같은 화면으로 연결';return e.eventType==='input'?'입력한 상태':e.eventType==='submit'?'제출 후 다음 상태':'다음 상태'}
