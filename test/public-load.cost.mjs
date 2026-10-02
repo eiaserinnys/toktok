@@ -1,0 +1,46 @@
+import {readFile,writeFile} from 'node:fs/promises';
+import assert from 'node:assert/strict';
+const args=Object.fromEntries(process.argv.slice(2).map(a=>{const [key,...rest]=a.replace(/^--/,'').split('=');return [key,rest.join('=')];}));
+const cpuMs=Number(args['cpu-ms']??1);if(!Number.isFinite(cpuMs)||cpuMs<0)throw Error('cpu-ms must be nonnegative');
+const price={worker_request_included:10000000,worker_cpu_ms_included:30000000,worker_request_per_million:.30,worker_cpu_per_million_ms:.02,do_request_included:1000000,do_gb_s_included:400000,do_request_per_million:.15,do_per_million_gb_s:12.50,account_base:5};
+const zero={worker_requests:0,worker_cpu_ms:0,do_requests:0,do_gb_s:0};
+const exact={worker_requests:1e7,worker_cpu_ms:3e7,do_requests:1e6,do_gb_s:4e5};
+const inside={...exact,do_requests:1100000,do_gb_s:500000};
+function charge(u){return {worker_requests:Math.max(0,u.worker_requests-price.worker_request_included)*price.worker_request_per_million/1e6,worker_cpu:Math.max(0,u.worker_cpu_ms-price.worker_cpu_ms_included)*price.worker_cpu_per_million_ms/1e6,do_requests:Math.ceil(Math.max(0,u.do_requests-price.do_request_included)/1e6)*price.do_request_per_million,do_duration:Math.ceil(Math.max(0,u.do_gb_s-price.do_gb_s_included)/1e6)*price.do_per_million_gb_s};}
+function increment(base,added){const before=charge(base),after=charge(Object.fromEntries(Object.keys(zero).map(k=>[k,base[k]+added[k]]))),delta=Object.fromEntries(Object.keys(before).map(k=>[k,after[k]-before[k]]));return {...delta,total_additional:Object.values(delta).reduce((n,v)=>n+v,0)};}
+// 청구 단위 안의 잔여 여유에서는 추가 duration 요금이 0일 수 있습니다.
+assert.equal(increment(inside,{...zero,do_gb_s:41472}).do_duration,0);
+assert.equal(increment(exact,{...zero,do_gb_s:41472}).do_duration,12.5);
+const baselines={included_available:zero,exact_included_boundary:exact,inside_existing_billed_unit:inside};
+if(args.baseline){const input=JSON.parse(await readFile(args.baseline,'utf8'));for(const k of Object.keys(zero))if(!Number.isFinite(input[k])||input[k]<0)throw Error('invalid baseline usage');baselines.custom=input;}
+const profiles={};
+for(const s of ['A','B','C','D','E']){try{profiles[s]=JSON.parse(await readFile(`test/public-load.compare-${s}.json`,'utf8'));}catch(error){if(error.code!=='ENOENT')throw error;}}
+const rows=[];
+function model(name,rooms,participants,watchers,rate,hours,{provenance,payload,deliveriesPerSecond}={}){const seconds=hours*3600*30,N=rate*rooms*seconds,D=.128*rooms*seconds,usage={worker_requests:N,worker_cpu_ms:N*cpuMs,do_requests:N,do_gb_s:D};rows.push({name,provenance,rooms,participants_per_room:participants,watchers_per_room:watchers,hours_per_day:hours,days:30,request_rate_per_room:rate,app_message_bytes:payload,delivery_events_per_second:deliveriesPerSecond,body_payload_bytes_per_second:payload===undefined?undefined:payload*deliveriesPerSecond,usage,idle:{hours_per_day:24-hours,clean_leave_do_gb_s:0,pending_25sec_daily_tail_gb_s:.128*rooms*25*30,local_hibernation_proven:false},incremental:Object.fromEntries(Object.entries(baselines).map(([k,b])=>[k,increment(b,usage)]))});}
+for(const [s,p] of Object.entries(profiles)){const rate=p.window.requests_started/60,payload=p.diagnostics.message_count?p.diagnostics.buffer_bytes/p.diagnostics.message_count:0;for(const h of ['D','E'].includes(s)?[1,4]:[1,24])model(`measured-${s}`,['D','E'].includes(s)?1:3,p.participants,p.watchers,rate,h,{provenance:`test/public-load.compare-${s}.json:60sec request starts; recovery excluded`,payload,deliveriesPerSecond:p.window.accepted_server*(p.participants+p.watchers)/60*(['D','E'].includes(s)?1:3)});}
+if(profiles.E){const p=profiles.E,raw=p.rawCases.filter(c=>c.measurement_request),agentRead=raw.filter(c=>c.kind==='read'&&c.client.startsWith('participant-')).length/600,watchRead=raw.filter(c=>c.kind==='read'&&c.client.startsWith('watcher-')).length/600,payload=p.diagnostics.buffer_bytes/p.diagnostics.message_count;
+ const choices=[[2,10],[10,0]];
+ if(args['small-participants']!==undefined||args['small-watchers']!==undefined){const n=Number(args['small-participants']??2),w=Number(args['small-watchers']??0);if(!Number.isInteger(n)||n<2||n>10||!Number.isInteger(w)||w<0||w>10)throw Error('small count outside requested range');choices.push([n,w]);}
+ for(const [people,watch] of choices)for(const h of [1,4])model(`small-model-${people}+${watch}`,1,people,watch,people*(agentRead+1/30)+watch*watchRead,h,{provenance:'E의 역할별 read-rate를 유지한 2..10/0..10 조합 모델; 메시지율 변화에 따른 timeout/request 변화는 미측정',payload,deliveriesPerSecond:people/30*(people+watch)});
+}
+// 동일 총수 분할은 추가 DO 실측이 아니라 B의 역할별 읽기 수로 만든 모델입니다.
+if(profiles.B){const p=profiles.B,raw=p.rawCases.filter(c=>c.measurement_request),agentRead=raw.filter(c=>c.kind==='read'&&c.client.startsWith('participant-')).length/(100*60),watchRead=raw.filter(c=>c.kind==='read'&&c.client.startsWith('watcher-')).length/(50*60),payload=p.diagnostics.buffer_bytes/p.diagnostics.message_count;
+ const postPerAgent=1/30; // retry가 없는 고르게 분산한 발언의 계산상 하한, accepted 메시지율 동일
+ const delta=raw.filter(c=>c.kind==='read'&&c.status===200&&c.page_count>0),envelope=delta.reduce((n,c)=>n+c.bytes-c.page_count*(payload+1)+1,0)/delta.length;
+ for(const [rooms,people,watch] of [[1,100,50],[5,20,10],[10,10,5]])for(const h of [1,4,24]){model(`split-${rooms}x${people}`,rooms,people,watch,people*(agentRead+postPerAgent)+watch*watchRead,h,{provenance:'B의 per-role 실측 read-rate + 동일 총100/30 분산 accepted posts; 새로운 10DO 부하 아님; retry/has_more 변화 미측정',payload,deliveriesPerSecond:(100/30)*(people+watch)});const row=rows.at(-1);row.representative_delta_envelope_bytes=envelope;row.estimated_json_egress_bytes_per_second=(payload+1)*row.delivery_events_per_second+envelope*(100*agentRead+50*watchRead);}
+}
+const throughput=[2,5,10].map(seconds=>({server_batch_seconds:seconds,uniform_read_requests_per_second_150_clients:150/seconds,max_messages_per_second_per_client:20/seconds,incoming_average_messages_per_second:100/30,incoming_max_messages_per_tick:5*seconds,nominal_backlog_growth_per_second:Math.max(0,100/30-20/seconds),max_page_items:20,byte_cap:65536,measured:false}));
+// DEMO 초기 quota 제안의 계산이며 제품 설정이나 실제 budget stop을 구현하지 않습니다.
+let demo;
+if(profiles.D&&profiles.E){const publicRate=profiles.E.window.requests_started/60,privateRate=profiles.D.window.requests_started/60,publicHours=4,privateDaily=20,privateTtlHours=.5,privateHours=privateDaily*privateTtlHours;
+ const N=(publicRate*publicHours+privateRate*privateHours)*3600*30,roomD=.128*(publicHours+privateHours)*3600*30,controlD=.128*24*3600*30;
+ const usage={worker_requests:N,worker_cpu_ms:N*cpuMs,do_requests:N*3,do_gb_s:roomD+controlD}; // room 1 + settings/reservation 최대2 DO 호출/요청
+ const fees=increment(exact,usage),fixed={base_allocation:5,email_planning_reserve:10,metadata_planning_reserve:5};
+ demo={proposal_only:true,public_rooms:1,public_participants:10,public_watchers:10,public_active_hours_per_day:publicHours,private_active_cap:2,private_daily_create_cap:privateDaily,private_ttl_minutes:30,private_room_hours_per_day:privateHours,private_rate_provenance:'D의 2participant 공개 fixture proxy; private 실측 아님',control_plane_calls_per_request:2,control_plane_active_hours_per_day_assumption:24,email_monthly_quota_proposal:1000,email_daily_quota_proposal:50,email_provider_unit_price_unverified:true,metadata_assumption:{backend:'SQLite DO unit-price model; 실제 DB 정본 미확정',rows_read:N*2,rows_written:N+privateDaily*30,gb_month:.01,unincluded_estimated_usd:N*2*.001/1e6+(N+privateDaily*30)/1e6+.01*.20},usage,no_included_allowance_incremental:fees,fixed_planning_reserves:fixed,whole_deployment_planning_usd:fees.total_additional+Object.values(fixed).reduce((n,v)=>n+v,0),monthly_target:100,early_cutoff_proposal:40,warning_proposal:25,daily_admitted_expensive_request_proposal:100000,blocked_worker_calls_unbounded_by_app_cap:true};
+ demo.headroom_to_100=100-demo.whole_deployment_planning_usd;
+ demo.blocked_traffic_examples=[1,100,1000].map(rps=>({rps,monthly_requests:rps*86400*30,worker_request_marginal_without_allowance:rps*86400*30*.30/1e6,cpu_assumption_ms:.1,worker_cpu_marginal_without_allowance:rps*86400*30*.1*.02/1e6,possible_control_plane_calls_per_denied_request:2,possible_do_request_marginal_ceiling:Math.ceil(rps*86400*30*2/1e6)*.15,extra_metadata_reads_if_2_per_denied_request:rps*86400*30*2*.001/1e6,do_duration_assumption:'central DO의 기존24h활성 가정 안; 별도 room DO에 전달하면 추가'}));
+ const capN=100000*30,capUsage={worker_requests:capN,worker_cpu_ms:capN*10,do_requests:capN*3,do_gb_s:roomD+controlD};demo.admitted_cap_sensitivity_10ms={usage:capUsage,no_allowance:increment(exact,capUsage),whole_deployment_with_reserves:increment(exact,capUsage).total_additional+20};
+}
+const result={checked_at:new Date().toISOString(),cpu_assumption_ms_per_worker_request:cpuMs,existing_account_base_excluded:price.account_base,price,baselines,throughput,rows,demo};
+await writeFile('test/public-load.cost.json',JSON.stringify(result,null,2)+'\n');
+console.log(JSON.stringify({rows:rows.length,cpuMs,incremental_base_excluded:5,throughput,demo,costs:rows.map(r=>({name:r.name,hours:r.hours_per_day,available:r.incremental.included_available.total_additional,exact_boundary:r.incremental.exact_included_boundary.total_additional,inside_unit:r.incremental.inside_existing_billed_unit.total_additional}))}));

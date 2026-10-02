@@ -11,7 +11,7 @@
 | `src/public-http.ts` | `handlePublicRequest(request, env): Promise<Response \| null>`, 정적 guide |
 | `test/public-worker.ts` | 로컬 검증 전용 bootstrap/diagnostics, 운영에 연결 금지 |
 
-최종 통합자가 `PublicRoom` export와 별도 SQLite-class namespace `PUBLIC_ROOMS`, 정확한 `PUBLIC_ORIGIN`, adapter 호출을 연결합니다. 기존 private namespace를 재사용하지 않습니다. 여기에는 production Wrangler 변경이 없습니다. catalog는 `common-room`(함께 이야기), `workshop`(작업 이야기), `quiet-corner`(조용한 이야기) 세 방이며 allowlist에만 추가합니다. 모르는 slug는 DO 생성 전에 거절합니다.
+최종 통합자가 `PublicRoom` export와 별도 SQLite-class namespace `PUBLIC_ROOMS`, 정확한 `PUBLIC_ORIGIN`, adapter 호출을 연결합니다. 기존 private namespace를 재사용하지 않습니다. 여기에는 production Wrangler 변경이 없습니다. 현재 독립 엔진 catalog는 `common-room`(함께 이야기), `workshop`(작업 이야기), `quiet-corner`(조용한 이야기) 세 방이며 allowlist에만 추가합니다. 모르는 slug는 DO 생성 전에 거절합니다. 최신 사용자 결정으로 운영 옵션은 관리자 UI+DB revision이 정본이고 코드 catalog/count는 최초 seed입니다. 그 settings/엔진 적용 계약은 root의 별도 control-plane 작업이며 이번 구현에는 아직 연결하지 않았습니다. 안전 불변상한은 유지합니다.
 
 ## 비밀 없는 안내와 전달 링크
 
@@ -86,6 +86,6 @@ adapter는 외부 `x-toktok-public-ip-hash`를 삭제하고 신뢰된 `CF-Connec
 
 fixture는 `enable_request_signal`을 설정하고 Worker fetch→DO fetch에 Request signal을 전달합니다. [호환성 flag](https://developers.cloudflare.com/workers/configuration/compatibility-flags/#enable-requestsignal-for-incoming-requests)가 없는 운영 환경에서 같은 취소 동작을 가정하지 않습니다. 취소가 전달되지 않아도 25초 timeout으로 회수합니다. [6개 outbound connection 한도](https://developers.cloudflare.com/workers/platform/limits/#simultaneous-open-connections)는 inbound 관전자 사람 수 한도가 아닙니다.
 
-private의 본문 미저장 전환은 사용자 결정 대기입니다. 본문/idempotency/sequence만 메모리로 바꾸고 room/cap/expiry/owner 최소 metadata는 persistence를 유지해야 만료/권한/방 존재를 재시작 뒤 판단할 수 있습니다. 메모리 epoch reset과 history notice가 필요하며, 재시작 뒤 이력과 중복 방지 범위는 소실됩니다. 이 PR은 private 코드를 변경하거나 저장을 확대하지 않습니다.
+최신 사용자 결정의 DEMO는 작은 익명 공개방과 제한된 익명 private 생성이며 모든 대화 body를 DB에 저장하지 않습니다. admin invite key 소지자는 OTP 가입할 수 있지만 DEMO에서는 저장할 수 없습니다. HOSTED는 OTP 가입 후 방 생성 시 persist를 선택하며 default OFF와 retention 고지가 필요합니다. 이 private/설정 적용은 root 계약 이후의 후속 구현이고 이번 PR의 private 코드에는 적용하지 않았습니다. 본문/idempotency/sequence를 메모리로 바꾸더라도 room/cap/expiry/owner 최소 metadata는 persistence를 유지해야 만료/권한/방 존재를 재시작 뒤 판단할 수 있습니다. 메모리 epoch reset과 history notice가 필요하며 재시작 뒤 이력과 중복 방지 범위는 소실됩니다.
 
 [SQLite storage API](https://developers.cloudflare.com/durable-objects/api/sqlite-storage-api/)의 `deleteAll`은 활성 SQL/KV 삭제이며 최신 compatibility에서는 alarm도 지웁니다. PITR는 과거 30일 복구 범위입니다. 활성 DB 삭제와 모든 복구 사본의 즉시 완전 물리 삭제는 다른 주장입니다. 공식 문서만으로 `deleteAll`이 모든 사본을 즉시 제거하거나 정확히 30일 후 완전 소거한다고 보장할 수 없습니다. private 삭제 고지에 이 한계를 남겨야 합니다.

@@ -62,6 +62,8 @@ Node fetch를 중단하고 클라이언트 loop가 끝난 직후에도 서버 �
 
 ## 비용 계산 기준
 
+이전 표는 3방 각 100participant/50watcher가 활성인 최대 부하 모델이며 일반 작은 데모 가격이 아닙니다. 추가 요청의 작은 방/차등 cadence/분할/baseline 청구 비교는 [공개방 비용과 지연 비교](public-cost-comparison.md)에 별도로 보존합니다. 원래 부하와 새 full-jitter/초기 cursor 비교의 조건은 다릅니다.
+
 확인일 2026-10-02의 [Workers 가격](https://developers.cloudflare.com/workers/platform/pricing/)은 계정 월 $5 Standard, 포함 10M requests/30M CPU-ms, 초과 $0.30/M requests와 $0.02/M CPU-ms입니다. HTTP 대기 wall time 자체는 Workers duration 과금 대상이 아닙니다. CPU는 실측하지 못하므로 계산 시 명시적인 1ms/request 가정을 사용합니다.
 
 [DO 가격](https://developers.cloudflare.com/durable-objects/platform/pricing/)은 포함 1M requests/400,000 GB-s, 초과 $0.15/M requests와 $12.50/M GB-s입니다. DO 메모리는 실제 사용량과 관계없이 128MB(0.128GB)로 계산하며 같은 DO의 동시 요청 duration은 겹쳐 한 번 계산합니다. HTTP longpoll은 활성 duration을 차지합니다. 청구 단위 올림은 계산표에 구분합니다. 계정 공유 포함분은 다른 서비스가 이미 소비했을 수 있습니다.
@@ -73,12 +75,26 @@ Node fetch를 중단하고 클라이언트 loop가 끝난 직후에도 서버 �
 | 3방·30일 | 사용자 requests | DO GB-s | Workers requests / CPU | DO requests / duration | 계정 월 $5 포함 합계 |
 | :-- | --: | --: | :-- | :-- | --: |
 | 하루 1시간, 포함분 남음 | 17,496,000 | 41,472 | $2.25 / $0.00 | $2.55 / $0.00 | **$9.80** |
-| 하루 1시간, 포함분 소진 | 17,496,000 | 41,472 | $5.25 / $0.35 | $2.70 / $12.50 | **$25.80** |
+| 하루 1시간, 정확한 포함분 소진 경계 | 17,496,000 | 41,472 | $5.25 / $0.35 | $2.70 / $12.50 | **$25.80** |
 | 하루 24시간, 포함분 남음 | 419,904,000 | 995,328 | $122.97 / $7.80 | $62.85 / $12.50 | **$211.12** |
-| 하루 24시간, 포함분 소진 | 419,904,000 | 995,328 | $125.97 / $8.40 | $63.00 / $12.50 | **$214.87** |
+| 하루 24시간, 정확한 포함분 소진 경계 | 419,904,000 | 995,328 | $125.97 / $8.40 | $63.00 / $12.50 | **$214.87** |
 
-$5 기본료는 계정당 한 번이며 이미 지불 중인 계정의 추가비용은 위 합계에서 $5를 빼면 됩니다. Free 계획의 계정 공유 100,000 requests/day로는 이 3방 부하(하루 1시간만으로도 583,200 사용자 requests/day)를 유지할 수 없습니다. 이 표는 실제 청구 보장이 아니라 관측 요청률과 CPU/duration 가정에 따른 계산입니다.
+$5 기본료는 계정당 한 번이며 이미 지불 중인 계정의 추가비용은 위 합계에서 $5를 빼면 됩니다. 이미 청구된 DO 단위 안에 여유가 있으면 추가 duration 요금이 0일 수 있으므로 소진을 항상 $12.50 추가로 일반화하지 않습니다. 새 calculator는 baseline 차이를 계산합니다. Free 계획의 계정 공유 100,000 requests/day로는 이 3방 부하(하루 1시간만으로도 583,200 사용자 requests/day)를 유지할 수 없습니다. 이 표는 실제 청구 보장이 아니라 관측 요청률과 CPU/duration 가정에 따른 계산입니다.
 
 ## 미실행 범위
 
 production 배포/부하, browser UI, exact-Origin cookie/nonce 승인 경로, 운영 CF edge provenance, private 전환, 계정/이메일 인증 변경, 전체 기존 회귀를 실행하지 않았습니다. 후속 통합자가 이 경계를 연결하고 확인해야 합니다.
+
+## 2026-10-02 재개 인계
+
+사용자가 잔여 한도 0%와 2026-10-03 04:00 KST 재개 예약을 알렸습니다. 새 실행을 시작하지 않고 소유 변경 전체를 같은 branch의 WIP 커밋으로 보존합니다. 이 문서가 포함된 WIP 커밋의 SHA는 `git log -1`로 확인하며, 보존 전 엔진 HEAD는 `d230fbe061fe0d4cb84a769e9194e369dc5eb4d1`입니다. 재개 시 첫 행동은 원격 HEAD와 이 문서의 차이를 확인하는 것이며 통과 gate를 자동 반복하지 않습니다.
+
+- WT는 `.projects/toktok--feat-public-memory-rooms-206c1c03`, branch는 `feat/public-memory-rooms`, 기준은 `2f666d68`입니다. [PR #3](https://github.com/eiaserinnys/toktok/pull/3)은 draft로 유지하며 main 머지/배포는 하지 않았습니다.
+- engine runtime은 앞선 5개와 선택 7개 판정이 통과했고 최종 tsc/dry-run/기존 HTTP load도 통과했습니다. root는 엔진 HEAD의 verify CI `37012327941` SUCCESS를 직접 확인했다고 전달했습니다. 여기서 CI를 별도로 재실행하지 않았습니다.
+- 이전 timeout/응답 미회수와 grant RPC 500 실패는 위 기록대로 하니스와 JSON-safe 반환 계약을 보정했습니다. 미판정 timeout을 PASS로 덮지 않았으며 새 비교는 기존 gate를 다시 실행하지 않았습니다.
+- A~E 비교는 각 60초 첫 실행과 최대30초 관측을 모두 회수했습니다. B/C는 199/200 수락, 각 1건이 측정 경계에서 재시도 대기 종료이며 실제 수락분의 전달 누락은 0입니다. 모든 시나리오의 leave 뒤 wait/handler/lease/timer는 0이고 retention 안의 ring은 남아 있습니다. [원시 자료와 비용 계산](public-cost-comparison.md)을 보존합니다.
+- 비교 코드/문서의 최종 독립 검수와 WIP 이후 CI 확인은 아직 하지 않았습니다. 엔진 단계3 검수 통과와 비용 문서 검수 완료를 혼동하지 않습니다. 현재 비용 추가분에서 제품 `src`는 변경하지 않았습니다.
+- 사용자 14:26:36 확정으로 DEMO all-body-nostore는 폐기하며 초대+OTP 가입 완료 계정의 새 private room도 persist opt-in(default OFF)을 허용합니다. public/anonymous private는 계속 memory only입니다. 서버는 DB account entitlement+visibility+유효 creator 권한으로 검증하고 기존 memory room→persist는 불가하며 생성 시 retention/participant notice를 유지합니다. 이 정책과 관리자 UI+DB revision 설정, 중앙 예산 원자 예약/유한 grant, self-host SQLite 기본/기존 Postgres DSN 설치는 후속 구현 입력입니다. 현재 런타임/DB adapter를 즉석 재구조화하거나 구현하지 않았습니다. Cloudflare 유지와 동일 retention/cursor/throttle/OTP/초대 계약이 이식의 요구사항입니다.
+- runtime/DB adapter 이식 설계 v1은 이후 root가 확정하여 [설계 확정/구현 미착수 문서](self-host-design.md)에 보존했습니다. root의 공통 settings schema/revision 적용·budget 비용 단위/원자 소진·private metadata/epoch 계약은 여전히 후속 입력입니다. 이메일 실제 provider 견적과 metadata backend, edge pre-Worker 권한/실행 순서는 미확인입니다. 기존 $34.26은 비저장 anonymous private 모델이며 초대회원 opt-in 저장 비용 미포함으로 새 전체모드 가격/목표 충족을 뜻하지 않습니다. DEMO 영속 private의 row/storage/retention 비용은 quota/budget에 포함해야 할 후속 입력이고 30일 retention은 디자인 시나리오일 뿐 production 결정이 아닙니다. 월 $100은 deployment 목표이고 앱 cutoff로 무한 Worker 호출의 bill hard cap을 보장하지 않습니다.
+
+모든 QA는 mock fixture입니다. 원시 파일에는 본문/secret/IP/실제 credential을 보존하지 않았으며 타세션 파일은 stage하지 않습니다. 재개 때 비용 산식은 저장된 JSON으로 재계산할 수 있지만 추가 runtime/부하/전체 검증/설치는 별도 승인 없이 실행하지 않습니다.
