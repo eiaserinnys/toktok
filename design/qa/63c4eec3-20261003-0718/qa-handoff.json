@@ -1,0 +1,203 @@
+{
+  "source": "63c4eec3bc10b84c0a66d00ee9817f12643ba864",
+  "handoffPin": "ffb608b7eabb74a8a20b0dc86f7ed3785f55c8e9",
+  "mockOnly": true,
+  "viewport": [
+    [
+      390,
+      844
+    ],
+    [
+      1440,
+      1000
+    ]
+  ],
+  "productWip": "df79fff592d6aa420e01c9a5a7806838741d8ef7",
+  "originalSourceEdited": false,
+  "sourceCopiesMatchPin": true,
+  "sourceFileCount": 21,
+  "runs": {
+    "screens": {
+      "passed": 28,
+      "rawFailures": 0,
+      "cleanup": true,
+      "pageErrors": 0,
+      "externalOrMutationRequests": 0
+    },
+    "interactions": {
+      "passed": 22,
+      "rawFailures": 2,
+      "cleanup": true,
+      "pageErrors": 0,
+      "externalOrMutationRequests": 0
+    },
+    "board-correction": {
+      "passed": 2,
+      "rawFailures": 0,
+      "cleanup": true,
+      "pageErrors": 0,
+      "externalOrMutationRequests": 0
+    },
+    "supplement": {
+      "passed": 8,
+      "rawFailures": 4,
+      "cleanup": true,
+      "pageErrors": 0,
+      "externalOrMutationRequests": 0
+    },
+    "supplement-correction": {
+      "passed": 2,
+      "rawFailures": 9,
+      "cleanup": true,
+      "pageErrors": 0,
+      "externalOrMutationRequests": 0
+    },
+    "final-details": {
+      "passed": 2,
+      "rawFailures": 5,
+      "cleanup": true,
+      "pageErrors": 0,
+      "externalOrMutationRequests": 0
+    },
+    "final-correction": {
+      "passed": 0,
+      "rawFailures": 2,
+      "cleanup": true,
+      "pageErrors": 0,
+      "externalOrMutationRequests": 0
+    }
+  },
+  "allRecordedCleanup": true,
+  "findings": [
+    {
+      "id": "QA-01",
+      "priority": "P2",
+      "scope": "dialogue gallery fixture",
+      "problem": "변경 검토 3/10의 적용 시점 설명이 undefined로 표시됩니다.",
+      "viewport": [
+        390,
+        1440
+      ],
+      "repro": "admin/design-dialogs → 3/10 변경 검토",
+      "evidence": [
+        "supplement-390-dialog-item-2.png",
+        "supplement-1440-dialog-item-2.png"
+      ],
+      "source": "experience.js effectNote / design-save / reviewSave; state.adminTab=design-dialogs에는 notes가 없습니다."
+    },
+    {
+      "id": "QA-02",
+      "priority": "P2",
+      "scope": "dialogue gallery fixture",
+      "problem": "충돌 4/10은 이전/최신 버전 12/12, 값 3/3으로 다른 관리자가 먼저 저장했다는 설명과 모순됩니다.",
+      "viewport": [
+        390,
+        1440
+      ],
+      "evidence": [
+        "supplement-390-dialog-item-3.png",
+        "supplement-1440-dialog-item-3.png"
+      ],
+      "source": "experience.js design-conflict → conflictDialog, 실제 다른 snapshot/version fixture 미설정"
+    },
+    {
+      "id": "QA-03",
+      "priority": "P2",
+      "scope": "auth cancellation",
+      "problem": "소개 홈에서 로그인 → 돌아가기하면 원래 홈 대신 대화방으로 갑니다. 로그인 성공 기본 rooms와 취소 origin을 같은 authReturn으로 처리합니다.",
+      "viewport": [
+        390,
+        1440
+      ],
+      "expected": "#home",
+      "actual": "#rooms",
+      "evidence": [
+        "final-details-390-login-cancel-origin.png",
+        "final-details-1440-login-cancel-origin.png"
+      ],
+      "raw": "final-details.json auth-cancel-origin",
+      "source": "experience.js:13 enterAuth"
+    },
+    {
+      "id": "QA-04",
+      "priority": "P2",
+      "scope": "shared dialogue visual fidelity",
+      "problem": "390 검수 갤러리는 같은 제품 다이얼로그 본문 14→13px, 버튼 14→12px 및 padding을 별도로 줄입니다. 실제 제품과 같은 크기 계약으로 검수되지 않습니다.",
+      "viewport": [
+        390
+      ],
+      "evidence": [
+        "final-details-390-ordinary-auth-limit.png",
+        "final-details-390-gallery-auth-limit-type.png"
+      ],
+      "raw": "final-details.json dialog-product-type-comparison",
+      "source": "experience.css:40 .dialog-review-product p/.btn"
+    },
+    {
+      "id": "QA-05",
+      "priority": "P2",
+      "scope": "flow label semantics",
+      "problem": "OTP 10분 경과 오류도 reference lane의 공통 결과 문구 돌아가기 / 같은 화면 연결로 표시합니다. 시간 만료/error와 back/reference 결과를 구분해야 합니다.",
+      "viewport": [
+        390,
+        1440
+      ],
+      "evidence": [
+        "final-details-1440-reference-lane-label.png"
+      ],
+      "raw": "final-details.json flow-reference-label graph/labelMetrics",
+      "source": "experience.js:77 flowBoard lines[1] fallback"
+    },
+    {
+      "id": "QA-06",
+      "priority": "P3",
+      "scope": "copy/wrapping",
+      "problem": "초대 코드 돌아가기 문구 소개으로 오타와 공개 카드 제목 이야기/한 잔의 마지막 한 글자 줄바꿈이 보입니다.",
+      "evidence": [
+        "390-signup.png",
+        "390-home-full.png",
+        "1440-home-full.png"
+      ]
+    }
+  ],
+  "gateInterpretation": {
+    "interactionsBoardFailures": "restoredCamera被 raw snap 덮어쓴 하니스 결함; board-correction 2 PASS로 해결. 원 JSON 유지.",
+    "supplementPanFailures": "드래그 시작점이 .flow-node여서 의도대로 pan 제외. 빈 지점 탐색으로 보정 후2 PASS.",
+    "adminDirtyConflictGate": "selector의 hidden account link 중복과 accessible name 오판으로 보정 상한 도달; cancel initial portion만 확인, 실제 save/conflict/error 흐름 미검증. 제품 실패 아님.",
+    "browserBackRoleCancelGate": "browser Back dirty guard와 draft 보존은 final-details raw에서 확인. role-cancel은 fixture=admin이 시안 상태 버튼을 숨겨 UI setup 불가능했던 하니스 문제; 보정 상한 도달, 미검증.",
+    "supplementCorrectionExit": "exit143/browser closed; NOTRUN인 finalDetails를 final-details 실행으로 분리. cleanup true, own port43493 폐쇄 확인.",
+    "rawCaseName": "interactions의 gallery case name이 dialog title로 덮인 원자료 유지; viewport와 cases 위치9로 식별.",
+    "runnerSlot": "slot-wait.json의 exit124는 browser 미시작/제품 gate 미실행."
+  },
+  "passedScope": [
+    "28 독립 화면 렌더와 캡처; doc horizontal overflow/pageerror/external write 미관측",
+    "nav signup/login order, signed-in menu/role restriction, requested public-room success return, about/back/forward",
+    "invite missing/invalid/used/expired/revoked 차단, OTP invalid/expired/success",
+    "DEMO invited new private defaultOFF/optin/ownerack/storage notice, anonymous/private 및 public no-store 표시",
+    "public deny/grant/revoke와 expired grant/room 화면",
+    "custom select popup clamp/disabled/Home/End/Enter/Escape/Tab",
+    "native dialogue Tab/ShiftTab/Escape/focus-return/background scrolllock; all10gallery boundary/name/index/Alt arrows and parent state preservation",
+    "board 66 context nodes/113edges 실제 multiple iframe preview, role/modefilter, zoom/pan, camera/focus restore, separate60reference paths, nested detail and top Escape/modal select",
+    "reference labels actual rendered: no scrollHeight overflow"
+  ],
+  "notVerified": [
+    "server admin session+DB role/HTML/API/assets authorization",
+    "production mutation/메일/invite/room/DB 변경0: QA 요청기록0이며 실제 시스템 통합 gate 아님",
+    "exact pin CI 없음; source-local suites 재실행하지 않음",
+    "real retention/OTP/grant expiry/server policy values 및 selfhost/Cloudflare 배포",
+    "실제 admin save/conflict/error flow 및 role-change cancel",
+    "keyboard graph-edge selection/typeahead 별도 실제 gate 미실행"
+  ],
+  "nextIntegrationContract": {
+    "shared": "public/shared/{components,dialogs,screens,routes} + effect interface",
+    "dependency": "product router/adminQA controller → shared; product → QA controller/fixture import 금지",
+    "effects": "live A HTTP / isolated memory fixture",
+    "admin": "actual authorizeAdmin callback fail-closed; root index wiring 대기",
+    "qaAssets": "/admin/design/_assets/* protected",
+    "qaCsp": "connect-src none; form-action none; no-store/noindex; secretless manifest",
+    "schema": "A server schema/allowedvalues 필요; mock30day/1hgrant/roomnames product hardcode 금지",
+    "pending": "detailed API map, owned file boundary, corrected final design pin"
+  },
+  "finished": "2026-10-02T22:41:37.675852+00:00",
+  "pngCount": 141
+}
