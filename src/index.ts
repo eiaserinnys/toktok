@@ -4,15 +4,22 @@ import { authenticateCreator } from './creator';
 export { Room } from './room';
 export {PublicRoom} from './public-room';
 import {handlePublicBrowser} from './public-browser';
+import {secureRouteResponse} from './response-security';
+import {designSurface,isPublicAsset} from './site-assets';
 const uuid='[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}';
 const apiRoom=new RegExp(`^/api/rooms/(${uuid})(?:/(participants|messages|wait|close))?$`);
 const sharedRoom=new RegExp(`^/r/(${uuid})/[\\w-]{43}$`);
 export default {
   async fetch(request: Request,env: Env): Promise<Response> {
-    try {const response=await handlePublicBrowser(request,env);return secure(response??await route(request,env));} catch(error) {
+    try {
+      // This remains closed until the real control session/DB-role adapter is wired.
+      const review=await designSurface(request,{assets:env.ASSETS});
+      const response=review??await handlePublicBrowser(request,env)??await route(request,env);
+      return secureRouteResponse(request,response);
+    } catch(error) {
       const response=errorResponse(error);
-      if(wantsHTML(request)&&new URL(request.url).pathname.startsWith('/r/')) return secure(await html(env,request,response));
-      return secure(response);
+      if(wantsHTML(request)&&new URL(request.url).pathname.startsWith('/r/')) return secureRouteResponse(request,await html(env,request,response));
+      return secureRouteResponse(request,response);
     }
   }
 } satisfies ExportedHandler<Env>;
@@ -20,7 +27,7 @@ async function route(request: Request,env: Env): Promise<Response> {
   const url=new URL(request.url),origin=publicOrigin(env.PUBLIC_ORIGIN);
   if(request.method==='GET'&&url.pathname==='/health') return json({status:'ok'});
   if(request.method==='GET'&&['/','/guide'].includes(url.pathname)) return html(env,request);
-  if(['GET','HEAD'].includes(request.method)&&(url.pathname.startsWith('/assets/')||['/styles.css','/app.js','/view.js','/session.js','/public-demo.js','/public-demo-session.js','/public-demo-view.js','/favicon.svg'].includes(url.pathname))) return env.ASSETS.fetch(request);
+  if(['GET','HEAD'].includes(request.method)&&isPublicAsset(url.pathname)) return env.ASSETS.fetch(request);
   const api=apiRoom.exec(url.pathname),shared=sharedRoom.exec(url.pathname);
   const creation=url.pathname==='/api/rooms'&&request.method==='POST';
   const validApi=api&&((!api[2]&&['GET','DELETE'].includes(request.method))||(api[2]==='messages'&&['GET','POST'].includes(request.method))||(api[2]==='wait'&&request.method==='GET')||(['participants','close'].includes(api[2])&&request.method==='POST'));
