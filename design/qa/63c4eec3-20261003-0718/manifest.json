@@ -14,7 +14,7 @@
   ],
   "stage": "initial_render_only",
   "visual_keyboard_flow_final_verdict": "pending",
-  "png_count": 55,
+  "png_count": 59,
   "files": [
     {
       "path": "1440-home.png",
@@ -290,6 +290,42 @@
       "path": "390-admin-design-flows-full.png",
       "bytes": 95088,
       "sha256": "ea7078ccae6e099a2dcdc9dfc2d8f8a4833586594ed1eb9a022d554f18f29691"
+    },
+    {
+      "path": "supplement-390-dialog-item-2.png",
+      "bytes": 74422,
+      "sha256": "859468f14a744cc50edb65f838e050c79fb1e10fb5936d049fa1b0d3002af5fa"
+    },
+    {
+      "path": "supplement-390-dialog-item-3.png",
+      "bytes": 76335,
+      "sha256": "abe681c4515996dd238a2985cf485a043c819f00d0ef4c3874ed30f5e69442af"
+    },
+    {
+      "path": "supplement-1440-dialog-item-2.png",
+      "bytes": 142224,
+      "sha256": "ea9f309b098044216fc224f6175d3f5cf25dc42358c23860256604ee08e339d1"
+    },
+    {
+      "path": "supplement-1440-dialog-item-3.png",
+      "bytes": 145006,
+      "sha256": "5c6edc07fd2a5b680e93fd7c4b70dfc715f02500438e30729bdce6c27129abbf"
+    }
+  ],
+  "findings": [
+    {
+      "id": "review-effect-undefined",
+      "paths": [
+        "supplement-390-dialog-item-2.png",
+        "supplement-1440-dialog-item-2.png"
+      ]
+    },
+    {
+      "id": "conflict-identical-fixture",
+      "paths": [
+        "supplement-390-dialog-item-3.png",
+        "supplement-1440-dialog-item-3.png"
+      ]
     }
   ]
 }
