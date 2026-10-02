@@ -1,0 +1,18 @@
+import {env} from 'cloudflare:workers';
+import {runInDurableObject} from 'cloudflare:test';
+import {it,expect} from 'vitest';
+import type {PrivateRoom,RecordFixture} from './selfhost-worker';
+import {PrivateRoomCore} from '../src/private-core';
+import {CloudflareRepository} from '../src/storage/cloudflare';
+import {privateSnapshot} from './selfhost-private-fixture';
+import {TEST_BUDGET} from './selfhost-budget';
+interface Env{PRIVATE_ROOMS:DurableObjectNamespace<PrivateRoom>;RECORD_ROOMS:DurableObjectNamespace<RecordFixture>;}
+it('CF private runtime keeps memory body out of SQLite and persists opted-in history across core restart',async()=>{
+ for(const persist of [false,true]){const id=persist?'cf-persist':'cf-memory',stub=(env as unknown as Env).PRIVATE_ROOMS.getByName(id),{tokens,snapshot}=await privateSnapshot(id,persist);await stub.initialize(snapshot);
+ const call=async(path:string,method='GET',data?:object,token=tokens.read)=>{const r=await stub.fetch(new Request('http://localhost:18794/api/v1/rooms/'+id+path,{method,headers:{Authorization:'Bearer '+token,...(data?{'Content-Type':'application/json'}:{})},body:data?JSON.stringify(data):undefined}));return new Response(r.status===204?null:await r.arrayBuffer(),r);};
+ const joined=await call('/participants','POST',{nickname:'mock CF',client_request_id:'join',notice_version:snapshot.notice_version,visibility:'private',retention_mode:persist?'persisted':'memory'},tokens.invite);const joinedData=await joined.json() as {participant_token:string;error?:{code:string}};const schema=await runInDurableObject<PrivateRoom,{tables:string[]}>(stub,(_room,ctx)=>({tables:ctx.storage.sql.exec("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").toArray().map(r=>String(r.name))}));console.log(JSON.stringify({phase:'cf-private-join',persist,status:joined.status,error_code:joinedData.error?.code??null,tables:schema.tables}));expect(joined.status).toBe(201);const token=joinedData.participant_token;
+ const sent=await call('/messages','POST',{text:'mock CF body',client_message_id:'one'},token);expect(sent.status).toBe(201);const message=await sent.json() as {cursor:string};
+ const result=await runInDurableObject<PrivateRoom,{bodyRows:number;status:number;history:string;messages:number;epoch:string}>(stub,async(_room,ctx)=>{const rows=ctx.storage.sql.exec("SELECT COUNT(*) AS n FROM tok_records WHERE collection='private_messages' AND key LIKE 'm:%'").one();const restarted=new PrivateRoomCore({origin:'http://localhost:18794',repo:new CloudflareRepository(ctx.storage),budget:TEST_BUDGET});const response=await restarted.fetch(new Request('http://localhost:18794/api/v1/rooms/'+id+'/messages?after='+encodeURIComponent(message.cursor.split(':')[0]+':0'),{headers:{Authorization:'Bearer '+tokens.read}}));const page=await response.json() as {history_status:string;messages:unknown[];epoch:string};restarted.shutdown();return {bodyRows:Number(rows.n),status:response.status,history:page.history_status,messages:page.messages.length,epoch:page.epoch};});expect(result.status).toBe(200);expect(result.bodyRows).toBe(persist?1:0);expect(result.history).toBe(persist?'ok':'history_reset');expect(result.messages).toBe(persist?1:0);console.log(JSON.stringify({phase:'cf-private',persist,body_rows:result.bodyRows,history:result.history,message_count:result.messages}));
+ }
+});
+it('CF metered targeted reserve and cleanup includes SQLite index row operations',async()=>{const stub=(env as unknown as Env).RECORD_ROOMS.getByName('meter');const measured=await stub.meterProbe();expect(measured.reserve.rowsWritten).toBeGreaterThan(0);expect(measured.cleanup.rowsWritten).toBeGreaterThan(0);console.log(JSON.stringify({phase:'record-sql-meter',...measured}));});

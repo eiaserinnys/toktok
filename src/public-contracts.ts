@@ -1,4 +1,3 @@
-import type { PublicRoom } from './public-room';
 
 export const PUBLIC_NOTICE = 'toktok-risk-v1' as const;
 export const PUBLIC_CATALOG = [
@@ -7,7 +6,7 @@ export const PUBLIC_CATALOG = [
   {slug:'quiet-corner',title:'조용한 이야기'},
 ] as const;
 export interface PublicPolicy {
-  messages: number; retentionMs: number; textBytes: number; jsonBytes: number;
+  messages: number; retentionMs: number; textBytes: number; jsonBytes: number; firstWindowMs:number; firstWindowMessages:number;
   participants: number; watchers: number; leaseMs: number; grantMs: number;
   ipParticipants: number; ipWatchers: number; grantAdmissions: number; admissionWindowMs: number;
   pendingGrants: number; ipKeys: number; ipMemoryMs: number;
@@ -18,7 +17,7 @@ export interface PublicPolicy {
   ipRequestsPerSecond:number;ipRequestBurst:number;bodyMs: number;
 }
 export const PUBLIC_POLICY: Readonly<PublicPolicy> = Object.freeze({
-  messages:100,retentionMs:3600000,textBytes:2048,jsonBytes:8192,
+  messages:100,retentionMs:3600000,textBytes:2048,jsonBytes:8192,firstWindowMs:300000,firstWindowMessages:20,
   participants:100,watchers:50,leaseMs:300000,grantMs:300000,
   ipParticipants:5,ipWatchers:5,grantAdmissions:5,admissionWindowMs:60000,
   pendingGrants:1000,ipKeys:2048,ipMemoryMs:300000,
@@ -27,8 +26,14 @@ export const PUBLIC_POLICY: Readonly<PublicPolicy> = Object.freeze({
   responseBytes:65536,responsesPerSecond:75,responseBurst:150,
   bytesPerSecond:4194304,byteBurst:8388608,requestPerSecond:300,requestBurst:320,ipRequestsPerSecond:30,ipRequestBurst:60,bodyMs:5000,
 });
+export interface PublicRoomEndpoint {
+  fetch(request:Request):Promise<Response>;
+  issueOperatorGrant(ack:ValidatedOperatorAck):Promise<PublicGrantResult>;
+  diagnostics():Promise<PublicDiagnostics>|PublicDiagnostics;
+}
+export interface PublicDiagnostics {epoch:string;leases:{participants:number;watchers:number;unit:"logical_lease"};active_handlers:number;active_waits:number;max_active_handlers:number;max_active_waits:number;buffer_bytes:number;max_buffer_bytes:number;message_count:number;ip_keys:number;pending_grants:number;egress_json_bytes:number;data_responses:number;accepted_messages:number;rate_rejected:number;batch_timer_active:boolean;}
 export interface PublicEnv {
-  PUBLIC_ROOMS: DurableObjectNamespace<PublicRoom>;
+  PUBLIC_ROOMS: {getByName(name:string):PublicRoomEndpoint};
   PUBLIC_ORIGIN: string;
 }
 export interface PublicGrantResult {

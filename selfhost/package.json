@@ -1,0 +1,24 @@
+{
+  "name": "toktok-selfhost",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "24.21.0"
+  },
+  "scripts": {
+    "build": "esbuild ../src/selfhost/main.ts --bundle --platform=node --format=esm --outfile=dist/main.mjs --external:pg",
+    "check": "tsc --noEmit -p tsconfig.json",
+    "test": "node --import tsx --test --test-concurrency=1 --test-timeout=60000 ../test/selfhost-storage.test.ts ../test/selfhost-public.test.ts ../test/selfhost-node.test.ts ../test/selfhost-node-cookies.test.ts ../test/selfhost-guide.test.ts ../test/selfhost-budget.test.ts ../test/selfhost-reservations.test.ts ../test/selfhost-public-bounds.test.ts ../test/selfhost-private.test.ts ../test/selfhost-private-node.test.ts",
+    "test:postgres": "node --import tsx --test --test-concurrency=1 --test-timeout=60000 ../test/selfhost-postgres.test.ts ../test/selfhost-private-postgres.test.ts"
+  },
+  "optionalDependencies": {
+    "pg": "8.16.3"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.1",
+    "@types/pg": "8.15.5",
+    "esbuild": "0.25.12",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3"
+  }
+}

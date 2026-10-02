@@ -1,0 +1,26 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: selfhost/Dockerfile
+      args:
+        WITH_POSTGRES: ${TOKTOK_WITH_POSTGRES:-false}
+    init: true
+    restart: "no"
+    ports: ["127.0.0.1:8080:8080"]
+    environment:
+      TOKTOK_BACKEND: ${TOKTOK_BACKEND:-sqlite}
+      TOKTOK_SQLITE_FILE: /data/toktok.sqlite
+      TOKTOK_DSN_FILE: ${TOKTOK_DSN_FILE:-}
+      TOKTOK_PG_SCHEMA: ${TOKTOK_PG_SCHEMA:-toktok}
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:-https://toktok.example.invalid}
+      PORT: "8080"
+    volumes: ["data:/data"]
+    stop_grace_period: 25s
+    healthcheck:
+      test: ["CMD", "node", "--input-type=module", "-e", "const r=await fetch('http://127.0.0.1:8080/ready');process.exit(r.ok?0:1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 2
+volumes:
+  data:

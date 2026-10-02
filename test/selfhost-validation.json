@@ -1,0 +1,67 @@
+{
+  "scope": "portable-foundation-targeted-only",
+  "production_changes": 0,
+  "existing_public_load_repeated": false,
+  "cf_private": {
+    "memory_body_rows": 0,
+    "memory_history": "history_reset",
+    "persist_body_rows": 1,
+    "persist_history": "ok",
+    "extra_selected_execution_explicitly_authorized": true
+  },
+  "pg_private": {
+    "memory_body_rows": 0,
+    "persist_body_rows": 1,
+    "fixture_container_recovered": true
+  },
+  "node_private_http": {
+    "clients": 2,
+    "cursor_pages": 3,
+    "shutdown_ms": 3011,
+    "waits": 0,
+    "handlers": 0,
+    "timers": 0
+  },
+  "private_shutdown_body": {
+    "status": 499,
+    "bodies": 0,
+    "handlers": 0
+  },
+  "strict_budget_fixture": {
+    "unique_ids": 17,
+    "kinds": 4,
+    "zero_response_skipped": true,
+    "actual_control_enforcement": false
+  },
+  "native_cf_sql_representative": {
+    "reserve": {
+      "rowsRead": 6,
+      "rowsWritten": 4
+    },
+    "cleanup": {
+      "rowsRead": 8,
+      "rowsWritten": 1
+    },
+    "actual_A_workload": false
+  },
+  "container": {
+    "node": "24.21.0",
+    "nonroot": true,
+    "sqlite_requires_pg": false,
+    "second_owner_rejected": true,
+    "stop_ms": 737,
+    "image_config_sha256": "012ceb19aab4c61f9d7c0076214b1b91ffe5dd13362bfd49e85fa74b1a88fd2b"
+  },
+  "types": {
+    "cloudflare_after_one_fixture_correction": "exit0",
+    "node_final": "TS7022 one new PG test local annotation fixed; not rerun after ceiling"
+  },
+  "review": "read-only delta PASS; runtime evidence separate",
+  "limitations": [
+    "root CONTROL/router/auth/entitlement/admin integration pending",
+    "Node startup overdue scan pending",
+    "SMTP transport and hidden TTY installer pending",
+    "production heap/CPU/hibernation unmeasured",
+    "real SQL control/storage cost and budget cutoff pending"
+  ]
+}

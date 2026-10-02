@@ -1,17 +1,17 @@
 # 자체 설치 후속 설계 v1
 
-상태: **설계 확정 / 구현 미착수**. root 결정, 2026-10-02입니다. 이 문서는 전달받은 설계 정본을 보존하며 기존 PR #3 엔진을 이식했다는 보고가 아닙니다. 새 runtime 구현은 최종 settings 계약과 엔진 분리 후 별도 PR/managed WT에서 진행합니다. 현재 공용/UI/auth 파일은 수정하지 않습니다.
+상태: **설계 확정 / runtime·storage 기반 구현 및 격리 fixture 확인 / 제품 통합 미완료**. root 결정 2026-10-02, B 재개 2026-10-03입니다. 기존 B managed WT에서 승인된 public core 분리, private core, 세 backend의 RepositoryPort와 Node 설치 기반을 구현했습니다. 실제 control/auth/router/운영 bindings 연결은 root/A 범위이며 공용/UI/auth 파일은 수정하지 않았습니다. [현재 구현과 검증 범위](portable-validation.md)를 함께 읽으세요.
 
 ## 목적과 기본 선택
 
 - 기존 Cloudflare Worker+DO 배포를 유지하고 같은 HTTP 계약의 자체 설치도 제공합니다.
-- 권장 실행은 Docker Compose의 단일 Node 24 LTS 앱 컨테이너입니다. 현재 리포는 작은 TypeScript ESM이며 별도 대형 프레임워크/Redis/메시지브로커를 도입하지 않습니다. Node 24의 정확한 지원 SQLite API와 버전은 이식 구현 착수 때 공식 v24 문서/컨테이너에서 확인하여 pin합니다. 호스트 Node 22는 업그레이드하지 않습니다.
+- 권장 실행은 Docker Compose의 단일 Node 24 LTS 앱 컨테이너입니다. 현재 리포는 작은 TypeScript ESM이며 별도 대형 프레임워크/Redis/메시지브로커를 도입하지 않습니다. Node 24.21.0의 node:sqlite DatabaseSync/backup을 사용하고 공식 이미지 digest와 격리 의존성 버전을 pin했습니다. 호스트 Node 22는 업그레이드하지 않습니다.
 - self-host 기본 DB는 SQLite 로컬 파일 volume(`/data`)입니다. Postgres는 사용자가 가진 서버에 연결하는 선택 adapter이며 Postgres 선택이 다중 앱 인스턴스 지원을 의미하지 않습니다.
 - 사용자 14:26:36 확정으로 DEMO all-body-nostore 정책은 폐기합니다. DEMO의 초대+OTP 가입 완료 계정도 새 private room 생성 시 persist opt-in(default OFF)을 허용합니다. public/anonymous private는 계속 memory only이고 HOSTED private도 유효 권한의 명시 persist만 DB에 기록합니다. 서버는 mode 단독이 아닌 DB account entitlement+visibility+유효 creator 권한을 검증하며 기존 memory room을 persist로 바꾸지 않습니다. 생성 시 retention/participant notice를 유지합니다. 설정/계정/초대/권한/최소 남용 메타는 DB에 둡니다. 본문을 PostgreSQL NOTIFY/queue/outbox/WAL/로그에 넣어 공유하지 않습니다.
 
 ## 설치·시작 시 backend 선택
 
-- 서버 인스턴스는 설치/시작 시 backend 하나를 선택합니다. 현재 지원 예정 선택은 **Cloudflare DO SQLite**, **self-host SQLite**, **self-host PostgreSQL**입니다.
+- 서버 인스턴스는 설치/시작 시 backend 하나를 선택합니다. 구현된 adapter 선택은 **Cloudflare DO SQLite**, **self-host SQLite**, **self-host PostgreSQL**입니다.
 - D1 지원/전환은 사용자 답 대기이며 확정된 지원 범위가 아닙니다. D1과 DO SQLite는 같은 것으로 취급하지 않으며 이 명확화를 위해 현재 엔진을 재작성하지 않습니다.
 - backend 선택은 인프라 시작 설정입니다. 시작 후 관리자 product settings로 backend를 바꾸지 않습니다. 공통 core와 RepositoryPort 계약은 유지합니다.
 - 선택된 adapter/driver만 초기화합니다. 선택하지 않은 DB의 driver/service/credential을 실행 필수 의존성으로 요구하지 않습니다.
@@ -49,7 +49,7 @@
 - Node IP는 기본 socket peer입니다. forwarding header는 기본 무시하며 명시 신뢰 proxy 범위/hop 설정이 있을 때만 사용합니다. Node에서 임의 `CF-Connecting-IP`를 믿지 않습니다. HTTPS `PUBLIC_ORIGIN`/Secure cookies/Origin-CSRF/CSP/no-store/noindex/secret URL 로그 금지를 유지합니다.
 - 전역 앱 예산은 같은 atomic repository 예약으로 적용합니다. CF billing estimate와 self-host 호스트 비용은 cost profile로 분리하며 같은 달러 가격을 자동 대입하지 않습니다.
 
-## 합격 계획 — 아직 실행하지 않음
+## 합격 계획과 현재 범위
 
 - 동일 curl 계약의 2클라이언트 3왕복/재접속/cursor/idempotency/expiry/limits를 CF와 Node에 적용합니다.
 - Node+SQLite 로컬 임시 volume 재시작에서 settings/invite/session 유지, memory body 불존재/new epoch, DEMO/HOSTED의 권한 검증된 opted-in private body만 유지되는지 확인합니다. 동시 quota/invite 경합/다른 앱 기동 거부/graceful 25초 이하 wait 회수를 확인합니다.
@@ -60,6 +60,12 @@
 
 ## 참고 정본과 후속 입력
 
-root가 지정한 참고 정본은 [SQLite WAL](https://www.sqlite.org/wal.html), [SQLite backup](https://www.sqlite.org/backup.html), [PostgreSQL explicit locking](https://www.postgresql.org/docs/current/explicit-locking.html), [node-postgres transactions](https://node-postgres.com/features/transactions), [Node releases](https://nodejs.org/en/about/previous-releases)입니다. 이 문서 추가 시 런타임 API/컨테이너 버전 검증, 환경 설치, DB 연결 또는 새 gate를 실행하지 않았습니다.
+root가 지정한 참고 정본은 [SQLite WAL](https://www.sqlite.org/wal.html), [SQLite backup](https://www.sqlite.org/backup.html), [PostgreSQL explicit locking](https://www.postgresql.org/docs/current/explicit-locking.html), [node-postgres transactions](https://node-postgres.com/features/transactions), [Node releases](https://nodejs.org/en/about/previous-releases)입니다. 설계 보존 당시에는 실행하지 않았습니다. 이후 승인된 격리 Node/SQLite/PG/Workers fixture 결과는 [portable 검증 기록](portable-validation.md)에 분리했습니다. 실제 사용자 DB·메일·배포는 실행하지 않았습니다.
 
-최종 settings/control 및 budget/private metadata 계약이 아직 후속 입력입니다. DEMO 영속 private의 row/storage/retention 비용은 quota/budget에 포함해야 할 후속 입력입니다. 30일 retention은 새 디자인 시나리오일 뿐 production retention 결정이 아닙니다. [현재 공개 엔진 인계](public-validation.md)와 [비용 비교](public-cost-comparison.md)는 Cloudflare 엔진의 기존 결과이며 self-host 결과로 재사용하지 않습니다.
+async targeted RepositoryPort와 private trusted snapshot/budget 계약을 구현했습니다. 실제 settings/control 연결, admin/auth/router와 시작 시 전체 overdue 스캔은 root 통합 후속입니다. DEMO 영속 private의 row/storage/retention 비용은 quota/budget에 포함해야 할 후속 입력입니다. 30일 retention은 새 디자인 시나리오일 뿐 production retention 결정이 아닙니다. [현재 공개 엔진 인계](public-validation.md)와 [비용 비교](public-cost-comparison.md)는 Cloudflare 엔진의 기존 결과이며 self-host 결과로 재사용하지 않습니다.
+
+## 구현 경계
+
+원래 RuntimePort의 역할은 공통 Fetch API와 clock/budget 옵션, room queue, trusted IP 및 Node HTTP bridge로 나눴습니다. RepositoryPort는 전체 scope snapshot 대신 await 가능한 targeted CRUD와 transaction callback으로 확정했습니다. 4096 records/8MiB는 transaction 누적 접근량이며 전체 DB 크기 제한이 아닙니다. Private memory 본문은 Repository를 호출하지 않지만 생성/권한/참여 metadata는 저장합니다. Postgres WAL에는 명시 persist body 저장에 필요한 DB 기록이 생깁니다. WAL/NOTIFY를 memory body 공유 통로로 쓰는 것은 금지합니다.
+
+현재 CLI는 공개 catalogue와 상태 확인 기반만 연결하며 실서비스 budget 미주입은 503으로 닫습니다. private·auth·admin·SMTP 실제 연결이 끝난 자체 설치 제품으로 보고하지 않습니다. DSN은 환경변수 또는 0600 파일 경로로 받으며 숨김 TTY 설치 도우미는 아직 구현하지 않았습니다.
