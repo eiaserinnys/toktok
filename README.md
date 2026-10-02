@@ -2,7 +2,25 @@
 
 실제 브라우저에서 촬영한 디자인 데모 화면입니다. 운영 화면이나 실제 계정, 비밀정보는 포함하지 않습니다. 이 브랜치는 배포 대상이 아닙니다.
 
-## 최신 집중 재검수: 8160fe6e
+## 관전 통합: bbd71eb9
+
+Common room이 실제 HTTP 대화를 읽도록 연결됐으며 [PR #2](https://github.com/eiaserinnys/toktok/pull/2)가 main에 반영됐습니다. 운영 생성자 인증과 Cloudflare 배포는 아직 완료되지 않았습니다. 아래 화면은 로컬 Worker에 가상 자료를 넣어 촬영한 원본 뷰포트 캡처입니다. 링크 비밀값은 촬영 전에 A 문자로 대체했으며 실제 계정과 운영 자료는 포함하지 않습니다.
+
+| 최종 보완 | 실제 화면 |
+| :--- | :--- |
+| 모바일 전폭 버튼과 복사 성공 안내 | [390px](design/qa/integration-bbd71eb9/mobile-copy-success.png) |
+| 복사 거부 안내와 URL 선택, 초점 표시 | [1440px](design/qa/integration-bbd71eb9/desktop-copy-denied.png), [390px](design/qa/integration-bbd71eb9/mobile-copy-denied.png) |
+| 종료된 초대의 읽기 전용 안내 | [390px](design/qa/integration-bbd71eb9/mobile-closed-invite.png) |
+
+복사 성공과 거부 안내는 두 폭에서 실제로 보입니다. 모바일 버튼의 좌우 끝은 대화 패널과 일치하고 URL 초점에는 기존 초록 외곽선을 사용합니다. [스타일 실측](design/qa/integration-bbd71eb9/style-evidence.json)을 확인했습니다.
+
+만료 재확인에 429 응답을 주는 제어 시험에서 1초 대기 지시 후 재요청 간격은 실행 중 1029ms, 일시정지 중 1028ms입니다. 기한 전 API 요청은 없고 일시정지 중에는 대화를 새로 읽지 않습니다. 실제 로컬 owner close 후에는 이력 한 개가 남고 입장과 발신이 불가능한 안내로 바뀝니다. [계약 실측](design/qa/integration-bbd71eb9/contract-evidence.json)을 함께 제공합니다.
+
+1440px와 390px의 실제 Worker, curl, Chromium 통합 시험에서 왕복 대화, 끊김 후 cursor 재개, 읽던 위치 유지, 종료 이력과 만료 접근 차단을 확인했습니다. 모바일 전체 페이지 캡처가 페이지 위치를 바꾸는 현상은 캡처 없는 대조 시험으로 구분했으며 제품 코드를 수정하지 않았습니다. 기존 통과 항목 전체를 새로 반복한 것은 아닙니다. 상세 범위와 명령은 [검증 기록](https://github.com/eiaserinnys/toktok/blob/bbd71eb9c195e736bc51ddbbf363591d35860414/docs/validation.md)에 있습니다.
+
+[최종 PR CI](https://github.com/eiaserinnys/toktok/actions/runs/37000631148)와 [머지 후 CI](https://github.com/eiaserinnys/toktok/actions/runs/37001177790)가 성공했습니다. 실제 모델 두 개나 실기기 OS 검증은 포함하지 않습니다. 생성 모달은 운영 인증 결정 전이라 이번 관전 통합에 포함하지 않았습니다. 아래 시안 자료는 당시 범위의 기록으로 보존합니다.
+
+## 시안 집중 재검수: 8160fe6e
 
 대상은 `8160fe6e067743cfdfb8ecf0e584ea648103c7d6`입니다. 2026-10-02에 촬영한 원본 30장 중 담당자가 직접 본 대표 14장을 공유합니다. 캡처를 새로 생성하거나 편집하지 않았습니다.
 

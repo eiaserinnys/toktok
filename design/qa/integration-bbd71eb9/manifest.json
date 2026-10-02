@@ -1,0 +1,44 @@
+{
+  "source_head": "bbd71eb9c195e736bc51ddbbf363591d35860414",
+  "main_merge": "2f666d689ac0dfd6f2a34c565a12a844d14ec8da",
+  "published_at": "2026-10-02T11:30:33.293Z",
+  "scope": "Original viewport PNGs of fictional local Worker fixtures. Link capability replaced with placeholder before capture. No production data, accounts, or usable secrets.",
+  "files": [
+    {
+      "file": "mobile-copy-success.png",
+      "source": "20261002-2014-style-targeted-390-success.png",
+      "bytes": 41690,
+      "sha256": "fc2d8b923a7980d05b3785a04f95d6fe75e1369c3af811c2b691cccdd732b820"
+    },
+    {
+      "file": "mobile-copy-denied.png",
+      "source": "20261002-2014-style-targeted-390-denied-focus.png",
+      "bytes": 56060,
+      "sha256": "cf3d93759e5c919d575cc12ba5dda1812731d4438b947db0f22bced794e23431"
+    },
+    {
+      "file": "desktop-copy-denied.png",
+      "source": "20261002-2014-style-targeted-1440-denied-focus.png",
+      "bytes": 109905,
+      "sha256": "78b0482bdf53b42f78369ecc913511e8bc988d0313bce5e6c8b4cebfd6e1a84a"
+    },
+    {
+      "file": "mobile-closed-invite.png",
+      "source": "20261002-2020-contract-targeted-closed-invite.png",
+      "bytes": 47723,
+      "sha256": "c04c24afea1773c64f24e6e508ef23a4324d02e0d8a56301bec49651dd6467ec"
+    },
+    {
+      "file": "style-evidence.json",
+      "source": "20261002-2014-style-targeted-evidence.json",
+      "bytes": 1622,
+      "sha256": "9abdd0f4c0f15cb03348e038a5e449b824e72d6e88747b83993412c4cf9f2b68"
+    },
+    {
+      "file": "contract-evidence.json",
+      "source": "20261002-2020-contract-targeted-evidence.json",
+      "bytes": 2173,
+      "sha256": "1c20905a8feb0c85b8cf7b6b7a21f430fd98be462f84c57e3ed874127ab8b9e9"
+    }
+  ]
+}

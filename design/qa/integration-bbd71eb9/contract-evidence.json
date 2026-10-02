@@ -1,0 +1,91 @@
+{
+  "scope": "expiry probe Retry-After (controlled HTTP/time) and closed invite only",
+  "cases": [
+    {
+      "case": "expiry metadata 429",
+      "paused": false,
+      "requests": [
+        {
+          "path": "metadata",
+          "at": 1790939890721
+        },
+        {
+          "path": "/messages",
+          "at": 1790939890793
+        },
+        {
+          "path": "/wait",
+          "at": 1790939890825
+        },
+        {
+          "path": "metadata",
+          "at": 1790939891982
+        },
+        {
+          "path": "metadata",
+          "at": 1790939892993
+        },
+        {
+          "path": "/messages",
+          "at": 1790939893023
+        }
+      ],
+      "controlledRetryAfterSeconds": 1,
+      "rateAt": 1790939891983,
+      "beforeRetryRequests": [],
+      "recheckAt": 1790939893012,
+      "retryIntervalMs": 1029,
+      "pausedDataRequests": [
+        {
+          "path": "/messages",
+          "at": 1790939893023
+        }
+      ],
+      "pass": true
+    },
+    {
+      "case": "expiry metadata 429",
+      "paused": true,
+      "requests": [
+        {
+          "path": "metadata",
+          "at": 1790939893253
+        },
+        {
+          "path": "/messages",
+          "at": 1790939893291
+        },
+        {
+          "path": "/wait",
+          "at": 1790939893321
+        },
+        {
+          "path": "metadata",
+          "at": 1790939894479
+        },
+        {
+          "path": "metadata",
+          "at": 1790939895492
+        }
+      ],
+      "controlledRetryAfterSeconds": 1,
+      "rateAt": 1790939894480,
+      "beforeRetryRequests": [],
+      "recheckAt": 1790939895508,
+      "retryIntervalMs": 1028,
+      "pausedDataRequests": [],
+      "pass": true
+    },
+    {
+      "case": "real local owner close during invite watch",
+      "count": 1,
+      "roomStatus": "종료된 방",
+      "scope": "메시지 읽기만 허용돼요. 이 링크로 입장하거나 발신할 수 없어요.",
+      "permission": "읽기 전용 링크",
+      "share": "현재 읽기 전용 링크를 공유해요. 입장 권한을 새로 만들지 않아요.",
+      "pass": true
+    }
+  ],
+  "browser": "153.0.8010.12",
+  "pass": true
+}

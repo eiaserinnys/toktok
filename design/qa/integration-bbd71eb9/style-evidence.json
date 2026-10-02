@@ -1,0 +1,63 @@
+{
+  "scope": "three restored UI styles only",
+  "cases": [
+    {
+      "width": 1440,
+      "success": {
+        "text": "현재 링크를 복사했어요",
+        "opacity": "1",
+        "className": "visible",
+        "transform": "matrix(1, 0, 0, 1, -86, 0)"
+      },
+      "denied": {
+        "text": "자동 복사를 사용할 수 없어요. 링크를 길게 눌러 복사해주세요",
+        "opacity": "1"
+      },
+      "url": {
+        "selected": true,
+        "focused": true,
+        "focusVisible": true,
+        "outlineColor": "rgb(100, 135, 40)",
+        "outlineStyle": "solid",
+        "outlineWidth": "3px",
+        "outlineOffset": "5px"
+      }
+    },
+    {
+      "width": 390,
+      "button": {
+        "x": 22,
+        "right": 368,
+        "width": 346,
+        "height": 52,
+        "conversationX": 22,
+        "conversationRight": 368,
+        "marginTop": "20px",
+        "minHeight": "48px",
+        "font": "14px",
+        "gapAbove": 20
+      },
+      "success": {
+        "text": "현재 링크를 복사했어요",
+        "opacity": "1",
+        "className": "visible",
+        "transform": "matrix(1, 0, 0, 1, -75, 0)"
+      },
+      "denied": {
+        "text": "자동 복사를 사용할 수 없어요. 링크를 길게 눌러 복사해주세요",
+        "opacity": "1"
+      },
+      "url": {
+        "selected": true,
+        "focused": true,
+        "focusVisible": true,
+        "outlineColor": "rgb(100, 135, 40)",
+        "outlineStyle": "solid",
+        "outlineWidth": "3px",
+        "outlineOffset": "5px"
+      }
+    }
+  ],
+  "browser": "153.0.8010.12",
+  "pass": true
+}
