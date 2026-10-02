@@ -221,6 +221,137 @@
       "path": "mobile-admin-email-full.png",
       "bytes": 95656,
       "sha256": "1f8962cd22387ea76e92870416478445178c42b16b89db8ad7a046eba5d67e8b"
+    },
+    {
+      "path": "desktop-otp-invalid.png",
+      "bytes": 213162,
+      "sha256": "09d518d1513a76a1529e2ab0f7f31cc6607da79b3a02f8624fdd0c8540cf21f8"
+    },
+    {
+      "path": "desktop-otp-expired.png",
+      "bytes": 213469,
+      "sha256": "ce74fbd5674f7c039b74484810438e1fb5a33b1d0a856e8ed2b2c96a006ac179"
+    },
+    {
+      "path": "desktop-hosted-new-room30.png",
+      "bytes": 121343,
+      "sha256": "96e7857dc909106f42687e59df7ac885f1cab6a603c9ae570dd66c196ddc5b44"
+    },
+    {
+      "path": "desktop-hosted-created30.png",
+      "bytes": 71751,
+      "sha256": "5067ec34d3d1d74025971cb80d0539bdbb1240533019324f07d0d77570e66a37"
+    },
+    {
+      "path": "desktop-hosted-room30.png",
+      "bytes": 98621,
+      "sha256": "985654f7a83c0446a1aea83788f33ba0ba44a46bbfad5e48173043b7b405a550"
+    },
+    {
+      "path": "desktop-public-empty.png",
+      "bytes": 82439,
+      "sha256": "092874bc6f2a2bdea7b3380f5d224e6bb21fc5882a0f7706cdc18c49f02f8cbd"
+    },
+    {
+      "path": "desktop-grant-approved.png",
+      "bytes": 57724,
+      "sha256": "f775ea23005d51eb3e81f4d8502a45cf8c3830b12fd30c942520d73665e657ac"
+    },
+    {
+      "path": "desktop-admin-dirty-back.png",
+      "bytes": 176891,
+      "sha256": "629c519cb827465e1593a47810c0331e00ceb2bb588a95ccf0d046678b88bed4"
+    },
+    {
+      "path": "desktop-admin-review.png",
+      "bytes": 180145,
+      "sha256": "7f50d24c558fa7a17695ab5016106524ac0bcaf748d114176d8fb793b9b7fd49"
+    },
+    {
+      "path": "desktop-admin-conflict.png",
+      "bytes": 174761,
+      "sha256": "732f5715e8fce8317110d8ded74b83a198a8dc34e6a3d811445e9f7eeb0a47c4"
+    },
+    {
+      "path": "desktop-admin-discard-confirm.png",
+      "bytes": 167939,
+      "sha256": "d4a7e8bc7ccb34def795f0aeca6de8ee89424079ed38934bff93e94936d55c1f"
+    },
+    {
+      "path": "desktop-admin-long-invite.png",
+      "bytes": 142084,
+      "sha256": "b99a56ec01a2542404e799e83f6c6b06c0590abade3eab25c4c3890587bf11d2"
+    },
+    {
+      "path": "desktop-admin-restricted.png",
+      "bytes": 48790,
+      "sha256": "dd3b843e9e1569dbbba4623d57e8bc438e8dc349fcee675df8bf9426b85f91ab"
+    },
+    {
+      "path": "mobile-otp-invalid.png",
+      "bytes": 42951,
+      "sha256": "34abc36579042ed856280091c394a8df63fe1a00ece92455745c0944b070f1ad"
+    },
+    {
+      "path": "mobile-otp-expired.png",
+      "bytes": 42949,
+      "sha256": "2c4bc74b652ba07e3285547756e623919fcb46211e60e54c25686040a4637d2f"
+    },
+    {
+      "path": "mobile-hosted-new-room30.png",
+      "bytes": 96846,
+      "sha256": "1d41c0fd4beee1cce5e80850313f21564aa7474e565e940e9d2af61b354465e4"
+    },
+    {
+      "path": "mobile-hosted-created30.png",
+      "bytes": 49528,
+      "sha256": "71c60b4ae195025dc712eeef084c903386ee644a9d45abee0e60fd2dd4947bad"
+    },
+    {
+      "path": "mobile-hosted-room30.png",
+      "bytes": 47235,
+      "sha256": "7287f3722495188bd8caf24d80c918f11a41e0b4be596a9ce0cb6af0a186e42f"
+    },
+    {
+      "path": "mobile-public-empty.png",
+      "bytes": 34987,
+      "sha256": "62d2abe16af68f6d299646493a7c89e262a62b1ad87c9c9e16801345ab8f640e"
+    },
+    {
+      "path": "mobile-grant-approved.png",
+      "bytes": 39962,
+      "sha256": "73a64a99048351c890aa3d8b01a4c614ae4d69cbc537e42c77df2dcd819be4b4"
+    },
+    {
+      "path": "mobile-admin-dirty-back.png",
+      "bytes": 72277,
+      "sha256": "1b4774a9ea54f39310236c9074ec45671e6e3826b034a6e48bc6ca811d76c785"
+    },
+    {
+      "path": "mobile-admin-review.png",
+      "bytes": 59155,
+      "sha256": "39d910e0c9357db0cb7f7087c97875fc231cc6bbb98eb2786bcbb5e91ae5ec63"
+    },
+    {
+      "path": "mobile-admin-conflict.png",
+      "bytes": 59224,
+      "sha256": "5c560f03b38a98091aef4062119614e0cfb5428281defda4d57af2b394536a1f"
+    },
+    {
+      "path": "mobile-admin-discard-confirm.png",
+      "bytes": 58624,
+      "sha256": "bd200309605792517b8bc2154adff5203eed866568d59c050fb34b1eb26f8fad"
+    },
+    {
+      "path": "mobile-admin-long-invite.png",
+      "bytes": 108144,
+      "sha256": "65dc63a27fc526ebeb22da67dbc6533261f765e32e6c64ffb947595097aaaea6"
+    },
+    {
+      "path": "mobile-admin-restricted.png",
+      "bytes": 34484,
+      "sha256": "bb8ca1d39f8fd07756668d393f5dfb4c9f9340c1b27fc0530ee4ead57db0bd73"
     }
-  ]
+  ],
+  "status": "Observed prototype only, final design approval withheld; latest invitation/storage/navigation/listbox requirements require new source pin."
 }

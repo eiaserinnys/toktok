@@ -1,0 +1,32 @@
+{
+  "source": "309442a9c5688a4cbd5db79b3f2774dd03f3b08e",
+  "mode": "interactions",
+  "mockOnly": true,
+  "started": "2026-10-02T14:27:14.513Z",
+  "cases": [
+    {
+      "name": "desktop:otp-invalid-expired-success",
+      "observed": {
+        "invalid": true,
+        "expired": true,
+        "success": true
+      },
+      "pass": true
+    },
+    {
+      "name": "desktop:hosted-signup-persist30",
+      "pass": false,
+      "error": "locator.fill: Error: strict mode violation: locator('[name=name]') resolved to 2 elements:\n    1) <input name=\"name\" required=\"\" maxlength=\"60\" value=\"우리의 다음 작은 생각\" placeholder=\"예: 우리의 다음 작은 생각\"/> aka getByRole('textbox', { name: '방 이름' })\n    2) <input name=\"name\" required=\"\" id=\"roomName\" maxlength=\"45\" autocomplete=\"off\" placeholder=\"예: 다음 여행, 어디로 갈까?\"/> aka getByPlaceholder('예: 다음 여행, 어디로 갈까?')\n\nCall log:\n\u001b[2m  - waiting for locator('[name=name]')\u001b[22m\n"
+    }
+  ],
+  "shots": [
+    "desktop-otp-invalid.png",
+    "desktop-otp-expired.png"
+  ],
+  "errors": [],
+  "externalRequests": [],
+  "resources": [],
+  "cleanup": true,
+  "failure": "locator.fill: Error: strict mode violation: locator('[name=name]') resolved to 2 elements:\n    1) <input name=\"name\" required=\"\" maxlength=\"60\" value=\"우리의 다음 작은 생각\" placeholder=\"예: 우리의 다음 작은 생각\"/> aka getByRole('textbox', { name: '방 이름' })\n    2) <input name=\"name\" required=\"\" id=\"roomName\" maxlength=\"45\" autocomplete=\"off\" placeholder=\"예: 다음 여행, 어디로 갈까?\"/> aka getByPlaceholder('예: 다음 여행, 어디로 갈까?')\n\nCall log:\n\u001b[2m  - waiting for locator('[name=name]')\u001b[22m\n\n    at /home/eias/workspace/.local/artifacts/toktok/20261002-2324-extension-qa.cjs:35:652\n    at async rec (/home/eias/workspace/.local/artifacts/toktok/20261002-2324-extension-qa.cjs:20:82)\n    at async /home/eias/workspace/.local/artifacts/toktok/20261002-2324-extension-qa.cjs:35:4",
+  "finished": "2026-10-02T14:27:19.762Z"
+}

@@ -1,0 +1,36 @@
+{
+  "source": "309442a9c5688a4cbd5db79b3f2774dd03f3b08e",
+  "screens": {
+    "cases": 22,
+    "viewport_png": 22,
+    "full_page_png": 22,
+    "errors": 0,
+    "external_requests": 0,
+    "horizontal_overflow_observed": false
+  },
+  "interactions": {
+    "desktop_otp": "passed before harness failure",
+    "first_failure": "harness [name=name] matched new form and hidden original dialog; prototype unchanged",
+    "correction": "scope to #xRoomForm; skip already-passed desktop OTP",
+    "continuation": "9 passed; desktop/mobile HOSTED opt-in30, grant, empty public, admin cancel/dirtyBack/review/save/conflict/reload/restricted/long invite; mobile OTP wrong/expired/success"
+  },
+  "findings": [
+    {
+      "id": "AUTH_HEADING_MOBILE",
+      "observed": "mobile login/invite/verify aside joins text at removed br; login leaves a single final Korean syllable on its own line",
+      "evidence": "mobile-login.png"
+    },
+    {
+      "id": "CREATE_RISK_ACK_ABSENT",
+      "observed": "HOSTED signup to new-room to created-room succeeds; xRoomForm checkbox count0 and no earlier human risk ack in this path",
+      "evidence": "continuation.json",
+      "decision": "needs designer/server contract alignment; server implementation not tested"
+    }
+  ],
+  "superseded": [
+    "DEMO all-body-nostore policy superseded by invited account private opt-in",
+    "latest invitation code gate, canonical home, role menu, custom accessible listbox awaiting new pin"
+  ],
+  "production_retention_30_days_approved": false,
+  "mock_only": true
+}
