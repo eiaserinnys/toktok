@@ -14,7 +14,7 @@ Buildless static HTML/CSS/JS in `dist/`. Relative assets. No backend, real auth,
 - Highlight: #e5f38f
 - Canvas: #f6f5ee
 - Surface: #fffef9
-- Muted: #71796d; recheck contrast for the final deployed font/rendering
+- Muted: #65735f; small functional text #5f6d56 on soft surfaces; recheck contrast for the final deployed font/rendering
 - Divider: #dcded3
 - Room live surface: #e8eccf
 - Secondary room: #f2e1d5
@@ -53,7 +53,7 @@ User's service target: Cloudflare, repository eiaserinnys/toktok, intended domai
 - Read-only preview WebMCP navigation support is feature-detected; prototype state only
 
 ## Validation status and required follow-up
-Source syntax and local references checked. Readability revised after source audit; default TTL aligned; coffee room conversation separated from travel conversation; reduced-motion and native dialog focus behavior included.
+Source syntax, all 15 route renders (mocked DOM), and local references checked. Core primary contrast is 9.84:1; ink on lime is 9.04:1; muted copy was darkened after calculations found the original insufficient for small text. Empty-room participants, mobile touch navigation, skip link and keyboard tabs corrected in the source audit. Readability revised after source audit; default TTL aligned; coffee room conversation separated from travel conversation; reduced-motion and native dialog focus behavior included.
 Browser screenshot QA is pending due environment restriction: Chromium process singleton socket creation is blocked even in approved escalated run. Cloud browser blocks loopback and file URLs, and the supervised Sites preview helper is unavailable. No route around those denials was attempted. Do not claim visual/browser certification. Please run real screenshots and interaction checks in the implementation environment before production integration.
 
 Recommended checks: 390×844 and 1440×1000 home/room/dialog/7 directions; 320px width and 200% zoom; keyboard dialog focus and Escape; invite clipboard success/denial; form whitespace validation; guest and expiry flows; no unintended horizontal overflow; reduced motion; text contrast. Awards-level quality is an aspiration, not an award, certification, or completed external assessment.
