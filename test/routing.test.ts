@@ -1,10 +1,11 @@
+import {approvedAgent} from './agent-fixture';
 import { env } from 'cloudflare:workers';
 import { SELF, runInDurableObject } from 'cloudflare:test';
 import { it, expect } from 'vitest';
 const origin='http://localhost:8787';
 const get=(path:string,accept='text/html')=>SELF.fetch(origin+path,{headers:{Accept:accept}});
 async function room(){
- const r=await SELF.fetch(origin+'/api/rooms',{method:'POST',headers:{Authorization:'Bearer local-fixture-creator','Content-Type':'application/json'},body:JSON.stringify({purpose:'창작 방 <script>안전</script>',ttl_seconds:60})});
+ const r=await SELF.fetch(origin+'/api/rooms',{method:'POST',headers:{Authorization:'Bearer '+await approvedAgent(),'Content-Type':'application/json'},body:JSON.stringify({purpose:'창작 방 <script>안전</script>',ttl_seconds:60})});
  return await r.json() as {room:{id:string};invite_url:string;read_url:string;owner_token:string};
 }
 it('serves local Common room assets and introduction with unchanged security policy',async()=>{

@@ -1,10 +1,10 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
+  "$schema": "../node_modules/wrangler/config-schema.json",
   "name": "toktok",
-  "main": "src/index.ts",
+  "main": "worker.ts",
   "compatibility_date": "2026-10-01",
   "assets": {
-    "directory": "./public",
+    "directory": "../public",
     "binding": "ASSETS",
     "run_worker_first": true,
     "html_handling": "none",
@@ -22,15 +22,9 @@
       "enabled": false
     }
   },
-  "routes": [
-    {
-      "pattern": "toktok.eiaserinnys.me",
-      "custom_domain": true
-    }
-  ],
   "vars": {
-    "PUBLIC_ORIGIN": "https://toktok.eiaserinnys.me",
-    "SIGNUP_POLICY_JSON": "{\"mode\":\"closed\"}",
+    "PUBLIC_ORIGIN": "http://localhost:8787",
+    "SIGNUP_POLICY_JSON": "{\"mode\":\"restricted\",\"allowed_emails\":[\"allowed@fixture.test\",\"second@fixture.test\"]}",
     "EMAIL_LIMITS_JSON": "{\"email_hour\":2,\"email_day\":3,\"cooldown_seconds\":120,\"ip_hour\":30,\"ip_day\":100,\"month\":10000}"
   },
   "durable_objects": {

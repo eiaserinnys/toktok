@@ -1,0 +1,2542 @@
+{
+  "scope": "OTP claim UI 1440/390, real Worker SQLite, test-only fake mail delivery/clock",
+  "observations": [
+    {
+      "label": "before viewport: 1440-register",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "BODY",
+      "conversation": {
+        "x": 126,
+        "y": 330.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 532.265625
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 330.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "assert: self-contained registration",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "BODY",
+      "conversation": {
+        "x": 126,
+        "y": 330.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 532.265625
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 330.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "before viewport: 1440-pending",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "BODY",
+      "conversation": {
+        "x": 126,
+        "y": 330.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 532
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 330.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible",
+      "sessionState": "사람 확인 연결을 준비하고 있어요",
+      "claimState": "승인을 기다리고 있어요"
+    },
+    {
+      "label": "assert: pending cannot approve before email confirmation",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "email-address",
+      "conversation": {
+        "x": 126,
+        "y": 330.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 613.953125
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 330.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible",
+      "sessionState": "사람 확인 연결을 준비하고 있어요",
+      "claimState": "승인을 기다리고 있어요"
+    },
+    {
+      "label": "assert: email metadata privacy is visible",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "email-address",
+      "conversation": {
+        "x": 126,
+        "y": 330.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 613.953125
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 330.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible",
+      "sessionState": "사람 확인 연결을 준비하고 있어요",
+      "claimState": "승인을 기다리고 있어요"
+    },
+    {
+      "label": "before viewport: 1440-email-privacy",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "email-address",
+      "conversation": {
+        "x": 126,
+        "y": 330.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 613.953125
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 330.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible",
+      "sessionState": "사람 확인 연결을 준비하고 있어요",
+      "claimState": "승인을 기다리고 있어요"
+    },
+    {
+      "label": "before viewport: 1440-otp-cooldown",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "otp-code",
+      "conversation": {
+        "x": 126,
+        "y": 330.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 812.421875
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 330.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible",
+      "sessionState": "사람 확인 연결을 준비하고 있어요",
+      "claimState": "승인을 기다리고 있어요"
+    },
+    {
+      "label": "assert: 120 second explicit resend cooldown",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "otp-code",
+      "conversation": {
+        "x": 126,
+        "y": 330.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 812.421875
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 330.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible",
+      "sessionState": "사람 확인 연결을 준비하고 있어요",
+      "claimState": "승인을 기다리고 있어요"
+    },
+    {
+      "label": "before viewport: 1440-wrong-code",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 38,
+      "active": "BODY",
+      "conversation": {
+        "x": 126,
+        "y": 292.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 812.421875
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 292.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible",
+      "sessionState": "사람 확인 연결을 준비하고 있어요",
+      "claimState": "승인을 기다리고 있어요"
+    },
+    {
+      "label": "before viewport: 1440-rate-limit",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "BODY",
+      "conversation": {
+        "x": 126,
+        "y": 330.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 613.953125
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 330.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible",
+      "sessionState": "사람 확인 연결을 준비하고 있어요",
+      "claimState": "승인을 기다리고 있어요"
+    },
+    {
+      "label": "before viewport: 1440-before-approval",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "BODY",
+      "conversation": {
+        "x": 126,
+        "y": 330.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 532
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 330.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible",
+      "sessionState": "사람 확인과 가입 자격을 확인했어요.",
+      "claimState": "승인을 기다리고 있어요"
+    },
+    {
+      "label": "assert: OTP login does not auto approve",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "BODY",
+      "conversation": {
+        "x": 126,
+        "y": 330.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 532
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 330.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible",
+      "sessionState": "사람 확인과 가입 자격을 확인했어요.",
+      "claimState": "승인을 기다리고 있어요"
+    },
+    {
+      "label": "assert: risk acknowledgement starts unchecked",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "BODY",
+      "conversation": {
+        "x": 126,
+        "y": 330.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 532
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 330.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible",
+      "sessionState": "사람 확인과 가입 자격을 확인했어요.",
+      "claimState": "승인을 기다리고 있어요"
+    },
+    {
+      "label": "before viewport: 1440-approved",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "BODY",
+      "conversation": {
+        "x": 126,
+        "y": 330.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 532
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 330.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible",
+      "sessionState": "사람 확인과 가입 자격을 확인했어요.",
+      "claimState": "승인했습니다"
+    },
+    {
+      "label": "assert: valid session second claim has no OTP UI",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "BODY",
+      "conversation": {
+        "x": 126,
+        "y": 330.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 532
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 330.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible",
+      "sessionState": "사람 확인과 가입 자격을 확인했어요.",
+      "claimState": "승인을 기다리고 있어요"
+    },
+    {
+      "label": "assert: second claim sends zero extra email",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "BODY",
+      "conversation": {
+        "x": 126,
+        "y": 330.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 532
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 330.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible",
+      "sessionState": "사람 확인과 가입 자격을 확인했어요.",
+      "claimState": "승인했습니다"
+    },
+    {
+      "label": "before viewport: 1440-creator",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "BODY",
+      "conversation": {
+        "x": 126,
+        "y": 330.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 532
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 330.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "1440 before modal",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "BODY",
+      "conversation": {
+        "x": 126,
+        "y": 330.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 532
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 330.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "1440 open modal",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "roomName",
+      "conversation": {
+        "x": 126,
+        "y": 330.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 532
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 330.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": {
+        "x": 470,
+        "y": 154.671875,
+        "right": 970,
+        "width": 500,
+        "height": 690.65625
+      },
+      "bodyOverflow": "hidden"
+    },
+    {
+      "label": "assert: modal background locked and input focus",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "roomName",
+      "conversation": {
+        "x": 126,
+        "y": 330.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 532
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 330.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": {
+        "x": 470,
+        "y": 154.671875,
+        "right": 970,
+        "width": 500,
+        "height": 690.65625
+      },
+      "bodyOverflow": "hidden"
+    },
+    {
+      "label": "before viewport: 1440-create-modal",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "roomName",
+      "conversation": {
+        "x": 126,
+        "y": 330.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 532
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 330.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": {
+        "x": 470,
+        "y": 154.671875,
+        "right": 970,
+        "width": 500,
+        "height": 690.65625
+      },
+      "bodyOverflow": "hidden"
+    },
+    {
+      "label": "assert: modal focus restored",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "open-create",
+      "conversation": {
+        "x": 126,
+        "y": 330.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 532
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 330.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "1440 closed modal",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "open-create",
+      "conversation": {
+        "x": 126,
+        "y": 330.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 532
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 330.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "assert: modal page position retained",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "open-create",
+      "conversation": {
+        "x": 126,
+        "y": 330.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 532
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 330.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "assert: each create modal risk checkbox starts unchecked",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "roomName",
+      "conversation": {
+        "x": 126,
+        "y": 330.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 532
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 330.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": {
+        "x": 470,
+        "y": 154.671875,
+        "right": 970,
+        "width": 500,
+        "height": 690.65625
+      },
+      "bodyOverflow": "hidden"
+    },
+    {
+      "label": "assert: human owned agent creates room",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "open-create",
+      "conversation": {
+        "x": 126,
+        "y": 330.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 841.15625
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 330.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "assert: new room sends zero extra email",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "open-create",
+      "conversation": {
+        "x": 126,
+        "y": 330.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 841.15625
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 330.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "assert: owner credential is memory only",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "open-create",
+      "conversation": {
+        "x": 126,
+        "y": 330.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 841.15625
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 330.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "before viewport: 1440-result",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "open-create",
+      "conversation": {
+        "x": 126,
+        "y": 330.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 841.15625
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 330.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "assert: owner copy success separate from shared URLs",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 172,
+      "active": "BUTTON",
+      "conversation": {
+        "x": 126,
+        "y": 158.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 841.15625
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 158.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "assert: shared URL selectable after real clipboard denial",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 172,
+      "active": "read-result",
+      "conversation": {
+        "x": 126,
+        "y": 158.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 841.15625
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 158.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "before viewport: 1440-copy-fallback",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 172,
+      "active": "read-result",
+      "conversation": {
+        "x": 126,
+        "y": 158.9375,
+        "right": 1004,
+        "width": 878,
+        "height": 841.15625
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 158.9375,
+        "right": 1314,
+        "width": 284,
+        "height": 445.9375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "before viewport: 1440-spectator-unchanged",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "BODY",
+      "conversation": {
+        "x": 126,
+        "y": 311.15625,
+        "right": 1004,
+        "width": 878,
+        "height": 594
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 311.15625,
+        "right": 1314,
+        "width": 284,
+        "height": 532.765625
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "1440 spectator",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "BODY",
+      "conversation": {
+        "x": 126,
+        "y": 311.15625,
+        "right": 1004,
+        "width": 878,
+        "height": 594
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 311.15625,
+        "right": 1314,
+        "width": 284,
+        "height": 532.765625
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "assert: representative spectator no overflow",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "BODY",
+      "conversation": {
+        "x": 126,
+        "y": 311.15625,
+        "right": 1004,
+        "width": 878,
+        "height": 594
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 311.15625,
+        "right": 1314,
+        "width": 284,
+        "height": 532.765625
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "assert: representative spectator text is plain",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "pageY": 0,
+      "active": "BODY",
+      "conversation": {
+        "x": 126,
+        "y": 311.15625,
+        "right": 1004,
+        "width": 878,
+        "height": 594
+      },
+      "sidebar": {
+        "x": 1030,
+        "y": 311.15625,
+        "right": 1314,
+        "width": 284,
+        "height": 532.765625
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "before viewport: 390-register",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 0,
+      "active": "BODY",
+      "conversation": {
+        "x": 22,
+        "y": 276.1875,
+        "right": 368,
+        "width": 346,
+        "height": 684.484375
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 980.671875,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "assert: self-contained registration",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 0,
+      "active": "BODY",
+      "conversation": {
+        "x": 22,
+        "y": 276.1875,
+        "right": 368,
+        "width": 346,
+        "height": 684.484375
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 980.671875,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "before viewport: 390-pending",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 0,
+      "active": "BODY",
+      "conversation": {
+        "x": 22,
+        "y": 276.1875,
+        "right": 368,
+        "width": 346,
+        "height": 522
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 818.1875,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": null,
+      "bodyOverflow": "visible",
+      "sessionState": "사람 확인 연결을 준비하고 있어요",
+      "claimState": "승인을 기다리고 있어요"
+    },
+    {
+      "label": "assert: pending cannot approve before email confirmation",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 0,
+      "active": "email-address",
+      "conversation": {
+        "x": 22,
+        "y": 276.1875,
+        "right": 368,
+        "width": 346,
+        "height": 824.6875
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 1120.875,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": null,
+      "bodyOverflow": "visible",
+      "sessionState": "사람 확인 연결을 준비하고 있어요",
+      "claimState": "승인을 기다리고 있어요"
+    },
+    {
+      "label": "assert: email metadata privacy is visible",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 0,
+      "active": "email-address",
+      "conversation": {
+        "x": 22,
+        "y": 276.1875,
+        "right": 368,
+        "width": 346,
+        "height": 824.6875
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 1120.875,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": null,
+      "bodyOverflow": "visible",
+      "sessionState": "사람 확인 연결을 준비하고 있어요",
+      "claimState": "승인을 기다리고 있어요"
+    },
+    {
+      "label": "before viewport: 390-email-privacy",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 0,
+      "active": "email-address",
+      "conversation": {
+        "x": 22,
+        "y": 276.1875,
+        "right": 368,
+        "width": 346,
+        "height": 824.6875
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 1120.875,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": null,
+      "bodyOverflow": "visible",
+      "sessionState": "사람 확인 연결을 준비하고 있어요",
+      "claimState": "승인을 기다리고 있어요"
+    },
+    {
+      "label": "before viewport: 390-otp-cooldown",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 632,
+      "active": "otp-code",
+      "conversation": {
+        "x": 22,
+        "y": -355.8125,
+        "right": 368,
+        "width": 346,
+        "height": 1087.546875
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 751.734375,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": null,
+      "bodyOverflow": "visible",
+      "sessionState": "사람 확인 연결을 준비하고 있어요",
+      "claimState": "승인을 기다리고 있어요"
+    },
+    {
+      "label": "assert: 120 second explicit resend cooldown",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 384,
+      "active": "otp-code",
+      "conversation": {
+        "x": 22,
+        "y": -107.8125,
+        "right": 368,
+        "width": 346,
+        "height": 1087.546875
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 999.734375,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": null,
+      "bodyOverflow": "visible",
+      "sessionState": "사람 확인 연결을 준비하고 있어요",
+      "claimState": "승인을 기다리고 있어요"
+    },
+    {
+      "label": "before viewport: 390-wrong-code",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 953,
+      "active": "BODY",
+      "conversation": {
+        "x": 22,
+        "y": -676.8125,
+        "right": 368,
+        "width": 346,
+        "height": 1087.546875
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 430.734375,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": null,
+      "bodyOverflow": "visible",
+      "sessionState": "사람 확인 연결을 준비하고 있어요",
+      "claimState": "승인을 기다리고 있어요"
+    },
+    {
+      "label": "before viewport: 390-rate-limit",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 490,
+      "active": "BODY",
+      "conversation": {
+        "x": 22,
+        "y": -213.8125,
+        "right": 368,
+        "width": 346,
+        "height": 824.6875
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 630.875,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": null,
+      "bodyOverflow": "visible",
+      "sessionState": "사람 확인 연결을 준비하고 있어요",
+      "claimState": "승인을 기다리고 있어요"
+    },
+    {
+      "label": "before viewport: 390-before-approval",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 360,
+      "active": "BODY",
+      "conversation": {
+        "x": 22,
+        "y": -83.8125,
+        "right": 368,
+        "width": 346,
+        "height": 570.21875
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 506.40625,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": null,
+      "bodyOverflow": "visible",
+      "sessionState": "사람 확인과 가입 자격을 확인했어요.",
+      "claimState": "승인을 기다리고 있어요"
+    },
+    {
+      "label": "assert: OTP login does not auto approve",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 360,
+      "active": "BODY",
+      "conversation": {
+        "x": 22,
+        "y": -83.8125,
+        "right": 368,
+        "width": 346,
+        "height": 570.21875
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 506.40625,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": null,
+      "bodyOverflow": "visible",
+      "sessionState": "사람 확인과 가입 자격을 확인했어요.",
+      "claimState": "승인을 기다리고 있어요"
+    },
+    {
+      "label": "assert: risk acknowledgement starts unchecked",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 360,
+      "active": "BODY",
+      "conversation": {
+        "x": 22,
+        "y": -83.8125,
+        "right": 368,
+        "width": 346,
+        "height": 570.21875
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 506.40625,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": null,
+      "bodyOverflow": "visible",
+      "sessionState": "사람 확인과 가입 자격을 확인했어요.",
+      "claimState": "승인을 기다리고 있어요"
+    },
+    {
+      "label": "before viewport: 390-approved",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 360,
+      "active": "BODY",
+      "conversation": {
+        "x": 22,
+        "y": -83.8125,
+        "right": 368,
+        "width": 346,
+        "height": 522
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 458.1875,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": null,
+      "bodyOverflow": "visible",
+      "sessionState": "사람 확인과 가입 자격을 확인했어요.",
+      "claimState": "승인했습니다"
+    },
+    {
+      "label": "assert: valid session second claim has no OTP UI",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 0,
+      "active": "BODY",
+      "conversation": {
+        "x": 22,
+        "y": 276.1875,
+        "right": 368,
+        "width": 346,
+        "height": 570.21875
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 866.40625,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": null,
+      "bodyOverflow": "visible",
+      "sessionState": "사람 확인과 가입 자격을 확인했어요.",
+      "claimState": "승인을 기다리고 있어요"
+    },
+    {
+      "label": "assert: second claim sends zero extra email",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 0,
+      "active": "BODY",
+      "conversation": {
+        "x": 22,
+        "y": 276.1875,
+        "right": 368,
+        "width": 346,
+        "height": 522
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 818.1875,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": null,
+      "bodyOverflow": "visible",
+      "sessionState": "사람 확인과 가입 자격을 확인했어요.",
+      "claimState": "승인했습니다"
+    },
+    {
+      "label": "before viewport: 390-creator",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 0,
+      "active": "INPUT",
+      "conversation": {
+        "x": 22,
+        "y": 276.1875,
+        "right": 368,
+        "width": 346,
+        "height": 726.8125
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 1023,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "390 before modal",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 479,
+      "active": "INPUT",
+      "conversation": {
+        "x": 22,
+        "y": -202.8125,
+        "right": 368,
+        "width": 346,
+        "height": 726.8125
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 544,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "390 open modal",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 479,
+      "active": "roomName",
+      "conversation": {
+        "x": 22,
+        "y": -202.8125,
+        "right": 368,
+        "width": 346,
+        "height": 726.8125
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 544,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": {
+        "x": 19,
+        "y": 80.421875,
+        "right": 371,
+        "width": 352,
+        "height": 683.15625
+      },
+      "bodyOverflow": "hidden"
+    },
+    {
+      "label": "assert: modal background locked and input focus",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 479,
+      "active": "roomName",
+      "conversation": {
+        "x": 22,
+        "y": -202.8125,
+        "right": 368,
+        "width": 346,
+        "height": 726.8125
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 544,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": {
+        "x": 19,
+        "y": 80.421875,
+        "right": 371,
+        "width": 352,
+        "height": 683.15625
+      },
+      "bodyOverflow": "hidden"
+    },
+    {
+      "label": "before viewport: 390-create-modal",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 479,
+      "active": "roomName",
+      "conversation": {
+        "x": 22,
+        "y": -202.8125,
+        "right": 368,
+        "width": 346,
+        "height": 726.8125
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 544,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": {
+        "x": 19,
+        "y": 80.421875,
+        "right": 371,
+        "width": 352,
+        "height": 683.15625
+      },
+      "bodyOverflow": "hidden"
+    },
+    {
+      "label": "assert: modal focus restored",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 479,
+      "active": "open-create",
+      "conversation": {
+        "x": 22,
+        "y": -202.8125,
+        "right": 368,
+        "width": 346,
+        "height": 726.8125
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 544,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "390 closed modal",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 479,
+      "active": "open-create",
+      "conversation": {
+        "x": 22,
+        "y": -202.8125,
+        "right": 368,
+        "width": 346,
+        "height": 726.8125
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 544,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "assert: modal page position retained",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 479,
+      "active": "open-create",
+      "conversation": {
+        "x": 22,
+        "y": -202.8125,
+        "right": 368,
+        "width": 346,
+        "height": 726.8125
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 544,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "assert: each create modal risk checkbox starts unchecked",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 479,
+      "active": "roomName",
+      "conversation": {
+        "x": 22,
+        "y": -202.8125,
+        "right": 368,
+        "width": 346,
+        "height": 726.8125
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 544,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": {
+        "x": 19,
+        "y": 80.421875,
+        "right": 371,
+        "width": 352,
+        "height": 683.15625
+      },
+      "bodyOverflow": "hidden"
+    },
+    {
+      "label": "assert: human owned agent creates room",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 479,
+      "active": "open-create",
+      "conversation": {
+        "x": 22,
+        "y": -202.8125,
+        "right": 368,
+        "width": 346,
+        "height": 1196.03125
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 1013.21875,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "assert: new room sends zero extra email",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 479,
+      "active": "open-create",
+      "conversation": {
+        "x": 22,
+        "y": -202.8125,
+        "right": 368,
+        "width": 346,
+        "height": 1196.03125
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 1013.21875,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "assert: owner credential is memory only",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 479,
+      "active": "open-create",
+      "conversation": {
+        "x": 22,
+        "y": -202.8125,
+        "right": 368,
+        "width": 346,
+        "height": 1196.03125
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 1013.21875,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "before viewport: 390-result",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 479,
+      "active": "open-create",
+      "conversation": {
+        "x": 22,
+        "y": -202.8125,
+        "right": 368,
+        "width": 346,
+        "height": 1214.625
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 1031.8125,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "assert: owner copy success separate from shared URLs",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 887,
+      "active": "BUTTON",
+      "conversation": {
+        "x": 22,
+        "y": -610.8125,
+        "right": 368,
+        "width": 346,
+        "height": 1196.03125
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 605.21875,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "assert: shared URL selectable after real clipboard denial",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 887,
+      "active": "read-result",
+      "conversation": {
+        "x": 22,
+        "y": -610.8125,
+        "right": 368,
+        "width": 346,
+        "height": 1196.03125
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 605.21875,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "before viewport: 390-copy-fallback",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 887,
+      "active": "read-result",
+      "conversation": {
+        "x": 22,
+        "y": -610.8125,
+        "right": 368,
+        "width": 346,
+        "height": 1214.625
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 623.8125,
+        "right": 368,
+        "width": 346,
+        "height": 442.671875
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "before viewport: 390-spectator-unchanged",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 0,
+      "active": "BODY",
+      "conversation": {
+        "x": 22,
+        "y": 369.78125,
+        "right": 368,
+        "width": 346,
+        "height": 593
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 982.78125,
+        "right": 368,
+        "width": 346,
+        "height": 542.859375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "390 spectator",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 0,
+      "active": "BODY",
+      "conversation": {
+        "x": 22,
+        "y": 369.78125,
+        "right": 368,
+        "width": 346,
+        "height": 593
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 982.78125,
+        "right": 368,
+        "width": 346,
+        "height": 542.859375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "assert: representative spectator no overflow",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 0,
+      "active": "BODY",
+      "conversation": {
+        "x": 22,
+        "y": 369.78125,
+        "right": 368,
+        "width": 346,
+        "height": 593
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 982.78125,
+        "right": 368,
+        "width": 346,
+        "height": 542.859375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    },
+    {
+      "label": "assert: representative spectator text is plain",
+      "width": 390,
+      "scrollWidth": 390,
+      "pageY": 0,
+      "active": "BODY",
+      "conversation": {
+        "x": 22,
+        "y": 369.78125,
+        "right": 368,
+        "width": 346,
+        "height": 593
+      },
+      "sidebar": {
+        "x": 22,
+        "y": 982.78125,
+        "right": 368,
+        "width": 346,
+        "height": 542.859375
+      },
+      "dialog": null,
+      "bodyOverflow": "visible"
+    }
+  ],
+  "shots": [
+    "1440-register",
+    "1440-pending",
+    "1440-email-privacy",
+    "1440-otp-cooldown",
+    "1440-wrong-code",
+    "1440-rate-limit",
+    "1440-before-approval",
+    "1440-approved",
+    "1440-creator",
+    "1440-create-modal",
+    "1440-result",
+    "1440-copy-fallback",
+    "1440-spectator-unchanged",
+    "390-register",
+    "390-pending",
+    "390-email-privacy",
+    "390-otp-cooldown",
+    "390-wrong-code",
+    "390-rate-limit",
+    "390-before-approval",
+    "390-approved",
+    "390-creator",
+    "390-create-modal",
+    "390-result",
+    "390-copy-fallback",
+    "390-spectator-unchanged"
+  ],
+  "errors": [],
+  "requests": [
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/register",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/styles.css",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/app.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/assets/tok-sans.woff2",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/view.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/session.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/identity-ui.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/identity-view.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/email-ui.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/claim/14cb3f0b-38a3-4439-9713-9a3d57086861/[cap]",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/styles.css",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/app.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/assets/tok-sans.woff2",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/view.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/session.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/identity-ui.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/identity-view.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/email-ui.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/api/claims/14cb3f0b-38a3-4439-9713-9a3d57086861",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/api/session",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "POST",
+      "path": "/api/auth/start",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "POST",
+      "path": "/api/auth/email/send",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "POST",
+      "path": "/api/auth/complete",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "POST",
+      "path": "/api/auth/complete",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/api/claims/14cb3f0b-38a3-4439-9713-9a3d57086861",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/api/session",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "POST",
+      "path": "/api/claims/14cb3f0b-38a3-4439-9713-9a3d57086861/approve",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/claim/d1ad1e0a-08b5-487e-957f-7b0326960d68/[cap]",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/styles.css",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/app.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/view.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/session.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/identity-ui.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/assets/tok-sans.woff2",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/identity-view.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/email-ui.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/api/claims/d1ad1e0a-08b5-487e-957f-7b0326960d68",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/api/session",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "POST",
+      "path": "/api/claims/d1ad1e0a-08b5-487e-957f-7b0326960d68/approve",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/creator",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/styles.css",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/app.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/assets/tok-sans.woff2",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/view.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/session.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/identity-ui.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/identity-view.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/email-ui.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/api/session",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "POST",
+      "path": "/api/rooms",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/r/d767380b-20e9-407a-8254-84b8efa53e00/[cap]",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/styles.css",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/app.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/assets/tok-sans.woff2",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/view.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/session.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/identity-ui.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/identity-view.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/email-ui.js",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/api/rooms/d767380b-20e9-407a-8254-84b8efa53e00",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/api/rooms/d767380b-20e9-407a-8254-84b8efa53e00/messages",
+      "external": false
+    },
+    {
+      "width": 1440,
+      "method": "GET",
+      "path": "/api/rooms/d767380b-20e9-407a-8254-84b8efa53e00/wait",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/register",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/styles.css",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/app.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/view.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/session.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/identity-ui.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/assets/tok-sans.woff2",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/identity-view.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/email-ui.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/claim/2d1e8a5e-4b4d-4a81-9192-c8e3c3366253/[cap]",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/styles.css",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/app.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/assets/tok-sans.woff2",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/view.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/session.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/identity-ui.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/identity-view.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/email-ui.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/api/claims/2d1e8a5e-4b4d-4a81-9192-c8e3c3366253",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/api/session",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "POST",
+      "path": "/api/auth/start",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "POST",
+      "path": "/api/auth/email/send",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "POST",
+      "path": "/api/auth/complete",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "POST",
+      "path": "/api/auth/complete",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/api/claims/2d1e8a5e-4b4d-4a81-9192-c8e3c3366253",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/api/session",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "POST",
+      "path": "/api/claims/2d1e8a5e-4b4d-4a81-9192-c8e3c3366253/approve",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/claim/6160c5c4-ca8c-41d0-8939-9a396d25ae93/[cap]",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/styles.css",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/app.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/assets/tok-sans.woff2",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/view.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/session.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/identity-ui.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/identity-view.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/email-ui.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/api/claims/6160c5c4-ca8c-41d0-8939-9a396d25ae93",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/api/session",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "POST",
+      "path": "/api/claims/6160c5c4-ca8c-41d0-8939-9a396d25ae93/approve",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/creator",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/styles.css",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/app.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/assets/tok-sans.woff2",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/view.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/session.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/identity-ui.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/identity-view.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/email-ui.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/api/session",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "POST",
+      "path": "/api/rooms",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/r/0d80f0fb-8fe6-453d-87c2-7498d59f9e60/[cap]",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/styles.css",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/app.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/assets/tok-sans.woff2",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/view.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/session.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/identity-ui.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/identity-view.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/email-ui.js",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/api/rooms/0d80f0fb-8fe6-453d-87c2-7498d59f9e60",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/api/rooms/0d80f0fb-8fe6-453d-87c2-7498d59f9e60/messages",
+      "external": false
+    },
+    {
+      "width": 390,
+      "method": "GET",
+      "path": "/api/rooms/0d80f0fb-8fe6-453d-87c2-7498d59f9e60/wait",
+      "external": false
+    }
+  ],
+  "browser": "153.0.8010.12",
+  "pass": true
+}
