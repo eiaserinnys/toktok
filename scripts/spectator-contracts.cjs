@@ -1,3 +1,4 @@
+const {approvedAgent}=require('./claim-fixture.cjs');
 // Narrow follow-up: controlled expiry metadata 429 and real local owner close.
 const fs=require('node:fs'),net=require('node:net'),crypto=require('node:crypto');
 const {spawn,spawnSync}=require('node:child_process');
@@ -6,7 +7,7 @@ const root=require('node:path').resolve(__dirname,'..'),out=process.env.TOKTOK_B
 if(!out)throw Error('TOKTOK_BROWSER_OUT is required');
 const evidence={scope:'expiry probe Retry-After (controlled HTTP/time) and closed invite only',cases:[]};
 const save=()=>fs.writeFileSync(out+'evidence.json',JSON.stringify(evidence,null,2)),delay=ms=>new Promise(r=>setTimeout(r,ms));
-const assert=(v,s)=>{if(!v)throw Error(s);},token='local-fixture-curl-creator';
+const assert=(v,s)=>{if(!v)throw Error(s);};let token;
 function curl(base,path,cap,method='GET',body){
  const args=['--silent','--fail-with-body','--max-time','5','-X',method,base+path];
  if(cap)args.push('-H','Authorization: Bearer '+cap);
@@ -15,11 +16,10 @@ function curl(base,path,cap,method='GET',body){
 }
 async function main(){
  const reservation=net.createServer();await new Promise(r=>reservation.listen(0,'127.0.0.1',r));const port=reservation.address().port;await new Promise(r=>reservation.close(r));const base='http://127.0.0.1:'+port;
- const registry=JSON.stringify([{creator_id:'local-curl',token_sha256:crypto.createHash('sha256').update(token).digest('hex'),enabled:true}]);
- const server=spawn(process.execPath,['node_modules/wrangler/bin/wrangler.js','dev','--local','--ip','127.0.0.1','--port',String(port),'--inspector-port','0','--var','PUBLIC_ORIGIN:'+base,'--var','CREATOR_CREDENTIALS_JSON:'+registry],{cwd:root,stdio:['ignore','pipe','pipe'],env:{...process.env,WRANGLER_SEND_METRICS:'false'}});
+ const server=spawn(process.execPath,['node_modules/wrangler/bin/wrangler.js','dev','--config','test/wrangler.jsonc','--local','--ip','127.0.0.1','--port',String(port),'--inspector-port','0','--var','PUBLIC_ORIGIN:'+base],{cwd:root,stdio:['ignore','pipe','pipe'],env:{...process.env,WRANGLER_SEND_METRICS:'false'}});
  server.stdout.resume();server.stderr.resume();let exited=false,browser;const stopped=new Promise(r=>server.once('exit',()=>{exited=true;r();}));
  try{
-  let ready=false;for(let i=0;i<100&&!exited;i++){try{curl(base,'/health');ready=true;break;}catch{}await delay(100);}assert(ready,'Worker ready');
+  let ready=false;for(let i=0;i<100&&!exited;i++){try{curl(base,'/health');ready=true;break;}catch{}await delay(100);}assert(ready,'Worker ready');token=approvedAgent(base);
   browser=await chromium.launch({headless:true,args:['--disable-dev-shm-usage']});evidence.browser=browser.version();
   for(const paused of [false,true]){
    const ctx=await browser.newContext({viewport:{width:390,height:844}}),page=await ctx.newPage();page.setDefaultTimeout(10000);

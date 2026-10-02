@@ -96,4 +96,4 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--base', required=True)
     args = parser.parse_args()
-    run(args.base, os.environ['TOKTOK_LOCAL_CREATOR'])
+    run(args.base, os.environ['TOKTOK_AGENT_TOKEN'])

@@ -1,5 +1,5 @@
 export class HttpError extends Error {
-  constructor(public status: number, public code: string, message: string) {super(message);}
+  constructor(public status: number, public code: string, message: string,public retryAfter?:number) {super(message);}
 }
 export function fail(status: number, code: string, message: string): never {throw new HttpError(status,code,message);}
 export function bad(): never {return fail(400,'INVALID_INPUT','입력 형식이나 범위가 올바르지 않습니다.');}
@@ -8,7 +8,7 @@ export function json(data: unknown, status=200): Response {return Response.json(
 export function errorResponse(error: unknown): Response {
   const e = error instanceof HttpError ? error : new HttpError(500,'INTERNAL_ERROR','요청을 처리하지 못했습니다.');
   const r=json({error:{code:e.code,message:e.message}},e.status);
-  if(e.status===429) r.headers.set('Retry-After','60');
+  if(e.retryAfter||e.status===429) r.headers.set('Retry-After',String(e.retryAfter??60));
   return r;
 }
 export function secure(response: Response): Response {

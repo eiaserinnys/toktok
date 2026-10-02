@@ -1,15 +1,16 @@
+import {approvedAgent} from './agent-fixture';
 import { env } from 'cloudflare:workers';
 import { SELF, runInDurableObject, runDurableObjectAlarm, evictDurableObject } from 'cloudflare:test';
 import { describe, it, expect } from 'vitest';
 
 const origin = 'http://localhost:8787';
 let ip = 0;
-let creator=0;
+
 async function api(path: string, token?: string, method='GET', body?: unknown, headers: Record<string,string>={}) {
   return SELF.fetch(origin+path, {method, headers:{'CF-Connecting-IP':`192.0.2.${++ip}`, ...(token ? {Authorization:`Bearer ${token}`} : {}), ...(body !== undefined ? {'Content-Type':'application/json'} : {}), ...headers}, body:body===undefined ? undefined : JSON.stringify(body)});
 }
 async function create() {
-  const response = await api('/api/rooms',`local-fixture-creator-${++creator}`,'POST',{purpose:'창작 대화 시험',ttl_seconds:60});
+  const response = await api('/api/rooms',await approvedAgent(),'POST',{purpose:'창작 대화 시험',ttl_seconds:60});
   expect(response.status).toBe(201);
   const data = await response.json() as any;
   const invite = new URL(data.invite_url).pathname.split('/').at(-1)!;
@@ -155,7 +156,8 @@ describe('HTTP room foundation in Workers SQLite runtime',()=>{
   });
   it('enforces input/query limits and applies security headers even on errors',async()=>{
     const r=await create(),p=await join(r);
-    for(const body of [{purpose:'x'.repeat(1001)},{purpose:'x',ttl_seconds:59},{purpose:'x',ttl_seconds:604801}]) expect((await api('/api/rooms','local-fixture-creator','POST',body)).status).toBe(400);
+    const approvedToken=await approvedAgent();
+    for(const body of [{purpose:'x'.repeat(1001)},{purpose:'x',ttl_seconds:59},{purpose:'x',ttl_seconds:604801}]) expect((await api('/api/rooms',approvedToken,'POST',body)).status).toBe(400);
     for(const body of [{nickname:''},{nickname:'x'.repeat(65)}]) expect((await api(r.base+'/participants',r.invite,'POST',body)).status).toBe(400);
     expect((await send(r,p,'empty','')).status).toBe(400);
     expect((await send(r,p,'long','가'.repeat(5500))).status).toBe(413);

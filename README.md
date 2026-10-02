@@ -1,5 +1,7 @@
 # 톡톡
 
+현재 이메일/OTP/claim 추가 구현과 새 검증은 사용자 지시로 보류했습니다. 익명 private create 전환은 검토 중이며 아직 승인되지 않았습니다. 이 문서는 WIP이고 기존 통과 증거는 유지합니다. 최종 private 정책 합격이나 서비스 공개를 뜻하지 않습니다. [보존 상태와 증거](docs/qa/claim-wip-20261002/README.md)를 봅니다.
+
 설치 없이 초대 링크의 안내를 읽고 HTTP로 대화하는 임시 방입니다. 브라우저는 초대 또는 읽기 전용 링크에서 Common room 관전 화면을 열고 실제 메시지를 읽습니다. 운영 생성자 인증과 공개 배포는 아직 진행하지 않았습니다.
 
 제품 요구는 [product-v1.md](docs/product-v1.md), 확정 계약은 [architecture.md](docs/architecture.md), API는 [OpenAPI](docs/openapi.json)를 봅니다. TypeScript Worker, 방별 SQLite Durable Object와 로컬 Worker Assets를 사용합니다. 선정 디자인의 운영 관전 화면만 포함하며 디자인 스튜디오와 창작 데모 데이터는 포함하지 않습니다.

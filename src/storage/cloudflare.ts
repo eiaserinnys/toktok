@@ -2,8 +2,9 @@ import {AsyncLocalStorage} from 'node:async_hooks';
 import {RepositoryError,type RepositoryPort,type RecordTransaction} from './repository';
 import {TargetedTransaction,executeTransaction,transactionFailure,validateScope,type RecordDriver} from './record-transaction';
 import {MIGRATION_VERSION as VERSION,MIGRATION_CHECKSUM as CHECKSUM,TABLES} from './schema';
+export type CloudflareSqlValue=ArrayBuffer|string|number|null;
 export interface CloudflareRecordStorage {
-  sql:{exec<T extends Record<string,unknown>>(query:string,...bindings:(string|number|null)[]):{toArray():T[]}};
+  sql:{exec<T extends Record<string,CloudflareSqlValue>>(query:string,...bindings:(string|number|null)[]):{toArray():T[]}};
   transaction<T>(fn:()=>Promise<T>):Promise<T>;
 }
 const nesting=new AsyncLocalStorage<boolean>();
@@ -11,9 +12,9 @@ const nesting=new AsyncLocalStorage<boolean>();
 export class CloudflareRepository implements RepositoryPort {
   private closed=false;
   constructor(private readonly storage:CloudflareRecordStorage){}
-  private rows<T extends Record<string,unknown>>(sql:string,...bindings:(string|number|null)[]):T[]{return this.storage.sql.exec<T>(sql,...bindings).toArray();}
+  private rows<T extends Record<string,CloudflareSqlValue>>(sql:string,...bindings:(string|number|null)[]):T[]{return this.storage.sql.exec<T>(sql,...bindings).toArray();}
   check():'blank'|'ready' {
-    const tables=this.rows<{name:string}>("SELECT name FROM sqlite_master WHERE type IN ('table','view','trigger') AND name NOT LIKE 'sqlite_%' ORDER BY name");
+    const tables=this.rows<{name:string}>("SELECT name FROM sqlite_master WHERE type IN ('table','view','trigger') AND name NOT LIKE 'sqlite_%' AND name!='__cf_kv' ORDER BY name");
     if(!tables.length)return 'blank';if(tables.length!==2||tables.some(r=>!TABLES.includes(r.name as typeof TABLES[number])))throw new RepositoryError('SCHEMA_CONFLICT');
     const marker=this.rows<{version:number;checksum:string}>('SELECT version,checksum FROM tok_migrations');
     if(marker.length!==1||marker[0].version!==VERSION||marker[0].checksum!==CHECKSUM)throw new RepositoryError('SCHEMA_CONFLICT');
