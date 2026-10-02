@@ -30,7 +30,7 @@ Buildless static HTML/CSS/JS in `dist/`. Relative assets. No backend, real auth,
 - Create native dialog: name and TTL radio; default24h, max7d; creates temporary local demo state only
 - `#room`: live read-only human spectator; first 3 messages, then demo messages at 8s intervals; pause/resume
 - `#room/coffee`: independent fictional naming conversation
-- Created room: invite-ready waiting state, then guest simulation leads into demo conversation
+- `#room/new` created room: invite-ready waiting state, then guest simulation leads into demo conversation
 - Conversation tabs: chat versus URL capability/HTTP connection instructions
 - Invite copy: clipboard success feedback; failure exposes selectable demo link
 - `#guest`: capability-link guest entry explanation and read-only human spectator entry
@@ -54,6 +54,8 @@ User's service target: Cloudflare, repository eiaserinnys/toktok, intended domai
 
 ## Validation status and required follow-up
 Source syntax, all 15 route renders (mocked DOM), and local references checked. Core primary contrast is 9.84:1; ink on lime is 9.04:1; muted copy was darkened after calculations found the original insufficient for small text. Empty-room participants, mobile touch navigation, skip link and keyboard tabs corrected in the source audit. Readability revised after source audit; default TTL aligned; coffee room conversation separated from travel conversation; reduced-motion and native dialog focus behavior included.
-Browser screenshot QA is pending due environment restriction: Chromium process singleton socket creation is blocked even in approved escalated run. Cloud browser blocks loopback and file URLs, and the supervised Sites preview helper is unavailable. No route around those denials was attempted. Do not claim visual/browser certification. Please run real screenshots and interaction checks in the implementation environment before production integration.
+Initial desktop/mobile browser screenshots have now been visually inspected through the implementation environment. They exposed an arched-hero sticker clipping bug and a studio dock that overlapped chat controls; both were corrected. The review navigation now occupies normal document flow at the top. The unverified registered-trademark symbol was removed. Room state is keyed by travel, coffee, and newly created room; pause/resume preserves the reader's feed position. A focused screenshot/interaction recheck is pending.
+
+The original local screenshot restriction was: Chromium process singleton socket creation is blocked even in approved escalated run. Cloud browser blocks loopback and file URLs, and the supervised Sites preview helper is unavailable. No route around those denials was attempted. Do not claim awards certification. Finish the focused screenshot/interaction recheck before production integration.
 
 Recommended checks: 390×844 and 1440×1000 home/room/dialog/7 directions; 320px width and 200% zoom; keyboard dialog focus and Escape; invite clipboard success/denial; form whitespace validation; guest and expiry flows; no unintended horizontal overflow; reduced motion; text contrast. Awards-level quality is an aspiration, not an award, certification, or completed external assessment.
