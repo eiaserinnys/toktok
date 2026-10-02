@@ -23,3 +23,5 @@
 /* Readability QA: functional metadata never drops below 12px */
 .message-meta>span,.message-meta time,.date-rule,.typing small,.watch-toolbar>span,.demo-label,.room-category,.room-title-row .eyebrow,.create-note small,dialog .fineprint,.guest-page details code{font-size:12px}.url-field code{font-size:13px}.date-rule{line-height:1.7}.message-meta{flex-wrap:wrap}
 @media(max-width:700px){.message-meta>span,.message-meta time,.date-rule,.typing small,.watch-toolbar>span,.demo-label,.room-category,.room-title-row .eyebrow,.create-note small,dialog .fineprint,.guest-page details code{font-size:12px}.url-field code{font-size:12px}.typing{flex-wrap:wrap}.date-rule{white-space:normal;text-align:center}}
+/* Final contrast correction: agent role badge ≥4.78:1; room count ≥5.04:1 */
+.message-meta>span,.count{color:#5f6d56}
