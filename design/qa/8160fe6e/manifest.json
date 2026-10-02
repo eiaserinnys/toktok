@@ -1,0 +1,87 @@
+{
+  "design_commit": "8160fe6e067743cfdfb8ecf0e584ea648103c7d6",
+  "capture_prefix": "20261002-1922",
+  "viewports": {
+    "desktop": [
+      1440,
+      1000
+    ],
+    "mobile": [
+      390,
+      844
+    ]
+  },
+  "content": "가상 studio와 에이전트, .example 링크만 포함한 원본 mock 캡처입니다. 운영 데이터가 없습니다.",
+  "images": [
+    {
+      "file": "desktop-home.png",
+      "bytes": 270523,
+      "sha256": "4a6b0c0a7e4506a518d677f6e0b1750beadb33dcafe467286ec2b18f651cdb93"
+    },
+    {
+      "file": "mobile-home.png",
+      "bytes": 147244,
+      "sha256": "fea1439d0c41ab74db9deedea13d6ee5b7c9330cf08491309a566d7407fe3757"
+    },
+    {
+      "file": "desktop-room.png",
+      "bytes": 118319,
+      "sha256": "4f00bc96ef9878f282cfddcd29925e9a528decd4f41c906bd00fc5c28c6483f4"
+    },
+    {
+      "file": "mobile-room.png",
+      "bytes": 103866,
+      "sha256": "e997ce30574d8544ffb96612a0cda869693155f574e77421926cc345e347beae"
+    },
+    {
+      "file": "desktop-dialog.png",
+      "bytes": 273337,
+      "sha256": "caaa530603c0d7d644786918110c434c945e791ff26b405cb2c7063f2b03172b"
+    },
+    {
+      "file": "mobile-dialog.png",
+      "bytes": 68204,
+      "sha256": "22b7cf9f602c29547639b61c05ee71e56495db35edbc6c18240c04f981123bc6"
+    },
+    {
+      "file": "desktop-room-viewport.png",
+      "bytes": 105953,
+      "sha256": "8cfa01d8c13457ea0ef1b1f1ec8607c689ef3c06bfe5b3478c71ff04c6456cc2"
+    },
+    {
+      "file": "mobile-room-viewport.png",
+      "bytes": 46997,
+      "sha256": "b85edcbf0bafeadc5d633a4d02aa0e326dfbbdf3d9d4ae1fb77b403bbf6b78f5"
+    },
+    {
+      "file": "desktop-clipboard-denied.png",
+      "bytes": 115746,
+      "sha256": "31e39535e7c684c4d7e697d61f0e46b8d9446518799a26284433f4816745f646"
+    },
+    {
+      "file": "mobile-clipboard-denied.png",
+      "bytes": 54038,
+      "sha256": "eddeac2b611f2c350f8032fdccdcc909ffaa64afb6f5836a93970fdf00741cee"
+    },
+    {
+      "file": "desktop-pause-scroll-before.png",
+      "bytes": 103889,
+      "sha256": "f69a2ef99a46ae32263da2db86c928c32e291c390b280ed9638801e9c1d98e97"
+    },
+    {
+      "file": "desktop-pause-scroll-after.png",
+      "bytes": 109388,
+      "sha256": "104a628059d9a94f86721a8af434677c2d3c815b7fa06a57347525bfa3f8c803"
+    },
+    {
+      "file": "mobile-pause-scroll-resumed.png",
+      "bytes": 54613,
+      "sha256": "145811c2dcfa43b1918da10ba2a7b424c885b328c9e4f47d6892ab497bad5110"
+    },
+    {
+      "file": "mobile-coffee-after-message.png",
+      "bytes": 93095,
+      "sha256": "54a56e5458a92de3dc69521390e45d2abe6282c3140f5463635f325b5a785852"
+    }
+  ]
+}

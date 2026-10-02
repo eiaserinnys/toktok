@@ -2,6 +2,36 @@
 
 실제 브라우저에서 촬영한 디자인 데모 화면입니다. 운영 화면이나 실제 계정, 비밀정보는 포함하지 않습니다. 이 브랜치는 배포 대상이 아닙니다.
 
+## 최신 집중 재검수: 8160fe6e
+
+대상은 `8160fe6e067743cfdfb8ecf0e584ea648103c7d6`입니다. 2026-10-02에 촬영한 원본 30장 중 담당자가 직접 본 대표 14장을 공유합니다. 캡처를 새로 생성하거나 편집하지 않았습니다.
+
+| 화면 | 1440px | 390px |
+| :--- | :--- | :--- |
+| 홈 전체 | [보기](design/qa/8160fe6e/desktop-home.png) | [보기](design/qa/8160fe6e/mobile-home.png) |
+| 방 전체 | [보기](design/qa/8160fe6e/desktop-room.png) | [보기](design/qa/8160fe6e/mobile-room.png) |
+| 방 뷰포트 | [보기](design/qa/8160fe6e/desktop-room-viewport.png) | [보기](design/qa/8160fe6e/mobile-room-viewport.png) |
+| 생성 모달 | [보기](design/qa/8160fe6e/desktop-dialog.png) | [보기](design/qa/8160fe6e/mobile-dialog.png) |
+| 실제 복사 권한 거부 | [보기](design/qa/8160fe6e/desktop-clipboard-denied.png) | [보기](design/qa/8160fe6e/mobile-clipboard-denied.png) |
+
+기존 네 결함이 해결되어 Common room 관전 화면의 실제 HTTP 통합을 시작합니다. 이 판정은 시안의 집중 재검수 결과이며 운영 인증, 실제 서버 연결과 배포의 완료 판정이 아닙니다.
+
+| 확인 항목 | 결과 |
+| :--- | :--- |
+| 홈 문구 잘림 | 두 폭에서 문구와 점 전체가 보입니다. |
+| 버튼과 시안 막대 겹침 | 막대가 상단 문서 흐름에 있고 정상 스크롤 후 pause 중심 클릭과 모바일 tap이 동작합니다. |
+| 방별 상태 혼합 | 직접 이동, 뒤로/앞으로, 홈 경유, 대화 갱신 뒤에도 제목과 대화가 분리됩니다. |
+| 읽던 위치 초기화 | pause/resume 후 feedTop desktop313, mobile424와 페이지 위치가 유지됩니다. 막대와 방의 좌표 차이도 0입니다. |
+| 390px 읽기와 터치 | 기능 메타 글자 12px, 새방 라벨 20px, 피드와 페이지의 터치 스크롤을 확인했습니다. |
+| 모달 | 자동 입력 초점, Escape/닫기 후 원래 버튼 초점 복귀, 배경 스크롤 잠금을 확인했습니다. |
+| 복사 실패 안내 | 두 폭에서 실제 permission denied와 연결 방법 탭, 실패 안내, 전체 URL 선택을 확인했습니다. |
+
+읽던 위치는 [정지 전](design/qa/8160fe6e/desktop-pause-scroll-before.png), [정지 후](design/qa/8160fe6e/desktop-pause-scroll-after.png), [모바일 재개](design/qa/8160fe6e/mobile-pause-scroll-resumed.png)로 비교할 수 있습니다. [방 이동 후 coffee 대화](design/qa/8160fe6e/mobile-coffee-after-message.png)도 보존합니다.
+
+제한: Tab/ShiftTab 중 document.activeElement가 BODY인 단계가 있어 엄격한 모달 내부 초점 순환은 통과로 표시하지 않습니다. 배경 버튼으로 초점이 이동한 사례는 없습니다. 최초 pause 버튼은 첫 뷰포트 아래이므로 정상 스크롤 후 클릭했습니다. 실기기 OS 복사 메뉴를 시험한 것은 아닙니다. 7시안 전체, 320px, 200% 확대는 이 수정본에서 다시 실행하지 않았습니다. 색상 두 곳과 coffee 아바타 머리글자의 예정된 후속 수정은 이 캡처에 포함되지 않습니다.
+
+[원시 조작 기록](design/qa/8160fe6e/interaction-findings.json)과 [이미지 해시](design/qa/8160fe6e/manifest.json)를 함께 제공합니다. 아래는 수정 전의 보존 기록이며 최신 판정과 구분합니다.
+
 ## 디자인 140f436c
 
 대상: `140f436cee062ef3741ddaeb6f1d85d99ce20536`, 2026-10-02 촬영.
