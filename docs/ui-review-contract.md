@@ -2,6 +2,8 @@
 
 상태: 2026-10-02 14:38:20·14:42:11·14:43:19 UTC 사용자 확정 요구를 반영한 구현 계약. registry, 관리자 검수 route와 coverage CI는 아직 미구현이다. 기존 PR #4의 CI 통과를 이 기능 통과로 사용하지 않는다.
 
+최종 시안 검수 기준은 [`design/toktok-ui@179b96f575a6d30ab5d85ea277452cebf1b4b257`](https://github.com/eiaserinnys/toktok/tree/179b96f575a6d30ab5d85ea277452cebf1b4b257/design/prototype)의 `design/prototype/`이다. 재개 시 해당 pin의 `INTEGRATION.md`, `UI_RULES.md`, tests를 읽고 아래 계약과 대조한다. 이 pin의 390×844·1440×1000 실제 화면 및 keyboard/focus/pan/zoom 검수는 아직 미완료이며, 이전 `309442a` 증거로 대신하지 않는다. 정확한 pin의 CI 결과는 별도 전달 대기다. 시안에 검수 UI가 있다는 사실은 제품의 서버 관리자 인가나 registry 통합이 완료됐다는 뜻이 아니다.
+
 ## 로그인 상태별 제품 IA
 
 2026-10-02 15:03:53·15:04:48 UTC(10월 3일 00:03:53·00:04:48 KST)의 두 사용자 발언을 함께 적용한다. 이전의 “우리의 방/공개 거실” 구분과 로그인 상태 분기 없는 canonical home 해석은 이 계약으로 대체한다. 정확한 URL은 새 시안 pin과 기존 제품 route를 대조해 확정하며, 아래 화면 역할을 서로 섞지 않는다.
