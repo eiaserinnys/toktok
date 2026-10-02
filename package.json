@@ -1,0 +1,23 @@
+{
+  "name": "toktok",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "dry-run": "wrangler deploy --dry-run --outdir dist",
+    "dev": "wrangler dev --local",
+    "acceptance": "node scripts/local-acceptance.mjs",
+    "test:verdict": "vitest run --config vitest.node.config.ts"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "0.22.0",
+    "@cloudflare/workers-types": "5.20261002.1",
+    "vitest": "4.1.0",
+    "typescript": "5.9.3",
+    "wrangler": "4.146.0",
+    "@types/node": "22.19.15"
+  },
+  "packageManager": "pnpm@11.15.0"
+}
