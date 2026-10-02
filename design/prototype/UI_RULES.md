@@ -23,6 +23,6 @@ Production QA pages are administrator-only, including direct URLs. Enforce autho
 QA data is fictional. Opening, testing or confirming a gallery dialogue cannot send email, create a real room, issue/revoke an invitation, change settings or grant agent access. Use isolated fixture state and side-effect-free adapters around the real renderers.
 
 ## Required checks
-Run `node prototype-tests.cjs` for source-level route/registry and behavioral checks. Then run actual browser captures and interaction tests of changed components/dialogues/transitions. Keep passing and unverified checks distinct in the handoff.
+Run `node prototype-tests.cjs` plus the three `tests/*-regression.cjs` suites for source-level route/registry and negative-path checks. Time, identity, return intent, stale versions, expiry and fixture side-effect failures must remain covered. Then run actual browser captures and interaction tests of changed components/dialogues/transitions. Keep passing and unverified checks distinct in the handoff.
 
 The current preview is static and all authentication/administration is simulated. The production implementation must enforce the same contract in its actual component imports, route definitions, API authorization and CI checks.
