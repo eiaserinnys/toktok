@@ -17,3 +17,8 @@ const sourceText=['app.js','experience.js','selects.js'].map(f=>fs.readFileSync(
 state.signed=true;state.role="member";route("home");assert.equal(c.location.hash,"#rooms");assert(app.innerHTML.includes("대화가 있는"));route("about");assert(app.innerHTML.includes("service-intro"));console.log("PASS: signed-in default rooms, explicit about remains secondary");
 
 assert(!contract.flows.edges.some(e=>e.from==='home'&&e.to==='create'),'Obsolete home creation edge');const enhanced=fs.readFileSync(path.join(root,'experience.js'),'utf8');const guardAt=enhanced.indexOf('dirtyDialog(target);return true}');assert(guardAt>=0&&enhanced.indexOf('window.toktokCloseSelects?.();',guardAt)>guardAt,'Select cleanup must follow dirty guard');console.log('PASS: canvas creation path and dirty-select cleanup order');
+
+// Homepage narrative order must stay identical in product and shared flow previews.
+assert.deepEqual(Array.from(contract.homeSections),['intro-hero','service-introduction','public-room-cards']);
+for(const mode of ['DEMO','HOSTED']){state.mode=mode;for(const page of ['home','about']){state.signed=page==='about';state.role=state.signed?'member':'guest';route(page);const markup=app.innerHTML;const positions=['class="home-hero"','class="service-intro"','class="intro-room-preview"'].map(token=>markup.indexOf(token));assert(positions.every(n=>n>=0)&&positions[0]<positions[1]&&positions[1]<positions[2],mode+' '+page+' narrative order');const flow=contract.flows.nodes.find(n=>n.route===page);assert.deepEqual(Array.from(flow.sectionOrder),Array.from(contract.homeSections));}}
+console.log('PASS: hero → explanation/how-use → room preview in DEMO/HOSTED home/about and shared flow registry');
