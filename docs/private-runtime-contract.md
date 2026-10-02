@@ -58,6 +58,10 @@ private 정책도 DB 설정에서 생성 snapshot으로 전달한다. 초기 안
 
 longpoll은 DB transaction/room mutation queue 밖에서 대기한다. 새 메시지 판정과 waiter 등록 사이 유실을 막는다. abort/timeout/close/shutdown은 timer/listener/waiter를 회수한다. cap 하나로 병렬 wait/read를 만들어 한도를 우회하지 못한다. 공통 core를 CF actor와 Node 단일 소유 room registry가 호출한다. Node/Postgres multi-app은 이번 지원 범위가 아니다.
 
+2026-10-03 추가 안전 경계: PrivateRoomCore가 방별 전체 handler와 body 읽기 동시성을 직접 제한한다. 기본 handler 64개(코드 상한 160), body-inflight 8개(코드 상한 16)이며 대기 요청도 handler 수에 포함한다. `waits <= handlers`, `bodyInflight <= handlers`를 설정 관계로 검증하고 body 파싱 전에 메모리 slot을 확보한다. 초과는 429와 Retry-After, 종료·취소·실패는 finally에서 slot을 반환한다. 이는 실제 네트워크 연결 수나 전송 완료 후 버퍼 전체를 세는 보장이 아니다. root의 외부 요청 제한은 이 core 제한을 대신하지 않는다.
+
+두 mode 모두 `defaultPersist=false`는 안전 불변조건이다. 설정 UI에서 true를 입력할 수 있게 남겨 두지 않으며 생성 요청의 persist 생략은 OFF다. 저장은 자격이 있는 주체가 새 방에서 명시적으로 선택한 경우에만 허용한다.
+
 ## 예산과 합격 기준
 
 root admission은 expensive work 전에 admission_requests를, 응답 직전에 실제 body bytes를, DB 본문 쓰기 전에 persistent_write_bytes를 원자 예약한다. 예약 실패 시 새 작업을 수행하지 않는다. 이미 예약했으나 취소/실패한 비용은 환불하지 않아 실제 수행량이 집계를 넘지 않게 한다. longpoll/활성 actor duration은 bounded active_room_seconds grant로 선예약하며 초기화/재시작에서 재사용·중복 소유되지 않게 한다. 정밀한 실제 Cloudflare 청구를 이 카운터로 보장하지 않는다.
