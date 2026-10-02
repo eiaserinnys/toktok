@@ -7,7 +7,7 @@
 - 기존 Cloudflare Worker+DO 배포를 유지하고 같은 HTTP 계약의 자체 설치도 제공합니다.
 - 권장 실행은 Docker Compose의 단일 Node 24 LTS 앱 컨테이너입니다. 현재 리포는 작은 TypeScript ESM이며 별도 대형 프레임워크/Redis/메시지브로커를 도입하지 않습니다. Node 24의 정확한 지원 SQLite API와 버전은 이식 구현 착수 때 공식 v24 문서/컨테이너에서 확인하여 pin합니다. 호스트 Node 22는 업그레이드하지 않습니다.
 - self-host 기본 DB는 SQLite 로컬 파일 volume(`/data`)입니다. Postgres는 사용자가 가진 서버에 연결하는 선택 adapter이며 Postgres 선택이 다중 앱 인스턴스 지원을 의미하지 않습니다.
-- DEMO는 모든 body memory only이고 공개방은 HOSTED에서도 body memory only입니다. HOSTED private의 명시 persist만 DB에 기록합니다. 설정/계정/초대/권한/최소 남용 메타는 DB에 둡니다. 본문을 PostgreSQL NOTIFY/queue/outbox/WAL/로그에 넣어 공유하지 않습니다.
+- 사용자 14:26:36 확정으로 DEMO all-body-nostore 정책은 폐기합니다. DEMO의 초대+OTP 가입 완료 계정도 새 private room 생성 시 persist opt-in(default OFF)을 허용합니다. public/anonymous private는 계속 memory only이고 HOSTED private도 유효 권한의 명시 persist만 DB에 기록합니다. 서버는 mode 단독이 아닌 DB account entitlement+visibility+유효 creator 권한을 검증하며 기존 memory room을 persist로 바꾸지 않습니다. 생성 시 retention/participant notice를 유지합니다. 설정/계정/초대/권한/최소 남용 메타는 DB에 둡니다. 본문을 PostgreSQL NOTIFY/queue/outbox/WAL/로그에 넣어 공유하지 않습니다.
 
 ## 설치·시작 시 backend 선택
 
@@ -52,7 +52,7 @@
 ## 합격 계획 — 아직 실행하지 않음
 
 - 동일 curl 계약의 2클라이언트 3왕복/재접속/cursor/idempotency/expiry/limits를 CF와 Node에 적용합니다.
-- Node+SQLite 로컬 임시 volume 재시작에서 settings/invite/session 유지, memory body 불존재/new epoch, HOSTED opted-in private body만 유지되는지 확인합니다. 동시 quota/invite 경합/다른 앱 기동 거부/graceful 25초 이하 wait 회수를 확인합니다.
+- Node+SQLite 로컬 임시 volume 재시작에서 settings/invite/session 유지, memory body 불존재/new epoch, DEMO/HOSTED의 권한 검증된 opted-in private body만 유지되는지 확인합니다. 동시 quota/invite 경합/다른 앱 기동 거부/graceful 25초 이하 wait 회수를 확인합니다.
 - Postgres는 사용자 DB 대신 격리 local container에서 transaction/2connection quota/invite 경합/두 번째 app 거부/기존 무관 schema 충돌 보존을 확인합니다.
 - setup blank DB/check/apply/update/backup-restore는 fixture만 사용합니다. stderr/로그에 임의 DSN secret/OTP/body가 없는지 확인하고 destructive/reset 경로가 없음을 확인합니다.
 - 기존 통과 gate는 반복하지 않습니다. portability 변경으로 무효화된 공통 gate와 신규 adapter gate만 1회+실패 보정 1회 수행하며 전체 매트릭스를 무작정 확대하지 않습니다.
@@ -62,4 +62,4 @@
 
 root가 지정한 참고 정본은 [SQLite WAL](https://www.sqlite.org/wal.html), [SQLite backup](https://www.sqlite.org/backup.html), [PostgreSQL explicit locking](https://www.postgresql.org/docs/current/explicit-locking.html), [node-postgres transactions](https://node-postgres.com/features/transactions), [Node releases](https://nodejs.org/en/about/previous-releases)입니다. 이 문서 추가 시 런타임 API/컨테이너 버전 검증, 환경 설치, DB 연결 또는 새 gate를 실행하지 않았습니다.
 
-최종 settings/control 및 budget/private metadata 계약이 아직 후속 입력입니다. [현재 공개 엔진 인계](public-validation.md)와 [비용 비교](public-cost-comparison.md)는 Cloudflare 엔진의 기존 결과이며 self-host 결과로 재사용하지 않습니다.
+최종 settings/control 및 budget/private metadata 계약이 아직 후속 입력입니다. DEMO 영속 private의 row/storage/retention 비용은 quota/budget에 포함해야 할 후속 입력입니다. 30일 retention은 새 디자인 시나리오일 뿐 production retention 결정이 아닙니다. [현재 공개 엔진 인계](public-validation.md)와 [비용 비교](public-cost-comparison.md)는 Cloudflare 엔진의 기존 결과이며 self-host 결과로 재사용하지 않습니다.

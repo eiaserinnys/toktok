@@ -94,9 +94,9 @@ D/E는 정상 leave 후 timer/wait/handler 0을 한 번 확인한 다음 DO를 �
 
 ## 최신 DEMO 초기 quota와 월 $100 계획
 
-최신 확정 제품 방향은 DEMO=작은 익명 공개방+제한 익명 private 생성이며 모든 body DB 미저장, admin invite key 소지자만 OTP 가입 가능/DEMO 저장 불가입니다. HOSTED=OTP 가입, 방 생성 persist 선택 default OFF/retention 고지입니다. 모든 운영 옵션의 정본은 관리자 UI+DB revision이고 코드 catalog/count는 최초 seed이며 안전 상한은 유지합니다. 이 문서의 새 quota는 **root에 권고하는 초기 계산값**이고 제품 구현이나 운영 변경 승인이 아닙니다.
+사용자 14:26:36 확정으로 이전 DEMO all-body-nostore는 폐기합니다. DEMO=작은 익명 공개방+제한 익명 private 생성이며 public/anonymous private는 계속 memory only입니다. admin invite key로 초대+OTP 가입을 완료한 계정은 DEMO에서도 새 private room의 persist opt-in(default OFF)을 허용합니다. HOSTED=OTP 가입, 새 private room 생성 시 persist 선택 default OFF/retention 고지입니다. 서버는 mode 단독이 아닌 DB account entitlement+visibility+유효 creator 권한으로 검증하며 기존 memory room→persist는 불가하고 생성 시 retention/participant notice를 유지합니다. 모든 운영 옵션의 정본은 관리자 UI+DB revision이고 코드 catalog/count는 최초 seed이며 안전 상한은 유지합니다. 이 문서의 새 quota는 **root에 권고하는 초기 계산값**이고 제품 구현이나 운영 변경 승인이 아닙니다.
 
-공개는 1방 10participant/10watcher, B처럼 응답 뒤 agent 5초/watcher 2초(`has_more` 2초)로 시작하는 안을 권고합니다. 계산용 사용시간은 하루 4시간입니다. 제한 private는 동시 2방, 일일 생성 20개, 만료 30분을 제안합니다. private는 별도 실측이 없어 D의 2participant request-rate를 proxy로 쓰며, 일일 private 최대 사용량은 20×0.5=10room-hours입니다. 공개/private 본문 저장비는 0으로 모델링하고 최소 metadata/설정/예산 장부만 DB에 둡니다.
+공개는 1방 10participant/10watcher, B처럼 응답 뒤 agent 5초/watcher 2초(`has_more` 2초)로 시작하는 안을 권고합니다. 계산용 사용시간은 하루 4시간입니다. 제한 private는 동시 2방, 일일 생성 20개, 만료 30분을 제안합니다. private는 별도 실측이 없어 D의 2participant request-rate를 proxy로 쓰며, 일일 private 최대 사용량은 20×0.5=10room-hours입니다. 본문 저장비 0은 **비저장 anonymous private 모델, 초대회원 opt-in 저장 비용 미포함**이라는 범위입니다. 최소 metadata/설정/예산 장부만 포함했으며 DEMO 영속 private의 row/storage/retention 비용은 quota/budget에 추가해야 할 후속 입력입니다. 30일 retention은 새 디자인 시나리오일 뿐 production retention 결정이 아닙니다.
 
 같은 계정의 다른 서비스 포함분을 사용 가능하다고 가정하지 않습니다. 요청별 room DO 1회에 설정 조회/예산 예약 DO 호출 최대 2회를 더하고, 중앙 DO는 비용 계획상 24시간 활성으로 계산합니다(실측 아님). room 총 14room-hours/day, 중앙 24hours/day, Worker CPU 1ms/request 가정입니다. 설정과 예약을 한 RPC 또는 선예약 grant로 합치면 비용이 내려갈 수 있지만 그 최적화를 가격에 미리 반영하지 않았습니다.
 
@@ -109,11 +109,11 @@ D/E는 정상 leave 후 timer/wait/handler 0을 한 번 확인한 다음 DO를 �
 | 기존 계정 기본료의 deployment 배정 | 기존 추가비용 계산에서는 제외했던 $5를 전체 목표에는 배정 | $5.00 |
 | 이메일 | 월 OTP 최대1,000/일50 제안, 실제 provider 단가 미확인 | **$10.00 예산** |
 | metadata/설정 장부 | SQLite DO 가격 proxy, 읽기4.42M/쓰기2.21M/0.01GB | **$5.00 예산** |
-| 전체 deployment 계획 | 측정 proxy+CPU/활성시간 가정+고정 예산 | **$34.26** |
+| 비저장 anonymous private 포함 기존 모델 합계 | 측정 proxy+CPU/활성시간 가정+고정 예산, 초대회원 opt-in 저장 비용 미포함 | **$34.26** |
 
 metadata의 포함분 없는 산식은 약 $2.22로 $5 안에 두었습니다. 실제 DB/backend·row 동작이 다르면 다시 계산해야 합니다. 이메일 $10은 견적이 아니라 planning reserve이고 provider 기본료+월1,000회가 그 안에 들어가는지 확인해야 합니다. 맞지 않으면 OTP quota를 낮추고 원자 예약 단가를 바꿉니다. 이메일/metadata 비용을 검증됐다고 쓰지 않습니다.
 
-월 목표 $100은 **toktok deployment 전체**이며 기존 계정 전체 목표나 실제 bill hard cap이 아닙니다. 모델상 headroom은 약 $65.74입니다. 더 일찍 경고 $25, 새 expensive work allowance cutoff $40을 제안합니다. 처음부터 기본료/이메일/metadata 예산 $20를 떼어 놓고 새 작업과 이미 수락한 작업의 비용을 예약합니다. 일일 expensive admission 100,000건을 별도 제안하며 같은 duration/3DO호출 가정과 CPU 10ms로 올려도 admission 모델은 월 $35.35입니다. 이 10ms는 미확인 민감도 값이며 실제 runtime CPU 상한 설정을 구현하지 않았습니다.
+월 목표 $100은 **toktok deployment 전체**이며 기존 계정 전체 목표나 실제 bill hard cap이 아닙니다. $34.26과 차액 약 $65.74는 초대회원 opt-in 저장 비용을 제외한 기존 모델 값이며 새 전체모드 가격이나 목표 충족을 뜻하지 않습니다. 더 일찍 경고 $25, 새 expensive work allowance cutoff $40을 제안합니다. 처음부터 기본료/이메일/metadata 예산 $20를 떼어 놓고 새 작업과 이미 수락한 작업의 비용을 예약합니다. 일일 expensive admission 100,000건을 별도 제안하며 같은 duration/3DO호출 가정과 CPU 10ms의 admission 모델은 월 $35.35지만 이 역시 초대회원 opt-in 저장 비용 미포함입니다. 이 10ms는 미확인 민감도 값이며 실제 runtime CPU 상한 설정을 구현하지 않았습니다. 영속 private 비용과 quota가 정해진 뒤 전체 목표와 cutoff를 다시 판단해야 합니다.
 
 예산 정확성은 native rate limit에 맡기지 않습니다. [공식 Workers rate limit](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/)은 per-location eventual이며 전역 정확 회계가 아닙니다. expensive room 호출/longpoll 등록/private 생성/email 발송 직전에 중앙 DO의 **원자 예약** 또는 그 DO가 원자 선예약한 **유한 grant**를 소진해야 합니다. 후속 control-plane 계약에는 다음을 포함합니다.
 
