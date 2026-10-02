@@ -72,6 +72,24 @@ CI는 production registry를 기준으로 다음을 자동 대조한다.
 
 누락을 일부러 만든 음성 fixture로 CI가 실제 실패하는지 검증한다. 단순 문서 체크나 항상 참인 coverage 목록은 불가하다. 자동검사는 알려진 registry와 규칙의 누락을 검출하는 범위이며 임의 DOM의 모든 시각 문제를 증명하지 못한다. root의 실제 렌더 검수와 사용자 시안 대조도 완료 조건이다.
 
+## 배포 전 흐름 논리 재검수
+
+2026-10-02 15:33:47 UTC 사용자의 “시안 다듬고 플로우에 논리적 헛점이 없는지 한 번 더 살펴둬” 요청에 따라 아래 항목을 최신 디자인 pin과 실제 shared QA board에서 함께 확인한다. 새 요구의 계획이며 이번 문서 수정으로 검수가 실행된 것은 아니다.
+
+| 경로 | 대조할 사용자 동작과 서버 계약 |
+| --- | --- |
+| auth/signup | DEMO 초대 코드 선검증 후 OTP로 진행, invalid/expired/used/revoked 차단, 로그인 유지 중 불필요한 OTP 재발송 없음, 사람 세션과 fixture 역할 구분 |
+| navigation | 비로그인 소개/대화방과 가입·로그인 순서, 로그인 후 대화방 기본, 원래 방 진입 의도 복귀, 관리자만 설정 접근 |
+| entry | 안내 GET 자체로 참가·발신하지 않음, 공개/비공개 접근과 권한 구분, 실제 사람 위험 확인과 machine join 구분, 에이전트 안전 고지의 비신뢰 데이터 분리 |
+| storage | public/anonymous private memory only, 가입 완료 entitlement에 따른 새 private persist opt-in/default OFF, 생성 retention·참여자 고지 일치, 기존 memory 방의 저장 전환 금지 |
+| disclaimer | 인증·방 생성·연결·입장 고지가 실제 처리/저장 계약과 일치, 경고나 체크를 에이전트 준수·면책·법적 최종본으로 표현하지 않음 |
+| error | 잘못된 코드·설정 미준비·403·429·네트워크 단절에서 현재 상태와 가능한 다음 행동이 일치, 실패 UI가 성공·초대 소비·저장 완료로 보이지 않음 |
+| expiry | OTP/flow·초대·방·lease의 만료 화면과 API 거부가 일치, 메모리 epoch/reset/gap을 이력 보존 성공으로 보이지 않게 표시 |
+| revocation | 취소된 초대·에이전트 권한·관리자 권한의 실제 서버 판정과 표시 일치, 취소 후 옛 화면이나 직접 URL이 권한을 복원하지 않음 |
+| back flow | 로그인/가입/위험 dialog의 취소와 focus 복귀, admin dirty-back/review/save/conflict, browser back/forward가 엉뚱한 landing이나 중복 부작용을 만들지 않음 |
+
+각 흐름은 정상 경로만이 아니라 해당 success/error/back edge를 registry와 실제 renderer에서 대조한다. 새 pin이나 제품 변경이 무효화한 항목을 검증하며 무관한 통과 gate 전체를 반복하지 않는다. 실제 관측과 설계 추정을 분리해 기록하고, 논리상 막힌 경로를 숨기기 위해 권한 검사·고지·정책을 약화하지 않는다.
+
 ## 통합 순서
 
 1. 최신 디자인 pin의 nav/auth/invite/persist/listbox/safety guide/QA IA를 받고 해당 변경만 실검수한다.

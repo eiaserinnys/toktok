@@ -32,3 +32,26 @@
 위 기준을 [UI 계약](../ui-review-contract.md#로그인-상태별-제품-ia)과 AGENTS에 연결했다. components/dialogues/flow board에도 같은 상태·전이를 함께 갱신해야 한다. 새 시안 pin은 아직 대기이며 제품 UI나 이전 캡처를 변경·재실행하지 않았다.
 
 이번 프리셋 재조회에서도 모든 Codex 항목이 `available=false`, `quota_exhausted`였다. 사용자 지시대로 재개용 문서 기록만 진행하며 새 코딩 세션·브라우저·managed worktree 생성은 시도하지 않는다. 이전 worktree 잠금 상태가 계속되는지는 재조회하지 않았으므로 새 사실로 단정하지 않는다.
+
+## 04시 재개 후 배포·최종 검수까지 진행
+
+사용자 2026-10-02 15:33:15 UTC: “4시 이후에 재개하면 배포까지 쭉 진행을 시켜줘”. 이어 15:33:47 UTC: “시안 다듬고 플로우에 논리적 헛점이 없는지 한 번 더 살펴둬”. 이는 10월 3일 KST 재개 이후 기존 목표를 배포와 실제 최종 검수까지 계속 수행하라는 지시다. 시안·문서·PR 보존만으로 전체 작업을 끝내지 않는다.
+
+전달 세션은 기존 10월 3일 04시 KST 자동화를 이 순서로 갱신했다고 보고했다. 이 세션은 자동화를 중복 생성하거나 변경하지 않았다. 이번 재조회에서도 모든 Codex 프리셋은 `quota_exhausted`였으므로 새 실행 대신 이 지시를 보존한다. 재개 시 실제 가용성을 확인하며 시간 도달만으로 quota 복구를 가정하지 않는다.
+
+### 재개 실행 순서와 완료 기준
+
+1. quota 가용성과 각 작업트리·원격 SHA·미완료 검증을 확인하고 보존된 변경에서 이어간다. 불필요하게 새로 구현하거나 통과 gate를 반복하지 않는다.
+2. 디자이너가 전달할 최신 pin/INTEGRATION을 고정한다. 로그인 상태별 IA와 shared component/dialog/route registry, 실제 화면 흐름 보드의 논리 및 390/1440 시각 검수를 수행한다. 이전 `309442a`를 최신 시안 합격으로 취급하지 않는다.
+3. 남은 DEMO/HOSTED, 관리자 DB 설정·인가, 초대/OTP, entitlement·저장·retention, 공유 QA 체계, agent safety 및 self-host 공통 계약을 구현·테스트한다. self-host는 한 번에 SQLite 또는 PostgreSQL 하나를 선택하고 Cloudflare DO SQLite는 유지한다. 미확정 D1 전환이나 운영 retention을 임의로 정하지 않는다.
+4. 변경한 코드·설계·검수면·CI를 일치시켜 검수하고 리포에 통합한다. 검수면 누락이나 필요한 서버 gate 미구현을 완료로 보고하지 않는다.
+5. 기존 승인 범위에서 Cloudflare `toktok.eiaserinnys.me`에 배포하고 실제 endpoint를 검증한다. curl/Node와 임의 정상 UA로 허용된 create/join/read/post가 challenge 없이 동작하는지 확인하며, UA 위장이나 challenge 우회는 하지 않는다.
+6. 실제 배포된 화면에서 로그인/권한·공개/비공개 입장·cursor/pause/오류·만료와 해당 관리자 검수면을 확인한다. 운영 변경/테스트가 별도 승인을 요구하는 항목이면 정확히 분리하고 실제로 확인한 범위를 명시한다. 로컬 fixture나 dry-run을 운영 성공으로 대신하지 않는다.
+
+### 승인 경계와 독립 작업
+
+기존 서비스 배포 승인은 유지하며 다시 묻지 않는다. 별도 승인 대상으로 남긴 메일 제공자·발신 도메인/DNS·binding·preview 설정, 보안 override, admin credential·지속 접근, 실제 사용자 DB 연결은 그 승인으로 확장하지 않는다. 필요한 대상·작업·영향을 구체화해 보고한 뒤 해당 변경만 기다린다. 다른 구현·로컬 fixture·문서·검증 등 독립 작업은 계속한다.
+
+필수 운영 설정 때문에 어떤 기능을 배포·검증할 수 없다면 정확한 blocker와 남은 기능을 보고한다. 임의 설정, 인증 약화 또는 미구현 기능 제거로 전체 배포 완료를 선언하지 않는다. 사용자 계정 전체 청구를 포함하지 않는 toktok 예산 목표와 앱 cap이 청구 hard stop을 보장하지 않는다는 구분도 유지한다.
+
+auth/nav/entry/storage/disclaimer/error/expiry/revocation/back flow의 구체 대조 항목은 [UI 검수 계약](../ui-review-contract.md#배포-전-흐름-논리-재검수)에 있다. 다음 작업자는 이 순서와 최신 로그인 상태 분기를 함께 적용한다.
