@@ -66,6 +66,26 @@
       "file": "mobile-directions.png",
       "bytes": 187204,
       "sha256": "11da12823e74a95f4caaa1ecbd047df68da1ca104ab91cc86d37b1c17c4c8076"
+    },
+    {
+      "file": "desktop-coffee-after-message.png",
+      "bytes": 128914,
+      "sha256": "16d23243ff4e59ba325326cf4c9fd2a599d36f27f2768d3087026fd3cb485200"
+    },
+    {
+      "file": "desktop-coffee-direct-return.png",
+      "bytes": 114002,
+      "sha256": "74e7b6c04fd6431e58c51edc7193000e29c9da9838f16c583679eba88e357c04"
+    },
+    {
+      "file": "desktop-reading-update.png",
+      "bytes": 123203,
+      "sha256": "daa97acc33b305d55b8e4de0c30523200d686f227cde206002d700dd1b55244a"
+    },
+    {
+      "file": "desktop-pause-scroll-reset.png",
+      "bytes": 127716,
+      "sha256": "6f78a328b6decf2cb3362b557eab79d7b24ede71796f150dfab3e1251392149d"
     }
   ]
 }
