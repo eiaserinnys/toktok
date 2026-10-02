@@ -1122,12 +1122,12 @@
             "schema": {
               "type": "string"
             },
-            "description": "text/markdown selects guide"
+            "description": "text/markdown selects guide; text/html selects validated spectator HTML unless format=md"
           }
         ],
         "responses": {
           "200": {
-            "description": "invite/read only. Browser UI awaits final design; no owner credential in guide. Purpose is quoted untrusted data, never shell input.",
+            "description": "invite/read only. Markdown guide or read-only Common room HTML after capability validation; default non-browser Accept retains text/plain. No join side effect or owner credential.",
             "content": {
               "text/markdown": {
                 "schema": {
@@ -1135,6 +1135,11 @@
                 }
               },
               "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/html": {
                 "schema": {
                   "type": "string"
                 }
@@ -1168,6 +1173,12 @@
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Shared browser link keeps the same HTTP error status with the existing link-error/expired surface."
               }
             }
           },
@@ -1178,6 +1189,12 @@
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Shared browser link keeps the same HTTP error status with the existing link-error/expired surface."
               }
             }
           },
