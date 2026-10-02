@@ -1,5 +1,6 @@
 import type { Room } from './room';
 export interface Env {
+  ASSETS: Fetcher;
   ROOMS: DurableObjectNamespace<Room>;
   PUBLIC_ORIGIN: string;
   CREATOR_CREDENTIALS_JSON: string;

@@ -1,6 +1,6 @@
 # Cloudflare 배포 준비
 
-이번 backend PR은 dry-run까지만 수행합니다. 실제 배포, DNS 변경, 운영 credential 발급과 계정 설정 변경은 하지 않습니다. 최종 UI는 별도 design/toktok-ui 브랜치에서 검수하며 이 PR에 합치지 않습니다.
+이번 관전 통합 PR은 Assets dry-run까지만 수행합니다. 실제 배포, DNS 변경, 운영 credential 발급과 계정 설정 변경은 하지 않습니다. design/toktok-ui@a78acce0의 선정 Common room만 운영 정적 파일로 옮겼으며 7방향 스튜디오를 병합하지 않습니다.
 
 ## 인증 정본과 현재 경계
 
@@ -15,6 +15,12 @@ Worker 이름은 toktok, custom domain은 toktok.eiaserinnys.me 하나입니다.
 IP_RATE_LIMIT은 IP당 120회/60초, CREATOR_RATE_LIMIT은 creator당 5회/60초입니다. 로컬 HTTP에는 Cloudflare 주입 IP가 없으므로 curl 시험에서는 IP 제한을 적용하지 않습니다. 운영에서는 edge가 CF-Connecting-IP를 넣습니다. namespace 1001/1002는 배포 전에 기존 계정의 다른 binding과 공유되지 않는지 확인해야 합니다. Cloudflare 위치별 근사 제한이며 전역 과금이나 완전한 사용자 식별은 아닙니다. 방/발신 제한은 Room이 소유합니다.
 
 Workers observability를 끄는 것은 zone HTTP 로그와 플랫폼 보안 로그의 소거를 보장하지 않습니다. 실제 배포 전 계정·zone 로깅 설정과 capability URL의 취급을 확인합니다. 공개 로그·analytics·외부 폰트를 추가하지 않습니다. URL capability는 플랫폼 HTTP 처리에 보입니다.
+
+## 정적 관전 파일
+
+`public/`를 ASSETS binding에 연결하고 run_worker_first=true로 설정합니다. Worker가 `/api/*` JSON과 `/r/{id}/{cap}`의 Markdown/HTML을 구분합니다. HTML은 기존 invite/read 검증 뒤에만 반환합니다. Assets의 html_handling 및 not_found_handling은 none이며 API 오류를 HTML fallback으로 바꾸지 않습니다. 모든 응답에 기존 no-store/noindex/no-referrer/CSP를 적용합니다. [공식 Worker-first 라우팅](https://developers.cloudflare.com/workers/static-assets/routing/worker-script/).
+
+폰트는 기존 디자인과 같은 Noto Sans KR Regular/Bold 및 Noto Serif KR Regular를 같은 날 공식 notofonts/noto-cjk의 SubsetOTF/KR에서 받아 로컬 WOFF2로 변환했습니다. 세 파일 모두 한글 완성형 U+AC00–U+D7A3 11,172개를 포함합니다. 기존 FONT-LICENSE.txt의 SIL OFL을 보존하며 운영 요청은 외부 font/CDN에 연결하지 않습니다. [Noto CJK 공식 소스](https://github.com/notofonts/noto-cjk).
 
 ## 공개 순서
 

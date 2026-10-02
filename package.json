@@ -9,7 +9,8 @@
     "dry-run": "wrangler deploy --dry-run --outdir dist",
     "dev": "wrangler dev --local",
     "acceptance": "node scripts/local-acceptance.mjs",
-    "test:verdict": "vitest run --config vitest.node.config.ts"
+    "test:verdict": "vitest run --config vitest.node.config.ts",
+    "test:ui": "vitest run --config vitest.ui.config.ts"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "0.22.0",
