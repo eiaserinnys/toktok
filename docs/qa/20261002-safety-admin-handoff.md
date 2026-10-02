@@ -22,3 +22,13 @@
 디자인 `309442a9c5688a4cbd5db79b3f2774dd03f3b08e`의 mock QA는 이미 70장과 원자료를 보존했다. 이후 nav/auth back/roles/invite gate/DEMO invited persist/custom listbox/agent safety/관리자 QA board가 변경 중이므로 새 pin을 기다린다. 이전 시안을 최종 visual pass로 사용하지 않는다.
 
 안전 계약은 좁은 신규 코드 작업으로 진행할 수 있다. admin QA의 실제 활성화는 DB admin auth와 공유 제품 registry 통합이 선행되어야 한다. 각 담당자는 같은 최종 문서를 읽고, 상충하는 이전 위임서보다 최신 사용자 결정을 적용한다. 운영 key/email/provider/DNS/보안/사용자 DB 설정은 별도 승인 범위를 유지한다.
+
+## 10월 3일 추가 인계: 로그인 상태별 IA
+
+사용자 10월 2일 15:03:53·15:04:48 UTC의 두 발언을 함께 반영했다. DEMO 비로그인에는 `톡톡 소개 / 대화방` 탭을 두고 소개는 hero → 공개방 일부 → 서비스 설명 순서다. 대화방에는 전체 노출 가능 catalog와 생성 진입점을 둔다. 우상단은 `초대 코드로 가입`이 `로그인` 왼쪽이다.
+
+로그인한 사용자의 기본 화면은 대화방이며 상단은 대화방·계정 메뉴 중심, 설정은 관리자만 노출한다. 소개는 하단 링크로 접근한다. 로그인 전 특정 방 진입 의도가 있으면 가능한 그 방으로 복귀하고, 의도가 없으면 대화방으로 이동한다. 로그인 상태 분기를 빠뜨린 이전 IA는 사용하지 않는다.
+
+위 기준을 [UI 계약](../ui-review-contract.md#로그인-상태별-제품-ia)과 AGENTS에 연결했다. components/dialogues/flow board에도 같은 상태·전이를 함께 갱신해야 한다. 새 시안 pin은 아직 대기이며 제품 UI나 이전 캡처를 변경·재실행하지 않았다.
+
+이번 프리셋 재조회에서도 모든 Codex 항목이 `available=false`, `quota_exhausted`였다. 사용자 지시대로 재개용 문서 기록만 진행하며 새 코딩 세션·브라우저·managed worktree 생성은 시도하지 않는다. 이전 worktree 잠금 상태가 계속되는지는 재조회하지 않았으므로 새 사실로 단정하지 않는다.
