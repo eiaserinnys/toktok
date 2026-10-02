@@ -1,0 +1,1295 @@
+{
+  "checked_at": "2026-10-02T13:59:51.448Z",
+  "cpu_assumption_ms_per_worker_request": 1,
+  "existing_account_base_excluded": 5,
+  "price": {
+    "worker_request_included": 10000000,
+    "worker_cpu_ms_included": 30000000,
+    "worker_request_per_million": 0.3,
+    "worker_cpu_per_million_ms": 0.02,
+    "do_request_included": 1000000,
+    "do_gb_s_included": 400000,
+    "do_request_per_million": 0.15,
+    "do_per_million_gb_s": 12.5,
+    "account_base": 5
+  },
+  "baselines": {
+    "included_available": {
+      "worker_requests": 0,
+      "worker_cpu_ms": 0,
+      "do_requests": 0,
+      "do_gb_s": 0
+    },
+    "exact_included_boundary": {
+      "worker_requests": 10000000,
+      "worker_cpu_ms": 30000000,
+      "do_requests": 1000000,
+      "do_gb_s": 400000
+    },
+    "inside_existing_billed_unit": {
+      "worker_requests": 10000000,
+      "worker_cpu_ms": 30000000,
+      "do_requests": 1100000,
+      "do_gb_s": 500000
+    }
+  },
+  "throughput": [
+    {
+      "server_batch_seconds": 2,
+      "uniform_read_requests_per_second_150_clients": 75,
+      "max_messages_per_second_per_client": 10,
+      "incoming_average_messages_per_second": 3.3333333333333335,
+      "incoming_max_messages_per_tick": 10,
+      "nominal_backlog_growth_per_second": 0,
+      "max_page_items": 20,
+      "byte_cap": 65536,
+      "measured": false
+    },
+    {
+      "server_batch_seconds": 5,
+      "uniform_read_requests_per_second_150_clients": 30,
+      "max_messages_per_second_per_client": 4,
+      "incoming_average_messages_per_second": 3.3333333333333335,
+      "incoming_max_messages_per_tick": 25,
+      "nominal_backlog_growth_per_second": 0,
+      "max_page_items": 20,
+      "byte_cap": 65536,
+      "measured": false
+    },
+    {
+      "server_batch_seconds": 10,
+      "uniform_read_requests_per_second_150_clients": 15,
+      "max_messages_per_second_per_client": 2,
+      "incoming_average_messages_per_second": 3.3333333333333335,
+      "incoming_max_messages_per_tick": 50,
+      "nominal_backlog_growth_per_second": 1.3333333333333335,
+      "max_page_items": 20,
+      "byte_cap": 65536,
+      "measured": false
+    }
+  ],
+  "rows": [
+    {
+      "name": "measured-A",
+      "provenance": "test/public-load.compare-A.json:60sec request starts; recovery excluded",
+      "rooms": 3,
+      "participants_per_room": 100,
+      "watchers_per_room": 50,
+      "hours_per_day": 1,
+      "days": 30,
+      "request_rate_per_room": 49,
+      "app_message_bytes": 283,
+      "delivery_events_per_second": 1500,
+      "body_payload_bytes_per_second": 424500,
+      "usage": {
+        "worker_requests": 15876000,
+        "worker_cpu_ms": 15876000,
+        "do_requests": 15876000,
+        "do_gb_s": 41472
+      },
+      "idle": {
+        "hours_per_day": 23,
+        "clean_leave_do_gb_s": 0,
+        "pending_25sec_daily_tail_gb_s": 288,
+        "local_hibernation_proven": false
+      },
+      "incremental": {
+        "included_available": {
+          "worker_requests": 1.7628,
+          "worker_cpu": 0,
+          "do_requests": 2.25,
+          "do_duration": 0,
+          "total_additional": 4.0128
+        },
+        "exact_included_boundary": {
+          "worker_requests": 4.7628,
+          "worker_cpu": 0.31752,
+          "do_requests": 2.4,
+          "do_duration": 12.5,
+          "total_additional": 19.98032
+        },
+        "inside_existing_billed_unit": {
+          "worker_requests": 4.7628,
+          "worker_cpu": 0.31752,
+          "do_requests": 2.25,
+          "do_duration": 0,
+          "total_additional": 7.33032
+        }
+      }
+    },
+    {
+      "name": "measured-A",
+      "provenance": "test/public-load.compare-A.json:60sec request starts; recovery excluded",
+      "rooms": 3,
+      "participants_per_room": 100,
+      "watchers_per_room": 50,
+      "hours_per_day": 24,
+      "days": 30,
+      "request_rate_per_room": 49,
+      "app_message_bytes": 283,
+      "delivery_events_per_second": 1500,
+      "body_payload_bytes_per_second": 424500,
+      "usage": {
+        "worker_requests": 381024000,
+        "worker_cpu_ms": 381024000,
+        "do_requests": 381024000,
+        "do_gb_s": 995328
+      },
+      "idle": {
+        "hours_per_day": 0,
+        "clean_leave_do_gb_s": 0,
+        "pending_25sec_daily_tail_gb_s": 288,
+        "local_hibernation_proven": false
+      },
+      "incremental": {
+        "included_available": {
+          "worker_requests": 111.3072,
+          "worker_cpu": 7.02048,
+          "do_requests": 57.15,
+          "do_duration": 12.5,
+          "total_additional": 187.97768
+        },
+        "exact_included_boundary": {
+          "worker_requests": 114.3072,
+          "worker_cpu": 7.62048,
+          "do_requests": 57.3,
+          "do_duration": 12.5,
+          "total_additional": 191.72768
+        },
+        "inside_existing_billed_unit": {
+          "worker_requests": 114.3072,
+          "worker_cpu": 7.62048,
+          "do_requests": 57.15,
+          "do_duration": 12.5,
+          "total_additional": 191.57768
+        }
+      }
+    },
+    {
+      "name": "measured-B",
+      "provenance": "test/public-load.compare-B.json:60sec request starts; recovery excluded",
+      "rooms": 3,
+      "participants_per_room": 100,
+      "watchers_per_room": 50,
+      "hours_per_day": 1,
+      "days": 30,
+      "request_rate_per_room": 42.38333333333333,
+      "app_message_bytes": 283,
+      "delivery_events_per_second": 1492.5,
+      "body_payload_bytes_per_second": 422377.5,
+      "usage": {
+        "worker_requests": 13732200,
+        "worker_cpu_ms": 13732200,
+        "do_requests": 13732200,
+        "do_gb_s": 41472
+      },
+      "idle": {
+        "hours_per_day": 23,
+        "clean_leave_do_gb_s": 0,
+        "pending_25sec_daily_tail_gb_s": 288,
+        "local_hibernation_proven": false
+      },
+      "incremental": {
+        "included_available": {
+          "worker_requests": 1.11966,
+          "worker_cpu": 0,
+          "do_requests": 1.95,
+          "do_duration": 0,
+          "total_additional": 3.06966
+        },
+        "exact_included_boundary": {
+          "worker_requests": 4.11966,
+          "worker_cpu": 0.274644,
+          "do_requests": 2.1,
+          "do_duration": 12.5,
+          "total_additional": 18.994304
+        },
+        "inside_existing_billed_unit": {
+          "worker_requests": 4.11966,
+          "worker_cpu": 0.274644,
+          "do_requests": 1.9500000000000002,
+          "do_duration": 0,
+          "total_additional": 6.344304
+        }
+      }
+    },
+    {
+      "name": "measured-B",
+      "provenance": "test/public-load.compare-B.json:60sec request starts; recovery excluded",
+      "rooms": 3,
+      "participants_per_room": 100,
+      "watchers_per_room": 50,
+      "hours_per_day": 24,
+      "days": 30,
+      "request_rate_per_room": 42.38333333333333,
+      "app_message_bytes": 283,
+      "delivery_events_per_second": 1492.5,
+      "body_payload_bytes_per_second": 422377.5,
+      "usage": {
+        "worker_requests": 329572800,
+        "worker_cpu_ms": 329572800,
+        "do_requests": 329572800,
+        "do_gb_s": 995328
+      },
+      "idle": {
+        "hours_per_day": 0,
+        "clean_leave_do_gb_s": 0,
+        "pending_25sec_daily_tail_gb_s": 288,
+        "local_hibernation_proven": false
+      },
+      "incremental": {
+        "included_available": {
+          "worker_requests": 95.87184,
+          "worker_cpu": 5.991456,
+          "do_requests": 49.35,
+          "do_duration": 12.5,
+          "total_additional": 163.713296
+        },
+        "exact_included_boundary": {
+          "worker_requests": 98.87184,
+          "worker_cpu": 6.591456,
+          "do_requests": 49.5,
+          "do_duration": 12.5,
+          "total_additional": 167.463296
+        },
+        "inside_existing_billed_unit": {
+          "worker_requests": 98.87184,
+          "worker_cpu": 6.591456,
+          "do_requests": 49.35,
+          "do_duration": 12.5,
+          "total_additional": 167.313296
+        }
+      }
+    },
+    {
+      "name": "measured-C",
+      "provenance": "test/public-load.compare-C.json:60sec request starts; recovery excluded",
+      "rooms": 3,
+      "participants_per_room": 100,
+      "watchers_per_room": 50,
+      "hours_per_day": 1,
+      "days": 30,
+      "request_rate_per_room": 41,
+      "app_message_bytes": 283,
+      "delivery_events_per_second": 1492.5,
+      "body_payload_bytes_per_second": 422377.5,
+      "usage": {
+        "worker_requests": 13284000,
+        "worker_cpu_ms": 13284000,
+        "do_requests": 13284000,
+        "do_gb_s": 41472
+      },
+      "idle": {
+        "hours_per_day": 23,
+        "clean_leave_do_gb_s": 0,
+        "pending_25sec_daily_tail_gb_s": 288,
+        "local_hibernation_proven": false
+      },
+      "incremental": {
+        "included_available": {
+          "worker_requests": 0.9852,
+          "worker_cpu": 0,
+          "do_requests": 1.95,
+          "do_duration": 0,
+          "total_additional": 2.9352
+        },
+        "exact_included_boundary": {
+          "worker_requests": 3.9852,
+          "worker_cpu": 0.26568,
+          "do_requests": 2.1,
+          "do_duration": 12.5,
+          "total_additional": 18.85088
+        },
+        "inside_existing_billed_unit": {
+          "worker_requests": 3.9852,
+          "worker_cpu": 0.26568,
+          "do_requests": 1.9500000000000002,
+          "do_duration": 0,
+          "total_additional": 6.20088
+        }
+      }
+    },
+    {
+      "name": "measured-C",
+      "provenance": "test/public-load.compare-C.json:60sec request starts; recovery excluded",
+      "rooms": 3,
+      "participants_per_room": 100,
+      "watchers_per_room": 50,
+      "hours_per_day": 24,
+      "days": 30,
+      "request_rate_per_room": 41,
+      "app_message_bytes": 283,
+      "delivery_events_per_second": 1492.5,
+      "body_payload_bytes_per_second": 422377.5,
+      "usage": {
+        "worker_requests": 318816000,
+        "worker_cpu_ms": 318816000,
+        "do_requests": 318816000,
+        "do_gb_s": 995328
+      },
+      "idle": {
+        "hours_per_day": 0,
+        "clean_leave_do_gb_s": 0,
+        "pending_25sec_daily_tail_gb_s": 288,
+        "local_hibernation_proven": false
+      },
+      "incremental": {
+        "included_available": {
+          "worker_requests": 92.6448,
+          "worker_cpu": 5.77632,
+          "do_requests": 47.699999999999996,
+          "do_duration": 12.5,
+          "total_additional": 158.62112
+        },
+        "exact_included_boundary": {
+          "worker_requests": 95.6448,
+          "worker_cpu": 6.37632,
+          "do_requests": 47.85,
+          "do_duration": 12.5,
+          "total_additional": 162.37112
+        },
+        "inside_existing_billed_unit": {
+          "worker_requests": 95.6448,
+          "worker_cpu": 6.37632,
+          "do_requests": 47.7,
+          "do_duration": 12.5,
+          "total_additional": 162.22111999999998
+        }
+      }
+    },
+    {
+      "name": "measured-D",
+      "provenance": "test/public-load.compare-D.json:60sec request starts; recovery excluded",
+      "rooms": 1,
+      "participants_per_room": 2,
+      "watchers_per_room": 0,
+      "hours_per_day": 1,
+      "days": 30,
+      "request_rate_per_room": 0.23333333333333334,
+      "app_message_bytes": 279,
+      "delivery_events_per_second": 0.13333333333333333,
+      "body_payload_bytes_per_second": 37.2,
+      "usage": {
+        "worker_requests": 25200,
+        "worker_cpu_ms": 25200,
+        "do_requests": 25200,
+        "do_gb_s": 13824
+      },
+      "idle": {
+        "hours_per_day": 23,
+        "clean_leave_do_gb_s": 0,
+        "pending_25sec_daily_tail_gb_s": 96,
+        "local_hibernation_proven": false
+      },
+      "incremental": {
+        "included_available": {
+          "worker_requests": 0,
+          "worker_cpu": 0,
+          "do_requests": 0,
+          "do_duration": 0,
+          "total_additional": 0
+        },
+        "exact_included_boundary": {
+          "worker_requests": 0.00756,
+          "worker_cpu": 0.000504,
+          "do_requests": 0.15,
+          "do_duration": 12.5,
+          "total_additional": 12.658064
+        },
+        "inside_existing_billed_unit": {
+          "worker_requests": 0.00756,
+          "worker_cpu": 0.000504,
+          "do_requests": 0,
+          "do_duration": 0,
+          "total_additional": 0.008064
+        }
+      }
+    },
+    {
+      "name": "measured-D",
+      "provenance": "test/public-load.compare-D.json:60sec request starts; recovery excluded",
+      "rooms": 1,
+      "participants_per_room": 2,
+      "watchers_per_room": 0,
+      "hours_per_day": 4,
+      "days": 30,
+      "request_rate_per_room": 0.23333333333333334,
+      "app_message_bytes": 279,
+      "delivery_events_per_second": 0.13333333333333333,
+      "body_payload_bytes_per_second": 37.2,
+      "usage": {
+        "worker_requests": 100800,
+        "worker_cpu_ms": 100800,
+        "do_requests": 100800,
+        "do_gb_s": 55296
+      },
+      "idle": {
+        "hours_per_day": 20,
+        "clean_leave_do_gb_s": 0,
+        "pending_25sec_daily_tail_gb_s": 96,
+        "local_hibernation_proven": false
+      },
+      "incremental": {
+        "included_available": {
+          "worker_requests": 0,
+          "worker_cpu": 0,
+          "do_requests": 0,
+          "do_duration": 0,
+          "total_additional": 0
+        },
+        "exact_included_boundary": {
+          "worker_requests": 0.03024,
+          "worker_cpu": 0.002016,
+          "do_requests": 0.15,
+          "do_duration": 12.5,
+          "total_additional": 12.682256
+        },
+        "inside_existing_billed_unit": {
+          "worker_requests": 0.03024,
+          "worker_cpu": 0.002016,
+          "do_requests": 0,
+          "do_duration": 0,
+          "total_additional": 0.032256
+        }
+      }
+    },
+    {
+      "name": "measured-E",
+      "provenance": "test/public-load.compare-E.json:60sec request starts; recovery excluded",
+      "rooms": 1,
+      "participants_per_room": 10,
+      "watchers_per_room": 10,
+      "hours_per_day": 1,
+      "days": 30,
+      "request_rate_per_room": 4.533333333333333,
+      "app_message_bytes": 280.1,
+      "delivery_events_per_second": 6.666666666666667,
+      "body_payload_bytes_per_second": 1867.3333333333335,
+      "usage": {
+        "worker_requests": 489600,
+        "worker_cpu_ms": 489600,
+        "do_requests": 489600,
+        "do_gb_s": 13824
+      },
+      "idle": {
+        "hours_per_day": 23,
+        "clean_leave_do_gb_s": 0,
+        "pending_25sec_daily_tail_gb_s": 96,
+        "local_hibernation_proven": false
+      },
+      "incremental": {
+        "included_available": {
+          "worker_requests": 0,
+          "worker_cpu": 0,
+          "do_requests": 0,
+          "do_duration": 0,
+          "total_additional": 0
+        },
+        "exact_included_boundary": {
+          "worker_requests": 0.14688,
+          "worker_cpu": 0.009792,
+          "do_requests": 0.15,
+          "do_duration": 12.5,
+          "total_additional": 12.806672
+        },
+        "inside_existing_billed_unit": {
+          "worker_requests": 0.14688,
+          "worker_cpu": 0.009792,
+          "do_requests": 0,
+          "do_duration": 0,
+          "total_additional": 0.156672
+        }
+      }
+    },
+    {
+      "name": "measured-E",
+      "provenance": "test/public-load.compare-E.json:60sec request starts; recovery excluded",
+      "rooms": 1,
+      "participants_per_room": 10,
+      "watchers_per_room": 10,
+      "hours_per_day": 4,
+      "days": 30,
+      "request_rate_per_room": 4.533333333333333,
+      "app_message_bytes": 280.1,
+      "delivery_events_per_second": 6.666666666666667,
+      "body_payload_bytes_per_second": 1867.3333333333335,
+      "usage": {
+        "worker_requests": 1958400,
+        "worker_cpu_ms": 1958400,
+        "do_requests": 1958400,
+        "do_gb_s": 55296
+      },
+      "idle": {
+        "hours_per_day": 20,
+        "clean_leave_do_gb_s": 0,
+        "pending_25sec_daily_tail_gb_s": 96,
+        "local_hibernation_proven": false
+      },
+      "incremental": {
+        "included_available": {
+          "worker_requests": 0,
+          "worker_cpu": 0,
+          "do_requests": 0.15,
+          "do_duration": 0,
+          "total_additional": 0.15
+        },
+        "exact_included_boundary": {
+          "worker_requests": 0.58752,
+          "worker_cpu": 0.039168,
+          "do_requests": 0.3,
+          "do_duration": 12.5,
+          "total_additional": 13.426688
+        },
+        "inside_existing_billed_unit": {
+          "worker_requests": 0.58752,
+          "worker_cpu": 0.039168,
+          "do_requests": 0.29999999999999993,
+          "do_duration": 0,
+          "total_additional": 0.926688
+        }
+      }
+    },
+    {
+      "name": "small-model-2+10",
+      "provenance": "E의 역할별 read-rate를 유지한 2..10/0..10 조합 모델; 메시지율 변화에 따른 timeout/request 변화는 미측정",
+      "rooms": 1,
+      "participants_per_room": 2,
+      "watchers_per_room": 10,
+      "hours_per_day": 1,
+      "days": 30,
+      "request_rate_per_room": 2.9,
+      "app_message_bytes": 280.1,
+      "delivery_events_per_second": 0.8,
+      "body_payload_bytes_per_second": 224.08000000000004,
+      "usage": {
+        "worker_requests": 313200,
+        "worker_cpu_ms": 313200,
+        "do_requests": 313200,
+        "do_gb_s": 13824
+      },
+      "idle": {
+        "hours_per_day": 23,
+        "clean_leave_do_gb_s": 0,
+        "pending_25sec_daily_tail_gb_s": 96,
+        "local_hibernation_proven": false
+      },
+      "incremental": {
+        "included_available": {
+          "worker_requests": 0,
+          "worker_cpu": 0,
+          "do_requests": 0,
+          "do_duration": 0,
+          "total_additional": 0
+        },
+        "exact_included_boundary": {
+          "worker_requests": 0.09396,
+          "worker_cpu": 0.006264,
+          "do_requests": 0.15,
+          "do_duration": 12.5,
+          "total_additional": 12.750224
+        },
+        "inside_existing_billed_unit": {
+          "worker_requests": 0.09396,
+          "worker_cpu": 0.006264,
+          "do_requests": 0,
+          "do_duration": 0,
+          "total_additional": 0.10022400000000001
+        }
+      }
+    },
+    {
+      "name": "small-model-2+10",
+      "provenance": "E의 역할별 read-rate를 유지한 2..10/0..10 조합 모델; 메시지율 변화에 따른 timeout/request 변화는 미측정",
+      "rooms": 1,
+      "participants_per_room": 2,
+      "watchers_per_room": 10,
+      "hours_per_day": 4,
+      "days": 30,
+      "request_rate_per_room": 2.9,
+      "app_message_bytes": 280.1,
+      "delivery_events_per_second": 0.8,
+      "body_payload_bytes_per_second": 224.08000000000004,
+      "usage": {
+        "worker_requests": 1252800,
+        "worker_cpu_ms": 1252800,
+        "do_requests": 1252800,
+        "do_gb_s": 55296
+      },
+      "idle": {
+        "hours_per_day": 20,
+        "clean_leave_do_gb_s": 0,
+        "pending_25sec_daily_tail_gb_s": 96,
+        "local_hibernation_proven": false
+      },
+      "incremental": {
+        "included_available": {
+          "worker_requests": 0,
+          "worker_cpu": 0,
+          "do_requests": 0.15,
+          "do_duration": 0,
+          "total_additional": 0.15
+        },
+        "exact_included_boundary": {
+          "worker_requests": 0.37584,
+          "worker_cpu": 0.025056,
+          "do_requests": 0.3,
+          "do_duration": 12.5,
+          "total_additional": 13.200896
+        },
+        "inside_existing_billed_unit": {
+          "worker_requests": 0.37584,
+          "worker_cpu": 0.025056,
+          "do_requests": 0.15,
+          "do_duration": 0,
+          "total_additional": 0.550896
+        }
+      }
+    },
+    {
+      "name": "small-model-10+0",
+      "provenance": "E의 역할별 read-rate를 유지한 2..10/0..10 조합 모델; 메시지율 변화에 따른 timeout/request 변화는 미측정",
+      "rooms": 1,
+      "participants_per_room": 10,
+      "watchers_per_room": 0,
+      "hours_per_day": 1,
+      "days": 30,
+      "request_rate_per_room": 1.9999999999999998,
+      "app_message_bytes": 280.1,
+      "delivery_events_per_second": 3.333333333333333,
+      "body_payload_bytes_per_second": 933.6666666666666,
+      "usage": {
+        "worker_requests": 215999.99999999997,
+        "worker_cpu_ms": 215999.99999999997,
+        "do_requests": 215999.99999999997,
+        "do_gb_s": 13824
+      },
+      "idle": {
+        "hours_per_day": 23,
+        "clean_leave_do_gb_s": 0,
+        "pending_25sec_daily_tail_gb_s": 96,
+        "local_hibernation_proven": false
+      },
+      "incremental": {
+        "included_available": {
+          "worker_requests": 0,
+          "worker_cpu": 0,
+          "do_requests": 0,
+          "do_duration": 0,
+          "total_additional": 0
+        },
+        "exact_included_boundary": {
+          "worker_requests": 0.0648,
+          "worker_cpu": 0.00432,
+          "do_requests": 0.15,
+          "do_duration": 12.5,
+          "total_additional": 12.71912
+        },
+        "inside_existing_billed_unit": {
+          "worker_requests": 0.0648,
+          "worker_cpu": 0.00432,
+          "do_requests": 0,
+          "do_duration": 0,
+          "total_additional": 0.06912
+        }
+      }
+    },
+    {
+      "name": "small-model-10+0",
+      "provenance": "E의 역할별 read-rate를 유지한 2..10/0..10 조합 모델; 메시지율 변화에 따른 timeout/request 변화는 미측정",
+      "rooms": 1,
+      "participants_per_room": 10,
+      "watchers_per_room": 0,
+      "hours_per_day": 4,
+      "days": 30,
+      "request_rate_per_room": 1.9999999999999998,
+      "app_message_bytes": 280.1,
+      "delivery_events_per_second": 3.333333333333333,
+      "body_payload_bytes_per_second": 933.6666666666666,
+      "usage": {
+        "worker_requests": 863999.9999999999,
+        "worker_cpu_ms": 863999.9999999999,
+        "do_requests": 863999.9999999999,
+        "do_gb_s": 55296
+      },
+      "idle": {
+        "hours_per_day": 20,
+        "clean_leave_do_gb_s": 0,
+        "pending_25sec_daily_tail_gb_s": 96,
+        "local_hibernation_proven": false
+      },
+      "incremental": {
+        "included_available": {
+          "worker_requests": 0,
+          "worker_cpu": 0,
+          "do_requests": 0,
+          "do_duration": 0,
+          "total_additional": 0
+        },
+        "exact_included_boundary": {
+          "worker_requests": 0.2592,
+          "worker_cpu": 0.01728,
+          "do_requests": 0.15,
+          "do_duration": 12.5,
+          "total_additional": 12.92648
+        },
+        "inside_existing_billed_unit": {
+          "worker_requests": 0.2592,
+          "worker_cpu": 0.01728,
+          "do_requests": 0,
+          "do_duration": 0,
+          "total_additional": 0.27648
+        }
+      }
+    },
+    {
+      "name": "split-1x100",
+      "provenance": "B의 per-role 실측 read-rate + 동일 총100/30 분산 accepted posts; 새로운 10DO 부하 아님; retry/has_more 변화 미측정",
+      "rooms": 1,
+      "participants_per_room": 100,
+      "watchers_per_room": 50,
+      "hours_per_day": 1,
+      "days": 30,
+      "request_rate_per_room": 34.166666666666664,
+      "app_message_bytes": 283,
+      "delivery_events_per_second": 500,
+      "body_payload_bytes_per_second": 141500,
+      "usage": {
+        "worker_requests": 3689999.9999999995,
+        "worker_cpu_ms": 3689999.9999999995,
+        "do_requests": 3689999.9999999995,
+        "do_gb_s": 13824
+      },
+      "idle": {
+        "hours_per_day": 23,
+        "clean_leave_do_gb_s": 0,
+        "pending_25sec_daily_tail_gb_s": 96,
+        "local_hibernation_proven": false
+      },
+      "incremental": {
+        "included_available": {
+          "worker_requests": 0,
+          "worker_cpu": 0,
+          "do_requests": 0.44999999999999996,
+          "do_duration": 0,
+          "total_additional": 0.44999999999999996
+        },
+        "exact_included_boundary": {
+          "worker_requests": 1.107,
+          "worker_cpu": 0.0738,
+          "do_requests": 0.6,
+          "do_duration": 12.5,
+          "total_additional": 14.2808
+        },
+        "inside_existing_billed_unit": {
+          "worker_requests": 1.107,
+          "worker_cpu": 0.0738,
+          "do_requests": 0.44999999999999996,
+          "do_duration": 0,
+          "total_additional": 1.6308
+        }
+      },
+      "representative_delta_envelope_bytes": 194.24324324324326,
+      "estimated_json_egress_bytes_per_second": 147989.16666666666
+    },
+    {
+      "name": "split-1x100",
+      "provenance": "B의 per-role 실측 read-rate + 동일 총100/30 분산 accepted posts; 새로운 10DO 부하 아님; retry/has_more 변화 미측정",
+      "rooms": 1,
+      "participants_per_room": 100,
+      "watchers_per_room": 50,
+      "hours_per_day": 4,
+      "days": 30,
+      "request_rate_per_room": 34.166666666666664,
+      "app_message_bytes": 283,
+      "delivery_events_per_second": 500,
+      "body_payload_bytes_per_second": 141500,
+      "usage": {
+        "worker_requests": 14759999.999999998,
+        "worker_cpu_ms": 14759999.999999998,
+        "do_requests": 14759999.999999998,
+        "do_gb_s": 55296
+      },
+      "idle": {
+        "hours_per_day": 20,
+        "clean_leave_do_gb_s": 0,
+        "pending_25sec_daily_tail_gb_s": 96,
+        "local_hibernation_proven": false
+      },
+      "incremental": {
+        "included_available": {
+          "worker_requests": 1.4279999999999993,
+          "worker_cpu": 0,
+          "do_requests": 2.1,
+          "do_duration": 0,
+          "total_additional": 3.5279999999999996
+        },
+        "exact_included_boundary": {
+          "worker_requests": 4.428,
+          "worker_cpu": 0.2952,
+          "do_requests": 2.25,
+          "do_duration": 12.5,
+          "total_additional": 19.4732
+        },
+        "inside_existing_billed_unit": {
+          "worker_requests": 4.428,
+          "worker_cpu": 0.2952,
+          "do_requests": 2.1,
+          "do_duration": 0,
+          "total_additional": 6.8232
+        }
+      },
+      "representative_delta_envelope_bytes": 194.24324324324326,
+      "estimated_json_egress_bytes_per_second": 147989.16666666666
+    },
+    {
+      "name": "split-1x100",
+      "provenance": "B의 per-role 실측 read-rate + 동일 총100/30 분산 accepted posts; 새로운 10DO 부하 아님; retry/has_more 변화 미측정",
+      "rooms": 1,
+      "participants_per_room": 100,
+      "watchers_per_room": 50,
+      "hours_per_day": 24,
+      "days": 30,
+      "request_rate_per_room": 34.166666666666664,
+      "app_message_bytes": 283,
+      "delivery_events_per_second": 500,
+      "body_payload_bytes_per_second": 141500,
+      "usage": {
+        "worker_requests": 88560000,
+        "worker_cpu_ms": 88560000,
+        "do_requests": 88560000,
+        "do_gb_s": 331776
+      },
+      "idle": {
+        "hours_per_day": 0,
+        "clean_leave_do_gb_s": 0,
+        "pending_25sec_daily_tail_gb_s": 96,
+        "local_hibernation_proven": false
+      },
+      "incremental": {
+        "included_available": {
+          "worker_requests": 23.568,
+          "worker_cpu": 1.1712,
+          "do_requests": 13.2,
+          "do_duration": 0,
+          "total_additional": 37.9392
+        },
+        "exact_included_boundary": {
+          "worker_requests": 26.568,
+          "worker_cpu": 1.7712,
+          "do_requests": 13.35,
+          "do_duration": 12.5,
+          "total_additional": 54.1892
+        },
+        "inside_existing_billed_unit": {
+          "worker_requests": 26.568,
+          "worker_cpu": 1.7712,
+          "do_requests": 13.2,
+          "do_duration": 0,
+          "total_additional": 41.5392
+        }
+      },
+      "representative_delta_envelope_bytes": 194.24324324324326,
+      "estimated_json_egress_bytes_per_second": 147989.16666666666
+    },
+    {
+      "name": "split-5x20",
+      "provenance": "B의 per-role 실측 read-rate + 동일 총100/30 분산 accepted posts; 새로운 10DO 부하 아님; retry/has_more 변화 미측정",
+      "rooms": 5,
+      "participants_per_room": 20,
+      "watchers_per_room": 10,
+      "hours_per_day": 1,
+      "days": 30,
+      "request_rate_per_room": 6.833333333333333,
+      "app_message_bytes": 283,
+      "delivery_events_per_second": 100,
+      "body_payload_bytes_per_second": 28300,
+      "usage": {
+        "worker_requests": 3689999.9999999995,
+        "worker_cpu_ms": 3689999.9999999995,
+        "do_requests": 3689999.9999999995,
+        "do_gb_s": 69120
+      },
+      "idle": {
+        "hours_per_day": 23,
+        "clean_leave_do_gb_s": 0,
+        "pending_25sec_daily_tail_gb_s": 480,
+        "local_hibernation_proven": false
+      },
+      "incremental": {
+        "included_available": {
+          "worker_requests": 0,
+          "worker_cpu": 0,
+          "do_requests": 0.44999999999999996,
+          "do_duration": 0,
+          "total_additional": 0.44999999999999996
+        },
+        "exact_included_boundary": {
+          "worker_requests": 1.107,
+          "worker_cpu": 0.0738,
+          "do_requests": 0.6,
+          "do_duration": 12.5,
+          "total_additional": 14.2808
+        },
+        "inside_existing_billed_unit": {
+          "worker_requests": 1.107,
+          "worker_cpu": 0.0738,
+          "do_requests": 0.44999999999999996,
+          "do_duration": 0,
+          "total_additional": 1.6308
+        }
+      },
+      "representative_delta_envelope_bytes": 194.24324324324326,
+      "estimated_json_egress_bytes_per_second": 34389.166666666664
+    },
+    {
+      "name": "split-5x20",
+      "provenance": "B의 per-role 실측 read-rate + 동일 총100/30 분산 accepted posts; 새로운 10DO 부하 아님; retry/has_more 변화 미측정",
+      "rooms": 5,
+      "participants_per_room": 20,
+      "watchers_per_room": 10,
+      "hours_per_day": 4,
+      "days": 30,
+      "request_rate_per_room": 6.833333333333333,
+      "app_message_bytes": 283,
+      "delivery_events_per_second": 100,
+      "body_payload_bytes_per_second": 28300,
+      "usage": {
+        "worker_requests": 14759999.999999998,
+        "worker_cpu_ms": 14759999.999999998,
+        "do_requests": 14759999.999999998,
+        "do_gb_s": 276480
+      },
+      "idle": {
+        "hours_per_day": 20,
+        "clean_leave_do_gb_s": 0,
+        "pending_25sec_daily_tail_gb_s": 480,
+        "local_hibernation_proven": false
+      },
+      "incremental": {
+        "included_available": {
+          "worker_requests": 1.4279999999999993,
+          "worker_cpu": 0,
+          "do_requests": 2.1,
+          "do_duration": 0,
+          "total_additional": 3.5279999999999996
+        },
+        "exact_included_boundary": {
+          "worker_requests": 4.428,
+          "worker_cpu": 0.2952,
+          "do_requests": 2.25,
+          "do_duration": 12.5,
+          "total_additional": 19.4732
+        },
+        "inside_existing_billed_unit": {
+          "worker_requests": 4.428,
+          "worker_cpu": 0.2952,
+          "do_requests": 2.1,
+          "do_duration": 0,
+          "total_additional": 6.8232
+        }
+      },
+      "representative_delta_envelope_bytes": 194.24324324324326,
+      "estimated_json_egress_bytes_per_second": 34389.166666666664
+    },
+    {
+      "name": "split-5x20",
+      "provenance": "B의 per-role 실측 read-rate + 동일 총100/30 분산 accepted posts; 새로운 10DO 부하 아님; retry/has_more 변화 미측정",
+      "rooms": 5,
+      "participants_per_room": 20,
+      "watchers_per_room": 10,
+      "hours_per_day": 24,
+      "days": 30,
+      "request_rate_per_room": 6.833333333333333,
+      "app_message_bytes": 283,
+      "delivery_events_per_second": 100,
+      "body_payload_bytes_per_second": 28300,
+      "usage": {
+        "worker_requests": 88560000,
+        "worker_cpu_ms": 88560000,
+        "do_requests": 88560000,
+        "do_gb_s": 1658880
+      },
+      "idle": {
+        "hours_per_day": 0,
+        "clean_leave_do_gb_s": 0,
+        "pending_25sec_daily_tail_gb_s": 480,
+        "local_hibernation_proven": false
+      },
+      "incremental": {
+        "included_available": {
+          "worker_requests": 23.568,
+          "worker_cpu": 1.1712,
+          "do_requests": 13.2,
+          "do_duration": 25,
+          "total_additional": 62.9392
+        },
+        "exact_included_boundary": {
+          "worker_requests": 26.568,
+          "worker_cpu": 1.7712,
+          "do_requests": 13.35,
+          "do_duration": 25,
+          "total_additional": 66.6892
+        },
+        "inside_existing_billed_unit": {
+          "worker_requests": 26.568,
+          "worker_cpu": 1.7712,
+          "do_requests": 13.2,
+          "do_duration": 12.5,
+          "total_additional": 54.0392
+        }
+      },
+      "representative_delta_envelope_bytes": 194.24324324324326,
+      "estimated_json_egress_bytes_per_second": 34389.166666666664
+    },
+    {
+      "name": "split-10x10",
+      "provenance": "B의 per-role 실측 read-rate + 동일 총100/30 분산 accepted posts; 새로운 10DO 부하 아님; retry/has_more 변화 미측정",
+      "rooms": 10,
+      "participants_per_room": 10,
+      "watchers_per_room": 5,
+      "hours_per_day": 1,
+      "days": 30,
+      "request_rate_per_room": 3.4166666666666665,
+      "app_message_bytes": 283,
+      "delivery_events_per_second": 50,
+      "body_payload_bytes_per_second": 14150,
+      "usage": {
+        "worker_requests": 3689999.9999999995,
+        "worker_cpu_ms": 3689999.9999999995,
+        "do_requests": 3689999.9999999995,
+        "do_gb_s": 138240
+      },
+      "idle": {
+        "hours_per_day": 23,
+        "clean_leave_do_gb_s": 0,
+        "pending_25sec_daily_tail_gb_s": 960,
+        "local_hibernation_proven": false
+      },
+      "incremental": {
+        "included_available": {
+          "worker_requests": 0,
+          "worker_cpu": 0,
+          "do_requests": 0.44999999999999996,
+          "do_duration": 0,
+          "total_additional": 0.44999999999999996
+        },
+        "exact_included_boundary": {
+          "worker_requests": 1.107,
+          "worker_cpu": 0.0738,
+          "do_requests": 0.6,
+          "do_duration": 12.5,
+          "total_additional": 14.2808
+        },
+        "inside_existing_billed_unit": {
+          "worker_requests": 1.107,
+          "worker_cpu": 0.0738,
+          "do_requests": 0.44999999999999996,
+          "do_duration": 0,
+          "total_additional": 1.6308
+        }
+      },
+      "representative_delta_envelope_bytes": 194.24324324324326,
+      "estimated_json_egress_bytes_per_second": 20189.166666666668
+    },
+    {
+      "name": "split-10x10",
+      "provenance": "B의 per-role 실측 read-rate + 동일 총100/30 분산 accepted posts; 새로운 10DO 부하 아님; retry/has_more 변화 미측정",
+      "rooms": 10,
+      "participants_per_room": 10,
+      "watchers_per_room": 5,
+      "hours_per_day": 4,
+      "days": 30,
+      "request_rate_per_room": 3.4166666666666665,
+      "app_message_bytes": 283,
+      "delivery_events_per_second": 50,
+      "body_payload_bytes_per_second": 14150,
+      "usage": {
+        "worker_requests": 14759999.999999998,
+        "worker_cpu_ms": 14759999.999999998,
+        "do_requests": 14759999.999999998,
+        "do_gb_s": 552960
+      },
+      "idle": {
+        "hours_per_day": 20,
+        "clean_leave_do_gb_s": 0,
+        "pending_25sec_daily_tail_gb_s": 960,
+        "local_hibernation_proven": false
+      },
+      "incremental": {
+        "included_available": {
+          "worker_requests": 1.4279999999999993,
+          "worker_cpu": 0,
+          "do_requests": 2.1,
+          "do_duration": 12.5,
+          "total_additional": 16.028
+        },
+        "exact_included_boundary": {
+          "worker_requests": 4.428,
+          "worker_cpu": 0.2952,
+          "do_requests": 2.25,
+          "do_duration": 12.5,
+          "total_additional": 19.4732
+        },
+        "inside_existing_billed_unit": {
+          "worker_requests": 4.428,
+          "worker_cpu": 0.2952,
+          "do_requests": 2.1,
+          "do_duration": 0,
+          "total_additional": 6.8232
+        }
+      },
+      "representative_delta_envelope_bytes": 194.24324324324326,
+      "estimated_json_egress_bytes_per_second": 20189.166666666668
+    },
+    {
+      "name": "split-10x10",
+      "provenance": "B의 per-role 실측 read-rate + 동일 총100/30 분산 accepted posts; 새로운 10DO 부하 아님; retry/has_more 변화 미측정",
+      "rooms": 10,
+      "participants_per_room": 10,
+      "watchers_per_room": 5,
+      "hours_per_day": 24,
+      "days": 30,
+      "request_rate_per_room": 3.4166666666666665,
+      "app_message_bytes": 283,
+      "delivery_events_per_second": 50,
+      "body_payload_bytes_per_second": 14150,
+      "usage": {
+        "worker_requests": 88560000,
+        "worker_cpu_ms": 88560000,
+        "do_requests": 88560000,
+        "do_gb_s": 3317760
+      },
+      "idle": {
+        "hours_per_day": 0,
+        "clean_leave_do_gb_s": 0,
+        "pending_25sec_daily_tail_gb_s": 960,
+        "local_hibernation_proven": false
+      },
+      "incremental": {
+        "included_available": {
+          "worker_requests": 23.568,
+          "worker_cpu": 1.1712,
+          "do_requests": 13.2,
+          "do_duration": 37.5,
+          "total_additional": 75.4392
+        },
+        "exact_included_boundary": {
+          "worker_requests": 26.568,
+          "worker_cpu": 1.7712,
+          "do_requests": 13.35,
+          "do_duration": 50,
+          "total_additional": 91.6892
+        },
+        "inside_existing_billed_unit": {
+          "worker_requests": 26.568,
+          "worker_cpu": 1.7712,
+          "do_requests": 13.2,
+          "do_duration": 37.5,
+          "total_additional": 79.0392
+        }
+      },
+      "representative_delta_envelope_bytes": 194.24324324324326,
+      "estimated_json_egress_bytes_per_second": 20189.166666666668
+    }
+  ],
+  "demo": {
+    "proposal_only": true,
+    "public_rooms": 1,
+    "public_participants": 10,
+    "public_watchers": 10,
+    "public_active_hours_per_day": 4,
+    "private_active_cap": 2,
+    "private_daily_create_cap": 20,
+    "private_ttl_minutes": 30,
+    "private_room_hours_per_day": 10,
+    "private_rate_provenance": "D의 2participant 공개 fixture proxy; private 실측 아님",
+    "control_plane_calls_per_request": 2,
+    "control_plane_active_hours_per_day_assumption": 24,
+    "email_monthly_quota_proposal": 1000,
+    "email_daily_quota_proposal": 50,
+    "email_provider_unit_price_unverified": true,
+    "metadata_assumption": {
+      "backend": "SQLite DO unit-price model; 실제 DB 정본 미확정",
+      "rows_read": 4420800,
+      "rows_written": 2211000,
+      "gb_month": 0.01,
+      "unincluded_estimated_usd": 2.2174207999999997
+    },
+    "usage": {
+      "worker_requests": 2210400,
+      "worker_cpu_ms": 2210400,
+      "do_requests": 6631200,
+      "do_gb_s": 525312
+    },
+    "no_included_allowance_incremental": {
+      "worker_requests": 0.66312,
+      "worker_cpu": 0.044208,
+      "do_requests": 1.05,
+      "do_duration": 12.5,
+      "total_additional": 14.257328000000001
+    },
+    "fixed_planning_reserves": {
+      "base_allocation": 5,
+      "email_planning_reserve": 10,
+      "metadata_planning_reserve": 5
+    },
+    "whole_deployment_planning_usd": 34.257328,
+    "monthly_target": 100,
+    "early_cutoff_proposal": 40,
+    "warning_proposal": 25,
+    "daily_admitted_expensive_request_proposal": 100000,
+    "blocked_worker_calls_unbounded_by_app_cap": true,
+    "headroom_to_100": 65.742672,
+    "blocked_traffic_examples": [
+      {
+        "rps": 1,
+        "monthly_requests": 2592000,
+        "worker_request_marginal_without_allowance": 0.7776,
+        "cpu_assumption_ms": 0.1,
+        "worker_cpu_marginal_without_allowance": 0.005184,
+        "possible_control_plane_calls_per_denied_request": 2,
+        "possible_do_request_marginal_ceiling": 0.8999999999999999,
+        "extra_metadata_reads_if_2_per_denied_request": 0.005184,
+        "do_duration_assumption": "central DO의 기존24h활성 가정 안; 별도 room DO에 전달하면 추가"
+      },
+      {
+        "rps": 100,
+        "monthly_requests": 259200000,
+        "worker_request_marginal_without_allowance": 77.76,
+        "cpu_assumption_ms": 0.1,
+        "worker_cpu_marginal_without_allowance": 0.5184,
+        "possible_control_plane_calls_per_denied_request": 2,
+        "possible_do_request_marginal_ceiling": 77.85,
+        "extra_metadata_reads_if_2_per_denied_request": 0.5184,
+        "do_duration_assumption": "central DO의 기존24h활성 가정 안; 별도 room DO에 전달하면 추가"
+      },
+      {
+        "rps": 1000,
+        "monthly_requests": 2592000000,
+        "worker_request_marginal_without_allowance": 777.6,
+        "cpu_assumption_ms": 0.1,
+        "worker_cpu_marginal_without_allowance": 5.184,
+        "possible_control_plane_calls_per_denied_request": 2,
+        "possible_do_request_marginal_ceiling": 777.6,
+        "extra_metadata_reads_if_2_per_denied_request": 5.184,
+        "do_duration_assumption": "central DO의 기존24h활성 가정 안; 별도 room DO에 전달하면 추가"
+      }
+    ],
+    "admitted_cap_sensitivity_10ms": {
+      "usage": {
+        "worker_requests": 3000000,
+        "worker_cpu_ms": 30000000,
+        "do_requests": 9000000,
+        "do_gb_s": 525312
+      },
+      "no_allowance": {
+        "worker_requests": 0.9,
+        "worker_cpu": 0.6,
+        "do_requests": 1.3499999999999999,
+        "do_duration": 12.5,
+        "total_additional": 15.35
+      },
+      "whole_deployment_with_reserves": 35.35
+    }
+  }
+}
