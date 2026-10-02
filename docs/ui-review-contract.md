@@ -1,0 +1,67 @@
+# 관리자 디자인 검수와 코드 일원화 계약
+
+상태: 2026-10-02 14:38:20·14:42:11·14:43:19 UTC 사용자 확정 요구를 반영한 구현 계약. registry, 관리자 검수 route와 coverage CI는 아직 미구현이다. 기존 PR #4의 CI 통과를 이 기능 통과로 사용하지 않는다.
+
+## 화면 구성
+
+관리자 메뉴의 **디자인 검수** 아래 다음 경로를 사용한다. 구현 중 기존 route 충돌이 발견되면 root가 경로만 조정한다.
+
+| 경로 | 내용 |
+| --- | --- |
+| `/admin/design/components` | 실제 제품 컴포넌트와 default/focus/hover/error/loading/disabled/opened-select 상태 |
+| `/admin/design/dialogues` | 실제 dialog registry에 있는 모든 다이얼로그의 관련 상태 |
+| `/admin/design/flows` | 여러 실제 화면 preview를 동시에 보여주는 screen flow board |
+| `/api/admin/design/catalog` | 인가된 검수면의 component/dialog/fixture 목록 |
+| `/api/admin/design/graph` | 인가된 machine-readable route/transition graph |
+
+흐름도는 순차 clickthrough가 주 기능인 화면이 아니다. 하나의 canvas에 실제 shared screen renderer를 fixture 데이터로 렌더한 preview 여러 개를 놓고, success/error/back 조건이 붙은 방향 화살표로 연결한다. 단순 사각형에 route 이름만 쓰거나 별도 mock HTML을 복제하는 방식은 불가하다.
+
+zoom/pan, 화면에 맞추기, role/mode filter, edge label, thumbnail 상세 보기를 제공한다. 화살표와 node를 키보드로 선택하고 같은 연결 정보를 텍스트 목록으로도 확인할 수 있어야 한다. preview의 내부 스크롤·focus가 보드 pan/zoom과 혼동되지 않게 상세 보기에서 조작한다. 보드 검수에 필요한 미리보기는 동시에 보이며, off-screen renderer 가상화 여부는 미리보기와 graph의 일치 검증을 유지하는 범위에서 정한다.
+
+graph의 node는 `screenId`, `routeId`, `fixtureId`, `mode`, `role`, 상태를 참조하고 edge는 `transitionId`, source/target node, event와 success/error/back kind, 실제 route contract의 조건을 참조한다. 임의 JavaScript 문자열 조건을 eval하지 않는다. Canvas와 machine graph는 같은 registry에서 생성한다.
+
+## 실제 코드 재사용
+
+의존 방향은 제품 router → shared screen/component/dialog registry, 관리자 QA controller → 같은 shared registry + fixture adapter다. 공개 제품 router는 관리자 QA controller나 fixture bundle을 import하지 않는다. 공통 renderer가 admin 권한 자체를 부여하거나 fixtureRole을 실제 세션에 쓸 수 없어야 한다.
+
+컴포넌트 registry는 renderer와 적용 가능한 상태 목록을 가진다. dialog registry는 제품에서 실제 여는 dialog와 상태·접근성 계약을 참조한다. route registry는 제품 router가 실제 사용하는 화면·전이·gate를 정의한다. 검수면을 채우기 위한 별도 route 목록이나 복제 renderer를 만들지 않는다.
+
+prototype handoff는 시안·토큰·상태 명세로 사용한다. 후속 통합에서 제품 renderer를 한 번 구현하고 제품/QA가 함께 가져온다. 디자인 담당의 `design/prototype`을 별도 운영 UI로 병행 배포하지 않는다. 새 디자인 pin의 canonical home, 로그인 뒤로 가기, account/admin 메뉴, custom listbox도 같은 공통 구현과 registry에서 검수한다.
+
+## Fixture와 인가의 분리
+
+실제 관리자 세션과 DB 역할을 서버가 먼저 검사한다. API는 세션 없음 401, 비관리자 403이다. HTML도 인가 전에는 검수 문서나 fixture를 반환하지 않는다. 정적 Assets fallback, 직접 URL, query의 role/mode, client flag로 인가를 우회하지 못하게 한다. 관리자 인증 구현 전에는 route를 닫아 둔다.
+
+HTML/API는 `Cache-Control: no-store`, `X-Robots-Tag: noindex, nofollow`를 사용한다. 공개 sitemap/메뉴에서 제외하며 robots 설정을 인증 대체 수단으로 사용하지 않는다. 검수 전용 fixture/graph 자산도 인가된 경로로만 제공한다. 비밀이 없는 공통 제품 코드 자산은 공개 제품에서 정상 사용한다.
+
+Fixture role은 anonymous/invited/admin 화면 시뮬레이션일 뿐이다. 실제 권한은 문서를 요청한 관리자 세션으로만 판정한다. 같은 관리자 문서에서 fixture를 anonymous로 바꿔도 실제 로그아웃을 실행하지 않는다.
+
+검수 문서의 effect port는 생성 시 in-memory fixture adapter로만 주입한다. runtime query로 production adapter로 바꾸는 옵션은 두지 않는다. 실제 email/invite/room/settings/storage API로 fallback하지 않으며, API mutation을 중계하는 QA endpoint를 만들지 않는다. 검수 문서는 `connect-src 'none'`, `form-action 'none'` 등 검수 전용 CSP를 적용한다. 초기 HTML에 인가된 비밀 없는 manifest를 포함하고 이후 fixture 조작은 메모리에서 수행한다. 실제 변경 API에는 이 검수 기능과 무관하게 정상 authz/CSRF를 유지한다.
+
+여러 preview는 fixture state와 router state가 각각 독립적이어야 한다. 뒤로 가기·에러·재시도는 해당 preview의 memory history에서 발생한다. 실제 제품 URL로 이동하거나 창을 열어 live 작업을 실행하지 않는다. 공통 renderer에서 network가 새어나가면 검수 실패로 처리한다.
+
+## 상태·흐름 coverage
+
+DEMO/HOSTED × anonymous/invited/admin의 gate를 graph에 표현한다. 가능한 조합의 정상·거절 화면 모두 fixture로 확인한다. DEMO 초대 선검증 → OTP → 가입과 missing/invalid/expired/used/revoked 차단을 포함한다. 가입 완료 계정의 새 private persist opt-in/default OFF와 public/anonymous private no-store, 기존 memory→persist 금지도 반영한다. 30일 retention은 mock 시나리오임을 표시한다.
+
+일반·긴 문구·빈 목록, opened listbox의 방향키/Enter/Escape·모바일 clamp, dialog Tab/ShiftTab·닫기·focus 복원·배경 scroll lock, dirty back/review/save/conflict/restricted 상태를 해당 registry에 등록한다. focus/hover는 스크린샷용 클래스 위조만으로 합격하지 않고 실제 키보드·포인터 동작도 확인한다.
+
+CI는 production registry를 기준으로 다음을 자동 대조한다.
+
+1. 모든 등록 component의 필수 상태, dialog 상태, route/role/mode, transition의 success/error/back 결과가 fixture와 graph에 연결되어 있는가.
+2. fixture가 참조하는 renderer/route/dialog/transition ID가 실제 export/registry에 존재하며, 중복 ID·dangling edge·미등록 entry가 없는가.
+3. 제품 router와 dialog opener가 공통 registry를 통해 동작하며, QA 전용 복제 화면이나 공개 코드의 QA import가 없는가.
+4. graph endpoint와 canvas가 같은 node/edge/조건을 표시하는가.
+5. 키보드·권한·fixture 부작용 0건 및 핵심 390×844/1440×1000 시각 회귀가 통과하는가. 긴 admin은 fullPage, modal/error/opened select는 viewport로 추가 확인한다.
+
+누락을 일부러 만든 음성 fixture로 CI가 실제 실패하는지 검증한다. 단순 문서 체크나 항상 참인 coverage 목록은 불가하다. 자동검사는 알려진 registry와 규칙의 누락을 검출하는 범위이며 임의 DOM의 모든 시각 문제를 증명하지 못한다. root의 실제 렌더 검수와 사용자 시안 대조도 완료 조건이다.
+
+## 통합 순서
+
+1. 최신 디자인 pin의 nav/auth/invite/persist/listbox/safety guide/QA IA를 받고 해당 변경만 실검수한다.
+2. 공통 component/dialog/screen/route registry로 제품 구현을 정리하고, 실제 server admin auth가 준비되기 전 검수 URL은 닫는다.
+3. 동일 renderer 기반 components/dialogues/flow board와 부작용 없는 fixtures를 구현한다.
+4. server gate·graph/registry coverage·음성 대조·키보드·두 viewport 증거를 CI와 연결한다.
+5. 제품과 검수면을 한 변경 단위로 review한다. 하나라도 미반영이면 완료·배포 합격으로 처리하지 않는다.
+
+기존 인증 WIP나 PR #3/#4의 통과 증거는 해당 범위에만 재사용한다. 새 admin 역할, registry, screen flow board와 새 CI는 별도 구현 및 검증이 필요하다.
