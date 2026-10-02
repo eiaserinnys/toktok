@@ -1,0 +1,295 @@
+{
+  "source": "63c4eec3bc10b84c0a66d00ee9817f12643ba864",
+  "handoff": "ffb608b7eabb74a8a20b0dc86f7ed3785f55c8e9",
+  "mock_only": true,
+  "viewports": [
+    [
+      390,
+      844
+    ],
+    [
+      1440,
+      1000
+    ]
+  ],
+  "stage": "initial_render_only",
+  "visual_keyboard_flow_final_verdict": "pending",
+  "png_count": 55,
+  "files": [
+    {
+      "path": "1440-home.png",
+      "bytes": 274923,
+      "sha256": "e5fd5094bde41b9ec63e8acedda1258bf7f447bdcf983656be53fa5f64084f39"
+    },
+    {
+      "path": "1440-home-full.png",
+      "bytes": 332009,
+      "sha256": "a1137a991143cde2c81663e9473553a84769215e3e54e2bd7fd35385483a090c"
+    },
+    {
+      "path": "1440-rooms.png",
+      "bytes": 95954,
+      "sha256": "9f9c2a510f545026d65335c0c5cf42bc4aa4244af88e41e509ed593511649c67"
+    },
+    {
+      "path": "1440-rooms-full.png",
+      "bytes": 117845,
+      "sha256": "777ed1aa1bfad07c19c0872363382fc7fc9637339ada2028d0fc75f49c27adff"
+    },
+    {
+      "path": "1440-signup.png",
+      "bytes": 225505,
+      "sha256": "43984a2721dc68df7cc9ad1b74bee1a30edfe0d2b72fb0544af099c990221053"
+    },
+    {
+      "path": "1440-signup-full.png",
+      "bytes": 233837,
+      "sha256": "e03cf64fd6c447a78a3fa00a8e5bfabbf39a3f0fd212bf5d77241d25423b1c34"
+    },
+    {
+      "path": "1440-invite-valid.png",
+      "bytes": 219015,
+      "sha256": "532e910a3f0e64afab492c027dd8a488ee6e0240cf06999a8b62f0cdbc7820bb"
+    },
+    {
+      "path": "1440-invite-valid-full.png",
+      "bytes": 221936,
+      "sha256": "d1a4a7d282909f79c8f1af661c3deaf178479886a1bc8139cdec4c4734aed84f"
+    },
+    {
+      "path": "1440-login.png",
+      "bytes": 212235,
+      "sha256": "6e4b01fd5ee4f504f599a2020c0d6d26a95bbdcd37d695aa75a90bc417da6d5b"
+    },
+    {
+      "path": "1440-login-full.png",
+      "bytes": 218569,
+      "sha256": "6bcd4d7a2d5aab9590e4dadfb095c92a81e81d198a56fd5f239afbfa137bdbdc"
+    },
+    {
+      "path": "1440-verify.png",
+      "bytes": 212493,
+      "sha256": "08bcfc879be951703c8533a2609694043bd8eb984267761c3842a99bbc46da92"
+    },
+    {
+      "path": "1440-new-room.png",
+      "bytes": 93236,
+      "sha256": "b722ec334b3fb7290d0e20894e504ea0e68980957f7cea849bf43076516b0bd8"
+    },
+    {
+      "path": "1440-new-room-full.png",
+      "bytes": 116015,
+      "sha256": "1c1b2472e8117180c1e4bfb098dd6ae089505f7eed08e0ecb52bda49b26ebbeb"
+    },
+    {
+      "path": "1440-guest.png",
+      "bytes": 104828,
+      "sha256": "55902c2b4c84a34f74315aff5fb0a98858761a2c2b4a9a3e5618abe374a5ae1a"
+    },
+    {
+      "path": "1440-guest-full.png",
+      "bytes": 114749,
+      "sha256": "03dea2499849d2335d0d7896f3566866fe39ed27b2807a9bc2e3bcb352c85299"
+    },
+    {
+      "path": "1440-admin-overview.png",
+      "bytes": 110738,
+      "sha256": "1d0d3cb291723888201556c089f5a7e9d0534bf5c1fd479199321280857ef0ee"
+    },
+    {
+      "path": "1440-admin-overview-full.png",
+      "bytes": 114072,
+      "sha256": "3d4ac4e0713c8eec665610a56f3d653367e56831963cb2a047970fc81c6d9d7b"
+    },
+    {
+      "path": "1440-admin-public.png",
+      "bytes": 95458,
+      "sha256": "84906058807e80d5d14763c6a6b208d9f629bb4abcbe3aa9bb3edcc72f2502f6"
+    },
+    {
+      "path": "1440-admin-public-full.png",
+      "bytes": 159321,
+      "sha256": "7c3aa63a64af35e78d677ca0e5e16c94f7a64516e8e3fbca65f661e957004cfb"
+    },
+    {
+      "path": "1440-admin-signup.png",
+      "bytes": 90544,
+      "sha256": "dfb96a0c73aa7aa8530a7786338bebf019c5677794e1e79ffae076b59533658b"
+    },
+    {
+      "path": "1440-admin-signup-full.png",
+      "bytes": 122213,
+      "sha256": "70cc7bf77b9816e6f89e31d3cf8cea11354d43787af7fb3df59d1ee928db30ec"
+    },
+    {
+      "path": "1440-admin-design-components.png",
+      "bytes": 93329,
+      "sha256": "64626bdd226837e0e5fd0aa19c5d557802090632ae475a1b95329bc452264b02"
+    },
+    {
+      "path": "1440-admin-design-components-full.png",
+      "bytes": 198978,
+      "sha256": "1fd18b95433b36db6e16ed7a1b0d1af253d98fdde354c123b27945c2dfcf1bd1"
+    },
+    {
+      "path": "1440-admin-design-dialogs.png",
+      "bytes": 84324,
+      "sha256": "2b54331c659e260863c49fa4be303f81220fd9eeba939e4e1c5c654916dbf874"
+    },
+    {
+      "path": "1440-admin-design-dialogs-full.png",
+      "bytes": 157030,
+      "sha256": "c70ebf81d5bb4d4b5c6e10df58f90f896b69986b69785fe6aa0237d308bfd9a6"
+    },
+    {
+      "path": "1440-admin-design-flows.png",
+      "bytes": 111812,
+      "sha256": "30204b6ddf83767df407a8a7edc596f2886673c5b7f14cb44f95017d0adfedb3"
+    },
+    {
+      "path": "1440-admin-design-flows-full.png",
+      "bytes": 163257,
+      "sha256": "1d7e72d77280daffa0a3b2ead7a22d67bf9f1d50525c0bbf15b7751ea1ff6359"
+    },
+    {
+      "path": "390-home.png",
+      "bytes": 100505,
+      "sha256": "e20cff38c3d7de9363b47ccb8ad28ba696fa54438b08b85c9ce5a989cf553bac"
+    },
+    {
+      "path": "390-home-full.png",
+      "bytes": 200386,
+      "sha256": "6ea569b1f74ede5ddcb615543026271543031bfc9f2c87d75ea71fba51158cf1"
+    },
+    {
+      "path": "390-rooms.png",
+      "bytes": 44968,
+      "sha256": "f1c92c943e040374236acc6c3850bd76f2da367da38247bc1e380cec4a39ef34"
+    },
+    {
+      "path": "390-rooms-full.png",
+      "bytes": 102257,
+      "sha256": "4e4ac81b9ff91f41303919561bce8fc560dbe15b6df5c4f884f9c0bdfecfbac1"
+    },
+    {
+      "path": "390-signup.png",
+      "bytes": 45222,
+      "sha256": "3f10470a62a4b306b4dd7089a632bc139da85b8804f213369b3ae5edd8519dd5"
+    },
+    {
+      "path": "390-signup-full.png",
+      "bytes": 63160,
+      "sha256": "8368e34efc410ce1ff7454e176f35b2aa869b3914167f310dae8fc2f918320b1"
+    },
+    {
+      "path": "390-invite-valid.png",
+      "bytes": 39770,
+      "sha256": "ef57fa811aec83f912f5440ae07702bb5dc05b6a9aa5f167a7e6d8a977e2bb38"
+    },
+    {
+      "path": "390-invite-valid-full.png",
+      "bytes": 55651,
+      "sha256": "fc0b191f01200f8a7014b93fe24ac6abd14ad3f7cd8325b6379fe68648fe9f9f"
+    },
+    {
+      "path": "390-login.png",
+      "bytes": 38907,
+      "sha256": "16246c1cf74ecee84831f33730879c0d2821f57d04896b0c00d996ca7e78f3a0"
+    },
+    {
+      "path": "390-login-full.png",
+      "bytes": 52083,
+      "sha256": "b4b64fb9a91c951338d0e09ebb432d4aeaee26dd0ed543eff3d739638cee4a4f"
+    },
+    {
+      "path": "390-verify.png",
+      "bytes": 38162,
+      "sha256": "713144445e5c4e11d5793200e49aa76bbb25fabb199f1028d6c24b20262f1956"
+    },
+    {
+      "path": "390-verify-full.png",
+      "bytes": 49011,
+      "sha256": "e39b9112ed9a4e56caabd422d2b350b8cb1a1c5e14a687ead34d9c876b480b2a"
+    },
+    {
+      "path": "390-new-room.png",
+      "bytes": 41427,
+      "sha256": "9fb92ccc4ae3c8f726c65374c96bcd07d3680bb8024b58db3ab6f04ad7f679cf"
+    },
+    {
+      "path": "390-new-room-full.png",
+      "bytes": 95847,
+      "sha256": "6c5cc7b7cf6d80eac2c39209207711823670d3c3d71f344e971af2b9dbdf8417"
+    },
+    {
+      "path": "390-guest.png",
+      "bytes": 60762,
+      "sha256": "62b1439291c6a540a06a5941dd958fb5ac701d6010fa4883240c06f921ccec1e"
+    },
+    {
+      "path": "390-guest-full.png",
+      "bytes": 95960,
+      "sha256": "eca1e4821c5fc82d37e318d54647733d5d5803aed450484d6052e3565f721cfc"
+    },
+    {
+      "path": "390-admin-overview.png",
+      "bytes": 42558,
+      "sha256": "410c10876b2863d49da443293bad8762aa8c331ca66e279a83b0bf83ca184bd0"
+    },
+    {
+      "path": "390-admin-overview-full.png",
+      "bytes": 85336,
+      "sha256": "45f5898623900e70ac38ee0a42fe3550634208ed74fe3d9b27b5b540a21a7b81"
+    },
+    {
+      "path": "390-admin-public.png",
+      "bytes": 45677,
+      "sha256": "2b29927e7ba8ec93dc6fc32bd841040c6ef49c77100baa1ac9c9757422279931"
+    },
+    {
+      "path": "390-admin-public-full.png",
+      "bytes": 124317,
+      "sha256": "b71d682bdd6e301ba64f9ddde8c8b95cd275099fe4056969b435bcae1e81f584"
+    },
+    {
+      "path": "390-admin-signup.png",
+      "bytes": 39803,
+      "sha256": "81cbd92290d755a266657bf732170129071bac74097bc8bf0634e04797cd72f1"
+    },
+    {
+      "path": "390-admin-signup-full.png",
+      "bytes": 88724,
+      "sha256": "33aa30a3155ecc7875254470ae42214b2a59b1fa0454cfeaafc747aa14ef095b"
+    },
+    {
+      "path": "390-admin-design-components.png",
+      "bytes": 42546,
+      "sha256": "ecb0c9053428e11840b04ec476187877beeaff459bbeade82ed82139a0007d69"
+    },
+    {
+      "path": "390-admin-design-components-full.png",
+      "bytes": 158736,
+      "sha256": "6c69ae16c5351ee0da61d1ac7cd6e716916cad50c25bd1b2abbd3bbd9285106b"
+    },
+    {
+      "path": "390-admin-design-dialogs.png",
+      "bytes": 43170,
+      "sha256": "de1b70bf31462073cd9b2daac438cde06dfb363828ab060cac6e1658e431902c"
+    },
+    {
+      "path": "390-admin-design-dialogs-full.png",
+      "bytes": 157117,
+      "sha256": "34796b986d051dd67b390573685bbfd5e3f27db654935a9eeaca77ead7db5c5a"
+    },
+    {
+      "path": "390-admin-design-flows.png",
+      "bytes": 44508,
+      "sha256": "cd86b2f169eb442e35bd3fcfc0cf82605dcf356de28fc8603433772e7ec4a6c3"
+    },
+    {
+      "path": "390-admin-design-flows-full.png",
+      "bytes": 95088,
+      "sha256": "ea7078ccae6e099a2dcdc9dfc2d8f8a4833586594ed1eb9a022d554f18f29691"
+    }
+  ]
+}
