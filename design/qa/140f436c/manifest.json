@@ -1,0 +1,71 @@
+{
+  "design_commit": "140f436cee062ef3741ddaeb6f1d85d99ce20536",
+  "captured_at": "2026-10-02",
+  "browser": "Playwright 1.63 default Chromium headless shell",
+  "viewports": {
+    "desktop": {
+      "width": 1440,
+      "height": 1000
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "isMobile": true,
+      "hasTouch": true
+    }
+  },
+  "scope": "Isolated local design prototype with fictional content only. No live service, real accounts or real credentials.",
+  "status": "Initial captures. Visual and interaction review is ongoing; not production approval.",
+  "files": [
+    {
+      "file": "desktop-home.png",
+      "bytes": 274575,
+      "sha256": "670e4d7a1dbfa7739f978a978561659a497cd41a5624f9db456c6637e9aa0102"
+    },
+    {
+      "file": "desktop-room.png",
+      "bytes": 122247,
+      "sha256": "c8a64c766cf11ac22a0e8418dd464c78133a77d4ced4907260e92477ced95691"
+    },
+    {
+      "file": "desktop-room-viewport.png",
+      "bytes": 114927,
+      "sha256": "51d26931e92c1ec65a2d5b30a829070daf5b30ec0c38609c47c4e8883e9d79ed"
+    },
+    {
+      "file": "desktop-dialog.png",
+      "bytes": 274905,
+      "sha256": "3bc4d564eb374709a2fb7919d3ccc948ffa48452c7b2e639bd4b8cf6041efb17"
+    },
+    {
+      "file": "desktop-directions.png",
+      "bytes": 218168,
+      "sha256": "d991c18f099e585c0fd2663635dd6ef0520cd01bb08663123c0bfec85ff585f5"
+    },
+    {
+      "file": "mobile-home.png",
+      "bytes": 152708,
+      "sha256": "4eedc066dd3c88a1260f793f94b0006bd85e4142ec8f1bb0603d0066ff47203c"
+    },
+    {
+      "file": "mobile-room.png",
+      "bytes": 105013,
+      "sha256": "654c82aff65a7cc783046b6107c06256b6d3ebe7828305acc300ce10615e2806"
+    },
+    {
+      "file": "mobile-room-viewport.png",
+      "bytes": 50085,
+      "sha256": "2b41ff82a1a16843ed198da4bff95ede778c0ad458a48d5c94ace66a2840a3ca"
+    },
+    {
+      "file": "mobile-dialog.png",
+      "bytes": 113283,
+      "sha256": "d9a41585b490c50ace801efd09e94261aa2eec9eaa71e9b4dc53b3cd13f505ff"
+    },
+    {
+      "file": "mobile-directions.png",
+      "bytes": 187204,
+      "sha256": "11da12823e74a95f4caaa1ecbd047df68da1ca104ab91cc86d37b1c17c4c8076"
+    }
+  ]
+}
