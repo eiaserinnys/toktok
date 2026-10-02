@@ -8,7 +8,10 @@ const root=path.resolve(__dirname,'..'),out=process.env.TOKTOK_BROWSER_OUT;
 if(!out)throw Error('TOKTOK_BROWSER_OUT is required');
 const delay=ms=>new Promise(r=>setTimeout(r,ms));
 const assert=(value,label)=>{if(!value)throw Error(label);};
-const evidence={cases:[],requests:[],errors:[],shots:[]};
+const mobileRemaining=process.env.TOKTOK_BROWSER_SCOPE==='mobile-remaining';
+const evidence={scope:mobileRemaining?'390 remaining only; root pause evidence adopted':'1440/390 integration',cases:[],requests:[],errors:[],shots:[],observations:[]};
+const save=()=>fs.writeFileSync(out+'evidence.json',JSON.stringify(evidence,null,2));
+async function record(page,label){evidence.observations.push({label,...await state(page)});save();}
 const token='local-fixture-curl-creator';
 function curl(base,route,cap,method='GET',body){
  const args=['--silent','--show-error','--fail-with-body','--max-time','8','-X',method,base+route];
@@ -29,7 +32,7 @@ async function shot(page,name){
  // Screenshots show a same-shape fictional capability, never even a minted local fixture secret.
  const saved=await page.locator('#shared-url').count()?await page.locator('#shared-url').textContent():null;
  if(saved)await page.locator('#shared-url').evaluate(e=>e.textContent=e.textContent.replace(/[\w-]{43}$/,'A'.repeat(43)));
- const file=out+name+'.png';await page.screenshot({path:file,fullPage:true});evidence.shots.push({name,file,urlRedacted:!!saved});
+ const file=out+name+'.png';await page.screenshot({path:file,fullPage:!mobileRemaining});evidence.shots.push({name,file,urlRedacted:!!saved});
  if(saved)await page.locator('#shared-url').evaluate((e,s)=>e.textContent=s,saved);
 }
 async function metrics(page){return page.evaluate(()=>{
@@ -55,20 +58,21 @@ async function main(){
   let ready=false;for(let i=0;i<150&&!exited;i++){try{curl(base,'/health');ready=true;break;}catch{}await delay(100);}assert(ready,'Worker ready');
   const expiry=create(base,60);
   browser=await chromium.launch({headless:true,args:['--disable-dev-shm-usage']});evidence.browser=browser.version();
-  for(const width of [1440,390]){
+  for(const width of mobileRemaining?[390]:[1440,390]){
    const mode=width===390?'mobile':'desktop',ctx=await browser.newContext({viewport:{width,height:width===390?844:1000},isMobile:width===390,hasTouch:width===390,deviceScaleFactor:1});
    const page=await ctx.newPage();page.setDefaultTimeout(10000);
    page.on('request',r=>{const u=new URL(r.url());evidence.requests.push({mode,method:r.method(),path:u.pathname.replace(/[\w-]{43}/g,'[fixture-cap]'),after:u.searchParams.get('after'),external:u.origin!==base});});
    page.on('pageerror',()=>evidence.errors.push({mode,type:'pageerror'}));
    page.on('console',m=>{if(m.type()==='error'&&m.text().includes('Content Security Policy'))evidence.errors.push({mode,type:'CSP'});});
    const r=create(base),a=join(base,r,'<b>봄날</b>'),b=join(base,r,'귤빛 친구');
-   await page.goto(r.invite_url);await page.waitForFunction(()=>document.querySelector('#permission')?.textContent==='초대 링크 · 관전');
-   await page.goto(r.read_url);await page.waitForFunction(()=>document.querySelector('#room-status')?.textContent==='대화를 기다리는 중');await shot(page,mode+'-empty');
+   if(!mobileRemaining){await page.goto(r.invite_url);await page.waitForFunction(()=>document.querySelector('#permission')?.textContent==='초대 링크 · 관전');
+   }
+   await page.goto(r.read_url);await page.waitForFunction(()=>document.querySelector('#room-status')?.textContent==='대화를 기다리는 중');if(!mobileRemaining)await shot(page,mode+'-empty');
    for(let i=0;i<3;i++){send(base,r,a,`창작 ${i}: <img src=x onerror="globalThis.injected=true">\n**강조도 평문**으로 읽어요.`,mode+'-a-'+i);send(base,r,b,`창작 답변 ${i}: 똠방각하와 뷁, 쀍까지 로컬 한글 폰트로 표시해요.`,mode+'-b-'+i);}
-   await count(page,6);assert(await page.locator('.bubble img').count()===0,'plain unsafe text');assert(await page.locator('.person').count()===2,'actual sender count');
+   await count(page,6);if(!mobileRemaining){assert(await page.locator('.bubble img').count()===0,'plain unsafe text');assert(await page.locator('.person').count()===2,'actual sender count');}
    for(let i=0;i<10;i++)send(base,r,i%2?a:b,('읽던 위치를 유지하는 긴 한글 문장입니다. 새로운 대화가 와도 이 자리를 지킵니다.\n').repeat(4),mode+'-scroll-'+i);
    await count(page,16);await page.locator('#feed').evaluate(e=>e.scrollTop=120);await page.evaluate(()=>scrollTo({top:100,behavior:'instant'}));await delay(100);
-   await shot(page,mode+'-room');const m=await metrics(page);assert(m.scrollWidth===width,'horizontal overflow');assert(m.meta.color==='rgb(95, 109, 86)','final badge color');assert(m.people.every((p,i)=>p.initial===Array.from(p.name)[0]&&p.color===m.messages[i].color),'sender avatar agreement');evidence.cases.push({mode,case:'empty/three curl round trips/unsafe text/local font/avatar/room',metrics:m});
+   if(!mobileRemaining){await shot(page,mode+'-room');const m=await metrics(page);assert(m.scrollWidth===width,'horizontal overflow');assert(m.meta.color==='rgb(95, 109, 86)','final badge color');assert(m.people.every((p,i)=>p.initial===Array.from(p.name)[0]&&p.color===m.messages[i].color),'sender avatar agreement');evidence.cases.push({mode,case:'empty/three curl round trips/unsafe text/local font/avatar/room',metrics:m});
    // Read-only selected-design comparison, not a repeat of prototype QA.
    const ref=await ctx.newPage();await ref.goto(designBase+'/#room');await ref.evaluate(()=>document.querySelector('[data-action=pause]').click());
    const same=await page.evaluate(()=>({title:document.querySelector('#room-title').textContent,feed:document.querySelector('#feed').innerHTML,people:document.querySelector('#people').innerHTML}));
@@ -78,17 +82,19 @@ async function main(){
    for(const selector of ['bubble','conversation'])for(const key of ['font','padding','radius'])assert(m[selector][key]===designMetrics[selector][key],'design token '+selector+' '+key);
    evidence.cases.push({mode,case:'a78acce selected design / integration side by side with same fictional message content',referenceScreenshot:designShot,referenceMetrics:designMetrics,note:'Reference only: paused prototype; review rail removed and title/feed/people filled with identical local fiction. Remaining prototype labels are design context, not product evidence.'});
    await ref.close();
-   const before=await state(page);await page.locator('[data-action=pause]').evaluate(e=>e.click());const paused=await state(page);assert(paused.top===before.top&&paused.pageY===before.pageY,'pause position');
+   const before=await state(page);await record(page,'before pause');await page.locator('[data-action=pause]').evaluate(e=>e.click());const paused=await state(page);await record(page,'paused');assert(paused.top===before.top&&paused.pageY===before.pageY,'pause position');
    send(base,r,a,'일시정지 중 추가한 창작 메시지',mode+'-paused');await delay(350);assert((await state(page)).sequences.length===16,'paused cursor');await shot(page,mode+'-paused-reading');
-   await page.locator('[data-action=pause]').evaluate(e=>e.click());await count(page,17);const resumed=await state(page);assert(resumed.top===before.top&&resumed.pageY===before.pageY,'resume read position');assert(resumed.sequences.every((n,i)=>n===i+1),'no missing/duplicate');evidence.cases.push({mode,case:'pause/resume',before,paused,resumed});
-   await ctx.setOffline(true);await page.waitForFunction(()=>document.querySelector('#watch-status')?.textContent.includes('끊겼'),null,{timeout:35000});await shot(page,mode+'-error');const disconnected=await state(page);send(base,r,b,'끊김 동안 추가한 창작 답변',mode+'-offline');await ctx.setOffline(false);await count(page,18);const reconnected=await state(page);assert(reconnected.top===before.top,'reconnect read position');evidence.cases.push({mode,case:'disconnect/resume same cursor',disconnected,reconnected});
+   await page.locator('[data-action=pause]').evaluate(e=>e.click());await count(page,17);const resumed=await state(page);await record(page,'resumed before assertion');assert(resumed.top===before.top&&resumed.pageY===before.pageY,'resume read position');assert(resumed.sequences.every((n,i)=>n===i+1),'no missing/duplicate');evidence.cases.push({mode,case:'pause/resume',before,paused,resumed});}
+   else{send(base,r,a,'로컬 fixture 입력 17',mode+'-input17');await count(page,17);await page.locator('#feed').evaluate(e=>e.scrollTop=120);await page.evaluate(()=>scrollTo({top:600,behavior:'instant'}));await delay(100);}
+   const position=await state(page);await record(page,'remaining baseline');
+   await ctx.setOffline(true);await page.waitForFunction(()=>document.querySelector('#watch-status')?.textContent.includes('끊겼'),null,{timeout:35000});await shot(page,mode+'-error');const disconnected=await state(page);await record(page,'disconnected before assertion');send(base,r,b,'끊김 동안 추가한 창작 답변',mode+'-offline');await ctx.setOffline(false);await count(page,18);const reconnected=await state(page);await record(page,'reconnected before assertion');assert(reconnected.top===position.top,'reconnect read position');evidence.cases.push({mode,case:'disconnect/resume same cursor',disconnected,reconnected});
    await page.locator('[data-action=pause]').evaluate(e=>e.click());
    const cdp=await browser.newBrowserCDPSession();try{
     const ids=await cdp.send('Target.getBrowserContexts');for(const allowWithoutSanitization of [false,true])await cdp.send('Browser.setPermission',{permission:{name:'clipboard-write',allowWithoutSanitization},setting:'denied',origin:base,browserContextId:ids.browserContextIds[0]});
     assert(await page.evaluate(async()=>(await navigator.permissions.query({name:'clipboard-write'})).state)==='denied','actual clipboard denial');await page.locator('.invite-btn').evaluate(e=>e.click());await page.waitForFunction(()=>!document.querySelector('#connect-panel').hidden);assert((await page.locator('#link-scope').textContent()).includes('읽기만'),'read scope');
     const selectable=await page.locator('#shared-url').evaluate(e=>{const r=document.createRange();r.selectNodeContents(e);const s=getSelection();s.removeAllRanges();s.addRange(r);return s.toString()===e.textContent;});assert(selectable,'long URL selectable');await shot(page,mode+'-clipboard-fallback');evidence.cases.push({mode,case:'real clipboard denied/read scope/long URL',selectable});
    }finally{await cdp.detach();}
-   await page.locator('[data-tab=chat]').evaluate(e=>e.click());assert((await state(page)).top===before.top,'tab read position');
+   await page.locator('[data-tab=chat]').evaluate(e=>e.click());await record(page,'chat tab restored before assertion');assert((await state(page)).top===position.top,'tab read position');
    // Controlled HTTP 429 at the browser boundary; SQLite and permissions remain real.
    // Production rate-limit emission is covered by the foundation CI, not relaxed for this harness.
    let limited=false;const retryTimes=[];
@@ -98,7 +104,7 @@ async function main(){
    for(let i=0;i<30&&retryTimes.length<2;i++)await delay(100);
    assert(retryTimes.length>=2&&retryTimes[1]-retryTimes[0]>=990,'Retry-After honored');
    evidence.cases.push({mode,case:'controlled 429 retains feed/retries after HTTP delay',retryDelay:retryTimes[1]-retryTimes[0]});
-   await page.unroute('**/api/rooms/*/wait?*');
+   await page.unroute('**/api/rooms/*/wait?*');await record(page,'after controlled 429');
    curl(base,`/api/rooms/${r.room.id}/close`,r.owner_token,'POST');await page.waitForFunction(()=>document.querySelector('#watch-status')?.textContent.includes('종료'));await count(page,18);await shot(page,mode+'-closed');evidence.cases.push({mode,case:'closed history preserved',state:await state(page)});
    const invalid=r.read_url.replace(/[\w-]{43}$/,'x'.repeat(43));const invalidResponse=await page.goto(invalid);assert(invalidResponse.status()===403,'invalid HTML status');await page.waitForSelector('.expired-page');await shot(page,mode+'-invalid');
    // Actual expiry, not a mocked screen. Created before this execution group.
@@ -107,9 +113,9 @@ async function main(){
    await ctx.close();
   }
   assert(!evidence.errors.length,'browser/CSP errors');assert(!evidence.requests.some(r=>r.external),'self assets only');assert(evidence.requests.filter(r=>r.path.startsWith('/api/')).every(r=>r.method==='GET'),'browser performs only GET');
-  evidence.pass=true;console.log('TOKTOK_SPECTATOR_BROWSER_PASS: 1440/390, curl 3 round trips, pause/read position, reconnect cursor, readonly, local assets/CSP, close/expiry, real clipboard denied');
+  evidence.pass=true;save();console.log(mobileRemaining?'TOKTOK_SPECTATOR_MOBILE_REMAINING_PASS: 390 reconnect/cursor, real clipboard denied, controlled 429 Retry-After, closed/expired, GET-only, CSP/self assets; root pause evidence adopted':'TOKTOK_SPECTATOR_BROWSER_PASS: 1440/390, curl 3 round trips, pause/read position, reconnect cursor, readonly, local assets/CSP, close/expiry, real clipboard denied');
  }finally{
   fs.writeFileSync(out+'evidence.json',JSON.stringify(evidence,null,2));if(browser)await browser.close();server.kill('SIGTERM');await stopped;await new Promise(r=>reference.close(r));
  }
 }
-main().catch(e=>{console.error(e.message.replace(/[\w-]{43}/g,'[fixture-cap]'));process.exitCode=1;});
+main().catch(e=>{evidence.failure=e.message.replace(/[\w-]{43}/g,'[fixture-cap]');save();console.error(e.message.replace(/[\w-]{43}/g,'[fixture-cap]'));process.exitCode=1;});

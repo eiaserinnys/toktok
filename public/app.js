@@ -18,6 +18,7 @@ function clock(state){
 }
 function metadata(state,data){
  state.metadata=data;
+ if(data.room.status==='closed')data.permissions.join=false;
  $('#room-title').textContent=data.room.purpose||'작은 대화방';
  $('#room-status').textContent=data.room.status==='closed'?'종료된 방':'대화 중';
  const invite=data.permissions.join;
@@ -49,7 +50,7 @@ function failState(state,result){
  const code=result.data?.error?.code;
  if(code==='ROOM_GONE'){showTerminal(state,code);return true;}
  if(code==='ROOM_CLOSED'){
-  state.metadata.room.status='closed';$('#room-status').textContent='종료된 방';status('대화가 종료됐어요. 이전 메시지는 계속 읽을 수 있어요.');$('#empty h2')?.replaceChildren(document.createTextNode('대화가 종료됐어요'));return true;
+  state.metadata.room.status='closed';metadata(state,state.metadata);status('대화가 종료됐어요. 이전 메시지는 계속 읽을 수 있어요.');$('#empty h2')?.replaceChildren(document.createTextNode('대화가 종료됐어요'));return true;
  }
  if([401,403,404].includes(result.response.status)){showTerminal(state,code);return true;}
  status(result.response.status===429?'잠시 기다려주세요. 서버가 안내한 시간 뒤 이어 읽어요.':'연결이 잠시 끊겼어요. 읽던 자리에서 다시 연결해요.');return false;
@@ -74,6 +75,7 @@ async function start(state){
    if(!result.response.ok){if(!failState(state,result))armRetry(state,controller,result.response);return;}
    applyPage(state,result.data,m=>append(state,m));state.attempt=0;
    state.metadata.room.status=result.data.room_status;
+   if(result.data.room_status==='closed')metadata(state,state.metadata);
    $('#room-status').textContent=result.data.room_status==='closed'?'종료된 방':state.cursor?'대화 중':'대화를 기다리는 중';
    if(result.data.has_more){path=`/messages?after=${state.cursor}&limit=100`;continue;}
    if(result.data.room_status==='closed'){status('대화가 종료됐어요. 이전 메시지는 계속 읽을 수 있어요.');$('#empty h2')?.replaceChildren(document.createTextNode('대화가 종료됐어요'));return;}
@@ -88,11 +90,12 @@ async function start(state){
 async function probeExpiry(state){
  if(active!==state||state.gone)return;
  cancel(state);const controller=new AbortController();state.controller=controller;
+ const retry=response=>{state.expiryTimer=setTimeout(()=>{if(ownsResponse(state,controller,active))probeExpiry(state);},retryDelay(response,state.attempt++));};
  try{
   const result=await fetchJSON(state,'',controller);if(!ownsResponse(state,controller,active))return;
-  if(!result.response.ok){if(failState(state,result))return;}
-  else metadata(state,result.data);
- }catch{if(!ownsResponse(state,controller,active))return;}
+  if(!result.response.ok){if(!failState(state,result))retry(result.response);return;}
+  else {state.attempt=0;metadata(state,result.data);}
+ }catch{if(!ownsResponse(state,controller,active))return;status('연결이 잠시 끊겼어요. 읽던 자리에서 다시 연결해요.');retry();return;}
  if(!state.paused)start(state);
  // A paused client retries only the expiry check, without fetching new messages.
  else if(!state.gone)state.expiryTimer=setTimeout(()=>probeExpiry(state),15000);
@@ -107,7 +110,7 @@ function tab(name,focus=false){
  if(name==='chat')feed.scrollTop=active.follow?feed.scrollHeight:active.feedTop;
  scrollTo({top:y,behavior:'instant'});
 }
-function toast(text){clearTimeout(toastTimer);const e=document.querySelector('#toast');e.textContent=text;e.classList.add('show');toastTimer=setTimeout(()=>e.classList.remove('show'),3500);}
+function toast(text){clearTimeout(toastTimer);const e=document.querySelector('#toast');e.textContent=text;e.classList.add('visible');toastTimer=setTimeout(()=>e.classList.remove('visible'),3500);}
 async function copy(state){
  try{await navigator.clipboard.writeText(state.url);if(active===state)toast('현재 링크를 복사했어요');}
  catch{if(active!==state)return;tab('connect');toast('자동 복사를 사용할 수 없어요. 링크를 길게 눌러 복사해주세요');$('#shared-url').focus({preventScroll:true});}
@@ -127,7 +130,7 @@ function bind(state){
 }
 function navigate(){
  if(active){active.pageY=scrollY;cancel(active);}clearTimeout(toastTimer);
- document.querySelector('#toast').classList.remove('show');active=null;
+ document.querySelector('#toast').classList.remove('visible');active=null;
  const error=document.body.dataset.error;
  if(error){app.innerHTML=terminal(error);return;}
  const match=shared.exec(location.pathname);
