@@ -6,8 +6,16 @@
 
 - 기존 Cloudflare Worker+DO 배포를 유지하고 같은 HTTP 계약의 자체 설치도 제공합니다.
 - 권장 실행은 Docker Compose의 단일 Node 24 LTS 앱 컨테이너입니다. 현재 리포는 작은 TypeScript ESM이며 별도 대형 프레임워크/Redis/메시지브로커를 도입하지 않습니다. Node 24의 정확한 지원 SQLite API와 버전은 이식 구현 착수 때 공식 v24 문서/컨테이너에서 확인하여 pin합니다. 호스트 Node 22는 업그레이드하지 않습니다.
-- 기본 DB는 SQLite 로컬 파일 volume(`/data`)입니다. Postgres는 사용자가 가진 서버에 연결하는 선택 adapter이며 Postgres 선택이 다중 앱 인스턴스 지원을 의미하지 않습니다.
+- self-host 기본 DB는 SQLite 로컬 파일 volume(`/data`)입니다. Postgres는 사용자가 가진 서버에 연결하는 선택 adapter이며 Postgres 선택이 다중 앱 인스턴스 지원을 의미하지 않습니다.
 - DEMO는 모든 body memory only이고 공개방은 HOSTED에서도 body memory only입니다. HOSTED private의 명시 persist만 DB에 기록합니다. 설정/계정/초대/권한/최소 남용 메타는 DB에 둡니다. 본문을 PostgreSQL NOTIFY/queue/outbox/WAL/로그에 넣어 공유하지 않습니다.
+
+## 설치·시작 시 backend 선택
+
+- 서버 인스턴스는 설치/시작 시 backend 하나를 선택합니다. 현재 지원 예정 선택은 **Cloudflare DO SQLite**, **self-host SQLite**, **self-host PostgreSQL**입니다.
+- D1 지원/전환은 사용자 답 대기이며 확정된 지원 범위가 아닙니다. D1과 DO SQLite는 같은 것으로 취급하지 않으며 이 명확화를 위해 현재 엔진을 재작성하지 않습니다.
+- backend 선택은 인프라 시작 설정입니다. 시작 후 관리자 product settings로 backend를 바꾸지 않습니다. 공통 core와 RepositoryPort 계약은 유지합니다.
+- 선택된 adapter/driver만 초기화합니다. 선택하지 않은 DB의 driver/service/credential을 실행 필수 의존성으로 요구하지 않습니다.
+- 동시에 여러 DB에 연결하는 구성, dual-write, replication/sync, 이주용 다중 DB는 요구 범위 밖이며 구현하지 않습니다.
 
 ## 구조와 동일 계약
 
