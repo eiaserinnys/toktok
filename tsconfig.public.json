@@ -1,0 +1,4 @@
+{
+  "extends":"./tsconfig.json",
+  "include":["src/public-*.ts","test/public-room.test.ts","test/public-worker.ts","vitest.public.config.ts"]
+}

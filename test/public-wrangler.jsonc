@@ -1,0 +1,10 @@
+{
+  "$schema":"../node_modules/wrangler/config-schema.json",
+  "name":"toktok-public-fixture","main":"./public-worker.ts",
+  "compatibility_date":"2026-10-01","compatibility_flags":["enable_request_signal"],
+  "workers_dev":false,"preview_urls":false,
+  "observability":{"enabled":false,"logs":{"enabled":false,"invocation_logs":false},"traces":{"enabled":false}},
+  "vars":{"PUBLIC_ORIGIN":"http://localhost:18793"},
+  "durable_objects":{"bindings":[{"name":"PUBLIC_ROOMS","class_name":"PublicRoom"}]},
+  "migrations":[{"tag":"public-v1","new_sqlite_classes":["PublicRoom"]}]
+}
