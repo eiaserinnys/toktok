@@ -1,6 +1,6 @@
 # Control plane: CF milestone과 공통 Repository 이식
 
-기존 OTP WIP와 같은 `feat/claim-foundation`에서 DB settings/admin/invite/admission/entitlement를 구현했습니다. 현재 CF SQL milestone은 실제 Workers SQLite 15개 targeted 계약과 strict 타입검사를 통과했습니다. 공통 Repository 이식과 최종 Worker/UI/방 엔진 wiring은 후속이며 서비스 전체 완료나 통합 CI 통과를 뜻하지 않습니다.
+기존 OTP WIP와 같은 `feat/claim-foundation`에서 DB settings/admin/invite/admission/entitlement를 구현했습니다. CF SQL milestone은 실제 Workers SQLite 15개 targeted 계약과 strict 타입검사를 통과해 `81f56ff`에 보존했습니다. 현재 동일 도메인을 async RepositoryPort로 이식하고 private 생성 확인·예약을 추가했습니다. 이식 검증과 최종 Worker/UI/방 엔진 wiring의 완료 여부는 아래 검증 기록과 구분하며 서비스 전체 완료나 통합 CI 통과를 뜻하지 않습니다.
 
 ## 소유와 보존
 
@@ -12,9 +12,11 @@
 
 ## 구현 정본
 
-`settings-schema.ts`는 schema_version=1의 metadata와 typed validation, `settings-store.ts`는 최초 seed/CAS/audit/readiness/원자 budget 예약, `invitations.ts`는 초대와 검증 증표, `identity-registry.ts`는 DB account/OTP/session/claim transaction을 소유합니다. `control-policy.ts`의 settings/admission/entitlement/TTL/retention/budget 판정은 플랫폼 비의존 순수 함수입니다. `control-contracts.ts`는 UI DTO type 정본입니다.
+`settings-schema.ts`는 schema_version=1의 metadata와 typed validation, `settings-store.ts`는 최초 seed/CAS/audit/readiness/원자 budget 예약, `invitations.ts`는 초대와 검증 증표를 소유합니다. 플랫폼 비의존 `ControlCore(repository,options)`가 account/OTP/session/claim과 생성 예약의 transaction을 소유하고 하위 helper는 같은 transaction을 사용합니다. `control-policy.ts`의 admission/entitlement/TTL/retention/budget 판정은 순수 함수입니다. `control-contracts.ts`는 UI DTO type 정본입니다.
 
-첫 seed는 DEMO+invite+deployment.enabled=false입니다. DB 설정은 restart/request마다 env로 덮지 않으며 손상한 설정은 503 SETTINGS_INVALID로 닫습니다. 실제 runtime policy refresh/active room 예약은 아직 연결하지 않았습니다. trusted budget/lifecycle readiness는 일반 settings payload에 없고 미연결 상태에서 enable 또는 mode 전환을 거부합니다.
+`control-runtime.ts`는 신규 SQLite ControlPlane DO용 wrapper이며 `createControlPlane(optionsFactory)`로 trusted 설치 profile/enforcement를 주입할 수 있습니다. 기본은 enabled=false/readiness=false입니다. `identity-registry.ts`의 이름 호환 export는 기존 소스 타입 연결을 위한 것이며 과거 SQL namespace로 배포하거나 자동 변환하지 않습니다. 최종 namespace는 root가 연결합니다. B 소유 Repository/CF adapter/private contract는 승인된 단독 커밋만 가져왔습니다. 메일/HTTP/longpoll은 Repository transaction 안에서 실행하지 않습니다.
+
+첫 seed는 DEMO+invite+deployment.enabled=false입니다. DB 설정은 restart/request마다 env로 덮지 않으며 손상한 설정은 503 SETTINGS_INVALID로 닫습니다. 설치 profile은 빈 domain DB 최초 transaction에서만 검증·적용하며 기존 config/admin/account/HMAC 키를 덮지 않습니다. enabled=true 초기 profile은 버전1의 신뢰된 enforcement와 준비된 Repository가 없으면503입니다. readiness는 client/일반 settings PUT 필드가 아니며 seed에 admin 승격 필드도 없습니다. 실제 runtime 정책 갱신과 방 initializer 연결은 root 후속입니다.
 
 ## HTTP DTO와 권한
 
@@ -38,6 +40,8 @@
 | POST /api/admin/invitations | ttl_seconds? → id/expires_at/status/code 201 | exact Origin+session-CSRF+DB admin role; code 1회 반환 |
 | POST /api/admin/invitations/:id/revoke | 빈 object → id/status | exact Origin+session-CSRF+DB admin role |
 | POST /api/admin/bootstrap | confirm=true → bootstrapped=true | exact Origin+session-CSRF+정확 사전 지정 이메일, 최초 1회 |
+| POST /api/private/create-context | 빈 object → nonce/expires_at ISO/notice_version/authenticated/can_persist_private | exact Origin+edge; session이 있으면 CSRF, 별도 __Host create cookie |
+| POST /api/private/create-grants | nonce/risk_ack=true/risk_ack_version → creation_grant/expires_at ISO/notice_version | cookie+nonce+명시 확인, session이 있으면 CSRF |
 
 Session role/query role/fixtureRole은 클라이언트가 권한으로 만들 수 없습니다. 관리자 UI/QA HTML/API 진입은 `requireAdmin()` DB guard를 재사용합니다. session mutation의 CSRF는 해당 session에 결합되고 bearer agent creator 권한과 혼합하지 않습니다. __Host flow/session cookie는 Secure/HttpOnly/Lax/Path=/, Domain 없음입니다. owner_ack는 version과 서버 confirmed_at(ms)만 공개합니다.
 
@@ -68,13 +72,17 @@ DB account는 opaque UUID, role, admission kind invited/hosted/bootstrap 및 cre
 
 익명 TTL은 기본3600/최대86400초, 인증 계정은 기본86400/최대604800초입니다. persist retention은 기본86400/최대604800초이며 room TTL을 넘으면422입니다. 30일은 허용하지 않습니다. 생성 snapshot은 mode/visibility/persist/TTL/retention/notice_version이며 memory→persist 업데이트 API는 없습니다.
 
-이 checker는 익명 생성 승인 자체가 아닙니다. 익명 human ack/nonce, create lifecycle/global active 예약, Room snapshot/저장/삭제 연결은 root 후속 계약입니다. 이 milestone에서 실제 새 방 생성/retention enforcement를 통과했다고 보고하지 않습니다.
+이 checker 단독으로 익명 생성을 승인하지 않습니다. `create-admission.ts`가 10분 cookie/nonce context와 5분 1회 grant를 확인하고, 발급 IP/요청 IP의 HMAC별 시간·활성 제한과 전역 일 생성·pending/active slot·private_creates 예산을 한 transaction에서 예약합니다. 익명 ack는 신원 확인이 아닌 선언이고 owner_account_id=null입니다. account는 매 생성 화면의 명시 확인 시 DB ack를 갱신하고 agent 생성은 기존 owner ack 시각을 재사용합니다.
+
+root의 기존 POST /api/v1/rooms dispatcher가 `reserveCreation()`과 실제 B PrivateRoom initialize 및 `commitSlot()`을 연결해야 합니다. 생성 body는 purpose/ttl_seconds?/persist?/retention_seconds?/client_request_id/creation_grant?이며 mode/visibility/entitlement는 body에서 받지 않습니다. grant 전달은 생성 권한 위임이며 발급 IP와 요청 IP의 한도를 모두 검사합니다. 동일 ID 입력 변경409, pending은 CREATE_PENDING/Retry-After2+room_id, 최초 결과 유실은 CREATE_RESULT_NOT_RECOVERABLE+room_id입니다. raw capability는 DB에 저장하지 않으며 재시도에 다른 방/새 secret을 발급하지 않습니다. root 공통 오류 wrapper는 `controlErrorResponse()`를 사용해 room_id를 보존해야 합니다.
+
+pending은 확인된 initialize 이후에만 active가 되고, 종료/미초기화 확인 또는 절대 만료 때만 slot을 반환합니다. 알 수 없는 초기화 결과는 slot을 유지합니다. 실제 Room 초기화/retention/body 저장·삭제·최종 HTTP 왕복은 이 control 검증의 범위 밖입니다.
 
 ## Budget
 
 typed cap 6종 및 provisional 숫자는 modes-settings 문서와 schema가 정본입니다. `reserve(operation_id,kind,amount)`는 trusted server operation 전용이며 공개 HTTP request body로 호출하지 않습니다. 서버 clock의 UTC day+month를 한 transaction에서 모두 검사·증가하며 실패 시 전부 rollback합니다. 재시도는 최초 예약 창에 귀속하고 내용 변경은409입니다. 실패/불확실 처리에 환불하거나 자동 재예약하지 않습니다.
 
-operation ID는 서버 발급 시각/고정 작업 만료/UUID를 포함합니다. 일반 내부 operation은 최대60초, email_attempts는 최대 flow 상한600초이며 만료 ID는 기록 정리 뒤에도410으로 거부합니다. 이는 외부 공개 토큰이 아닙니다. cap 축소는 기존 usage를 보존합니다. readiness는 false이며 실제 engine/response/admission workload enforcing path와 OTP typed budget 연결은 root 최종 wiring 후 확인합니다. 기존 OTP 전역 월10000 예약은 계속 별도 실제 게이트입니다. 금액/typed cap가 실제 청구 상한을 보장하지 않습니다.
+operation ID는 서버 발급 시각/고정 작업 만료/UUID를 포함합니다. 일반 내부 operation은 최대60초, email_attempts는 최대 flow 상한600초이며 만료 ID는 기록 정리 뒤에도410으로 거부합니다. 종류별 새 ID를 한 번 발급하고 같은 reservation 재시도에만 원래 ID를 유지합니다. 이는 외부 공개 토큰이 아닙니다. cap 축소는 기존 usage를 보존합니다. OTP 실제 발송 예약은 동일 email_attempts UTC day/month aggregate를 같은 transaction에서 사용하고 IP/이메일 요청 예산과 별도로 검사합니다. private_creates도 생성 slot transaction 안에서 예약하며 중첩 budget transaction을 열지 않습니다. 방 내부 admission/response/body write/duration은 B, control/config/auth/admin router admission/response 연결은 root 후속입니다. 금액/typed cap가 실제 청구 상한을 보장하지 않습니다.
 
 ## 검증과 남은 작업
 
@@ -88,3 +96,12 @@ operation ID는 서버 발급 시각/고정 작업 만료/UUID를 포함합니�
 - 기존 auth/OTP 테스트 fixture는 옛 start payload/cookie/allowlist/session DTO를 사용하므로 최종 통합 시 새 DB admission fixture로 이관해야 합니다. 전체 회귀와 최종 OpenAPI/production dispatcher wiring은 root 책임이며 이번 targeted 결과가 그 회귀 통과를 뜻하지 않습니다.
 - 동일 domain을 async RepositoryPort(control scope)로 이식합니다. B CloudflareRepository의 tok_records/tok_migrations schema는 기존 SQL DO에 바로 적용하지 않고 신규 ControlPlane namespace에 주입합니다. 운영 계정/방이 아직 없으며 old WIP 자동변환은 하지 않습니다. B SQLite/PG/CF adapter와 같은 core를 사용하고 callback 안에 외부메일/HTTP/longpoll을 넣지 않습니다.
 - 실제 초기 admin provisioning, sender binding/DNS/preview OFF 실측/실제메일, UI renderer/registry, lifecycle/budget enforcement 및 최종 통합 CI는 남았습니다.
+
+## Repository 이식 gate 진행 기록
+
+- CF milestone 당시 control test/config/worker는 `.milestone.txt`로 보존했습니다. 기존 결과를 취소한 것이 아니며 이식 후 runtime fixture와 구분합니다.
+- 새 pool은 `test/control-port-vitest.config.ts`/`control-port-wrangler.jsonc`/`control-port-worker.ts`입니다. 실제 Workers SQLite Repository, controlled edge, DI clock, fake sender만 사용하고 운영 메일0입니다.
+- 첫 이식 runtime 시도는 잘못 지정된 fixture entry가 ControlPlane을 export하지 않아 초기화 단계에서 실패했습니다. domain assertion은 실행되지 않았으며 entry 수정 후 허용된 보정 실행을 기다립니다.
+- 첫 이식 타입검사는 B CF storage exec generic과 설치 Workers 타입의 제약 차이로 TS2345 6건을 냈습니다. B 단독 generic checkpoint f55ae735를 반영하고 같은 tsc --noEmit 보정 실행 1회가 exit0으로 끝났습니다. strict 설정/any/ts-ignore를 완화하지 않았습니다.
+- CF alarm 내부 테이블 취급 보정은 B checkpoint를 기다립니다. 신규 domain gate에는 seed/HMAC 보존, enabled seed 음성 조건, CAS/bootstrap/invite/OTP 일회성, UTC budget 및 생성 grant/slot 경합만 포함합니다. 기존 전체 회귀나 browser를 반복하지 않습니다.
+- 단계3 독립 읽기전용 reviewer는 새 core/create/seed 구현을 정적 검수해 추가 blocker 없이 통과했습니다. runtime 결과나 B adapter/최종 root wiring 검증을 대신하지 않습니다.

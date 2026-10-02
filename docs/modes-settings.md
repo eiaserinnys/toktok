@@ -1,6 +1,6 @@
 # DEMO/HOSTED DB 설정
 
-최신 DB admission과 초대 가입, private opt-in 계약을 따릅니다. CF SQL control milestone은 구현했으며 동일 Repository core 이식 및 실제 방/UI/runtime wiring은 후속입니다. DB가 제품 설정 정본이고 클라이언트 mode/role/persist는 권한이 아닙니다.
+최신 DB admission과 초대 가입, private opt-in 계약을 따릅니다. CF SQL control milestone을 보존하고 동일 도메인을 Repository control core로 이식했습니다. 새 이식 gate와 실제 방/UI/runtime wiring은 별도 진행 기록을 따릅니다. DB가 제품 설정 정본이고 클라이언트 mode/role/persist는 권한이 아닙니다.
 
 ## 가입과 저장
 
@@ -11,7 +11,7 @@
 | 인증 private | completed invited/bootstrap account의 권한 있는 새 방에서 persist opt-in, 기본 OFF | DB account entitlement에 따른 persist opt-in, 기본 OFF |
 | public/anonymous private | body memory only | body memory only |
 
-DEMO의 open signup을 거부합니다. persistenceAllowed=true는 DEMO에서도 가능하지만 account entitlement/creator/risk ack를 대체하지 않습니다. 모드 전환이 다른 옵션을 자동 완화하지 않습니다. 일반 settings PUT에서 readiness나 active room count를 쓰지 못하며 lifecycle readiness와 active private=0인 drain guard를 요구합니다.
+DEMO의 open signup을 거부합니다. persistenceAllowed=true는 DEMO에서도 가능하지만 account entitlement/creator/risk ack를 대체하지 않습니다. defaultPersist=false는 두 mode의 안전 불변 조건이고 관리자 schema의 readOnly/constant false로 표시합니다. 생성 생략=OFF, 명시 persist:true만 권한 검사를 거쳐 허용합니다. 모드 전환이 다른 옵션을 자동 완화하지 않습니다. 일반 settings PUT에서 readiness나 active room count를 쓰지 못하며 lifecycle readiness와 pending을 포함한 active private=0인 drain guard를 요구합니다.
 
 ## 첫 seed와 schema
 
@@ -30,6 +30,8 @@ schema_version=1, revision 정수, updated_at/by와 metadata label/unit/min/max/
 
 private cap/금액/workload 수치는 root 초기 보수적 제안이며 출시 비용 보장이나 청구 제한이 아닙니다. deployment.enabled=false를 유지합니다. trusted enforcing path 미연결 상태에서 false→true 활성화를 거부합니다. 관리자 임의 readiness=true는 없습니다.
 
+trusted installation profile은 빈 DB 최초 transaction에서만 validateSettings 후 적용합니다. enabled seed는 Repository ready와 코드 enforcement version=1/ready 확인이 모두 필요합니다. 기존 config/admin/account/HMAC는 유지하며 재배포 profile로 덮지 않습니다. profile에 관리자 승격 필드는 없습니다. anonymous demo 초기 활성화는 root 최종 enforcing 연결과 검증 후 별도 wiring하며 현재 운영 활성화는 하지 않았습니다.
+
 ## Public policy
 
 `src/settings-schema.ts` DEFAULT_PUBLIC_POLICY는 B d230fbe 엔진 seed를 보존합니다. participant100/watch50/messages100/retention1h/text2048bytes/page64KiB/wait150/handler160/wait25s/room5 per1s/operator 최소30s를 넘지 않습니다. initial tail은 최대300초/20개입니다. agent cadence5초/browser cadence2초/server batch2000ms는 별개입니다. batch는2000..10000ms, lease/grant 최대300초입니다. responseBytes는 안전 불변값65536 고정이며 byteBurst>=responseBytes, waits<=handlers, responseBurst>=1, batchMs<=waitMs를 검사합니다. throttle 0/off/unlimited는 없습니다. enabled catalog 수에서 방 수를 유도합니다.
@@ -40,7 +42,9 @@ runtime rate/cap/catalog 변경은 최종 policy revision 갱신 최대10초부�
 
 인증 private TTL 기본24h/최대7d와 anonymous 기본1h/최대24h를 별도 schema로 구분합니다. persist retention 기본24h/최대7d이면서 retention<=room TTL입니다(초과422). memory room은 persist retention 필드를 사용하지 않습니다. 30days UI 시나리오는 production 허용 옵션이 아닙니다.
 
-저장은 private+인증된 creator+DB account entitlement+owner risk ack+현재 persistenceAllowed를 함께 검사합니다. 미소비 invite/client entitlement는 근거가 아닙니다. mode/TTL/retention/저장/participant notice는 새 room snapshot이고 기존 memory→persist API는 없습니다. 현재 순수 checker 구현이 실제 anonymous 생성 승인/lifecycle/global active/저장 삭제의 완료를 뜻하지 않습니다.
+저장은 private+인증된 creator+DB account entitlement+owner risk ack+현재 persistenceAllowed를 함께 검사합니다. 미소비 invite/client entitlement는 근거가 아닙니다. mode/TTL/retention/저장/participant notice는 새 room snapshot이고 기존 memory→persist API는 없습니다. context/grant/생성 slot 도메인은 구현했지만 실제 Room initialize/저장/삭제 연결은 root/B 후속입니다.
+
+PrivatePolicy 정본은 B의 src/private-contracts.ts입니다. settings.private.policy에 새 방 snapshot으로 저장합니다. handler 기본64/상한160, bodyInflight 기본8/상한16, wait 기본32를 사용하고 waits<=handlers/bodyInflight<=handlers를 검사합니다. responseBytes는65536 고정, readCadence는2000..10000ms이며 waitMs를 넘지 않습니다. 임의 client policy나 기존 memory snapshot 변경으로 한도를 넓히지 않습니다.
 
 ## 작업량 예약
 
@@ -53,7 +57,7 @@ runtime rate/cap/catalog 변경은 최종 policy revision 갱신 최대10초부�
 | persistent_write_bytes | bytes | 16777216 | 268435456 |
 | email_attempts | count | 1000 | 10000 |
 
-서버 reserve(operation_id,kind,amount)는 같은 transaction에서 UTC day/month를 모두 검사·증가합니다. 하나라도 실패하면 rollback, 같은 ID 내용 변경409, 월 경계 재시도 최초 창 유지, 만료 ID410입니다. window를 caller에게 받지 않고 실패/불확실 예약을 환불하지 않습니다. cap 축소는 기존 usage를 보존합니다. 실제 perform 전에 trusted enforcing path가 예약해야 하며 public body가 counters를 지정하지 않습니다. 현재 primitive와 fixture 검증은 완료했지만 전체 engine/OTP typed workload 경로 연결은 미완료입니다. UTC 창은 provider billing cycle과 다릅니다.
+서버 reserve(operation_id,kind,amount)는 같은 transaction에서 UTC day/month를 모두 검사·증가합니다. 하나라도 실패하면 rollback, 같은 ID kind/amount 변경409, 월 경계 재시도 최초 창 유지, 만료 ID410입니다. 종류별 한 번 발급한 ID를 동일 reservation 재시도에만 재사용합니다. window를 caller에게 받지 않고 실패/불확실 예약을 환불하지 않습니다. cap 축소는 기존 usage를 보존합니다. 실제 perform 전에 trusted enforcing path가 예약해야 하며 public body가 counters를 지정하지 않습니다. OTP와 private 생성 도메인은 같은 transaction의 budget aggregate를 사용하고 방 admission/response/write/duration 및 control router 최종 연결은 후속입니다. UTC 창은 provider billing cycle과 다릅니다.
 
 ## Auth와 개인정보
 
@@ -65,4 +69,4 @@ runtime rate/cap/catalog 변경은 최종 policy revision 갱신 최대10초부�
 
 B async RepositoryPort는 targeted CRUD, control scope, 누적 transaction4096 records/8MiB, record64KiB/list1000 계약입니다. 총 DB4096행 제한이나 전체 snapshot 로딩으로 구현하지 않습니다. 신규 ControlPlane wrapper에 주입하며 기존 SQL IdentityRegistry state를 자동 변환하지 않습니다. SQLite/PG/CF 같은 domain을 사용하고 메일은 transaction 밖 한 번 호출합니다. selfhost backend는 한 번에 하나이며 설치/운영은 이번 검증 범위가 아닙니다.
 
-서버15 runtime PASS/strict exit0와 기존WIP/미연결 범위는 [control-plane](control-plane.md)에 기록합니다. UI/C renderer 및 registry, production index/Env/bindings/OpenAPI, private lifecycle/anonymous ack, budget enforcing path와 최종 회귀는 root 통합 후 검증합니다.
+CF milestone 15 runtime PASS/strict exit0와 새 이식 gate 진행, 기존WIP/미연결 범위는 [control-plane](control-plane.md)에 기록합니다. UI/C renderer 및 registry, production index/Env/bindings/OpenAPI, 실제 PrivateRoom lifecycle, control/room budget enforcing 연결과 최종 회귀는 root 통합 후 검증합니다.

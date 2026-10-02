@@ -4,6 +4,7 @@ import {HttpError,fail,bad,body,bearer,hash,newToken,json,text,publicOrigin,limi
 import {normalizeEmail,normalizeIP,sender,trustedIP,type IdentityOptions} from './email';
 import type {Reservation} from './otp-store';
 import type {CreatorPrincipal} from './control-policy';
+import {CreationResultError} from './control-errors';
 const idPattern=/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/;
 export function agentId(value:unknown){const id=text(value,36,36);if(!idPattern.test(id))bad();return id;}
 function cookie(request:Request,name:string){return request.headers.get('Cookie')?.split(';').map(s=>s.trim()).find(s=>s.startsWith(name+'='))?.slice(name.length+1);}
@@ -12,7 +13,8 @@ function setCookie(name:string,token:string,maxAge:number){return `${name}=${tok
 export function requireOrigin(request:Request,env:Env){if(request.headers.get('Origin')!==publicOrigin(env.PUBLIC_ORIGIN))fail(403,'ORIGIN_DENIED','정확한 공개 Origin이 필요합니다.');}
 export async function registry<T>(env:IdentityEnv,action:string,input:RegistryInput):Promise<T>{
  const response=await env.IDENTITIES.get(env.IDENTITIES.idFromName('team')).fetch(new Request('https://identity/'+action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input)}));
- const data=await response.json() as T&{error?:{code:string;message:string}};
+ const data=await response.json() as T&{room_id?:string;error?:{code:string;message:string}};
+ if(!response.ok&&data.room_id&&['CREATE_PENDING','CREATE_RESULT_NOT_RECOVERABLE'].includes(data.error!.code))throw new CreationResultError(data.error!.code as 'CREATE_PENDING'|'CREATE_RESULT_NOT_RECOVERABLE',data.error!.message,data.room_id);
  if(!response.ok)throw new HttpError(response.status,data.error!.code,data.error!.message,response.headers.has('Retry-After')?Number(response.headers.get('Retry-After')):undefined);return data;
 }
 async function claimBinding(id:unknown,token:unknown):Promise<ClaimBinding|null>{

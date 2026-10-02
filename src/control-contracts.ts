@@ -11,5 +11,9 @@ export interface SettingsEnvelope {schema_version:number;revision:number;setting
 export interface SettingsSchemaResponse {schema_version:number;schema:SchemaNode;}
 export interface InvitationView {id:string;expires_at:string;status:'active'|'used'|'revoked'|'expired';}
 export interface InvitationCreated extends InvitationView {code:string;}
-export interface ErrorResponse {error:{code:string;message:string};}
+export interface CreationContextResponse {nonce:string;expires_at:string;notice_version:'toktok-risk-v1';authenticated:boolean;can_persist_private:boolean;}
+export interface CreationGrantRequest {nonce:string;risk_ack:true;risk_ack_version:'toktok-risk-v1';}
+export interface CreationGrantResponse {creation_grant:string;expires_at:string;notice_version:'toktok-risk-v1';}
+export interface PrivateCreationRequest {purpose:string;ttl_seconds?:number;persist?:boolean;retention_seconds?:number;client_request_id:string;creation_grant?:string;}
+export interface ErrorResponse {error:{code:string;message:string};room_id?:string;}
 // This file exports DTOs only. role/query/fixture state never grants server authority.
