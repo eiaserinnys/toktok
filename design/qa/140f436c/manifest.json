@@ -15,7 +15,7 @@
     }
   },
   "scope": "Isolated local design prototype with fictional content only. No live service, real accounts or real credentials.",
-  "status": "Initial captures. Visual and interaction review is ongoing; not production approval.",
+  "status": "All seven concepts captured. Confirmed prototype defects remain; mobile interaction verification is continuing.",
   "files": [
     {
       "file": "desktop-home.png",
@@ -86,6 +86,86 @@
       "file": "desktop-pause-scroll-reset.png",
       "bytes": 127716,
       "sha256": "6f78a328b6decf2cb3362b557eab79d7b24ede71796f150dfab3e1251392149d"
+    },
+    {
+      "file": "desktop-concept-1.png",
+      "bytes": 274575,
+      "sha256": "670e4d7a1dbfa7739f978a978561659a497cd41a5624f9db456c6637e9aa0102"
+    },
+    {
+      "file": "desktop-concept-2.png",
+      "bytes": 103997,
+      "sha256": "d0bad64593e678ac8b34e2cc057e3a5832f35839addcc36d6d51206f34c1c18e"
+    },
+    {
+      "file": "desktop-concept-3.png",
+      "bytes": 75411,
+      "sha256": "7a582424d319389ca60308cd8f44c14b9ab6aa17d4ab62002e2553a61fcced69"
+    },
+    {
+      "file": "desktop-concept-4.png",
+      "bytes": 76299,
+      "sha256": "513986bc5863ac3f5dc3e7a879c02acb2281dfd0e7729318c14f15ceaf562b0d"
+    },
+    {
+      "file": "desktop-concept-5.png",
+      "bytes": 189667,
+      "sha256": "7c9977c1b971446f2ffe503587a7ec0810736b9821eaad9e154b9b4344180a03"
+    },
+    {
+      "file": "desktop-concept-6.png",
+      "bytes": 79716,
+      "sha256": "0d5f15de0138556714c0969392db91f285c4105869c41dbbc7b6461ed55028a4"
+    },
+    {
+      "file": "desktop-concept-7.png",
+      "bytes": 87909,
+      "sha256": "6aa3165642c1131d0429d26220821faeb3c59040fc631e12ad754a0b372f78e4"
+    },
+    {
+      "file": "mobile-concept-1.png",
+      "bytes": 152708,
+      "sha256": "4eedc066dd3c88a1260f793f94b0006bd85e4142ec8f1bb0603d0066ff47203c"
+    },
+    {
+      "file": "mobile-concept-2.png",
+      "bytes": 74902,
+      "sha256": "9c98dd9f93e77c7bf04f2640b01c3947d0e0d34e4e8bdbbd7238e6de2bc4da0e"
+    },
+    {
+      "file": "mobile-concept-3.png",
+      "bytes": 55840,
+      "sha256": "c6ea7e39cd6b534d554027ddbd2d5772b1d682932c003cff8e2e0a35f7043925"
+    },
+    {
+      "file": "mobile-concept-4.png",
+      "bytes": 59369,
+      "sha256": "c2fcde116de6130287737f53e4a124fe9eb65bd43ce30eca39c8043d3e356321"
+    },
+    {
+      "file": "mobile-concept-5.png",
+      "bytes": 129187,
+      "sha256": "496db6d3c8b6ebc1bbf89c558144abd90783644526c1145faf39a6cc9e757e1c"
+    },
+    {
+      "file": "mobile-concept-6.png",
+      "bytes": 56501,
+      "sha256": "98510499286def2d8916aa97f4dc379d5167f559f6a8727ff460b3db0d730b2f"
+    },
+    {
+      "file": "mobile-concept-7.png",
+      "bytes": 72869,
+      "sha256": "4802f83a51ceb2dea5702859760a3bed424e54b55b1d405d8e7d2bac57eed994"
+    },
+    {
+      "file": "desktop-pause-center-before.png",
+      "bytes": 114986,
+      "sha256": "418f4cdf2bf81c0b21013b9500c34b6911ffeb34696724576d80fd5443463b8e"
+    },
+    {
+      "file": "desktop-pause-center-after.png",
+      "bytes": 115035,
+      "sha256": "b9b0073975ea61c68dc915c7be390484d7137848db10d03dc01a51e5d15c34de"
     }
   ]
 }

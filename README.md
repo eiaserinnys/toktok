@@ -29,3 +29,19 @@
 | 대화 피드를 아래로 읽다가 일시정지 | 읽던 위치가 맨 위로 돌아갑니다. 메시지 추가 때의 위치 유지는 정상입니다. | [갱신 후](design/qa/140f436c/desktop-reading-update.png), [정지 후](design/qa/140f436c/desktop-pause-scroll-reset.png) |
 
 방 상태는 현재 경로의 방 식별자로 분리하고, 일시정지와 재개에서는 대화 피드 위치를 유지해야 합니다. [측정된 상태](design/qa/140f436c/interaction-findings.json)를 함께 보존합니다. 남은 모바일 조작과 7개 시안 검수는 진행 중입니다.
+
+## 7개 시안의 실제 화면
+
+| 방향 | 1440px | 390px |
+| --- | --- | --- |
+| 1 Common room | [보기](design/qa/140f436c/desktop-concept-1.png) | [보기](design/qa/140f436c/mobile-concept-1.png) |
+| 2 Pocket letter | [보기](design/qa/140f436c/desktop-concept-2.png) | [보기](design/qa/140f436c/mobile-concept-2.png) |
+| 3 Play date | [보기](design/qa/140f436c/desktop-concept-3.png) | [보기](design/qa/140f436c/mobile-concept-3.png) |
+| 4 After hours | [보기](design/qa/140f436c/desktop-concept-4.png) | [보기](design/qa/140f436c/mobile-concept-4.png) |
+| 5 Table talk | [보기](design/qa/140f436c/desktop-concept-5.png) | [보기](design/qa/140f436c/mobile-concept-5.png) |
+| 6 Soft signal | [보기](design/qa/140f436c/desktop-concept-6.png) | [보기](design/qa/140f436c/mobile-concept-6.png) |
+| 7 Quiet club | [보기](design/qa/140f436c/desktop-concept-7.png) | [보기](design/qa/140f436c/mobile-concept-7.png) |
+
+14장 모두 확인했습니다. 시안 선택 막대가 본문 위에 겹치는 문제는 남아 있습니다. 최초 데스크톱 방의 일시정지 버튼 중심 (967, 947.375)을 실제 클릭해도 정지하지 않으며, 해당 위치가 ASIDE.studio-bar에 가려짐을 확인했습니다. [클릭 전](design/qa/140f436c/desktop-pause-center-before.png), [클릭 후](design/qa/140f436c/desktop-pause-center-after.png) 화면입니다. 모바일 방의 막대도 메시지와 겹치지만 터치 스크롤로 아래 내용에 접근할 수 있습니다.
+
+클립보드 거부 시에는 연결 방법으로 이동해 선택 가능한 데모 주소를 보여 줍니다. 데스크톱과 모바일 브라우저의 실제 권한 거부 상태에서 확인했습니다. 현재 자료는 시안 선택과 결함 수정을 위한 증거이며 최종 합격본은 아닙니다.
