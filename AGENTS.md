@@ -7,7 +7,7 @@
 - 제품과 관리자 검수면은 동일한 컴포넌트, 다이얼로그, 화면 renderer와 route contract를 사용한다. 검수 전용 복제 UI를 만들지 않는다. Fixture는 데이터, 시간, 권한 시나리오와 부작용 adapter만 대체한다.
 - 모든 UI/UX 변경은 components, dialogues, screen flow board에 함께 반영한다. 해당 검수 체계 밖의 UI/UX는 만들지 않으며, 제품만 수정하고 검수면을 누락한 작업은 완료가 아니다.
 - 새로운 요소는 기존 Common room 토큰, 레이아웃과 키보드·터치 동작을 따른다. 새 컴포넌트를 registry에 등록하고 관련 상태, 다이얼로그, 화면·전이 fixture를 함께 갱신한다.
-- 흐름도는 여러 실제 화면 preview를 한 캔버스에 동시에 배치하고 조건부 화살표로 연결한다. 순차 clickthrough나 상자만 있는 그림으로 대신하지 않는다.
+- 흐름도는 여러 실제 화면 preview를 한 캔버스에 동시에 배치하고 조건부 화살표로 연결한다. action 단계별 tree/DAG는 공유 registry에서 파생하며 back reference를 분리해 표시한다. 순차 clickthrough나 상자만 있는 그림으로 대신하지 않는다.
 - route/dialog/state/flow edge 누락 검사를 CI에 연결한다. 핵심 390px·1440px 시각 회귀, 키보드 동작, DEMO/HOSTED 및 anonymous/invited/admin fixture 검증을 변경 범위에 맞게 수행한다. 정적 registry 검사로 시각 검수를 대체하지 않는다.
 - 기준 시안 pin, 변경으로 무효화된 검증, 미검증 범위를 PR에 명시한다. 통과한 검증은 변경이 무효화했을 때만 다시 실행한다.
 - 로그인 상태별 IA는 [최신 화면 구성](docs/ui-review-contract.md#로그인-상태별-제품-ia)을 따른다. DEMO 비로그인은 소개/대화방 탭과 초대 가입·로그인을 제공하고, 로그인 후 기본 화면은 대화방이다. 로그인 상태 분기가 없는 이전 IA를 적용하지 않는다.

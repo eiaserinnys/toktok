@@ -2,7 +2,7 @@
 
 상태: 2026-10-02 14:38:20·14:42:11·14:43:19 UTC 사용자 확정 요구를 반영한 구현 계약. registry, 관리자 검수 route와 coverage CI는 아직 미구현이다. 기존 PR #4의 CI 통과를 이 기능 통과로 사용하지 않는다.
 
-최종 시안 검수 기준은 [`design/toktok-ui@179b96f575a6d30ab5d85ea277452cebf1b4b257`](https://github.com/eiaserinnys/toktok/tree/179b96f575a6d30ab5d85ea277452cebf1b4b257/design/prototype)의 `design/prototype/`이다. 재개 시 해당 pin의 `INTEGRATION.md`, `UI_RULES.md`, tests를 읽고 아래 계약과 대조한다. 이 pin의 390×844·1440×1000 실제 화면 및 keyboard/focus/pan/zoom 검수는 아직 미완료이며, 이전 `309442a` 증거로 대신하지 않는다. 정확한 pin의 CI 결과는 별도 전달 대기다. 시안에 검수 UI가 있다는 사실은 제품의 서버 관리자 인가나 registry 통합이 완료됐다는 뜻이 아니다.
+최종 시안 검수 기준은 [`design/toktok-ui@63c4eec3bc10b84c0a66d00ee9817f12643ba864`](https://github.com/eiaserinnys/toktok/tree/63c4eec3bc10b84c0a66d00ee9817f12643ba864/design/prototype)의 `design/prototype/`이다. `179b96f`와 중간 `305161`은 이 pin으로 대체한다. 재개 시 해당 pin의 `INTEGRATION.md`, `UI_RULES.md`, tests를 읽고 아래 계약과 대조한다. 이 pin의 390×844·1440×1000 실제 invite/canvas/dialog 및 keyboard/focus/pan/zoom·negative flow 검수는 아직 미완료이며, 이전 `309442a` 증거로 대신하지 않는다. 전달받은 상태는 exact pin CI 없음이며 CI 통과를 주장하지 않는다. 시안에 검수 UI가 있다는 사실은 제품의 서버 관리자 인가나 registry 통합이 완료됐다는 뜻이 아니다.
 
 ## 로그인 상태별 제품 IA
 
@@ -10,11 +10,13 @@
 
 | 상태 | 기본 화면·상단 | 화면 구성·추가 진입점 |
 | --- | --- | --- |
-| DEMO 비로그인 | `톡톡 소개 / 대화방` 탭. 우상단은 `초대 코드로 가입`, `로그인` 순서 | 소개: hero → 공개방 일부 → 서비스 설명. 대화방: 노출 가능한 전체 catalog와 방 생성 진입점 |
+| DEMO 비로그인 | `톡톡 소개 / 대화방` 탭. 우상단은 `초대 코드로 가입`, `로그인` 순서 | 소개: hero → 서비스 설명/how to use → 공개방. 대화방: 노출 가능한 전체 catalog와 방 생성 진입점 |
 | 로그인한 일반/초대 계정 | 대화방을 기본 화면으로 하고 상단은 대화방 + 계정 메뉴 중심 | 소개는 하단 링크로 접근. 관리자 설정 메뉴 없음 |
 | 로그인한 관리자 | 대화방 기본 화면 + 계정 메뉴 | 설정·디자인 검수 진입은 관리자에게만 제공. 소개는 하단 링크 |
 
 “전체 catalog”는 현재 사용자에게 노출 가능한 목록을 뜻하며 비공개 방 목록 공개나 방 생성 권한 확대를 뜻하지 않는다. DEMO의 익명 생성 제한, 초대 코드 선검증과 OTP, 계정 entitlement에 따른 저장 정책은 기존 계약대로 서버가 판정한다. 이번 요청으로 HOSTED 비로그인 가입 정책을 DEMO와 같게 바꾸지는 않는다.
+
+소개 화면의 섹션 순서는 `63c4eec3` 인계의 최신 사용자 결정으로 갱신했다. 이전 hero → 공개방 → 설명 순서를 적용하지 않는다. 초대장은 제목·초대한 사람·TTL을 위쪽에 크게 표시하고, warning은 아래에서 상대적으로 작되 읽기 쉽게 표시한다. 시각적 우선순위를 낮추더라도 위험 안내와 필요한 확인 동작을 생략하지 않는다.
 
 로그인 성공 후 이동 우선순위는 유효한 원래 방 진입 의도, 그 의도가 없으면 대화방 기본 화면이다. 인증 흐름을 시작할 때 특정 방을 보려던 의도를 가능한 유지하고, 권한·만료 상태는 돌아간 방에서 정상 검증한다. return 경로는 검증된 서비스 내부 목적지만 허용하며 로그인 자체가 방 접근 권한을 부여하지 않는다. 로그인한 사용자가 하단의 소개 링크를 명시적으로 선택한 경우 소개를 읽을 수 있어야 한다. 기본 화면 변경을 모든 소개 접근 차단으로 구현하지 않는다.
 
@@ -37,6 +39,10 @@ components에는 비로그인/로그인/관리자 header와 계정 메뉴를 같
 zoom/pan, 화면에 맞추기, role/mode filter, edge label, thumbnail 상세 보기를 제공한다. 화살표와 node를 키보드로 선택하고 같은 연결 정보를 텍스트 목록으로도 확인할 수 있어야 한다. preview의 내부 스크롤·focus가 보드 pan/zoom과 혼동되지 않게 상세 보기에서 조작한다. 보드 검수에 필요한 미리보기는 동시에 보이며, off-screen renderer 가상화 여부는 미리보기와 graph의 일치 검증을 유지하는 범위에서 정한다.
 
 graph의 node는 `screenId`, `routeId`, `fixtureId`, `mode`, `role`, 상태를 참조하고 edge는 `transitionId`, source/target node, event와 success/error/back kind, 실제 route contract의 조건을 참조한다. 임의 JavaScript 문자열 조건을 eval하지 않는다. Canvas와 machine graph는 같은 registry에서 생성한다.
+
+`63c4eec3`의 추가 요구에 따라 각 action 단계를 공유 registry에서 파생한 tree/DAG로 펼친다. edge label 사이에 충분한 간격을 두고, 뒤로 돌아가는 참조는 주 진행 경로와 분리해 읽을 수 있게 표시한다. back edge를 graph에서 없애거나 canvas만 별도 수동 그래프로 관리하지 않는다.
+
+클라이언트 viewport 크게 보기는 실제 shared renderer의 상세 보기이며 닫기 버튼과 Escape를 지원한다. 닫힌 뒤 기존 보드의 pan/zoom과 열기 전 focus가 복원되는지 실측한다. 열린 dialog 검수는 이전/다음 버튼 및 좌우 이동과 현재 이름·index 표시를 제공하며, 이름과 index가 실제 표시한 dialog registry 항목과 일치해야 한다. 기존 dialog·select의 키보드 동작과 초점 복귀를 함께 검수한다.
 
 ## 실제 코드 재사용
 
