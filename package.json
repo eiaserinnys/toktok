@@ -10,7 +10,8 @@
     "dev": "wrangler dev --local",
     "acceptance": "node scripts/local-acceptance.mjs",
     "test:verdict": "vitest run --config vitest.node.config.ts",
-    "test:ui": "vitest run --config vitest.ui.config.ts"
+    "test:ui": "vitest run --config vitest.ui.config.ts",
+    "test:public-ui": "vitest run --config vitest.public-ui.node.config.ts && vitest run --config vitest.public-ui.config.ts"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "0.22.0",

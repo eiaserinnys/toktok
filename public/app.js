@@ -1,5 +1,8 @@
 import {icon,room,terminal,introduction,guide,message,person} from './view.js';
 import {applyPage,ownsResponse,retryDelay,cancel} from './session.js';
+import {createPublicState,startPublic,bindPublic,leavePublic} from './public-demo.js';
+import {catalog} from './public-demo-view.js';
+import {consumeFragment} from './public-demo-session.js';
 const app=document.querySelector('#app'),states=new Map();
 let active=null,toastTimer=null;
 const $=(selector)=>active?.root.querySelector(selector);
@@ -9,6 +12,7 @@ function showTerminal(state,code){
  cancel(state);state.gone=true;state.root.innerHTML=terminal(code);state.cursor=0;state.senders.clear();
 }
 function clock(state){
+ if(state.mode==='public')return;
  clearTimeout(state.expiryTimer);
  if(state.gone||!state.metadata||active!==state)return;
  const expires=new Date(state.metadata.room.expires_at),left=expires.getTime()-Date.now();
@@ -58,7 +62,9 @@ function failState(state,result){
 function armRetry(state,controller,response){
  state.retryTimer=setTimeout(()=>{state.retryTimer=null;if(ownsResponse(state,controller,active)&&!state.paused)start(state);},retryDelay(response,state.attempt++));
 }
+const publicUI={current:state=>active===state,status,append,copy,toast};
 async function start(state){
+ if(state.mode==='public')return startPublic(state,publicUI);
  cancel(state);
  if(active!==state||state.gone||state.paused)return;
  const controller=new AbortController();state.controller=controller;
@@ -111,9 +117,9 @@ function tab(name,focus=false){
  scrollTo({top:y,behavior:'instant'});
 }
 function toast(text){clearTimeout(toastTimer);const e=document.querySelector('#toast');e.textContent=text;e.classList.add('visible');toastTimer=setTimeout(()=>e.classList.remove('visible'),3500);}
-async function copy(state){
- try{await navigator.clipboard.writeText(state.url);if(active===state)toast('현재 링크를 복사했어요');}
- catch{if(active!==state)return;tab('connect');toast('자동 복사를 사용할 수 없어요. 링크를 길게 눌러 복사해주세요');$('#shared-url').focus({preventScroll:true});}
+async function copy(state,url=state.url,selector='#shared-url'){
+ try{await navigator.clipboard.writeText(url);if(active===state)toast('현재 링크를 복사했어요');}
+ catch{if(active!==state)return;tab('connect');toast('자동 복사를 사용할 수 없어요. 링크를 길게 눌러 복사해주세요');$(selector).focus({preventScroll:true});}
 }
 function bind(state){
  const url=state.url;
@@ -129,12 +135,18 @@ function bind(state){
  });
 }
 function navigate(){
- if(active){active.pageY=scrollY;cancel(active);}clearTimeout(toastTimer);
+ if(active){active.pageY=scrollY;cancel(active);if(active.mode==='public')leavePublic(active);}clearTimeout(toastTimer);
  document.querySelector('#toast').classList.remove('visible');active=null;
  const error=document.body.dataset.error;
  if(error){app.innerHTML=terminal(error);return;}
+ const publicMatch=/^\/public\/([a-z0-9-]+)$/.exec(location.pathname);
+ if(publicMatch){
+  const grant=consumeFragment(location,history),key='public:'+publicMatch[1];let state=states.get(key);
+  if(!state){const root=document.createElement('div');root.innerHTML=room();state=createPublicState(root,publicMatch[1],location.origin+location.pathname,grant);states.set(key,state);bind(state);bindPublic(state,publicUI);}
+  active=state;app.replaceChildren(state.root);scrollTo({top:state.pageY,behavior:'instant'});if(!state.paused)start(state);return;
+ }
  const match=shared.exec(location.pathname);
- if(!match){app.innerHTML=location.pathname==='/guide'?guide():introduction();return;}
+ if(!match){app.innerHTML=location.pathname==='/guide'?guide():introduction();if(location.pathname==='/')catalog(app);return;}
  const key=match[1]+':'+match[2];let state=states.get(key);
  if(!state){
   const root=document.createElement('div');root.innerHTML=room();
@@ -154,6 +166,6 @@ document.addEventListener('keydown',e=>{
  e.preventDefault();tab(e.key==='Home'?'chat':e.key==='End'?'connect':e.target.dataset.tab==='chat'?'connect':'chat',true);
 });
 window.addEventListener('popstate',navigate);
-window.addEventListener('pagehide',()=>{if(active)cancel(active);clearTimeout(toastTimer);});
+window.addEventListener('pagehide',()=>{if(active){cancel(active);if(active.mode==='public')leavePublic(active);}clearTimeout(toastTimer);});
 window.addEventListener('pageshow',e=>{if(e.persisted)navigate();});
 navigate();
