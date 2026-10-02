@@ -1,103 +1,90 @@
-# 서버 control plane 계약과 재개 지점
+# Control plane: CF milestone과 공통 Repository 이식
 
-2026-10-02 14:26:36 사용자 결정까지 반영한 계약입니다. DEMO에서도 유효 초대와 OTP로 가입을 완료한 계정은 새 private room에서 persist를 opt-in할 수 있으며 기본값은 OFF입니다. 이전 DEMO all-body-nostore·회원 저장 불허 계약은 폐기되었습니다. 이번 control-plane 소스 구현과 새 검증은 아직 시작하지 않았습니다. self-host runtime/DB adapter 설계 정본은 root PR #3의 `docs/self-host-design.md@4aca939`이며 최신 저장 자격은 이 사용자 결정을 따릅니다. 현재 identity 코드를 즉석 분리하거나 새 DB 환경을 설치하지 않습니다.
+기존 OTP WIP와 같은 `feat/claim-foundation`에서 DB settings/admin/invite/admission/entitlement를 구현했습니다. 현재 CF SQL milestone은 실제 Workers SQLite 15개 targeted 계약과 strict 타입검사를 통과했습니다. 공통 Repository 이식과 최종 Worker/UI/방 엔진 wiring은 후속이며 서비스 전체 완료나 통합 CI 통과를 뜻하지 않습니다.
 
-## 보존 경계
+## 소유와 보존
 
-| 항목 | 현재 사실 |
+- 기존 WIP `d0470bfd`는 OTP/claim/UI 준비와 당시 QA를 포함합니다. 기준 main은 `2f666d68`이며 현재 워크트리는 `.projects/toktok--feat-claim-foundation-0ac9c22f`입니다.
+- 이번 추가 구현은 `identity-*`, `otp-store`, `email`, `admission`, `settings-*`, `control-*`, `admin-http`, `invitations`와 control 전용 테스트입니다. 기존 index/contracts/wrangler/package/public/Room에는 추가 수정을 하지 않았습니다.
+- B의 `src/storage/repository.ts` 단독 정본 `35d005a`를 exact cherry-pick한 로컬 commit은 `cd3a8f2`입니다. B 소유 포트는 추가 편집하지 않습니다.
+- root 문서 정본 `ffb608b`의 AGENTS/UI review/agent safety 계약을 읽었습니다. 실제 UI 및 관리자 QA renderer/route registry는 C 소유이며 서버의 DB admin role을 사용해야 합니다.
+- 최종 wiring, 기존 fixture 이관과 전체 회귀 CI, merge/배포/워크트리 정리는 root 소유입니다. 실제 admin 이메일/계정/메일/DNS/secret은 설정하지 않았습니다.
+
+## 구현 정본
+
+`settings-schema.ts`는 schema_version=1의 metadata와 typed validation, `settings-store.ts`는 최초 seed/CAS/audit/readiness/원자 budget 예약, `invitations.ts`는 초대와 검증 증표, `identity-registry.ts`는 DB account/OTP/session/claim transaction을 소유합니다. `control-policy.ts`의 settings/admission/entitlement/TTL/retention/budget 판정은 플랫폼 비의존 순수 함수입니다. `control-contracts.ts`는 UI DTO type 정본입니다.
+
+첫 seed는 DEMO+invite+deployment.enabled=false입니다. DB 설정은 restart/request마다 env로 덮지 않으며 손상한 설정은 503 SETTINGS_INVALID로 닫습니다. 실제 runtime policy refresh/active room 예약은 아직 연결하지 않았습니다. trusted budget/lifecycle readiness는 일반 settings payload에 없고 미연결 상태에서 enable 또는 mode 전환을 거부합니다.
+
+## HTTP DTO와 권한
+
+성공 응답은 아래 계약입니다. 오류는 `{error:{code,message}}`이며 429는 초 단위 Retry-After를 포함합니다. 모든 외부 응답은 root dispatcher에서 기존 no-store/noindex/no-referrer/CSP 정책을 적용해야 합니다. 현재 local test dispatcher에서도 적용합니다.
+
+| Route | 입력 / 성공 응답 | 권한 |
+| --- | --- | --- |
+| GET /api/config | 안전 projection: schema_version/revision/mode/enabled/signup/public/private | 공개 읽기, secret/role grant 없음 |
+| GET /api/session | authenticated/role/entitlements/csrf_token/owner_ack, 인증 시 본인 agents | 익명도 200; email/owner ID 미반환 |
+| POST /api/auth/invitations/validate | code → valid=true/invite_validation_id/expires_at ISO | exact Origin+edge; browser cookie 결합 |
+| POST /api/auth/start | purpose login/signup/claim, invitation_validation_id?, claim_id?, claim_token? → flow/nonce/provider_configured/expires_at ISO | exact Origin+edge; 기존 session-CSRF 불필요 |
+| POST /api/auth/email/send | flow_id/email/client_request_id → receipt/state=attempted/retry_after/expires_at/message | exact Origin+flow browser; generic accepted |
+| POST /api/auth/complete | flow/nonce/claim_id?/claim_token?/otp → verified=true+session cookie | exact Origin+flow/nonce/browser/claim/OTP |
+| POST /api/auth/logout | 빈 object → logged_out=true | exact Origin+session-CSRF |
+| POST /api/claims/:id/approve | risk_ack_version → agent | claim bearer+session-CSRF+DB admission |
+| GET /api/admin/settings | schema_version/revision/settings/updated_at/updated_by | 실제 session+DB admin role |
+| GET /api/admin/settings/schema | schema_version/schema metadata | 실제 session+DB admin role |
+| PUT /api/admin/settings | expected_revision/settings → settings envelope+effect_summary | exact Origin+session-CSRF+DB admin role |
+| GET /api/admin/audit | audit 배열, limit 기본/최대50 | 실제 session+DB admin role |
+| GET /api/admin/invitations | invitations 배열 id/expires_at/status, limit 기본/최대50 | 실제 session+DB admin role, code/hash 미반환 |
+| POST /api/admin/invitations | ttl_seconds? → id/expires_at/status/code 201 | exact Origin+session-CSRF+DB admin role; code 1회 반환 |
+| POST /api/admin/invitations/:id/revoke | 빈 object → id/status | exact Origin+session-CSRF+DB admin role |
+| POST /api/admin/bootstrap | confirm=true → bootstrapped=true | exact Origin+session-CSRF+정확 사전 지정 이메일, 최초 1회 |
+
+Session role/query role/fixtureRole은 클라이언트가 권한으로 만들 수 없습니다. 관리자 UI/QA HTML/API 진입은 `requireAdmin()` DB guard를 재사용합니다. session mutation의 CSRF는 해당 session에 결합되고 bearer agent creator 권한과 혼합하지 않습니다. __Host flow/session cookie는 Secure/HttpOnly/Lax/Path=/, Domain 없음입니다. owner_ack는 version과 서버 confirmed_at(ms)만 공개합니다.
+
+| HTTP | 주요 error code |
 | --- | --- |
-| 브랜치 | `feat/claim-foundation` |
-| 워크트리 | `.projects/toktok--feat-claim-foundation-0ac9c22f` |
-| 기존 코드 WIP | `d0470bfd8fd01a1fe19f0c42018743faa289aab6` |
-| 기준 main | `2f666d689ac0dfd6f2a34c565a12a844d14ec8da` |
-| 이번 추가 | 이 문서와 `modes-settings.md`의 최신 정책만 보완합니다. 소스·테스트·운영 변경은 없습니다. |
-| 현재 foreground | 이번 재개에서는 서버·브라우저·테스트 프로세스를 시작하지 않았습니다. 이전 2215 실행은 정상 회수 보고를 받았습니다. |
-| 원격 보존 | 이 문서를 포함한 WIP를 같은 브랜치로 푸시합니다. 최종 HEAD와 clean 여부는 커밋·푸시 뒤 보고합니다. |
+| 400 | INVALID_INPUT, INVALID_INVITATION, RISK_ACK_REQUIRED |
+| 401 | SESSION_REQUIRED, OTP_INVALID, AGENT_REQUIRED |
+| 403 | ORIGIN_DENIED, CSRF_DENIED, ADMIN_REQUIRED, AUTH_FLOW_DENIED, ADMISSION_DENIED, SIGNUP_CLOSED, BOOTSTRAP_DENIED, OWNER_DENIED, AGENT_NOT_APPROVED |
+| 409 | REVISION_CONFLICT, AUTH_FLOW_USED, AUTH_EMAIL_BOUND, CLAIM_PROCESSED, IDEMPOTENCY_CONFLICT, BUDGET_NOT_READY, MODE_DRAIN_REQUIRED |
+| 410 | CLAIM_GONE, OPERATION_EXPIRED |
+| 422 | RETENTION_EXCEEDS_TTL |
+| 429 | RATE_LIMITED, EMAIL_RATE_LIMITED, BUDGET_EXCEEDED |
+| 503 | SETTINGS_INVALID, AUTH_PROVIDER_UNCONFIGURED, TRUSTED_IP_REQUIRED |
 
-기존 WIP, 이번 추가, 미연결 후속을 분리합니다. 아직 draft PR, 단계 3 검수, 최종 head CI는 없습니다. 소스 구현 전체나 control-plane 합격을 선언하지 않습니다. 이전 OTP 보류 때 작성한 [WIP 기록](qa/claim-wip-20261002/README.md)은 당시 검증 이력이며 출시 정책은 아래 최신 두 모드 계약으로 대체되었습니다.
+## 가입과 일회성
 
-## 파일 소유
+초대는 random32byte URLsafe43 secret이며 DB에는 SHA256 hash만 둡니다. 관리 UUID는 secret이 아닙니다. validate 증표는 10분/초대 만료 중 짧은 시각까지 유효하며 browser와 결합하고 한 flow에만 연결합니다. validate/send는 초대를 소비하지 않습니다. flow는 purpose/초대/browser/nonce/claim을 고정하고 첫 send에서 정규화 이메일 HMAC를 고정합니다.
 
-이번 후속의 소스 소유는 `identity-*`, `otp-store.ts`, `email.ts`, `admission.ts`, 새 `settings-schema.ts`, `settings-store.ts`, `admin-http.ts`, `invitations.ts`, 관련 `control-*` 및 auth targeted 테스트입니다. identity Env 확장은 identity 전용 타입에 둡니다. test worker에서만 새 경계를 연결합니다.
+OTP 성공 transaction은 초대 재검사/일회 소비, 신규 account admission/entitlement, flow 소비, session 발급을 함께 처리합니다. 두 flow의 경쟁은 한 계정만 가입시킵니다. 기존 회원의 signup flow는 초대를 소비하거나 권한을 추가하지 않습니다. 기존 admitted account 로그인과 session 유지 중 추가 claim은 새 초대나 메일을 강제하지 않습니다.
 
-`index.ts`, `contracts.ts`, `wrangler.jsonc`, `package.json`, `public/*`, Room/PublicRoom 엔진은 이번 추가 변경 대상이 아닙니다. 기존 WIP 변경은 보존합니다. 다른 세션의 UI·공개방 워크트리는 읽기만 하며 stage하지 않습니다. root가 최종 wiring과 통합 회귀 CI, 머지·배포·워크트리 정리를 맡습니다. 실제 계정·관리자 이메일·API 키·DNS·메일 binding·실제 메일 전송은 승인되지 않았습니다.
+bootstrap은 정확한 사전 지정 ADMIN_BOOTSTRAP_EMAIL의 정상 OTP session 이후 별도 confirm+CSRF로 한 번만 admin role을 부여합니다. 최초 방문/가입을 자동 승격하지 않으며 소비 상태는 logout/restart 이후에도 유지됩니다. 운영 값은 미설정입니다.
 
-## 설정과 저장소
+DB account는 opaque UUID, role, admission kind invited/hosted/bootstrap 및 create/persist entitlement를 소유합니다. env allowlist는 새 admission 정본이 아닙니다. 계정 entitlement 및 settings는 session/claim/creator 때 재평가합니다. 클라이언트 persist/entitlement 플래그는 권한을 만들지 않습니다.
 
-Cloudflare 경로는 IdentityRegistry singleton SQLite에 설정, 관리자 role, 가입 초대, 감사 기록, human admission 및 account entitlement를 둡니다. OTP 성공과 초대 소비, 신규 human admission·entitlement, flow 소비, session 발급은 같은 `transactionSync`에서 확정합니다. root의 self-host 설계에서도 선택한 backend 한 개의 transaction으로 이 원자 경계를 유지하며 동시에 여러 DB에 분산하지 않습니다. 지원 예정 backend는 Cloudflare DO SQLite, self-host SQLite, self-host PostgreSQL이고 D1은 미확정입니다. backend는 설치·시작 시 선택하며 관리자 제품 설정으로 전환하지 않습니다. adapter 구현은 미착수입니다.
+## 방 생성 검사와 미연결 경계
 
-설정 레코드는 `schema_version=1`, 정수 `revision`, `updated_at`, `updated_by`를 가집니다. DB가 처음 만들어질 때만 DEFAULT_SETTINGS를 seed합니다. 요청·재시작·재배포 때 env/default로 덮지 않습니다. 손상된 설정은 fail closed하며 조용히 초기화하지 않습니다. 알 수 없는 키, 잘못된 타입, NaN·무한·비정수, 범위와 교차 필드 모순을 거부합니다. 공개 schema metadata와 seed·적용 시점은 [모드 설정 계약](modes-settings.md)에 정리했습니다.
+순수 checker는 private visibility, authenticated creator authority, DB entitlement, owner risk ack와 persistenceAllowed를 함께 검사합니다. DEMO의 완료된 invited/bootstrap 계정도 새 private persist opt-in이 가능하며 기본 OFF입니다. public/anonymous private는 항상 memory only입니다.
 
-예산과 lifecycle readiness는 신뢰된 서버 연결 상태입니다. 일반 settings PUT으로 바꿀 수 없습니다. 예산 readiness=false일 때 deployment.enabled의 false→true를 거부합니다. 모드 변경은 lifecycle readiness=true이며 active private rooms=0일 때만 허용합니다. 이번 검증에서는 내부 저장소 fixture로만 readiness와 active_count를 설정하며 실제 계측·엔진 연결로 주장하지 않습니다.
+익명 TTL은 기본3600/최대86400초, 인증 계정은 기본86400/최대604800초입니다. persist retention은 기본86400/최대604800초이며 room TTL을 넘으면422입니다. 30일은 허용하지 않습니다. 생성 snapshot은 mode/visibility/persist/TTL/retention/notice_version이며 memory→persist 업데이트 API는 없습니다.
 
-## 관리자 API
+이 checker는 익명 생성 승인 자체가 아닙니다. 익명 human ack/nonce, create lifecycle/global active 예약, Room snapshot/저장/삭제 연결은 root 후속 계약입니다. 이 milestone에서 실제 새 방 생성/retention enforcement를 통과했다고 보고하지 않습니다.
 
-| API | 계약 |
-| --- | --- |
-| `GET /api/admin/settings` | DB admin role로 현재 revision/config를 읽습니다. |
-| `GET /api/admin/settings/schema` | DB admin role로 비밀 없는 typed schema metadata를 읽습니다. |
-| `PUT /api/admin/settings` | `{expected_revision,settings}` 전체 payload를 검증하고 원자 revision 비교·증가를 수행합니다. 충돌은 409입니다. 성공은 새 revision/config/effect summary를 반환합니다. |
-| `GET /api/admin/audit` | 최대 50개를 읽습니다. |
-| `POST /api/admin/invitations` | 새 일회성 가입 초대를 만듭니다. 원문 token은 이 응답에서만 반환합니다. |
-| `POST /api/admin/invitations/:id/revoke` | 미사용 초대를 폐기합니다. |
-| `GET /api/admin/invitations` | 최대 50개의 id·만료·상태만 읽습니다. |
-| `POST /api/admin/bootstrap` | 아래 일회 bootstrap 계약을 적용합니다. |
+## Budget
 
-모든 mutation은 정확한 PUBLIC_ORIGIN, 유효 사람 session, 그 session에 결합된 CSRF, DB admin role을 요구합니다. bootstrap만 기존 admin role 대신 지정 이메일과 최초 승격 조건을 요구합니다. 읽기도 admin role이 필요합니다. `adminRoute`를 별도로 export하며 운영 연결은 후속입니다. `GET /api/config`용 안전 projection 함수/export는 공개 소비 계약이며 이번에는 test worker만 연결합니다.
+typed cap 6종 및 provisional 숫자는 modes-settings 문서와 schema가 정본입니다. `reserve(operation_id,kind,amount)`는 trusted server operation 전용이며 공개 HTTP request body로 호출하지 않습니다. 서버 clock의 UTC day+month를 한 transaction에서 모두 검사·증가하며 실패 시 전부 rollback합니다. 재시도는 최초 예약 창에 귀속하고 내용 변경은409입니다. 실패/불확실 처리에 환불하거나 자동 재예약하지 않습니다.
 
-감사는 actor의 opaque id, 서버 시각, action, revision, 바뀐 설정 key와 허용된 비밀 없는 값, invite id/status만 기록합니다. 이메일 기반 owner 식별자를 그대로 감사 actor로 출력하지 않습니다. token/hash/OTP/claim capability/이메일/IP/session 값과 provider 원본 오류를 감사·로그·일반 응답에 넣지 않습니다. schema에도 bootstrap 이메일, EMAIL_FROM, binding credential을 노출하지 않습니다. no-store/noindex/no-referrer/CSP-self 정책을 유지합니다.
+operation ID는 서버 발급 시각/고정 작업 만료/UUID를 포함합니다. 일반 내부 operation은 최대60초, email_attempts는 최대 flow 상한600초이며 만료 ID는 기록 정리 뒤에도410으로 거부합니다. 이는 외부 공개 토큰이 아닙니다. cap 축소는 기존 usage를 보존합니다. readiness는 false이며 실제 engine/response/admission workload enforcing path와 OTP typed budget 연결은 root 최종 wiring 후 확인합니다. 기존 OTP 전역 월10000 예약은 계속 별도 실제 게이트입니다. 금액/typed cap가 실제 청구 상한을 보장하지 않습니다.
 
-## 최초 관리자 bootstrap
+## 검증과 남은 작업
 
-ADMIN_BOOTSTRAP_EMAIL은 UI 설정이 아닌 별도 승인된 infra 입력이며 현재 실제 값은 미설정입니다. 최초 방문자나 최초 가입자를 자동 admin으로 만들지 않습니다. 값이 없거나 잘못되면 경로가 닫힙니다.
-
-DB bootstrap_consumed=false이고 사전 지정한 정확한 한 이메일만 OTP 발송·가입 자격의 bootstrap 예외가 됩니다. 정상 OTP/flow/browser/nonce 검증 후 받은 session의 본인이 `{confirm:true}`와 Origin·CSRF로 명시 bootstrap을 호출해야 합니다. 현재 admin 수=0, consumed=false, 이메일 일치를 같은 transaction에서 확인하고 role과 consumed를 기록합니다. 동시 요청은 하나만 성공합니다. 재배포·logout·env 유지로 consumed를 초기화하지 않습니다. 임의 승격/회복 endpoint나 지속 admin API 키는 만들지 않습니다.
-
-## 가입 초대와 admission
-
-초대 secret은 crypto random 32바이트의 URLsafe 43자 token이며 DB에는 SHA256 hash만 둡니다. UUID는 관리 id이며 secret을 대신하지 않습니다. 기본 7일, 설정 상한 30일, 1회 사용, 폐기 가능입니다. 목록·감사에는 원문이나 hash를 넣지 않습니다. 초대는 가입 자격만 제공하며 admin role이나 agent ownership을 주지 않습니다.
-
-신규 초대 가입 UX는 invite code 필수 입력 → validate → email OTP → signup 순서입니다. missing/invalid/expired/used/revoked 코드는 이메일 OTP 등 다음 단계로 진행할 수 없습니다. 입력한 코드의 사용 가능/불가 안내는 허용하지만 이메일 존재 여부는 노출하지 않습니다. 검증한 초대는 보유자 세션과 flow/browser binding에 결합합니다. 정확한 validation API와 세션 결합 구현은 미착수이며 추가 설계가 필요합니다.
-
-auth start에서 검증된 invite hash를 flow에 결합합니다. send 단계에서는 정규화 이메일을 고정하여 claim/nonce/browser와 함께 묶으며 주소 변경은 새 flow가 필요합니다. 미허용 주소의 고정을 위해 원문 이메일을 영속 보관하지 않습니다. validate/send 시 초대를 소비하거나 보관 권한을 발급하지 않습니다. OTP complete 성공 transaction에서 초대가 여전히 유효·미사용·미폐기인지 확인하고 초대 소비, admitted human·account entitlement 기록, flow 소비, session 발급을 함께 수행합니다. 두 flow가 같은 초대를 경쟁하면 신규 가입은 하나만 성립합니다. 오입력과 메일 실패는 초대를 소진하지 않습니다.
-
-기존 admitted member의 로그인은 새 초대가 필요 없습니다. 유효 session의 새 agent claim은 추가 OTP를 요구하지 않으며 명시 위험 확인·승인은 별도입니다. admission과 identity 검증, ownership, risk ack를 구분합니다. 과거 env allowlist를 운영 정본으로 유지하지 않고 DB admission과 signup policy로 옮깁니다. 기존 WIP의 `SIGNUP_POLICY_JSON` 기반 판단은 아직 남아 있으므로 재개 후 교체가 필요합니다.
-
-초대 코드의 유효 여부 안내와 이메일 존재 여부 비노출은 별개입니다. 무효 초대는 다음 단계 진입과 발송을 차단하며, 유효한 가입 흐름에서 이메일 관련 응답으로 기존 계정 유무를 노출하지 않습니다. 허용 여부와 무관하게 동일 HMAC 이메일/IP 요청 예산과 전역 월 상태를 검사합니다. 자격 있는 요청만 OTP 생성·provider 호출·월 발송 예약을 합니다. 기존 가입자는 closed/invite 정책에서도 로그인할 수 있으나 전체 서비스/provider 준비 상태를 우회하지 않습니다. 실제 정책 적용 순서와 bootstrap 예외는 focused 테스트로 확인해야 합니다.
-
-## private persist 자격
-
-public과 anonymous private의 body는 항상 memory only입니다. DEMO의 초대+OTP 가입 완료 계정도 새 private room에서 persist opt-in이 가능하며 기본 OFF입니다. 서버는 mode만으로 저장을 허용하거나 거부하지 않고 DB account entitlement(유효 초대 소비와 OTP 가입 완료), visibility/private, authenticated creator authority 및 현재 서버 설정을 함께 확인합니다. 미소비 invite 코드 소지나 클라이언트 persist/entitlement 플래그는 보관 권한의 근거가 아닙니다.
-
-retention과 participant notice는 방 생성 때 고정하며 기존 memory room→persist 전환은 허용하지 않습니다. 30일 보관 UI는 시나리오일 뿐 production retention 값의 확정이 아닙니다. entitlement 기록 형식과 최종 retention/생성 계약은 추가 설계·구현이 필요하며 아직 미착수입니다.
-
-## OTP 불변 경계
-
-기본 제한은 이메일 2/UTC시간·3/UTC일·120초 간격, IP 30/UTC시간·100/UTC일, 서비스 배포 전체 UTC월 10000회입니다. 초기 발송과 명시 재발송 모두 집계합니다. 중복 logical request는 제한·OTP·provider 호출을 다시 소비하지 않습니다. 예약 이후 실패/불확실 응답에 차감 환불하거나 자동 재전송하지 않습니다. 앱 호출 최대 1회이며 provider 내부 중복 배달 보장은 아닙니다.
-
-OTP 최대 수명 600초·최대 오입력 5회, flow는 시작부터 고정 600초가 상한입니다. 실제 만료는 min(flow.expires_at,sent_at+OTP lifetime)입니다. 재발송으로 flow를 연장하거나 만료 flow를 복원하지 않습니다. 월 한도를 이미 사용한 수 아래로 줄이면 새 send만 막고 발급된 OTP·session·claim·기존 방은 유지합니다.
-
-subject는 고정 일반 문구이며 OTP는 메일 본문에만 둡니다. Cloudflare 발송 metadata 보관 31일과 Email preview의 본문 보관을 구분합니다. 첫 실제 메일 이전 sending domain의 preview OFF를 인증된 설정/API/dashboard에서 직접 확인하고 시각·도메인·OFF 증거를 남겨야 합니다. 현재 미검증이며 실제 발송은 승인되지 않았습니다. OFF가 기존 preview의 즉시 삭제나 metadata 삭제를 보장한다고 쓰지 않습니다.
-
-## 기존 증거와 새 게이트
-
-| 범위 | 보존된 결과와 제한 |
-| --- | --- |
-| 기존 OTP 초기화 보정 | [2157 JSON](qa/claim-wip-20261002/20261002-2157-otp-targeted.json): 6 passed / 4 failed / 2 skipped. 원래 실패 errorcode가 없어 edge 원인으로 확정하지 않습니다. |
-| 기존 OTP controlled edge | [2206 JSON](qa/claim-wip-20261002/20261002-2206-otp-controlled-edge.json): 5 passed / 8 skipped / 0 failed, success=true. 실제 Workers SQLite OTP와 DI edge binding 시험입니다. |
-| 기존 OTP 전체 계약 | 분리된 focused 실행으로 13개 계약의 통과 이력을 보존했습니다. 새 DB admission/settings/invite 변경 뒤에도 그대로 유효하다고 주장하지 않습니다. |
-| 기존 strict typecheck | OTP 소스 당시 exit0 보고가 있습니다. 이후 harness와 새 control 계약의 최종 typecheck는 아직 없습니다. |
-| 기존 2215 브라우저 | [JSON](qa/claim-wip-20261002/20261002-2215-otp-claim-ui-evidence.json) 및 viewport PNG. 기존 OTP UI 1440/390 회수 결과입니다. 새 admin UI·두 모드·invite UI의 증거가 아닙니다. |
-| 새 control-plane | 소스·RED·Workers SQLite targeted·typecheck·review·PR·CI 모두 미착수입니다. 이번 재개에서 기존 gate를 반복하지 않았습니다. |
-
-재개 후 새 runtime gate는 seed 재시작 유지, revision 동시 충돌, nonadmin/Origin/CSRF, client mode/persist/entitlement spoof, budget readiness와 mode drain, bootstrap 정확 이메일/OTP/1회 경합/미설정, invite 선검증과 보유자 세션 결합/무효 코드 다음 단계 차단/두 flow 소비/만료/폐기/오입력 미소비/기존 회원 로그인을 확인합니다. 저장 자격 fixture는 DEMO 초대+OTP 가입 완료 계정의 권한 있는 새 private persist opt-in 허용, 기본 OFF, 미소비 invite·anonymous private·public 저장 거부, 생성 시 retention/notice 고정과 기존 memory room 전환 거부로 정정합니다. email cap 축소 뒤 기존 session 유지도 확인합니다. 각 케이스는 local alarm/storage reset 또는 독립 namespace를 쓰고 DI clock과 edge를 분리합니다. 실패 전에 status/errorcode와 비밀 없는 원시 상태를 보존합니다. 이 계획을 이번 문서 보완에서 실행한 것은 아닙니다.
-
-runtime targeted와 strict tsc는 각각 최초 1회+실패 보정 1회 상한입니다. 통과한 기존 gate는 새 변경이 무효화한 범위만 선택합니다. UI browser·전체 회귀·새 환경 설치는 이번 checkpoint에서 실행하지 않습니다. 최종 통합 CI는 root 책임입니다. 무거운 명령은 heavy-work-verify runner로 하나씩, worker 최대 2개를 유지합니다.
-
-## 재개에 필요한 입력
-
-- root PR #3 `docs/self-host-design.md@4aca939`를 self-host 구현 정본으로 사용합니다. backend는 한 번에 하나이며 D1은 미확정입니다. 최신 account entitlement/persist와 invite validation 계약의 구체 연결 설계는 남아 있고 같은 OTP/invite/setting revision transaction 및 cursor/throttle/retention 계약을 유지해야 합니다.
-- budget typed workload cap의 최종 key·단위·수치·원자 예약/enforcing path가 필요합니다. seed=[]와 readiness=false는 unlimited가 아닙니다.
-- 엔진 lifecycle/policy revision wiring과 공개 UI 연결은 다른 소유 세션 및 root의 통합 대상입니다.
-- 실제 초기 admin 이메일, EMAIL sender/binding/DNS/secret, preview OFF 실측, 실제 메일·배포는 별도 승인 대상입니다.
-- 기존 WIP OpenAPI/최종 validation·PR 본문·코드 검수·최종 CI는 미완성입니다. 새 control-plane 소스가 아직 없어 완성 PR로 제출하지 않습니다.
+- 신규 control RED는 4 failed였습니다: admin route/session projection/설정 저장소/invite validate 미구현을 확인했습니다.
+- 첫 실제 Workers SQLite targeted 실행은 15 passed / 0 failed, exit0입니다. 원시 JSON은 `../test/control-runtime-initial.json`이며 테스트명/status/errorcode를 포함하고 실제 credential/OTP/email/provider error는 dump하지 않습니다.
+- 실행 명령은 `heavy_verify.py --timeout 300 -- node node_modules/vitest/vitest.mjs run --config test/control-vitest.config.ts --root <WT> --reporter=default --reporter=json --outputFile=<WT>/test/control-runtime-initial.json`입니다. worker1, 실제 SQLite, DI clock와 controlled edge, fake sender이며 실제메일0입니다.
+- strict 실행 `heavy_verify.py --timeout 300 -- node node_modules/typescript/bin/tsc --noEmit --project <WT>/tsconfig.json`은 exit0입니다. runtime와 typecheck는 반복하지 않았습니다.
+- 15개는 seed 재초기화 유지/손상 닫힘, admin role/Origin/CSRF/CAS/audit, readiness/drain fixture, bootstrap1회, invite browser/flow/email/동시소비/만료/폐기/오입력/기존회원, DB persist checker, cap 축소 후 OTP/session/claim, UTC budget 경합/월경계/dedupe/만료를 확인합니다. seed 증거는 같은 DB 새 Store init이며 프로세스 재시작 시험으로 확대하지 않습니다.
+- firstWindow 최대300초와 batch2000..10000ms는 첫15개 실행 뒤 root 지시에 따라 검증 schema만 좁게 정정했습니다. 같은 Worker pool에서 이 경계만 선택해 1 passed / 15 skipped, exit0을 확인했습니다(`../test/control-bounds-targeted.json`). responseBytes는 admin schema min=max=65536, byteBurst>=responseBytes, waits<=handlers, responseBurst>=1, batchMs<=waitMs를 확정했습니다. 이전15개 전체는 반복하지 않았습니다.
+- 기존 OTP 13개/2215 browser 증거는 `qa/claim-wip-20261002`에 보존됩니다. 새 admin/auth UI나 Repository/selfhost 통과로 확대하지 않습니다. 새 browser/메일/설치/배포는 실행하지 않았습니다.
+- 기존 auth/OTP 테스트 fixture는 옛 start payload/cookie/allowlist/session DTO를 사용하므로 최종 통합 시 새 DB admission fixture로 이관해야 합니다. 전체 회귀와 최종 OpenAPI/production dispatcher wiring은 root 책임이며 이번 targeted 결과가 그 회귀 통과를 뜻하지 않습니다.
+- 동일 domain을 async RepositoryPort(control scope)로 이식합니다. B CloudflareRepository의 tok_records/tok_migrations schema는 기존 SQL DO에 바로 적용하지 않고 신규 ControlPlane namespace에 주입합니다. 운영 계정/방이 아직 없으며 old WIP 자동변환은 하지 않습니다. B SQLite/PG/CF adapter와 같은 core를 사용하고 callback 안에 외부메일/HTTP/longpoll을 넣지 않습니다.
+- 실제 초기 admin provisioning, sender binding/DNS/preview OFF 실측/실제메일, UI renderer/registry, lifecycle/budget enforcement 및 최종 통합 CI는 남았습니다.

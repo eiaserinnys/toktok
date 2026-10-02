@@ -1,5 +1,4 @@
 import {HttpError,fail} from './http';
-import {admission} from './admission';
 import type {EmailLimits} from './email';
 import type {FlowRow,RegistryInput} from './identity-types';
 type Storage=DurableObjectStorage;
@@ -33,17 +32,15 @@ export class OtpStore{
   const f=this.sql.exec('SELECT * FROM auth_transactions WHERE flow_hash=?',input.flow_hash!).toArray()[0] as unknown as FlowRow|undefined;
   if(!f||f.consumed||f.expires_at<=now||f.browser_hash!==input.browser_hash)fail(403,'AUTH_FLOW_DENIED','인증 흐름이 없거나 사용할 수 없습니다.');return f;
  }
- async reserve(input:RegistryInput,limits:EmailLimits,now:number,validate:(f:FlowRow)=>void):Promise<Reservation>{
-  const email=input.email!,policy=admission({email,email_verified:true},input.policy!);
-  if(policy.mode==='closed')fail(503,'AUTH_PROVIDER_UNCONFIGURED','현재 사람 확인과 가입을 받지 않습니다.');
+ async reserve(input:RegistryInput,limits:EmailLimits,now:number,validate:(f:FlowRow)=>void,eligible:(email:string,f:FlowRow)=>boolean,lifetimeSeconds:number):Promise<Reservation>{
+  const email=input.email!;
   const emailKey=await this.digest('email',email),ipKey=await this.digest('ip',input.ip!),initial=this.row(input,now);
-  const previous=this.sql.exec('SELECT request_id FROM email_requests WHERE flow_hash=? AND request_id=?',input.flow_hash!,input.request_id!).toArray()[0];
-  const code=policy.allowed&&!previous?this.code():'';
-  const digest=code?await this.digest('otp',input.flow_hash!,email,initial.nonce_hash,code):'';
-  return this.storage.transactionSync(()=>{
+  return this.storage.transaction(async()=>{
    const f=this.row(input,now);validate(f);
    const previous=this.sql.exec('SELECT * FROM email_requests WHERE flow_hash=? AND request_id=?',input.flow_hash!,input.request_id!).toArray()[0];
    if(previous){if(previous.email_key!==emailKey)fail(409,'IDEMPOTENCY_CONFLICT','같은 요청 식별자의 내용이 다릅니다.');return {receipt:{receipt:String(previous.receipt),state:'attempted',retry_after:limits.cooldown_seconds,expires_at:Number(previous.expires_at)}};}
+   if(f.email_key&&f.email_key!==emailKey)fail(409,'AUTH_EMAIL_BOUND','다른 이메일에는 새 인증 흐름이 필요합니다.');
+   const allowed=eligible(email,f);
    const date=new Date(now),hour=date.toISOString().slice(0,13),day=date.toISOString().slice(0,10),month=date.toISOString().slice(0,7);
    const hourEnd=(Math.floor(now/3600000)+1)*3600000,dayEnd=Date.UTC(date.getUTCFullYear(),date.getUTCMonth(),date.getUTCDate()+1),monthEnd=Date.UTC(date.getUTCFullYear(),date.getUTCMonth()+1,1);
    const windows=[{scope:emailKey,window:'h:'+hour,cap:limits.email_hour,end:hourEnd},{scope:emailKey,window:'d:'+day,cap:limits.email_day,end:dayEnd},{scope:ipKey,window:'h:'+hour,cap:limits.ip_hour,end:hourEnd},{scope:ipKey,window:'d:'+day,cap:limits.ip_day,end:dayEnd},{scope:'month',window:month,cap:limits.month,end:monthEnd}];
@@ -51,28 +48,29 @@ export class OtpStore{
    let retry=last?Math.max(0,Number(last.last_at)+limits.cooldown_seconds*1000-now):0;
    for(const w of windows){const n=Number(this.sql.exec('SELECT n FROM email_counters WHERE scope=? AND window=?',w.scope,w.window).toArray()[0]?.n??0);if(n>=w.cap)retry=Math.max(retry,w.end-now);}
    if(retry>0)throw new HttpError(429,'EMAIL_RATE_LIMITED','이메일 발송 한도를 초과했습니다.',Math.ceil(retry/1000));
-   for(const w of windows.filter(w=>w.scope!=='month'||policy.allowed))this.sql.exec('INSERT INTO email_counters VALUES(?,?,1,?) ON CONFLICT(scope,window) DO UPDATE SET n=n+1',w.scope,w.window,w.end);
+   const code=allowed?this.code():'',digest=code?await this.digest('otp',input.flow_hash!,email,f.nonce_hash,code):'';
+   this.sql.exec('UPDATE auth_transactions SET email_key=? WHERE flow_hash=?',emailKey,input.flow_hash!);
+   for(const w of windows.filter(w=>w.scope!=='month'||allowed))this.sql.exec('INSERT INTO email_counters VALUES(?,?,1,?) ON CONFLICT(scope,window) DO UPDATE SET n=n+1',w.scope,w.window,w.end);
    this.sql.exec('INSERT INTO email_cooldowns VALUES(?,?) ON CONFLICT(email_key) DO UPDATE SET last_at=excluded.last_at',emailKey,now);
-   const receipt=crypto.randomUUID(),expires=Math.min(f.expires_at,now+600000);
-   this.sql.exec('INSERT INTO email_requests VALUES(?,?,?,?,?,?,?,?,?)',input.flow_hash!,input.request_id!,emailKey,receipt,policy.allowed?'uncertain':'suppressed',policy.allowed?1:0,now,month,expires);
-   // Every accepted resend invalidates the old flow code, including a changed address.
+   const receipt=crypto.randomUUID(),expires=Math.min(f.expires_at,now+lifetimeSeconds*1000);
+   this.sql.exec('INSERT INTO email_requests VALUES(?,?,?,?,?,?,?,?,?)',input.flow_hash!,input.request_id!,emailKey,receipt,allowed?'uncertain':'suppressed',allowed?1:0,now,month,expires);
+   // Every accepted resend invalidates the old flow code, after the flow email has been fixed.
    this.sql.exec('DELETE FROM otp_codes WHERE flow_hash=?',input.flow_hash!);
-   if(policy.allowed)this.sql.exec('INSERT INTO otp_codes VALUES(?,?,?,?,0)',input.flow_hash!,email,digest,expires);
-   return {receipt:{receipt,state:'attempted',retry_after:limits.cooldown_seconds,expires_at:expires},...(policy.allowed?{dispatch:{to:email,code,expires_at:expires}}:{})};
+   if(allowed)this.sql.exec('INSERT INTO otp_codes VALUES(?,?,?,?,0)',input.flow_hash!,email,digest,expires);
+   return {receipt:{receipt,state:'attempted',retry_after:limits.cooldown_seconds,expires_at:expires},...(allowed?{dispatch:{to:email,code,expires_at:expires}}:{})};
   });
  }
  result(input:RegistryInput){
   this.sql.exec('UPDATE email_requests SET state=? WHERE flow_hash=? AND request_id=?',input.delivery_state!,input.flow_hash!,input.request_id!);
   return this.sql.exec('SELECT receipt,state FROM email_requests WHERE flow_hash=? AND request_id=?',input.flow_hash!,input.request_id!).one();
  }
- async verify(input:RegistryInput,now:number,validate:()=>void,success:(email:string)=>void){
+ async verify(input:RegistryInput,now:number,validate:()=>void,success:(email:string)=>void,maxAttempts:number){
   const stored=this.sql.exec('SELECT email FROM otp_codes WHERE flow_hash=?',input.flow_hash!).toArray()[0];
   const digest=stored?await this.digest('otp',input.flow_hash!,String(stored.email),input.nonce_hash!,input.otp!):'';
   const result=this.storage.transactionSync(()=>{
    validate();const code=this.sql.exec('SELECT * FROM otp_codes WHERE flow_hash=?',input.flow_hash!).toArray()[0];
    if(!code||Number(code.expires_at)<=now)return false;
-   if(!admission({email:String(code.email),email_verified:true},input.policy!).allowed)fail(403,'ADMISSION_DENIED','현재 정책에 따른 가입 승인이 필요합니다.');
-   if(code.digest!==digest){const attempts=Number(code.attempts)+1;if(attempts>=5)this.sql.exec('DELETE FROM otp_codes WHERE flow_hash=?',input.flow_hash!);else this.sql.exec('UPDATE otp_codes SET attempts=? WHERE flow_hash=?',attempts,input.flow_hash!);return false;}
+   if(code.digest!==digest){const attempts=Number(code.attempts)+1;if(attempts>=maxAttempts)this.sql.exec('DELETE FROM otp_codes WHERE flow_hash=?',input.flow_hash!);else this.sql.exec('UPDATE otp_codes SET attempts=? WHERE flow_hash=?',attempts,input.flow_hash!);return false;}
    success(String(code.email));this.sql.exec('DELETE FROM otp_codes WHERE flow_hash=?',input.flow_hash!);return true;
   });
   if(!result)fail(401,'OTP_INVALID','코드가 올바르지 않거나 만료·폐기되었습니다.');

@@ -27,10 +27,3 @@ export function sender(env:Env,options:IdentityOptions):EmailSender{
  return async({to,code,expires_at})=>{await env.EMAIL!.send({from,to,subject:'톡톡 이메일 확인',text:`톡톡 확인 코드: ${code}\n유효 시각: ${new Date(expires_at).toISOString()}\n이 시각 전 한 번 사용할 수 있습니다. 요청하지 않았다면 무시하세요.`});};
 }
 export interface EmailLimits {email_hour:number;email_day:number;cooldown_seconds:number;ip_hour:number;ip_day:number;month:number;}
-export function emailLimits(raw:string):EmailLimits{
- let value:unknown;try{value=JSON.parse(raw);}catch{fail(503,'EMAIL_CONFIGURATION_ERROR','인증 발송 한도 설정이 필요합니다.');}
- if(!value||typeof value!=='object'||Array.isArray(value))fail(503,'EMAIL_CONFIGURATION_ERROR','인증 발송 한도 설정이 필요합니다.');
- const v=value as Record<string,unknown>,fields=['email_hour','email_day','cooldown_seconds','ip_hour','ip_day','month'];
- if(Object.keys(v).some(k=>!fields.includes(k))||fields.some(k=>!Number.isSafeInteger(v[k])||Number(v[k])<=0)||v.month!==10000)fail(503,'EMAIL_CONFIGURATION_ERROR','인증 발송 한도 설정이 필요합니다.');
- return v as unknown as EmailLimits;
-}
