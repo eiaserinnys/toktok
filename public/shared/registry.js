@@ -1,4 +1,6 @@
 import {renderRiskCheck} from './components/risk-check.js';
+import {renderAdminLogs} from './screens/adminlogs.js';
+import {createInvitationDialog} from './dialogs/invitations.js';
 import {renderNewRoom} from './screens/newroom.js';
 import {renderClaim} from './screens/claim.js';
 import {renderAccount} from './screens/account.js';
@@ -30,6 +32,7 @@ export const componentRegistry=Object.freeze({
  'settings-fields':{render:renderSettingsFields,requiredStates:['catalog','empty','max','workload','nested','readonly-off']}
 });
 export const screenRegistry=Object.freeze({
+ adminlogs:{render:renderAdminLogs,requiredStates:['invitations','empty-invitations','used','expired','revoked','audit','empty-audit','loading','denied','unavailable','error']},
  newroom:{render:renderNewRoom,requiredStates:['anonymous','member','persist','created-memory','created-persisted','pending','lost','denied','loading','unavailable']},
  claim:{render:renderClaim,requiredStates:['anonymous','unchecked','checked','pending','approved','error','expired','loading','unavailable']},
  account:{render:renderAccount,requiredStates:['default','revoked','empty','anonymous','loading','unavailable','error']},
@@ -39,6 +42,9 @@ export const screenRegistry=Object.freeze({
  settings:{render:renderSettingsScreen,requiredStates:['overview','public','private','budget','identity','signup','deployment','loading','denied','error','conflict','budget-loading','budget-unavailable']}
 });
 export const dialogRegistry=Object.freeze({
+ 'invitation-create':{render:params=>createInvitationDialog({kind:'invitation-create',...params}),requiredStates:['default','pending','error']},
+ 'invitation-created':{render:params=>createInvitationDialog({kind:'invitation-created',...params}),requiredStates:['one-time']},
+ 'invitation-revoke':{render:params=>createInvitationDialog({kind:'invitation-revoke',...params}),requiredStates:['default','pending','error']},
  'agent-revoke':{render:createAgentRevokeDialog,requiredStates:['default','pending','error']},
  'public-risk':{render:createRiskDialog,requiredStates:['unchecked','checked','pending','error','rate-limited']},
  'settings-review':{render:params=>createSettingsDialog('settings-review',params),requiredStates:['default','pending','error']},

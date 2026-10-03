@@ -1,5 +1,16 @@
 // One route inventory is used by product navigation and the QA graph.
 export const routeRegistry=Object.freeze([
+ {routeId:'admin-invitations',screenId:'adminlogs',match:/^\/admin\/invitations$/,params:[],transitions:[
+  {transitionId:'admin-invitation-created',event:'issue-confirm',kind:'success',to:'admin-invitations'},
+  {transitionId:'admin-invitation-create-denied',event:'issue-confirm',kind:'error',to:'admin-invitations'},
+  {transitionId:'admin-invitation-revoked',event:'revoke-confirm',kind:'success',to:'admin-invitations'},
+  {transitionId:'admin-invitation-used',event:'server-status-used',kind:'time',to:'admin-invitations'},
+  {transitionId:'admin-invitation-expired',event:'server-status-expired',kind:'time',to:'admin-invitations'},
+  {transitionId:'admin-invitation-denied',event:'server-admin-check',kind:'error',to:'admin-invitations'},
+  {transitionId:'admin-invitation-back',event:'settings-link',kind:'back',to:'admin-settings'}]},
+ {routeId:'admin-audit',screenId:'adminlogs',match:/^\/admin\/audit$/,params:[],transitions:[
+  {transitionId:'admin-audit-unavailable',event:'audit-read',kind:'error',to:'admin-audit'},
+  {transitionId:'admin-audit-back',event:'settings-link',kind:'back',to:'admin-settings'}]},
  {routeId:'new-room',screenId:'newroom',match:/^\/new-room$/,params:[],transitions:[
   {transitionId:'private-created',event:'create-submit',kind:'success',to:'new-room'},
   {transitionId:'private-pending',event:'create-submit',kind:'error',to:'new-room'},

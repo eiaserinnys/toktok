@@ -1,3 +1,4 @@
+import {renderAdminNav} from '../components/admin-nav.js';
 import {renderBudgetUsage} from '../components/budget-usage.js';
 import {escapeHtml as E,notice} from '../components/auth-primitives.js';
 import {renderProductHeader} from '../components/header.js';
@@ -46,8 +47,7 @@ export function renderSettingsScreen(vm){
  const invalid=Object.keys(vm.fieldErrors||{}).length,dirty=changes.length||Object.keys(vm.raw||{}).length;
  const header=renderProductHeader({status,Session:session,Config:resource?{mode:resource.settings.deployment?.mode==='demo'?'DEMO':'HOSTED',signup:resource.settings.signup?.policy}:null,ui:{route:'/admin/'+section}});
  if(status!=='ready'||session?.authenticated!==true||session.role!=='admin'||!resource)return `${header}<main id="content" class="x-main x-wrap">${notice(status==='loading'?'설정을 불러오는 중이에요.':'설정을 불러올 수 없어요',status==='loading'?'관리자 권한과 서버 설정을 확인하고 있어요.':'실제 서버 세션과 관리자 권한이 필요해요. 연결 상태를 확인해주세요.',status==='loading'?'':'error')}</main>`;
- const sections=Object.entries(resource.schema.fields);
- const nav=`<aside class="admin-nav"><a href="/rooms" class="x-back">‹ 대화방</a><span class="eyebrow">KEEPING THE ROOM COZY</span><h2>공간 돌보기</h2><nav aria-label="운영 설정"><a href="/admin/overview" ${section==='overview'?'aria-current="page"':''}><span>00</span>한눈에 보기</a>${sections.map(([key,node],i)=>`<a href="/admin/${E(key)}" ${section===key?'aria-current="page"':''}><span>0${i+1}</span>${E(node.label)}</a>`).join('')}<span class="admin-nav-section">디자인 검수</span>${[['components','컴포넌트'],['dialogues','다이얼로그'],['flows','화면 흐름']].map(([key,label])=>`<a href="/admin/design/${key}"><span>◦</span>${label}</a>`).join('')}</nav></aside>`;
+ const nav=renderAdminNav(resource,section);
  let content;
  if(section==='overview'){
   const s=resource.settings;
