@@ -92,3 +92,11 @@ npm run build
 ```
 
 구현·포트 구조는 [portable runtime 계약](portable-runtime.md), 개발 검증 기록은 [별도 검증 문서](portable-validation.md)에 있습니다.
+
+## Node schema v2 업데이트
+
+새 SQLite/PostgreSQL 설치의 apply는 v2 marker와 private metadata 순회 index를 만듭니다. 기존 v1은 `MIGRATION_REQUIRED`로 시작을 닫고 자동 변경하지 않습니다. 업데이트 전에 이전 앱의 consistent backup 명령 또는 PostgreSQL의 일관 backup 절차로 복구 자료를 만든 뒤 앱을 정상 종료하세요. 살아 있는 WAL 파일 하나만 복사하지 마세요.
+
+명시적 adapter 접점은 `migrateSQLite(path)`와 `PostgresRepository.migrate()`입니다. 기존 marker/checksum/columns를 확인하고 index와 v2 marker를 같은 transaction에서 전환합니다. SQLite는 같은 volume의 flock entrypoint 아래, PostgreSQL은 serving owner가 없는 상태에서 실행합니다. CLI 연결은 통합 작업 범위입니다.
+
+업데이트 후 check는 실제 v2 index도 확인합니다. 시작 호스트는 metadata-only ID 페이지와 restore를 완료한 뒤 요청을 받아야 합니다. 실패하면 serving을 시작하지 않습니다. 이전 버전으로 되돌릴 때는 검증된 v1 backup과 이전 앱을 함께 복원합니다. 자동 down/reset은 제공하지 않습니다. Backup은 보관을 선택한 본문의 복구 사본을 포함할 수 있습니다.

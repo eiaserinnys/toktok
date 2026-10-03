@@ -105,3 +105,12 @@ public/private core fetch finally에서 아직 미소비이고 unlocked인 reque
 새 Node SQLite lifecycle selected gate 첫 실행 1 PASS(224ms)입니다. 닫힌 방의 wait는 읽지 않은 메시지를 먼저200으로 전달하고 빈 wait만410 ROOM_CLOSED로 끝냅니다. 대기 중 close도410으로 깨우며 GET messages의 닫힌 이력200은 유지합니다. pending wait 최종0입니다.
 
 소유자 DELETE는204 뒤 접근410이며 만료 전에도 저장 본문과 dedupe를 한 번에 메시지100개씩 정리합니다. mock201개가100/100/1로 제거되고 잔여 작업은1초 후 maintenance, 최종 body/dedupe0 및 다음 정리없음을 확인했습니다. 이 수치는 active DB 행 제거이며 backup/PITR 모든 사본의 즉시 물리삭제 증거가 아닙니다. 기존 통과 gate와 부하는 반복하지 않았습니다.
+
+
+## Node startup retention restore 신규 검증
+
+SQLite 첫 selected 실행1 PASS(1109ms), 새 격리 Postgres16 컨테이너 첫 selected 실행1 PASS(3762ms)입니다. 기존 v1 marker 데이터는 check/apply/start 거절 후 명시적 migration으로 보존했고 새 빈 apply는v2입니다. 실제 index를 fixture에서 제거하면 check가 SCHEMA_CONFLICT로 닫히고 무관 테이블1행은 그대로입니다. PG serving owner가 있는 migration도 OWNER_CONFLICT로 거절합니다. 실제 사용자 DB와 CF schema는 변경하지 않았습니다.
+
+각 adapter에서 metadata 페이지1/1/0으로 기존 persist 방2개를 순회하고 HTTP 요청 없이 새 registry에서 restore했습니다. 한 방의 오래된 body101개는 첫100개와 기존 timer의 후속 정리로 제거하고, 삭제 상태의 아직 젊은 body1개도 정리했습니다. 두 adapter 모두 최종 body/dedupe0, shutdown timer0, 미초기화 control 예약의 room metadata0입니다. 예시 ID/본문은 mock이며 출력은 숫자뿐입니다. 무작정 전체 스냅샷/무한 polling/DB body pubsub는 추가하지 않았습니다. Docker foreground는 exit0으로 회수했습니다.
+
+검증 명령은 Node24 heavy runner 안에서 `--test --test-concurrency=1 --test-timeout=60000 test/selfhost-restore-sqlite.test.ts` 및 `test/selfhost-restore-postgres.test.ts`를 각각 한 번 실행했습니다. 기존 통과 storage/private/100+50 부하 gate는 반복하지 않았습니다. 최종 호스트 타입 검사와 migration CLI/listen-ready 연결은 root가 담당합니다.
