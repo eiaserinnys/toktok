@@ -27,7 +27,7 @@ export const componentRegistry=Object.freeze({
  message:{render:message,requiredStates:['default','long']},
  person:{render:person,requiredStates:['default','long']},
  select:{render:renderSelect,requiredStates:['default','disabled','long','opened']},
- 'product-header':{render:renderProductHeader,requiredStates:['anonymous','member','admin','loading','unavailable']},
+ 'product-header':{render:renderProductHeader,requiredStates:['anonymous','member','admin','loading','unavailable','member-open','admin-open','logout-pending','logout-error']},
  'setting-field':{render:renderSettingField,requiredStates:['number','enum','readonly-off']},
  'settings-fields':{render:renderSettingsFields,requiredStates:['catalog','empty','max','workload','nested','readonly-off']}
 });
@@ -36,7 +36,7 @@ export const screenRegistry=Object.freeze({
  newroom:{render:renderNewRoom,requiredStates:['anonymous','member','persist','created-memory','created-persisted','pending','lost','denied','loading','unavailable']},
  claim:{render:renderClaim,requiredStates:['anonymous','unchecked','checked','pending','approved','error','expired','loading','unavailable']},
  account:{render:renderAccount,requiredStates:['default','revoked','empty','anonymous','loading','unavailable','error']},
- room:{render:room,requiredStates:['public','memory','persisted','history-gap','history-reset','paused','rate-limited']},terminal:{render:terminal},introduction:{render:introduction},guide:{render:guide},
+ room:{render:room,requiredStates:['public','memory','persisted','history-gap','history-reset','paused','rate-limited','header-member','header-admin','header-loading','header-unavailable']},terminal:{render:terminal,requiredStates:['anonymous','member','admin','loading','unavailable']},introduction:{render:introduction,requiredStates:['anonymous','member','admin','loading','unavailable']},guide:{render:guide,requiredStates:['anonymous','member','admin','loading','unavailable','logout-error']},
  auth:{render:vm=>renderAuth(vm.screen,vm),requiredStates:['claim-email','claim-verify','claim-otp-error','login','signup-invite','signup-email','invite-invalid','closed','verify','error','expired','loading','unavailable']},
  lobby:{render:renderLobby,requiredStates:['default','empty','loading','unavailable']},
  settings:{render:renderSettingsScreen,requiredStates:['overview','public','private','budget','identity','signup','deployment','loading','denied','error','conflict','budget-loading','budget-unavailable']}

@@ -44,7 +44,7 @@ function settingsEffects(schema,path='',out={}){
  return out;
 }
 export function createLiveAdapter({fetch:fetchHTTP=globalThis.fetch}={}){
- let csrf=null;
+ let csrf=null,sessionGeneration=0;
  async function request(path,{method='GET',body,sessionMutation=false,capability}={}){
   if(sessionMutation&&!csrf)throw new EffectError('SESSION_REQUIRED',401);
   const headers={Accept:'application/json'};
@@ -60,10 +60,10 @@ export function createLiveAdapter({fetch:fetchHTTP=globalThis.fetch}={}){
  return Object.freeze({
   getConfig:async()=>mapConfig(await request('/api/config')),
   getSession:async()=>{
-   csrf=null;const data=await request('/api/session');
+   const own=++sessionGeneration;csrf=null;const data=await request('/api/session');
    const session=mapSession(data);
    if(session.authenticated&&typeof data.csrf_token!=='string')invalid('SESSION');
-   csrf=session.authenticated?data.csrf_token:null;return session;
+   if(own===sessionGeneration)csrf=session.authenticated?data.csrf_token:null;return session;
   },
   validateInvitation:code=>request('/api/auth/invitations/validate',{method:'POST',body:{code}}),
   startAuth:({purpose,invite_validation_id,claim_id,claim_token})=>request('/api/auth/start',{method:'POST',body:{purpose,
@@ -86,7 +86,7 @@ export function createLiveAdapter({fetch:fetchHTTP=globalThis.fetch}={}){
   saveSettings:({revision,settings})=>request('/api/admin/settings',{method:'PUT',sessionMutation:true,body:{expected_revision:revision,settings}}),
   createInvitation:ttl_seconds=>request('/api/admin/invitations',{method:'POST',sessionMutation:true,body:ttl_seconds===undefined?{}:{ttl_seconds}}),
   revokeInvitation:id=>request('/api/admin/invitations/'+encodeURIComponent(id)+'/revoke',{method:'POST',sessionMutation:true,body:{}}),
-  logout:async()=>{const result=await request('/api/auth/logout',{method:'POST',sessionMutation:true,body:{}});csrf=null;return result;},
+  logout:async()=>{const result=await request('/api/auth/logout',{method:'POST',sessionMutation:true,body:{}});sessionGeneration++;csrf=null;return result;},
   createContext:()=>request('/api/private/create-context',{method:'POST',sessionMutation:!!csrf,body:{}}),
   creationGrant:({nonce,risk_ack})=>request('/api/private/create-grants',{method:'POST',sessionMutation:!!csrf,
    body:{nonce,risk_ack,risk_ack_version:'toktok-risk-v1'}}),
