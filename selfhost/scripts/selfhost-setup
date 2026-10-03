@@ -1,4 +1,4 @@
 #!/bin/sh
 set -eu
-case "${1:?check, apply, or backup required}" in check|apply|backup) ;; *) exit 64 ;; esac
+case "${1:?check, apply, migrate, or backup required}" in check|apply|migrate|backup) ;; *) exit 64 ;; esac
 exec ./scripts/entrypoint.sh "$1"

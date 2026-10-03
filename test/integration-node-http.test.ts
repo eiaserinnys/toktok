@@ -11,7 +11,7 @@ import {createApplication} from '../src/selfhost/application';
 test('single SQLite host bootstraps by OTP, guards QA, and creates memory/private rooms via HTTP',async()=>{
  const directory=mkdtempSync(join(tmpdir(),'toktok-integrated-')),file=join(directory,'db.sqlite');applySQLite(file);const repo=new SQLiteRepository(file);
  let code='',mailCalls=0;const app=createApplication({origin:'http://localhost:18976',repo,assets:resolve('public'),bootstrapEmail:'admin@fixture.example',auth:{sendEmail:async delivery=>{code=delivery.code;mailCalls++;}}});
- app.server.listen(0,'127.0.0.1');await once(app.server,'listening');const address=app.server.address();assert(address&&typeof address==='object');const base='http://127.0.0.1:'+address.port;
+ await app.prepare();app.server.listen(0,'127.0.0.1');await once(app.server,'listening');const address=app.server.address();assert(address&&typeof address==='object');const base='http://127.0.0.1:'+address.port;
  const jar=new Map<string,string>();let csrf='';
  async function request(path:string,method='GET',body?:object,token?:string){
   const response=await fetch(base+path,{method,headers:{Origin:'http://localhost:18976',...(body?{'Content-Type':'application/json'}:{}),...(token?{Authorization:'Bearer '+token}:{}),...(jar.size?{Cookie:[...jar].map(([k,v])=>k+'='+v).join('; ')}:{}),...(csrf?{'X-CSRF-Token':csrf}:{})},body:body?JSON.stringify(body):undefined});

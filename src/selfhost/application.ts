@@ -1,4 +1,5 @@
-import type {RepositoryPort} from '../storage/repository';
+import {RepositoryError} from '../storage/repository';
+import type {NodeRepositoryPort} from '../storage/node-maintenance';
 import type {PrivateBudgetPort} from '../private-contracts';
 import type {IdentityOptions} from '../email';
 import type {Settings} from '../settings-schema';
@@ -16,10 +17,10 @@ import {fileAssets} from './static';
 import type {RegistryInput,ControlHttpPort,IdentityEnv} from '../identity-types';
 import type {RuntimeConfig} from '../control-contracts';
 
-export interface ApplicationOptions {origin:string;repo:RepositoryPort;budget?:PrivateBudgetPort;hostClose?:()=>void|Promise<void>;router?:(request:Request)=>Promise<Response|null>;assets?:string;trustedProxyCidrs?:readonly string[];bootstrapEmail?:string;profile?:Settings;email?:Pick<IdentityEnv,'EMAIL'|'EMAIL_FROM'>;auth?:Pick<IdentityOptions,'sendEmail'|'now'>;}
+export interface ApplicationOptions {origin:string;repo:NodeRepositoryPort;budget?:PrivateBudgetPort;hostClose?:()=>void|Promise<void>;router?:(request:Request)=>Promise<Response|null>;assets?:string;trustedProxyCidrs?:readonly string[];bootstrapEmail?:string;profile?:Settings;email?:Pick<IdentityEnv,'EMAIL'|'EMAIL_FROM'>;auth?:Pick<IdentityOptions,'sendEmail'|'now'>;}
 /** Single-process room affinity, one selected repository, same HTTP/domain as Cloudflare. */
 export function createApplication(options:ApplicationOptions){
- let stopping=false,maintenanceTimer:ReturnType<typeof setTimeout>|undefined,scheduleRevision=0;
+ let startupComplete=false,stopping=false,maintenanceTimer:ReturnType<typeof setTimeout>|undefined,scheduleRevision=0;
  const core=new ControlCore(options.repo,{bootstrapEmail:options.bootstrapEmail,installation:{profile:options.profile??demoInstallationProfile(),enforcement_version:1},enforcement:{version:1,ready:()=>!stopping&&options.repo.ready()}});
  async function schedule(){const revision=++scheduleRevision;clearTimeout(maintenanceTimer);if(stopping)return;const next=await core.maintain();if(!stopping&&revision===scheduleRevision&&next!==undefined){maintenanceTimer=setTimeout(()=>{void schedule().catch(()=>{});},Math.min(2147483647,Math.max(1,next-Date.now())));maintenanceTimer.unref();}}
  const control:ControlHttpPort={async execute(action:string,input:RegistryInput){const result=await core.execute(action,input);await schedule();return result;}};
@@ -34,10 +35,24 @@ export function createApplication(options:ApplicationOptions){
   publicRoom:async(slug,config)=>{configure(config);return rooms.room(slug);},
   publicRoomExists:async(slug,config)=>{configure(config);return rooms.has(slug);},
   privateRoom:id=>({initialize:s=>privateRooms.initialize(s),fetch:async r=>(await privateRooms.fetch(r))!,inspect:()=>privateRooms.room(id).inspect(id)}),
-  ready:()=>!stopping&&options.repo.ready()});
+  ready:()=>startupComplete&&!stopping&&options.repo.ready()});
  const runtime=createServer({origin:options.origin,repo:options.repo,trustedProxyCidrs:options.trustedProxyCidrs,
-  readiness:async()=>{const result=await app.fetch(new Request(options.origin+'/ready'));await result.body?.cancel();return result.ok;},
+  readiness:async()=>{if(!startupComplete)return false;const result=await app.fetch(new Request(options.origin+'/ready'));await result.body?.cancel();return result.ok;},
   close:async()=>{stopping=true;clearTimeout(maintenanceTimer);rooms.shutdown();privateRooms.shutdown();await options.hostClose?.();},
-  handler:async request=>await options.router?.(request)??app.fetch(request)});
- return {...runtime,rooms,privateRooms,control,core,app};
+  handler:async request=>{await preparation;return await options.router?.(request)??app.fetch(request);}});
+ const preparation=(async()=>{
+  let after:string|undefined;
+  for(;;){
+   if(stopping)throw new RepositoryError('STARTUP_INTERRUPTED');
+   const page=await options.repo.listPrivateRoomIds({limit:100,...(after?{after}:{})});
+   for(const id of page.ids){if(stopping)throw new RepositoryError('STARTUP_INTERRUPTED');await privateRooms.restoreRoom(id);}
+   if(page.next===undefined)break;
+   if(page.next===after||page.ids.at(-1)!==page.next)throw new RepositoryError('INVALID_MAINTENANCE_PAGE');
+   after=page.next;
+  }
+  startupComplete=true;
+ })();
+ // Retain rejection for prepare()/handler while preventing an unobserved startup promise.
+ void preparation.catch(()=>{});
+ return {...runtime,rooms,privateRooms,control,core,app,prepare:()=>preparation};
 }

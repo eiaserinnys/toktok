@@ -1,0 +1,57 @@
+heavy verification: running in slot 1/2
+
+ RUN  v4.1.0 /home/eias/workspace/.projects/toktok--feat-release-integration-c8e59900
+
+stdout | test/application-runtime.test.ts > common application enforces creator, exact Origin, session and admin boundaries
+APPLICATION_HTTP_EVIDENCE []
+
+stdout | test/application-runtime.test.ts > two private participants exchange three rounds with capability separation, cursor pages, replay and close
+APPLICATION_HTTP_EVIDENCE []
+
+stdout | test/application-runtime.test.ts > memory epoch reset is explicit and expired private data is unreadable through the common route
+APPLICATION_HTTP_EVIDENCE []
+
+stdout | test/application-runtime.test.ts > common assets and room entry negotiate HTML, Markdown and JSON with secure errors and no GET join
+APPLICATION_HTTP_EVIDENCE []
+
+stdout | test/application-runtime.test.ts > public browser acknowledgement and separate watcher use real common HTTP and the memory actor
+APPLICATION_HTTP_EVIDENCE []
+
+stdout | test/application-runtime.test.ts > configured email month cap allows existing OTP completion, two explicit claims and real private messaging without new mail
+APPLICATION_HTTP_EVIDENCE []
+
+ ❯ test/application-runtime.test.ts (6 tests | 6 failed) 56ms
+   × common application enforces creator, exact Origin, session and admin boundaries 16ms
+   × two private participants exchange three rounds with capability separation, cursor pages, replay and close 12ms
+   × memory epoch reset is explicit and expired private data is unreadable through the common route 6ms
+   × common assets and room entry negotiate HTML, Markdown and JSON with secure errors and no GET join 6ms
+   × public browser acknowledgement and separate watcher use real common HTTP and the memory actor 7ms
+   × configured email month cap allows existing OTP completion, two explicit claims and real private messaging without new mail 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/application-runtime.test.ts > common application enforces creator, exact Origin, session and admin boundaries
+ FAIL  test/application-runtime.test.ts > two private participants exchange three rounds with capability separation, cursor pages, replay and close
+ FAIL  test/application-runtime.test.ts > memory epoch reset is explicit and expired private data is unreadable through the common route
+ FAIL  test/application-runtime.test.ts > common assets and room entry negotiate HTML, Markdown and JSON with secure errors and no GET join
+ FAIL  test/application-runtime.test.ts > public browser acknowledgement and separate watcher use real common HTTP and the memory actor
+ FAIL  test/application-runtime.test.ts > configured email month cap allows existing OTP completion, two explicit claims and real private messaging without new mail
+Error: Cannot evict Durable Object: it is not currently running.
+ ❯ evictDurableObject home/eias/workspace/.projects/toktok--feat-release-integration-c8e59900/node_modules/.pnpm/@cloudflare+vitest-pool-workers@0.22.0_@cloudflare+workers-types@5.20261002.1_@types+no_45fc3fe14909d546a9a5bac140f640cf/node_modules/@cloudflare/vitest-pool-workers/dist/worker/lib/cloudflare/test-internal.mjs:133:2
+ ❯ test/application-runtime.test.ts:62:47
+     60|  await runInDurableObject(control(),async(_i,state)=>{await state.stor…
+     61|  await evictDurableObject(control());
+     62|  for(const slug of ['common-room','workshop'])await evictDurableObject…
+       |                                               ^
+     63|  await SELF.fetch(origin+'/__application/reset');
+     64| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed (6)
+   Start at  09:24:38
+   Duration  1.39s (transform 372ms, setup 0ms, import 678ms, tests 56ms, environment 0ms)
+
+JSON report written to /home/eias/workspace/.projects/toktok--feat-release-integration-c8e59900/test/application-runtime-initial.json

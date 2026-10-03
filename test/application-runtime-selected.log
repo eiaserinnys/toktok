@@ -1,0 +1,21 @@
+heavy verification: running in slot 1/2
+
+ RUN  v4.1.0 /home/eias/workspace/.projects/toktok--feat-release-integration-c8e59900
+
+stdout | test/application-runtime.test.ts > memory epoch reset is explicit and expired private data is unreadable through the common route
+APPLICATION_HTTP_EVIDENCE [{"step":"anonymous context","status":200,"retry_after":null},{"step":"anonymous acknowledgement","status":200,"retry_after":null},{"step":"anonymous create","status":201,"retry_after":null},{"step":"private join","status":201,"retry_after":null},{"step":"private send","status":201,"retry_after":null},{"step":"private read","status":200,"retry_after":null},{"step":"private read","status":200,"retry_after":null},{"step":"expired metadata","status":410,"code":"ROOM_GONE","retry_after":null},{"step":"fetch maintenance deleted metadata state and cleared alarm","status":200,"retry_after":null,"state":{"status":"deleted","alarm":null}},{"step":"expired HTML","status":410,"code":"ROOM_GONE","retry_after":null}]
+
+stdout | test/application-runtime.test.ts > common assets and room entry negotiate HTML, Markdown and JSON with secure errors and no GET join
+APPLICATION_HTTP_EVIDENCE [{"step":"local asset","status":200,"retry_after":null},{"step":"local asset","status":200,"retry_after":null},{"step":"local asset","status":200,"retry_after":null},{"step":"local asset","status":200,"retry_after":null},{"step":"local asset","status":200,"retry_after":null},{"step":"anonymous context","status":200,"retry_after":null},{"step":"anonymous acknowledgement","status":200,"retry_after":null},{"step":"anonymous create","status":201,"retry_after":null},{"step":"valid shared HTML","status":200,"retry_after":null},{"step":"shared Markdown","status":200,"retry_after":null},{"step":"shared Markdown","status":200,"retry_after":null},{"step":"valid shared HTML","status":200,"retry_after":null},{"step":"shared Markdown","status":200,"retry_after":null},{"step":"shared Markdown","status":200,"retry_after":null},{"step":"API stays JSON","status":200,"retry_after":null},{"step":"invalid HTML","status":403,"code":"CAPABILITY_DENIED","retry_after":null},{"step":"missing shared HTML","status":404,"code":"ROOM_NOT_FOUND","retry_after":null},{"step":"missing GET leaves application schema blank","status":200,"retry_after":null,"state":{"application_tables":0}},{"step":"owner delete","status":204,"retry_after":null},{"step":"deleted shared HTML","status":410,"code":"ROOM_GONE","retry_after":null}]
+
+stdout | test/application-runtime.test.ts > new cheap edge admin delta blocks before control and meters successful real-role QA responses
+APPLICATION_HTTP_EVIDENCE [{"step":"initialize configuration","status":200,"retry_after":null},{"step":"cheap edge denies protected route","status":429,"code":"RATE_LIMITED","retry_after":"60"},{"step":"cheap edge denies protected route","status":429,"code":"RATE_LIMITED","retry_after":"60"},{"step":"cheap edge denies protected route","status":429,"code":"RATE_LIMITED","retry_after":"60"},{"step":"cheap edge before role body and Assets","status":200,"retry_after":null,"state":{"control_delta":0,"asset_delta":0,"edge_delta":3}},{"step":"QA query role grants nothing","status":401,"code":"AUTH_REQUIRED","retry_after":null},{"step":"DB member QA denied","status":403,"code":"ADMIN_REQUIRED","retry_after":null},{"step":"DB admin actual QA","status":200,"retry_after":null},{"step":"successful QA reserves admission and serialized bytes","status":200,"retry_after":null,"state":{"admission_delta":1,"response_bytes_delta":779,"serialized_bytes":779}}]
+
+ ✓ test/application-runtime.test.ts (7 tests | 4 skipped) 695ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed | 4 skipped (7)
+   Start at  09:50:54
+   Duration  2.21s (transform 447ms, setup 0ms, import 747ms, tests 695ms, environment 0ms)
+
+JSON report written to /home/eias/workspace/.projects/toktok--feat-release-integration-c8e59900/test/application-runtime-selected.json

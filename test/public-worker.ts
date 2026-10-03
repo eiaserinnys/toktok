@@ -2,7 +2,9 @@ import type { PublicEnv, ValidatedOperatorAck } from '../src/public-contracts';
 import { PUBLIC_CATALOG, PUBLIC_NOTICE, INTERNAL_IP_HEADER } from '../src/public-contracts';
 import { handlePublicRequest,publicError } from '../src/public-http';
 import { hash, json } from '../src/http';
-export { PublicRoom } from '../src/public-room';
+import {PublicRoom as BasePublicRoom} from '../src/public-room';
+import {TEST_BUDGET} from './selfhost-budget';
+export class PublicRoom extends BasePublicRoom {constructor(ctx:DurableObjectState,env:PublicEnv){super(ctx,env,{budgetFactory:()=>TEST_BUDGET});}}
 // Fixture-only transport. It is never exported by src/index.ts or bound by production Wrangler.
 export default {async fetch(request:Request,env:PublicEnv):Promise<Response> {
   try {

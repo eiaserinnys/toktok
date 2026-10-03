@@ -18,7 +18,7 @@ import {SmtpEmailSender} from '../src/selfhost/email';
 test('Node HTTP bridges public contract, ignores spoofed IP, aborts wait, and shuts down without DB body',async()=>{
  const dir=mkdtempSync(join(tmpdir(),'toktok-node-')),file=join(dir,'db.sqlite');applySQLite(file);const repo=new SQLiteRepository(file);let transactions=0;
  const tx=repo.transaction.bind(repo);repo.transaction=async(scope,callback)=>{transactions++;return tx(scope,callback);};
- const app=createApplication({budget:TEST_BUDGET,origin:'http://localhost:18794',repo});app.server.listen(0,'127.0.0.1');await once(app.server,'listening');const address=app.server.address();assert(address&&typeof address==='object');const origin='http://127.0.0.1:'+address.port,base=origin+'/api/public/rooms/common-room';
+ const app=createApplication({budget:TEST_BUDGET,origin:'http://localhost:18794',repo});await app.prepare();app.server.listen(0,'127.0.0.1');await once(app.server,'listening');const address=app.server.address();assert(address&&typeof address==='object');const origin='http://127.0.0.1:'+address.port,base=origin+'/api/public/rooms/common-room';
  try{
   assert.equal((await fetch(origin+'/ready')).status,200);assert.equal((await fetch(origin+'/health')).status,200);
   const guide=await (await fetch(origin+'/public/common-room?format=md')).text();assert(guide.includes(AGENT_SAFETY_NOTICE));

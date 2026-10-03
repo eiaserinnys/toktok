@@ -1,0 +1,2 @@
+import {defineConfig} from 'vitest/config';
+export default defineConfig({test:{include:['test/shared-*.test.js','test/live-effects.test.js','test/session.test.js','test/public-demo-session.test.js','test/public-ui-verifier.test.js','test/public-browser-adapter.test.ts','test/admin-design-route.test.ts','test/integration-security.test.ts','test/acceptance-guard.test.ts','test/control-public-settings.test.ts','test/control-budget-schema.test.ts'],maxWorkers:1,fileParallelism:false,testTimeout:60000}});

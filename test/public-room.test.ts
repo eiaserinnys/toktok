@@ -9,7 +9,7 @@ const origin='http://localhost:18793',base='/api/public/rooms/common-room';
 const stub=()=> (env as unknown as PublicFixtureEnv).PUBLIC_ROOMS.getByName('common-room');
 interface FixtureState {clock:()=>number;policy:PublicPolicy;responses:Bucket;bytes:Bucket;}
 // Mutation callbacks return void; observations below have a concrete JSON-safe record R.
-const inRoom=(callback:(instance:FixtureState)=>void):Promise<void>=>runInDurableObject<PublicRoom,void>(stub(),i=>callback(i as unknown as FixtureState));
+const inRoom=(callback:(instance:FixtureState)=>void):Promise<void>=>runInDurableObject<PublicRoom,void>(stub(),i=>callback((i as unknown as {core:FixtureState}).core));
 let ipNumber=0;
 const freshIP=()=>`198.51.${Math.floor(++ipNumber/250)}.${ipNumber%250+1}`;
 async function api(path:string,token?:string,method='GET',data?:unknown,ip='192.0.2.1',extra:Record<string,string>={}) {

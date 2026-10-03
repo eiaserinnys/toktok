@@ -4,14 +4,21 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "test": "vitest run",
+    "test": "pnpm test:application && pnpm test:auth && pnpm test:control && pnpm test:storage-cf && pnpm test:public",
     "typecheck": "tsc --noEmit",
     "dry-run": "wrangler deploy --dry-run --outdir dist",
     "dev": "wrangler dev --local",
-    "acceptance": "node scripts/local-acceptance.mjs",
+    "acceptance": "node --import ./selfhost/node_modules/tsx/dist/loader.mjs --test test/integration-node-http.test.ts",
     "test:verdict": "vitest run --config vitest.node.config.ts",
-    "test:ui": "vitest run --config vitest.ui.config.ts",
-    "test:public-ui": "vitest run --config vitest.public-ui.node.config.ts && vitest run --config vitest.public-ui.config.ts"
+    "test:ui": "pnpm test:unit",
+    "test:public-ui": "vitest run --config vitest.public-ui.node.config.ts && vitest run --config vitest.public-ui.config.ts",
+    "test:application": "vitest run",
+    "test:auth": "vitest run --config test/control-auth-vitest.config.ts",
+    "test:control": "vitest run --config test/control-port-vitest.config.ts && vitest run --config test/control-budget-estimate-vitest.config.ts && vitest run --config test/control-email-preflight-vitest.config.ts && vitest run --config test/control-recovery-vitest.config.ts",
+    "test:storage-cf": "vitest run --config test/selfhost.vitest.config.ts",
+    "test:public": "vitest run --config vitest.public.config.ts",
+    "test:unit": "vitest run --config vitest.unit.config.ts",
+    "check:generated": "node scripts/agent-safety.mjs --check"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "0.22.0",

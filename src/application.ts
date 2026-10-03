@@ -34,6 +34,8 @@ const roomId='[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12
 const privateApi=new RegExp(`^/api/v1/rooms/(${roomId})(?:/(participants|messages|wait|close))?$`);
 const privateEntry=new RegExp(`^/r/(${roomId})/[\\w-]{43}$`);
 const htmlRoutes=new Set(['/','/about','/rooms','/guide','/login','/signup','/invite','/verify','/account','/new-room']);
+const recoveryReads=new Set(['/admin','/admin/overview','/admin/public','/admin/private','/admin/budget','/admin/identity','/admin/signup','/admin/deployment','/api/session','/api/admin/settings','/api/admin/settings/schema','/api/admin/budget']);
+const recoveryAllowed=(request:Request)=>{const path=new URL(request.url).pathname;return request.method==='GET'&&recoveryReads.has(path)||request.method==='PUT'&&path==='/api/admin/settings'||request.method==='POST'&&path==='/api/auth/logout';};
 const wantsHtml=(r:Request)=>r.method==='GET'&&new URL(r.url).searchParams.get('format')!=='md'&&(r.headers.get('Accept')??'').includes('text/html');
 
 /** One HTTP application for CF and Node. Ports contain platform IO only. */
@@ -42,6 +44,20 @@ export function createHttpApplication(ports:ApplicationPorts){
  const budget=controlBudget(ports.control,ports.auth?.now);
  const env:IdentityEnv={PUBLIC_ORIGIN:origin,IP_RATE_LIMIT:ports.edgeLimit,controlPort:ports.control,...ports.identity};
  let handlers=0,bodies=0;
+ const recovery=new WeakMap<Request,number>();
+ async function reserveHttp(request:Request,kind:'admission_requests'|'response_bytes',amount:number){
+  if(!recovery.has(request)){
+   try{await budget.reserve(budget.newOperationId(),kind,amount);return;}
+   catch(error){
+    if(!(error instanceof HttpError)||error.status!==429||!['BUDGET_EXCEEDED','ESTIMATED_BUDGET_EXCEEDED'].includes(error.code)||!recoveryAllowed(request))throw error;
+    const mutation=request.method!=='GET',input=await sessionInput(request,env,mutation);
+    const result=await ports.control.execute('admin-recovery-reserve',{...input,mutation,operation_id:budget.newOperationId(),now:ports.auth?.now?.()??Date.now()}) as {response_bytes_limit?:unknown};
+    if(result.response_bytes_limit!==65536)fail(503,'CONTROL_STATE_INVALID','복구 응답 한도를 확인하지 못했습니다.');
+    recovery.set(request,65536);
+   }
+  }
+  if(kind==='response_bytes'&&amount>recovery.get(request)!)fail(503,'ADMIN_RECOVERY_RESPONSE_LIMIT','복구 응답 한도를 초과했습니다.');
+ }
  async function html(request:Request,failure?:Response){
   const asset=await ports.assets.fetch(new Request(new URL('/index.html',origin)));
   if(!failure)return asset;
@@ -50,11 +66,16 @@ export function createHttpApplication(ports:ApplicationPorts){
   return new Response((await asset.text()).replace('<body',`<body data-error="${code}"`),{status:failure.status,headers:asset.headers});
  }
  async function authorize(request:Request){
-  try{await sessionInput(request,env);await budget.reserve(budget.newOperationId(),'admission_requests',1);await requireAdmin(request,env);return {authorized:true} as const;}
+  try{await sessionInput(request,env);await reserveHttp(request,'admission_requests',1);await requireAdmin(request,env);return {authorized:true} as const;}
   catch(error){if(error instanceof HttpError&&(error.status===401||error.status===403))return {authorized:false,status:error.status} as const;throw error;}
  }
- async function responseBudget(response:Response){
-  const bytes=await response.arrayBuffer();if(bytes.byteLength)await budget.reserve(budget.newOperationId(),'response_bytes',bytes.byteLength);
+ async function responseBudget(response:Response,request:Request){
+  let bytes:ArrayBuffer;
+  if(recovery.has(request)&&response.body){
+   const reader=response.body.getReader(),chunks:Uint8Array[]=[];let size=0;
+   try{for(;;){const {done,value}=await reader.read();if(done)break;size+=value.byteLength;if(size>recovery.get(request)!){void reader.cancel().catch(()=>{});fail(503,'ADMIN_RECOVERY_RESPONSE_LIMIT','복구 응답 한도를 초과했습니다.');}chunks.push(value);}const joined=new Uint8Array(size);let at=0;for(const chunk of chunks){joined.set(chunk,at);at+=chunk.length;}bytes=joined.buffer;}finally{reader.releaseLock();}
+  }else bytes=await response.arrayBuffer();
+  if(bytes.byteLength)await reserveHttp(request,'response_bytes',bytes.byteLength);
   return new Response(response.status===204||response.status===304?null:bytes,response);
  }
  async function boundedControlBody(request:Request):Promise<Request>{
@@ -83,8 +104,8 @@ export function createHttpApplication(ports:ApplicationPorts){
   const rawIp=ports.trustedIP(original);
   if(!(await ports.edgeLimit.limit({key:rawIp})).success)throw new HttpError(429,'RATE_LIMITED','요청 한도를 초과했습니다.',60);
   // No Assets fallback can precede this server-side admin gate.
-  const review=await designSurface(original,{assets:ports.assets,authorizeAdmin:authorize});if(review)return review.ok?responseBudget(review):review;
-  if(path==='/admin'||path.startsWith('/admin/')){const allowed=await authorize(original);if(!allowed.authorized)fail(allowed.status,allowed.status===401?'AUTH_REQUIRED':'ADMIN_REQUIRED','관리자 로그인이 필요합니다.');if(original.method==='GET')return responseBudget(await html(original));fail(405,'METHOD_NOT_ALLOWED','읽기 요청만 허용됩니다.');}
+  const review=await designSurface(original,{assets:ports.assets,authorizeAdmin:authorize});if(review)return review.ok?responseBudget(review,original):review;
+  if(path==='/admin'||path.startsWith('/admin/')){const allowed=await authorize(original);if(!allowed.authorized)fail(allowed.status,allowed.status===401?'AUTH_REQUIRED':'ADMIN_REQUIRED','관리자 로그인이 필요합니다.');if(original.method==='GET')return responseBudget(await html(original),original);fail(405,'METHOD_NOT_ALLOWED','읽기 요청만 허용됩니다.');}
   if(!['GET','HEAD'].includes(original.method)&&original.headers.has('Origin')&&original.headers.get('Origin')!==origin)fail(403,'ORIGIN_DENIED','외부 Origin 변경 요청은 허용되지 않습니다.');
   const config=await settings.get(),api=privateApi.exec(path),entry=privateEntry.exec(path);
   const cleanup=!!api&&(original.method==='DELETE'||api[2]==='close')||original.method==='DELETE'&&/^\/api\/public\/rooms\/[^/]+\/lease$/.test(path);
@@ -93,7 +114,7 @@ export function createHttpApplication(ports:ApplicationPorts){
   const publicRoomRequest=/^\/api\/public\/rooms\/[^/]+(?:\/(?:participants|watchers|messages|wait|lease|guide))?$/.test(path);
   // Room cores account for their own admission, duration, response and body writes.
   const metered=!(api||entry||publicRoomRequest)||wantsHtml(original)&&!!entry;
-  if(metered)await budget.reserve(budget.newOperationId(),'admission_requests',1);
+  if(metered)await reserveHttp(original,'admission_requests',1);
   const options:IdentityOptions={...ports.auth,trustedIP:()=>rawIp};
   let request=original,response:Response|undefined|null;
   if(!(api||entry||path.startsWith('/public/')||path.startsWith('/api/public/rooms'))&&!['GET','HEAD'].includes(request.method))request=await boundedControlBody(request);
@@ -101,7 +122,7 @@ export function createHttpApplication(ports:ApplicationPorts){
   response??=await identityRoute(request,env,options);
   response??=await adminRoute(request,env,ports.auth?.now?.());
   response??=await privateCreateRoute(request,env,options);
-  if(response){if(path==='/api/admin/settings'&&request.method==='PUT'&&response.ok)settings.invalidate();return metered?responseBudget(response):response;}
+  if(response){if(path==='/api/admin/settings'&&request.method==='PUT'&&response.ok)settings.invalidate();return metered?responseBudget(response,original):response;}
   if(path==='/api/v1/rooms'&&request.method==='POST'){
    const invite=newToken(),read=newToken(),owner=newToken();
    const [invite_hash,read_hash,owner_hash]=await Promise.all([hash(invite),hash(read),hash(owner)]);
@@ -109,13 +130,13 @@ export function createHttpApplication(ports:ApplicationPorts){
    let room:object;
    try{room=await ports.privateRoom(reservation.room_id).initialize(reservation.snapshot);await commitSlot(env,reservation.room_id,'initialized',ports.auth?.now?.());}
    catch{throw new CreationResultError('CREATE_PENDING','생성 상태를 확인 중입니다. 같은 요청 식별자로 확인하세요.',reservation.room_id);}
-   try{return await responseBudget(json({...room,invite_url:`${origin}/r/${reservation.room_id}/${invite}`,read_url:`${origin}/r/${reservation.room_id}/${read}`,owner_token:owner},201));}
+   try{return await responseBudget(json({...room,invite_url:`${origin}/r/${reservation.room_id}/${invite}`,read_url:`${origin}/r/${reservation.room_id}/${read}`,owner_token:owner},201),original);}
    catch{throw new CreationResultError('CREATE_RESULT_NOT_RECOVERABLE','방이 생성되었지만 첫 결과를 전달하지 못했습니다.',reservation.room_id);}
   }
   if(api||entry){
    const id=(api??entry)![1],room=ports.privateRoom(id);response=await room.fetch(request);
    if(cleanup&&response.ok){const proof=await room.inspect(id) as {status:string};if(['closed','deleted','expired'].includes(proof.status))await commitSlot(env,id,'closed',ports.auth?.now?.());}
-   if(entry&&wantsHtml(request)){if(!response.ok)return html(request,response);await response.body?.cancel();return responseBudget(await html(request));}
+   if(entry&&wantsHtml(request)){if(!response.ok)return html(request,response);await response.body?.cancel();return responseBudget(await html(request),original);}
    return response;
   }
   if(path.startsWith('/public/')||path.startsWith('/api/public/rooms')){
@@ -124,7 +145,7 @@ export function createHttpApplication(ports:ApplicationPorts){
    const existing=requestedSlug&&ports.publicRoomExists?await ports.publicRoomExists(requestedSlug,config):true;
    const publicRequest=(r:Request)=>handlePublicRequestWith(r,{origin,catalog:()=>catalog,policy:()=>policy,room:slug=>({fetch:async q=>(await ports.publicRoom(slug,config)).fetch(q)}),existingRoom:slug=>existing&&slug===requestedSlug,trustedIpHash:()=>hash(rawIp)});
    response=await handlePublicBrowserWith(request,{origin,assets:ports.assets,catalog,policy,trustedIP:()=>rawIp,limit:async()=>({success:true}),room:slug=>ports.publicRoom(slug,config),dispatch:publicRequest});
-   if(response)return metered?responseBudget(response):response;
+   if(response)return metered?responseBudget(response,original):response;
   }
   fail(404,'NOT_FOUND','경로가 없습니다.');
  }

@@ -1,7 +1,9 @@
 import {SELF,runInDurableObject} from 'cloudflare:test';
-import {env} from 'cloudflare:workers';
+import {env as workerEnv} from 'cloudflare:workers';
+import type {PublicRoom} from '../src/cloudflare-host';
+const env=workerEnv as unknown as {PUBLIC_ROOMS:DurableObjectNamespace<PublicRoom>};
 import {it,expect} from 'vitest';
-const origin='http://localhost:18796',base='/api/public/rooms/common-room';
+const origin='http://localhost:8787',base='/api/public/rooms/common-room';
 const req=(path:string,method='GET',data?:unknown,headers:Record<string,string>={})=>SELF.fetch(origin+path,{method,headers:{Origin:origin,'Content-Type':'application/json',...headers},...(data===undefined?{}:{body:JSON.stringify(data)})});
 it('serves real assets/guide/catalog and GET never allocates a lease or grant',async()=>{
  for(const path of ['/public/common-room','/public/common-room?format=md','/api/public/rooms']){const r=await req(path);expect(r.status).toBe(200);await r.arrayBuffer();}

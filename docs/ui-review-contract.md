@@ -1,8 +1,11 @@
 # 관리자 디자인 검수와 코드 일원화 계약
 
-상태: 2026-10-02 14:38:20·14:42:11·14:43:19 UTC 사용자 확정 요구를 반영한 구현 계약. registry, 관리자 검수 route와 coverage CI는 아직 미구현이다. 기존 PR #4의 CI 통과를 이 기능 통과로 사용하지 않는다.
+상태: 2026-10-02 14:38:20·14:42:11·14:43:19 UTC 사용자 확정 요구를 반영한 구현 계약. 공유 registry, 보호된 관리자 검수 route와 coverage 검사를 단계적으로 통합한다. 구현별 증거와 남은 범위는 [공유 UI 통합 기록](shared-ui-integration.md)을 따른다. 기존 PR #4의 통과를 새 기능 전체 통과로 사용하지 않는다.
 
-최종 시안 검수 기준은 [`design/toktok-ui@63c4eec3bc10b84c0a66d00ee9817f12643ba864`](https://github.com/eiaserinnys/toktok/tree/63c4eec3bc10b84c0a66d00ee9817f12643ba864/design/prototype)의 `design/prototype/`이다. `179b96f`와 중간 `305161`은 이 pin으로 대체한다. 재개 시 해당 pin의 `INTEGRATION.md`, `UI_RULES.md`, tests를 읽고 아래 계약과 대조한다. 이 pin의 390×844·1440×1000 실제 invite/canvas/dialog 및 keyboard/focus/pan/zoom·negative flow 검수는 아직 미완료이며, 이전 `309442a` 증거로 대신하지 않는다. 전달받은 상태는 exact pin CI 없음이며 CI 통과를 주장하지 않는다. 시안에 검수 UI가 있다는 사실은 제품의 서버 관리자 인가나 registry 통합이 완료됐다는 뜻이 아니다.
+최초 재개 시안 검수 기준은 [`design/toktok-ui@63c4eec3bc10b84c0a66d00ee9817f12643ba864`](https://github.com/eiaserinnys/toktok/tree/63c4eec3bc10b84c0a66d00ee9817f12643ba864/design/prototype)의 `design/prototype/`이다. `179b96f`와 중간 `305161`은 이 pin으로 대체한다. 재개 시 해당 pin의 `INTEGRATION.md`, `UI_RULES.md`, tests를 읽고 아래 계약과 대조한다. 이 pin의 390×844·1440×1000 실제 invite/canvas/dialog 및 keyboard/focus/pan/zoom·negative flow 검수는 아직 미완료이며, 이전 `309442a` 증거로 대신하지 않는다. 전달받은 상태는 exact pin CI 없음이며 CI 통과를 주장하지 않는다. 시안에 검수 UI가 있다는 사실은 제품의 서버 관리자 인가나 registry 통합이 완료됐다는 뜻이 아니다.
+
+
+후속 정본: `736605b7`의 다섯 결함 보완, `3e804519`의 opaque 초대 코드, `d6f0e975`의 실제 관리자 schema patterns를 순차 반영한다. 각각의 좁은 실제 시안 검수와 제품 mock/shared renderer 검수는 통합 기록에서 구분한다. prototype 검수는 실제 backend 관리자 권한·mutation 격리 검증을 대신하지 않는다.
 
 ## 로그인 상태별 제품 IA
 
@@ -31,8 +34,8 @@ components에는 비로그인/로그인/관리자 header와 계정 메뉴를 같
 | `/admin/design/components` | 실제 제품 컴포넌트와 default/focus/hover/error/loading/disabled/opened-select 상태 |
 | `/admin/design/dialogues` | 실제 dialog registry에 있는 모든 다이얼로그의 관련 상태 |
 | `/admin/design/flows` | 여러 실제 화면 preview를 동시에 보여주는 screen flow board |
-| `/api/admin/design/catalog` | 인가된 검수면의 component/dialog/fixture 목록 |
-| `/api/admin/design/graph` | 인가된 machine-readable route/transition graph |
+| 검수면 내부 catalog | 같은 registry에서 생성하며 보호된 검수 문서에서 사용 |
+| 검수면 내부 graph JSON/다운로드 | 같은 registry에서 동기 생성한 machine-readable route/transition graph |
 
 흐름도는 순차 clickthrough가 주 기능인 화면이 아니다. 하나의 canvas에 실제 shared screen renderer를 fixture 데이터로 렌더한 preview 여러 개를 놓고, success/error/back 조건이 붙은 방향 화살표로 연결한다. 단순 사각형에 route 이름만 쓰거나 별도 mock HTML을 복제하는 방식은 불가하다.
 
@@ -107,3 +110,5 @@ CI는 production registry를 기준으로 다음을 자동 대조한다.
 5. 제품과 검수면을 한 변경 단위로 review한다. 하나라도 미반영이면 완료·배포 합격으로 처리하지 않는다.
 
 기존 인증 WIP나 PR #3/#4의 통과 증거는 해당 범위에만 재사용한다. 새 admin 역할, registry, screen flow board와 새 CI는 별도 구현 및 검증이 필요하다.
+
+제품 QA는 초기 API fetch 없이 같은 registry에서 graph를 만들고 DOM 및 로컬 JSON 다운로드로 제공한다. `/api/admin/design/catalog`와 `/api/admin/design/graph`는 실제 관리자 인가 후404이며 익명 직접 접근은401/403이다. 이는 읽기 전용 검수의 외부 네트워크 의존을 줄이는 승인된 연결 방식이다.
