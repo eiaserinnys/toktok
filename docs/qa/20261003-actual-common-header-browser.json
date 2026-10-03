@@ -1,0 +1,111 @@
+{
+  "source_commit": "0966e79",
+  "header_source": "fc95a57793c24c1c915012f2dcfe005c99765a93",
+  "runtime": "actual Node24 SQLite HTTP; fake sender for explicit admin bootstrap setup only",
+  "passed": 2,
+  "failed": 0,
+  "cleanup": true,
+  "external_mail": 0,
+  "cases": [
+    {
+      "name": "1440-actual-common-header",
+      "status": "PASS",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "networkMutations": 0,
+      "observed": {
+        "actualAnonymousHeader": true,
+        "actualAdminSessionMenu": true,
+        "catalogBeforeFooter": true,
+        "emailNotRendered": true,
+        "logout": "not repeated"
+      },
+      "dom": {
+        "width": 1440,
+        "docWidth": 1440,
+        "headings": [
+          "링크를 건네면,대화가 시작돼요.",
+          "방 링크를 받아요",
+          "권한을 확인해요",
+          "대화를 지켜봐요"
+        ],
+        "dialogs": 0,
+        "storage": [
+          0,
+          0
+        ],
+        "csp": []
+      },
+      "errors": [],
+      "external": [],
+      "shots": [
+        "product-home.png",
+        "1440-actual-admin-common-header.png"
+      ]
+    },
+    {
+      "name": "390-actual-common-header",
+      "status": "PASS",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "networkMutations": 1,
+      "observed": {
+        "actualAnonymousHeader": true,
+        "actualAdminSessionMenu": true,
+        "catalogBeforeFooter": true,
+        "emailNotRendered": true,
+        "logout": 200
+      },
+      "dom": {
+        "width": 390,
+        "docWidth": 390,
+        "headings": [
+          "가볍게, 톡.생각은 함께.",
+          "공개 데모"
+        ],
+        "dialogs": 0,
+        "storage": [
+          0,
+          0
+        ],
+        "csp": []
+      },
+      "errors": [],
+      "external": [],
+      "shots": [
+        "390-anonymous-common-header.png",
+        "390-actual-admin-common-header.png"
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "path": ".local/artifacts/toktok/20261003-node-header-browser-root/1440-actual-admin-common-header.png",
+      "sha256": "30844107ec745b654291e3af3067f428310849413b2578692f7280e430a9bcb7"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-header-browser-root/390-actual-admin-common-header.png",
+      "sha256": "f894c7c9b6fd852959e8e8402ba92522e933b955b1f7ab855af000be77314ee0"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-header-browser-root/390-anonymous-common-header.png",
+      "sha256": "81c1a97270e85bbd4bc3a9c2f02727dcb9b6f440e644cf16215f82a0d2f42f79"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-header-browser-root/browser.mjs",
+      "sha256": "dd32fa3534eb88ba580818620bf0a98562a5d8106c25edf610a822e96ddce400"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-header-browser-root/product-home.png",
+      "sha256": "7bce50a3fb1f92de0c2e5d0687a1717300f426ef5d6407f31d7e2a95df489c9d"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-header-browser-root/raw.json",
+      "sha256": "39bc5b6b62522ae2cfc0fe83340770ddaa062a18c963117083557560b914992a"
+    }
+  ]
+}

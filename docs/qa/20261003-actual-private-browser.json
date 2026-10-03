@@ -122,6 +122,51 @@
           }
         ]
       }
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-private-browser-root/continuation-raw.json",
+      "sha256": "9800bde2062bbfcd3cec0450e243935e359bf4fbcee000a51f4edd050ea9725f",
+      "result": {
+        "cases": [
+          {
+            "name": "390-actual-private-memory-restart-unreached-tail",
+            "viewport": {
+              "width": 390,
+              "height": 844
+            },
+            "status": "PASS",
+            "networkMutations": 0,
+            "observed": {
+              "epochChanged": true,
+              "oldMessageRemoved": true,
+              "newMessageVisible": true,
+              "readOnly": true,
+              "waitsAfterLeaving": 0
+            },
+            "dom": {
+              "width": 390,
+              "docWidth": 390,
+              "headings": [
+                "가볍게, 톡.생각은 함께.",
+                "공개 데모"
+              ],
+              "dialogs": 0,
+              "storage": [
+                0,
+                0
+              ],
+              "csp": []
+            },
+            "errors": [],
+            "external": [],
+            "shots": [
+              "390-real-private-history-reset-continuation.png"
+            ]
+          }
+        ],
+        "cleanup": true,
+        "externalMail": 0
+      }
     }
   ],
   "artifacts": [
@@ -136,6 +181,14 @@
     {
       "path": ".local/artifacts/toktok/20261003-node-private-browser-root/1440-real-private-closed-history-correction.png",
       "sha256": "018801ff771ae3621fb954c71c84f8f8c4647676540e079946938ad0ad6bbed4"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-private-browser-root/browser-continuation.mjs",
+      "sha256": "d300493375d89be07f2f4539e5ae785791d87a9282bb3458fc76bd65e979c451"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-private-browser-root/390-real-private-history-reset-continuation.png",
+      "sha256": "c1b750f9c1338a0410cb54c565e9f915c1e6d0963ef01bdea9b75ad131dc0d06"
     }
   ],
   "interpretation": [
@@ -145,6 +198,16 @@
     "Mobile same-SQLite restart observed 503 retries then messages200 and reset notice in two DOM locations. A strict single-element locator failed; subsequent epoch comparison, new message receipt and leave cleanup assertions were not reached.",
     "No product source changed to satisfy these harness failures; no further runtime attempt was run.",
     "The desktop PNG still shows the legacy static room header, contrary to the accepted session-aware IA. This is assigned to C for the shared-header follow-up; private data-path PASS is not full visual acceptance.",
-    "CF upstream cancellation remains a separate unresolved diagnostic; this loopback Node browser gate does not settle it."
-  ]
+    "CF upstream cancellation remains a separate unresolved diagnostic; this loopback Node browser gate does not settle it.",
+    "Subsequent authorized continuation on C common-header integration: mobile epoch changed, previous DOM removed, new message displayed, departure active waits0, read-only mutations0. PASS with exact feed reset-notice selector; previous desktop case not repeated.",
+    "Prior stopped/unreached statements above describe the earlier run only. Common-header actual validation is recorded separately."
+  ],
+  "continuation_execution": {
+    "actual_source_commit": "0966e79",
+    "header_source": "fc95a57793c24c1c915012f2dcfe005c99765a93",
+    "command_scope": "mobile previously-unreached epoch/new-message/leave tail only",
+    "runner_session": 2396,
+    "exit_code": 0,
+    "raw_metadata_note": "The prewritten launcher pin/coverage strings still say prepared/not executed: a relative-path metadata preparation command failed before the runner invoked the existing absolute script. The raw file is preserved unchanged. The actual executed code was root0966e79; its cases and cleanup record the completed PASS."
+  }
 }

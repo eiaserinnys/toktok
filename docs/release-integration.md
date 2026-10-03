@@ -72,3 +72,12 @@ desktop PNG에서 room의 옛 정적 header가 남아 있음을 확인했다. �
 ## 실제 초대·변경 기록 화면
 
 C `784fedf`를 통합하고 `/admin/invitations`, `/admin/audit`를 실제 관리자 HTML 목록에 추가했다. 설정 복구 경로 8개에는 추가하지 않았다. 변경된 서버·공유 route/renderer/fixture 연결 검사 1 PASS. 실제 Node24/SQLite 1440·390 브라우저는 최초 발급201 뒤 닫기 버튼 selector가 두 개여서 실패했으며, 정확한 버튼 이름으로 하니스만 보완한 뒤 2 PASS다. 명시 발급201/취소200, 정상 DOM·목록·audit에 원문 코드 없음, 서버의 실제 변경 기록 표시와 비로그인 HTML401을 확인했다. 코드가 보이는 화면과 응답 본문은 캡처·저장하지 않았다. [원시 판정·이미지 hash](qa/20261003-actual-adminlists-browser.json)에 최초 실패와 보정을 구분한다. 공통 room 헤더·모바일 private 미도달 구간·전체 QA·배포 검수는 별도다.
+
+
+## 공통 헤더와 모바일 private 이어받기
+
+C `fc95a577` 및 B `6fe6342`를 통합했다. 실제 Node24/SQLite의 모바일 미도달 구간만 이어 실행하여 epoch 변경, 이전 메시지 DOM 제거, 새 메시지 수신, 화면 이탈 후 wait0을 확인했다(1 PASS). 이전 실패/NOTRUN 원자료는 유지하며 launcher의 준비용 pin 문자열 누락은 실제 실행 pin `0966e79`와 구분해 기록했다. [private 증거](qa/20261003-actual-private-browser.json)를 참고한다.
+
+실제 Session/Config를 쓰는 공통 헤더는 1440·390 2 PASS다. 비로그인 소개/실제 DB admin 메뉴, 공개 catalog→footer 순서, 390 로그아웃200 후 관리자 메뉴 제거를 확인했고 CSP/page error/storage0, cleanup true다. [헤더 증거](qa/20261003-actual-common-header-browser.json)는 C의 mock 화면 및 공유 검수면 증거와 분리한다.
+
+비공개 링크 Markdown은 검증된 invite/read 권한에 따라 실제 room API 경로와 placeholder JSON/curl을 안내한다. 원본 secret을 노출하거나 GET으로 참가하지 않는다. B의 새로운 SQLite core 게이트와 읽기 전용 재검수는 통과했으며 실제 socket/curl·Cloudflare 집행 검증을 대신하지 않는다. [범위와 원시 판정](private-guide-validation.md)을 보존하고 Node 정규 test 목록에 이 전용 게이트를 포함했다.
