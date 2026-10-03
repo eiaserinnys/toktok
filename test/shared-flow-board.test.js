@@ -10,3 +10,8 @@ it('uses simultaneous previews and shared action layout without inline CSS or sr
  expect(layout.nodes.find(n=>n.canonicalId==='b').depth).toBeGreaterThan(layout.nodes.find(n=>n.canonicalId==='a').depth);
  expect(markup).toContain('키보드로 살펴보는 화면 연결');
 });
+it('describes timeout and error references by event semantics rather than return navigation',()=>{
+ const graph={nodes:[{id:'a',title:'확인',route:'/verify',mode:'all'},{id:'b',title:'만료',route:'/verify',mode:'all'}],edges:[{transitionId:'expired',from:'a',to:'b',kind:'error',eventType:'time',label:'시간 경과',layout:false}]};
+ const {markup}=renderFlowBoard(graph);
+ expect(markup).toContain('시간 경과 · 만료');expect(markup).not.toContain('돌아가기 / 같은 화면 연결');
+});
