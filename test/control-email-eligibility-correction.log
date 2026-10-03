@@ -1,0 +1,23 @@
+heavy verification: running in slot 1/2
+Already up to date
+Done in 383ms using pnpm v11.15.0
+
+ RUN  v4.1.0 /home/eias/workspace/.projects/toktok--feat-release-integration-c8e59900
+
+stdout | test/control-email-eligibility.test.ts > DEMO bootstrap mail requires both an unused designation and no existing admin, without auto-granting admin
+EMAIL_ELIGIBILITY_EVIDENCE [{"step":"/api/config","status":200},{"step":"/api/auth/start","status":200},{"step":"/api/auth/email/send","status":200},{"step":"/api/auth/start","status":200},{"step":"/api/auth/email/send","status":200},{"step":"/api/auth/start","status":200},{"step":"/api/auth/email/send","status":200},{"step":"/api/auth/complete","status":200},{"step":"/api/session","status":200},{"step":"/api/admin/bootstrap","status":403,"code":"CSRF_DENIED"},{"step":"/api/admin/bootstrap","status":403,"code":"BOOTSTRAP_DENIED"},{"step":"/api/admin/bootstrap","status":200},{"step":"final-safe-counts","state":{"calls":1,"emailQuantity":1,"estimate":10014,"codes":0,"suppressed":0,"accounts":1,"sessions":1}}]
+
+stdout | test/control-email-eligibility.test.ts > demo closing signup suppresses a bound invite before mail and rejects previously issued new-account OTP
+EMAIL_ELIGIBILITY_EVIDENCE [{"step":"/api/config","status":200},{"step":"/api/auth/invitations/validate","status":200},{"step":"/api/auth/start","status":200},{"step":"/api/auth/invitations/validate","status":200},{"step":"/api/auth/start","status":200},{"step":"/api/auth/email/send","status":200},{"step":"/api/auth/email/send","status":200},{"step":"/api/auth/complete","status":403,"code":"ADMISSION_DENIED"},{"step":"closed-policy-new-account-result","status":403,"state":{"calls":1,"emailQuantity":1,"estimate":10014,"codes":1,"suppressed":1,"accounts":0,"sessions":0}},{"step":"/api/auth/start","status":200},{"step":"/api/auth/email/send","status":200},{"step":"/api/auth/complete","status":200},{"step":"final-safe-counts","state":{"calls":2,"emailQuantity":2,"estimate":20028,"codes":1,"suppressed":1,"accounts":1,"sessions":1}}]
+
+stdout | test/control-email-eligibility.test.ts > hosted closing signup suppresses a bound invite before mail and rejects previously issued new-account OTP
+EMAIL_ELIGIBILITY_EVIDENCE [{"step":"/api/config","status":200},{"step":"/api/auth/invitations/validate","status":200},{"step":"/api/auth/start","status":200},{"step":"/api/auth/invitations/validate","status":200},{"step":"/api/auth/start","status":200},{"step":"/api/auth/email/send","status":200},{"step":"/api/auth/email/send","status":200},{"step":"/api/auth/complete","status":403,"code":"ADMISSION_DENIED"},{"step":"closed-policy-new-account-result","status":403,"state":{"calls":1,"emailQuantity":1,"estimate":10014,"codes":1,"suppressed":1,"accounts":0,"sessions":0}},{"step":"/api/auth/start","status":200},{"step":"/api/auth/email/send","status":200},{"step":"/api/auth/complete","status":200},{"step":"final-safe-counts","state":{"calls":2,"emailQuantity":2,"estimate":20028,"codes":1,"suppressed":1,"accounts":1,"sessions":1}}]
+
+ ✓ test/control-email-eligibility.test.ts (6 tests | 3 skipped) 728ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed | 3 skipped (6)
+   Start at  17:54:32
+   Duration  2.74s (transform 605ms, setup 0ms, import 1.24s, tests 728ms, environment 0ms)
+
+JSON report written to /home/eias/workspace/.projects/toktok--feat-release-integration-c8e59900/test/control-email-eligibility-correction.json

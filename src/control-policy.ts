@@ -9,7 +9,7 @@ export function entitlements(settings:Settings,account?:Account):Entitlements{
 }
 export function signupEligible(settings:Settings,purpose:string,existing:boolean,validInvite:boolean,bootstrap:boolean):boolean{
  if(existing||bootstrap)return true;
- return purpose==='signup'&&(validInvite||settings.deployment.mode==='hosted'&&settings.signup.policy==='open');
+ return purpose==='signup'&&settings.signup.policy!=='closed'&&(validInvite||settings.deployment.mode==='hosted'&&settings.signup.policy==='open');
 }
 export interface OwnerAck {version:string;confirmed_at:number;}
 export interface CreatorPrincipal {authenticated:boolean;entitlements:Entitlements;creator_authorized:boolean;owner_ack:OwnerAck|null;}
