@@ -1,0 +1,58 @@
+{
+  "scope": "actual Node24 SQLite + default Python HTTP client + browser human fixture",
+  "cases": [
+    {
+      "width": 390,
+      "status": "PASS",
+      "errors": [],
+      "geometry": {
+        "display": "grid",
+        "navTop": 70,
+        "brandBottom": 54.5,
+        "links": [
+          {
+            "width": 72,
+            "height": 44,
+            "textHeight": 20,
+            "lineHeight": 21.7
+          },
+          {
+            "width": 39,
+            "height": 44,
+            "textHeight": 20,
+            "lineHeight": 21.7
+          }
+        ]
+      }
+    },
+    {
+      "width": 1440,
+      "status": "running",
+      "errors": [],
+      "geometry": {
+        "display": "flex",
+        "navTop": 0,
+        "brandBottom": 67,
+        "links": [
+          {
+            "width": 72,
+            "height": 21.6875,
+            "textHeight": 20,
+            "lineHeight": 21.7
+          },
+          {
+            "width": 39,
+            "height": 21.6875,
+            "textHeight": 20,
+            "lineHeight": 21.7
+          }
+        ]
+      }
+    }
+  ],
+  "cleanup": true,
+  "externalMail": 0,
+  "failure": {
+    "message": "The expression evaluated to a falsy value:\n\n  assert(a.height>=44)\n"
+  }
+}

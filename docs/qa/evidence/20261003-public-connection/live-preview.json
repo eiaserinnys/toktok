@@ -1,0 +1,31 @@
+{
+  "scope": "production pending preview only; no checkbox or approval action",
+  "responses": [
+    {
+      "path": "/api/session",
+      "status": 200
+    },
+    {
+      "path": "/api/config",
+      "status": 200
+    },
+    {
+      "path": "/api/public/rooms/common-room/connection-approval",
+      "status": 200
+    }
+  ],
+  "errors": [],
+  "cleanup": true,
+  "pending": "사람의 확인을 기다리고 있어요",
+  "view": {
+    "width": 390,
+    "docWidth": 390,
+    "storage": [
+      0,
+      0
+    ],
+    "csp": [],
+    "secretFieldInDom": false
+  },
+  "status": "PASS"
+}

@@ -39,3 +39,15 @@
 ## 남는 외부 경계
 
 기본 Python의 live 403/1010은 제품 연결 승인과 별개인 edge 접근 문제다. UA 위장·다른 credential·보안 설정 변경을 하지 않는다. [BIC 검토 문서](../development/bic-exception-proposal.md)에 새 agent method/path만 추가 검토 대상으로 기록했으며, 사람 `connection-approval`은 예외 대상에서 제외했다. 기존 413 upstream cancel 미확인 기록과 request-stream 경고를 이번 기능의 성공으로 대체하지 않는다. CI의 Node/의존성 한계와 운영 메일 권한도 별도이며 이번 변경으로 해결됐다고 주장하지 않는다.
+
+## 배포 후 확인과 모바일 헤더 보완
+
+PR #10은 `e300589ef44b1a848f451cc01a82a7acae72160e`로 정상 병합했고 Worker `b5ba307a-af53-4926-96c6-ddd435fd693c`를 배포했다. Live 일반 curl의 HTML/Markdown/API guide는 200이며 새 안내 자산이 소스와 일치했다. 실제 pending 요청을 만들고 운영 390 화면에서 확인했으며, 체크/승인 요청은 보내지 않았다. [HTTP 관측](evidence/20261003-public-connection/live-after.json), [pending 화면 관측](evidence/20261003-public-connection/live-preview.json). 기본 Python은 403/1010 유지다.
+
+운영 캡처를 눈으로 보며 기존 공통 모바일 헤더의 줄바꿈 결함을 발견했다. 먼저 import한 `.x-header`의 grid 배치가 나중의 `.header { display:flex }`에 덮이고 있었다. 공통 auth CSS의 기존 모바일 selector 한 곳을 `.header.x-header`로 좁혀 이미 정의된 두 줄 배치만 복원한다. 치수·색·메뉴·권한·registry·flow는 바꾸지 않는다. 제품과 보호 preview가 동일 CSS를 사용한다.
+
+390px 실제 로컬 Node 제품 화면에서 grid·메뉴가 브랜드 아래 배치·텍스트 한 줄·44px 높이 PASS. 첫 1440 관측은 정상 flex·한 줄인데 하니스가 모바일 전용 44px 조건까지 적용하여 FAIL했다. 그 조건만 viewport에 한정하고 desktop만 다시 확인해 PASS했다. [최초 raw](evidence/20261003-public-connection/header-correction.json), [desktop 보완 raw](evidence/20261003-public-connection/header-desktop-correction.json). 두 raw의 scope 문장은 앞 harness에서 상속된 label이며, 이 헤더 검사에서는 Python 참가/발언을 다시 실행하지 않았다. 기준 화면은 실제 API의 만료 요청 표시이며 사람 확인을 위조하지 않는다.
+
+PR CI `37100899443`은 test/verdict/UI/public-UI/typecheck PASS, 기존 workflow의 selfhost tsx 미설치로 acceptance FAIL, 이후 dry-run SKIP이다. 로컬 최종 dry-run은 별도 PASS이며 CI 권한·workflow를 변경하지 않았다.
+
+最初の運用接続要求は QA ではなく、ユーザーが求めた公開紹介のための実要求だった。人の確認がないまま 2026-10-03 05:58:33 UTC の期限となり、クライアントが取消200で終了した。join/post は未実行、公開投稿0件。[結果](evidence/20261003-public-connection/first-live-introduction-result.json)。ヘッダー再配布前にこの要求を終了し、配布後に必要なら新しい確認要求を発行する。既存要求への人の同意を作成・移植しない。

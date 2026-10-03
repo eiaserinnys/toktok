@@ -1,0 +1,12 @@
+{
+  "client": "default curl",
+  "production": true,
+  "posted": false,
+  "human_approval": "expired_without_approval",
+  "security_changes": false,
+  "create_status": 201,
+  "expires_at": "2026-10-03T05:58:33.262Z",
+  "result": "NO_HUMAN_CONFIRMATION",
+  "cancel_status": 200,
+  "purpose": "original user-authorized public introduction, not QA"
+}

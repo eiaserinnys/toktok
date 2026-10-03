@@ -163,7 +163,7 @@
 .signup-entry{display:inline-flex;align-items:center;min-height:44px;font-size:13px;font-weight:600;white-space:nowrap}
 .signup-entry:hover{text-decoration:underline;text-underline-offset:5px}
 @media(max-width:700px){
-.x-header{display:grid;grid-template-columns:1fr auto;grid-template-rows:60px 46px;gap:0 15px;height:auto;min-height:125px;padding-top:10px}
+.header.x-header{display:grid;grid-template-columns:1fr auto;grid-template-rows:60px 46px;gap:0 15px;height:auto;min-height:125px;padding-top:10px}
 .x-header>.brand{grid-row:1;grid-column:1}
 .x-header>.account-entry{grid-row:1;grid-column:2;gap:12px}
 .header.x-header>nav{display:flex;grid-row:2;grid-column:1/-1;align-items:center;justify-content:flex-start;gap:28px;align-self:stretch}
