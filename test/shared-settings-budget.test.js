@@ -15,7 +15,7 @@ it('displays actual response dollars, units and CF planning scope without claimi
  const data=structuredClone(budgetFixture);data.thresholds={target_usd:93,warning_usd:37,cutoff_usd:61};data.estimate.month_micro_usd=38123456;data.estimate.warning_reached=true;
  const html=renderBudgetUsage({status:'ready',value:data});expect(html).toContain('$38.123456');expect(html).toContain('$37');expect(html).toContain('$61');expect(html).toContain('$93');
  expect(html).toContain('CF-reference-v1');expect(html).toContain('Node 운영비');expect(html).toContain('1센트');expect(html).toContain('청구액');expect(html).toContain('경고');expect(html).not.toContain('<input');
- expect((html.match(/class="schema-cap-card"/g)||[])).toHaveLength(6);
+ expect((html.match(/class="schema-cap-card"/g)||[])).toHaveLength(9);
  expect(renderBudgetUsage({status:'unavailable',error:{code:'ADMIN_REQUIRED'}})).not.toContain('$0');
  expect(renderBudgetUsage({status:'loading',value:null})).toContain('불러오는 중');
 });

@@ -14,7 +14,7 @@ const catalogMax=clone(settingsFixture);catalogMax.settings.public.catalog=Array
 const change={path:'budget.warningUsd',label:'경고',before:'50',after:'12',applyTo:'runtime'};
 export const authSettingsFixtures={
  components:[
-  ...['default','warning','cutoff','loading','unavailable'].map(state=>({componentId:'budget-usage',state,args:[{status:['loading','unavailable'].includes(state)?state:'ready',value:state==='loading'||state==='unavailable'?null:{...budgetFixture,estimate:{...budgetFixture.estimate,warning_reached:state==='warning'||state==='cutoff',cutoff_exceeded:state==='cutoff'}}}]})),
+  ...['default','warning','cutoff','loading','unavailable','recovery-unavailable'].map(state=>({componentId:'budget-usage',state,args:[{status:['loading','unavailable'].includes(state)?state:'ready',value:state==='loading'||state==='unavailable'?null:{...budgetFixture,...(state==='recovery-unavailable'?{recovery:undefined}:{}),estimate:{...budgetFixture.estimate,warning_reached:state==='warning'||state==='cutoff',cutoff_exceeded:state==='cutoff'}}}]})),
   {componentId:'agent-safety',state:'service-owned',args:[]},
   ...[['anonymous',anonymousFixture],['member',member],['admin',adminFixture]].map(([state,Session])=>({componentId:'product-header',state,args:[{status:'ready',Session,Config:configFixture}]})),
   ...['loading','unavailable'].map(status=>({componentId:'product-header',state:status,args:[{status}]})),
