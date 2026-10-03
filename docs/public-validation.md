@@ -98,3 +98,7 @@ production 배포/부하, browser UI, exact-Origin cookie/nonce 승인 경로, �
 - runtime/DB adapter 이식 설계 v1은 이후 root가 확정하여 [설계 확정/구현 미착수 문서](self-host-design.md)에 보존했습니다. root의 공통 settings schema/revision 적용·budget 비용 단위/원자 소진·private metadata/epoch 계약은 여전히 후속 입력입니다. 이메일 실제 provider 견적과 metadata backend, edge pre-Worker 권한/실행 순서는 미확인입니다. 기존 $34.26은 비저장 anonymous private 모델이며 초대회원 opt-in 저장 비용 미포함으로 새 전체모드 가격/목표 충족을 뜻하지 않습니다. DEMO 영속 private의 row/storage/retention 비용은 quota/budget에 포함해야 할 후속 입력이고 30일 retention은 디자인 시나리오일 뿐 production 결정이 아닙니다. 월 $100은 deployment 목표이고 앱 cutoff로 무한 Worker 호출의 bill hard cap을 보장하지 않습니다.
 
 모든 QA는 mock fixture입니다. 원시 파일에는 본문/secret/IP/실제 credential을 보존하지 않았으며 타세션 파일은 stage하지 않습니다. 재개 때 비용 산식은 저장된 JSON으로 재계산할 수 있지만 추가 runtime/부하/전체 검증/설치는 별도 승인 없이 실행하지 않습니다.
+
+## Portable 후속 구현 체크포인트
+
+위 결과는 기존 공개 부하/비용 기록이며 반복하지 않았습니다. 이후 승인된 shared public/private core, targeted SQLite/PG/CF repository와 Node installer 기반을 구현했습니다. 현재 원격 branch는 같은 draft PR #3입니다. [새 포트 계약](portable-runtime.md), [신규 targeted 증거와 실행 한계](portable-validation.md), [설치 기반의 미연결 범위](self-host-installation.md)를 확인하세요. root/A 공통 config/control/auth/HTTP bindings 통합과 실제 운영은 별도입니다. 기존 WIP 문단의 “구현하지 않았습니다”는 당시 기록이며 현재 portable 기반 상태를 대신하지 않습니다.

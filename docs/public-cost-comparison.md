@@ -142,3 +142,18 @@ node test/public-load.cost.mjs --cpu-ms=1 --baseline=baseline.json --small-parti
 baseline JSON은 `worker_requests`, `worker_cpu_ms`, `do_requests`, `do_gb_s` 네 비음수 숫자입니다. 결과는 `charge(base+toktok)-charge(base)`로 계정 기본료 $5가 상쇄됩니다. Workers 요청/CPU는 포함분 초과량에 공식 rate를 적용하고 DO 요청/duration 초과량은 각각 1M 단위 올림합니다. 청구 단위 내 추가 duration=0/정확한 경계에서 $12.50 예제를 assertion으로 재현합니다.
 
 [23개 상세 비용 rows](../test/public-load.cost.json)에 각 항목의 usage/추가요금, 포함분/baseline, 1h/4h/24h와 idle tail, 대표 payload가 있습니다. 2..10participant/0..10watcher의 혼합점은 E의 역할별 read-rate를 유지한 모델이며 실측 D/E와 구분했습니다. 실제 CPU/사용량/room 배치를 확정한 뒤 다시 계산해야 합니다.
+
+## Portable 원자 장부 행 계측 보완
+
+2026-10-03 승인된 CF SQLite fixture에서 native cursor.rowsRead/rowsWritten을 합산했습니다. 초기 schema apply는 제외하고 transaction의 marker 확인을 포함합니다. 대표 reservation(장부1개+receipt1개)은 읽기6/쓰기4, receipt cleanup은 읽기8/쓰기1이었습니다. 인덱스 행 동작도 runtime 계수에 포함되며 SQL/secret/body를 출력하지 않았습니다. **이것은 A SettingsStore 전체 예약 경로의 실측이 아닙니다.** persisted body/metadata/guard/alarm, 설정조회와 실제 dedupe cleanup을 따로 계측해야 합니다.
+
+기존 모델의 요청당 쓰기1/metadata $5 예산은 새 원자 장부의 비용을 충분히 반영한 근거가 아닙니다. 이전 $34.26과 $40 cutoff는 재검토가 필요한 과거 proxy입니다. 이번 대표 reserve+cleanup pair만 월2,210,400회로 환산하면 읽기30,945,600/쓰기11,052,000이고 포함분 없이 row비는 $11.0829456입니다. admission과 response가 각각 한 pair라는 **민감도 가정**이면 두 배 $22.1658912이며 duration funding, private body/metadata/alarms와 실제 A 장부는 별도입니다. 이 값을 검증된 deployment 총액으로 더하거나 초기 운영 quota를 자동 변경하지 않습니다.
+
+[공식 SQLite DO 가격](https://developers.cloudflare.com/durable-objects/platform/pricing/)의 읽기25B/쓰기50M/5GB-month 포함분과 초과 읽기 $0.001/M, 쓰기 $1/M, 저장 $0.20/GB-month를 사용했습니다(확인2026-10-03). setAlarm과 delete도 쓰기에 포함됩니다. 다른 서비스가 포함분을 소비했는지는 미확인입니다. 아래 계산기는 대표 행 모델과 baseline 차이만 출력하며 기존 계산기의 Workers/DO requests·duration 청구 올림과 혼동하지 않습니다.
+
+```sh
+node test/selfhost-sql-cost.mjs --reserve-cleanup-pairs=2210400
+node test/selfhost-sql-cost.mjs --reserve-cleanup-pairs=4420800 --baseline-reads=25000000000 --baseline-writes=50000000 --baseline-gb-month=5
+```
+
+core의 admission/response/write는 서로 다른 operation ID이며 0bytes 예약은 건너뜁니다. active_room_seconds는 instance별 request-driven60초 선예약으로 원자 장부에 추가 호출합니다. 실제 CONTROL factory/가격 revision/영속 private quota와 row 계측 이후 root가 전체 $100 목표와 early cutoff를 다시 결정해야 합니다. 무한 Worker 거절 트래픽은 앱 예약으로 청구 hard cap을 보장할 수 없습니다.

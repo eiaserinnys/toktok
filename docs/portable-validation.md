@@ -1,0 +1,66 @@
+# Portable 기반 검증과 인계
+
+기존 B managed WT feat/public-memory-rooms에서 shared memory core, async targeted RepositoryPort/세 adapter, private memory·opt-in persist와 Node24 installer 기반을 구현했습니다. 기존100+50 부하/비용 gate를 반복하지 않았으며 실제 서비스 통합/배포/메일/사용자 DB 변경은 없습니다. draft PR #3의 기반 구현입니다.
+
+## 실행 경계
+
+모든 heavy 작업은 공유 heavy_verify runner, 전용 TMPDIR, foreground 회수, worker1입니다. 새 격리 PG container/volume만 생성·회수했습니다. 호스트 Node22는 그대로이며 공식 Node24.21.0 다운로드 checksum과 이미지 digest를 확인했습니다. managed 새 WT 생성은 lock timeout으로 실패하여 root 승인대로 기존 B WT를 사용했습니다. lock 삭제/우회는 하지 않았고 root 복구 후에도 기존 WT를 유지합니다.
+
+## 실제 통과 결과
+
+| 신규 targeted 범위 | 결과/핵심 관측 |
+| :-- | :-- |
+| SQLite targeted transaction+public shared core | 3 PASS, rollback/CAS/private guard/누적 접근 제한, 메모리 public 계약 |
+| Node HTTP/IP/SMTP mock | 3 PASS, socket peer 기본/forwarded opt-in/불확실 메일 재시도 없음 |
+| PG owner/atomic race | 1 PASS, 2연결 경합 winner1, 동일schema 두번째owner 거절, 무관schema 보존/연결상실 failclosed |
+| CF targeted record와 shared public | record1 PASS, selected public/domain2 PASS, abort 후 wait/handler0/공개 storage0 |
+| callback domain 오류 | SQLite/PG2 PASS 및 CF domain 포함,403/409/429 rollback+원래 code/status |
+| installer/consistent backup | 보정 후1 PASS, explicit apply/SQLite-without-PG/두번째owner 거절/backup integrity ok |
+| public bounds/envelope | 1 PASS, policy 불변 관계/escaped page8457bytes/실제cursor 전진 |
+| cookies+funding | 2 PASS, Set-Cookie2개/CSP보존/funding 공유·재시작0, fixture enforcement 한정 |
+| dynamic policy guide | 1 PASS, tightened snapshot에서 adapter/core 안내 일치 |
+| private SQLite memory/persist | 2 PASS, memory DB body0/new epoch, persist restart·retention gap·TTL410·쓰기 예산 거절 body0 |
+| private byte page | 보정 후1 PASS, actual JSON54912bytes/부분페이지 cursor/abort·shutdown wait0 |
+| private ownership/admission | 2 PASS, 중복wait409가 기존소유권 유지/handlers·body slots finally0 |
+| private shutdown body parser | 1 PASS, status499/bodyInflight0/handler0 |
+| strict kind/amount budget fixture | 1 PASS, 고유17IDs/4kinds, initialize/read/post/persist write/0bytes skip |
+| CF private alarm/schema | root 추가 허용 selected1 PASS, exact _cf_METADATA/memory rows0+reset/persist bodyrows1+복원 |
+| CF native SQL row 계측 | 1 PASS, 대표 reserve6read/4write, cleanup8read/1write, 실제 A 전체장부 아님 |
+| private Node HTTP | 1 PASS, 2클라이언트3페이지, shutdown3011ms/wait0/handler0/timer0 |
+| private PG restart | 1 PASS, memory body0/history_reset, persist body1/history ok, fixture 회수exit0 |
+| 최종 Node24 Docker 기반 | build PASS, actual container1 PASS, nonroot/PGdriver 불필요/두번째owner 거절/stop737ms |
+| CF 분리 타입 검사 | 최초2개fixture 타입 실패 후 한 보정 exit0 |
+
+PASS 개수는 별개의 selected 실행 결과이며 전체 suite 단일 통과를 뜻하지 않습니다. TEST_BUDGET과 strict fixture는 no-op 또는 A ID conflict 의미를 모사한 테스트 포트입니다. 실제 CONTROL HTTP budget enforcement는 root 연결 후 검증해야 합니다. CF restart 검증은 실제 SQLite를 공유한 새 core instance이며 실제 DO eviction/hibernation을 재현했다고 쓰지 않습니다. actual128MB heap/운영 CPU/생산 성능은 미측정입니다.
+
+## 실패와 실행 상한
+
+RED는 미구현 source로 실패를 확인했습니다. PG 최초 harness 회수 timeout 후 한 보정은 PASS입니다. installer 최초 foreground/flock 종료·backup 순서 실패를 no-fork flock 및 정상 종료 뒤 backup으로 보정하여 한 실행 PASS입니다. CF abort 첫 실패는 AbortError와499 transport 차이를 구분하고 body 회수하여 selected 보정 PASS입니다. private byte 첫 실패는 기존 public32KiB body 정책 전달 실수였으며 narrow body policy로 private64KiB를 적용한 selected 보정 PASS입니다.
+
+CF private 최초/보정 두 실패는 alarm이 실제 _cf_METADATA를 생성하여 schema check가 닫힌 원인이었습니다. 기존 실행 상한에 도달하여 중단·보고한 뒤 root가 exact 내부테이블 보정+추가selected1회를 허용했습니다. 사용자테이블/임의prefix는 여전히 허용하지 않고 Node/PG는 변경하지 않았습니다. 그 추가 한 번이 PASS입니다.
+
+Node 타입 검사는 초기 기반에서는 exit0였지만 최종 확장 검사에서 fixture 오류4곳이 나왔습니다. 기존 허용한 보정1회 후 새 PG private fixture의 TS7022(rows 추론)1곳만 남았고 rows:number로 수정했습니다. **이 마지막 수정 후 Node tsc는 실행 상한상 재실행하지 않아 미확인입니다.** root 최종 통합 타입 검사에서 확인해야 합니다. strict/ts-ignore/any 또는 설정 완화로 숨기지 않았습니다. 분리 CF tsc는 exact fixture Env/JSON-safe 반환 타입 보정 후 exit0입니다.
+
+## 재현용 명령
+
+아래는 기록이며 이 문서 때문에 통과 gate를 다시 실행하지 않습니다. Node24는 별도 내려받은 실행 파일로 호출하고 모든 명령은 heavy runner 안에서 수행했습니다.
+
+```sh
+node24 --import ./selfhost/node_modules/tsx/dist/loader.mjs --test --test-concurrency=1 --test-timeout=60000 test/selfhost-private-node.test.ts test/selfhost-private-postgres.test.ts
+node24 --import ./selfhost/node_modules/tsx/dist/loader.mjs --test --test-concurrency=1 --test-timeout=60000 --test-name-pattern 'private shutdown cancels' test/selfhost-private.test.ts
+node24 ./selfhost/node_modules/typescript/bin/tsc --noEmit -p selfhost/tsconfig.json
+pnpm exec tsc --noEmit -p selfhost/tsconfig.cloudflare.json
+pnpm exec vitest run --config test/selfhost.vitest.config.ts --testNamePattern 'CF private runtime' --reporter=verbose
+docker build -f selfhost/Dockerfile -t toktok-portable-fixture:249424e1 .
+node24 --import ./selfhost/node_modules/tsx/dist/loader.mjs --test --test-concurrency=1 --test-timeout=60000 test/selfhost-container.test.ts
+```
+
+## 정적 검수와 남은 연결
+
+독립 읽기 전용 검수는 중복 read/wait의 소유권 해제 P1을 발견했습니다. 실제 소유 획득 여부로 finally를 제한하고 두 번409 뒤 원래 wait/abort0을 targeted 확인했습니다. 이후 예산ID/0byte, bodyshutdown, exactCFmetadata, cookies/CSP, 동적guide/bounds delta 재검수는 새 반려 사유 없이 통과했습니다. 검수자가 테스트/빌드를 대신 실행하지 않았습니다.
+
+root/A는 CONTROL HTTP budget factory와 새 ControlPlane namespace, settings revision 공급, auth/creator entitlement/global slots, root router/private bindings, Node startup overdue scan/hostClose, QA 전용 security wrapper를 연결해야 합니다. SMTP 실제 provider/template/secret과 숨김TTY 설치 도우미는 미완료입니다. selfhost CLI ready/catalogue 성공만으로 전체 DEMO/HOSTED/OTP/admin 지원 완료라고 보고하지 않습니다.
+
+새 atomic 장부 SQL 비용은 [비용 보완](public-cost-comparison.md)의 대표행 계측만 있으며 실제 A reserve/cleanup·persist rows/storage/alarms·계정baseline이 필요합니다. $34.26/$40/$100은 현재 전체제품 검증 가격/청구 hard cap이 아닙니다. 이전 비용·부하 원시 JSON은 보존했습니다.
+
+분석 캐시 정본은 document_id `d35f3b20-efd6-4cf7-b359-2ff1965029b2`입니다. 저장·runtime·body 저장 축의 커버/제외는 [호출 계약](portable-runtime.md)에 열거했습니다. 현재 기반 변경 후 Git 원격 HEAD와 clean 상태는 담당 세션의 최종 인계에 기록하며 main merge/배포는 하지 않습니다.
