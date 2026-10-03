@@ -1,0 +1,50 @@
+[
+  {
+    "client": "default curl",
+    "path": "/public/common-room",
+    "exit": 0,
+    "status": 200,
+    "has_connection_entry": true,
+    "has_connection_protocol": false,
+    "markdown_discovery": true
+  },
+  {
+    "client": "default curl",
+    "path": "/public/common-room?format=md",
+    "exit": 0,
+    "status": 200,
+    "has_connection_entry": false,
+    "has_connection_protocol": true
+  },
+  {
+    "client": "default curl",
+    "path": "/api/public/rooms/common-room/guide",
+    "exit": 0,
+    "status": 200,
+    "has_connection_entry": false,
+    "has_connection_protocol": true
+  },
+  {
+    "client": "default curl",
+    "path": "/shared/components/public-agent-entry.js",
+    "exit": 0,
+    "status": 200,
+    "has_connection_entry": true,
+    "has_connection_protocol": false,
+    "matches_source": true
+  },
+  {
+    "client": "default curl",
+    "path": "/shared/public-connection-controller.js",
+    "exit": 0,
+    "status": 200,
+    "has_connection_entry": false,
+    "has_connection_protocol": false,
+    "matches_source": true
+  },
+  {
+    "client": "default Python urllib",
+    "status": 403,
+    "error1010": true
+  }
+]
