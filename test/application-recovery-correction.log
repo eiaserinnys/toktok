@@ -1,0 +1,34 @@
+heavy verification: running in slot 1/2
+
+ RUN  v4.1.0 /home/eias/workspace/.projects/toktok--feat-release-integration-c8e59900
+
+stdout | test/application-recovery.test.ts > host budget exhaustion permits only real admin recovery reads, CSRF settings and logout without widening sensitive routes
+APPLICATION_HTTP_EVIDENCE [{"step":"initialize recovery fixture","status":200,"retry_after":null},{"step":"exhausted no cookie settings","status":401,"code":"SESSION_REQUIRED","retry_after":null},{"step":"exhausted member settings","status":403,"code":"ADMIN_REQUIRED","retry_after":null},{"step":"exhausted missing CSRF PUT","status":403,"code":"CSRF_DENIED","retry_after":null},{"step":"exhausted foreign Origin PUT","status":403,"code":"ORIGIN_DENIED","retry_after":null},{"step":"denied recovery usage before assertions","status":200,"retry_after":null,"state":{"minute":0,"day":0,"month":0,"ops":0}},{"step":"exhausted admin settings recovery","status":200,"retry_after":null},{"step":"exhausted admin schema recovery","status":200,"retry_after":null},{"step":"exhausted admin budget recovery","status":200,"retry_after":null},{"step":"exhausted admin session recovery","status":200,"retry_after":null},{"step":"exhausted admin operational HTML","status":200,"retry_after":null},{"step":"excluded recovery route remains capped","status":503,"code":"ADMIN_AUTH_UNAVAILABLE","retry_after":null}]
+
+ ❯ test/application-recovery.test.ts (2 tests | 1 failed | 1 skipped) 175ms
+   × host budget exhaustion permits only real admin recovery reads, CSRF settings and logout without widening sensitive routes 175ms
+   ↓ actual admin control with synthetic Assets enforces 64KiB for admission and response-only recovery and exact HTML allowlist
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/application-recovery.test.ts > host budget exhaustion permits only real admin recovery reads, CSRF settings and logout without widening sensitive routes
+AssertionError: expected 503 to be 429 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 429[39m
+[31m+ 503[39m
+
+ ❯ test/application-recovery.test.ts:34:426
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 skipped (2)
+   Start at  10:33:45
+   Duration  1.36s (transform 363ms, setup 0ms, import 625ms, tests 175ms, environment 0ms)
+
+JSON report written to /home/eias/workspace/.projects/toktok--feat-release-integration-c8e59900/test/application-recovery-correction.json

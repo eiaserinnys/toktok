@@ -1,0 +1,43 @@
+heavy verification: running in slot 2/2
+
+ RUN  v4.1.0 /home/eias/workspace/.projects/toktok--feat-release-integration-c8e59900
+
+stdout | test/application-recovery.test.ts > host budget exhaustion permits only real admin recovery reads, CSRF settings and logout without widening sensitive routes
+APPLICATION_HTTP_EVIDENCE [{"step":"initialize recovery fixture","status":200,"retry_after":null},{"step":"exhausted no cookie settings","status":401,"code":"SESSION_REQUIRED","retry_after":null},{"step":"exhausted member settings","status":403,"code":"ADMIN_REQUIRED","retry_after":null},{"step":"exhausted missing CSRF PUT","status":403,"code":"CSRF_DENIED","retry_after":null},{"step":"exhausted foreign Origin PUT","status":403,"code":"ORIGIN_DENIED","retry_after":null},{"step":"denied recovery usage before assertions","status":200,"retry_after":null,"state":{"minute":0,"day":0,"month":0,"ops":0}},{"step":"exhausted admin settings recovery","status":200,"retry_after":null},{"step":"exhausted admin schema recovery","status":500,"code":"INTERNAL_ERROR","retry_after":null}]
+
+stdout | test/application-recovery.test.ts > actual admin control with synthetic Assets enforces 64KiB for admission and response-only recovery and exact HTML allowlist
+APPLICATION_HTTP_EVIDENCE [{"step":"initialize recovery fixture","status":200,"retry_after":null},{"step":"synthetic Assets recovery HTTP","status":503,"code":"ADMIN_RECOVERY_RESPONSE_LIMIT","retry_after":null,"state":{"bytes":106}},{"step":"synthetic Assets recovery HTTP","status":200,"retry_after":null,"state":{"bytes":65536}},{"step":"synthetic Assets recovery HTTP","status":503,"code":"ADMIN_RECOVERY_RESPONSE_LIMIT","retry_after":null,"state":{"bytes":106}},{"step":"synthetic Assets recovery HTTP","status":200,"retry_after":null,"state":{"bytes":1}},{"step":"synthetic Assets recovery HTTP","status":200,"retry_after":null,"state":{"bytes":1}},{"step":"synthetic Assets recovery HTTP","status":200,"retry_after":null,"state":{"bytes":1}},{"step":"synthetic Assets recovery HTTP","status":200,"retry_after":null,"state":{"bytes":1}},{"step":"synthetic Assets recovery HTTP","status":200,"retry_after":null,"state":{"bytes":1}},{"step":"synthetic Assets recovery HTTP","status":200,"retry_after":null,"state":{"bytes":1}},{"step":"synthetic Assets recovery HTTP","status":200,"retry_after":null,"state":{"bytes":1}},{"step":"synthetic Assets recovery HTTP","status":200,"retry_after":null,"state":{"bytes":1}},{"step":"synthetic Assets recovery HTTP","status":429,"code":"ESTIMATED_BUDGET_EXCEEDED","retry_after":"2678340","state":{"bytes":102}},{"step":"exact allowlist synthetic IO recovery state before assertions","status":200,"retry_after":null,"state":{"minute":8,"day":11,"month":11,"ops":8,"asset_calls":11}}]
+
+ ❯ test/application-recovery.test.ts (2 tests | 1 failed) 405ms
+   × host budget exhaustion permits only real admin recovery reads, CSRF settings and logout without widening sensitive routes 147ms
+   ✓ actual admin control with synthetic Assets enforces 64KiB for admission and response-only recovery and exact HTML allowlist 257ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/application-recovery.test.ts > host budget exhaustion permits only real admin recovery reads, CSRF settings and logout without widening sensitive routes
+AssertionError: HTTP status; secret body intentionally omitted: expected 500 to be 200 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 200[39m
+[31m+ 500[39m
+
+ ❯ parsed test/application-fixture.ts:28:126
+     26|  return new Response([204,304].includes(original.status)?null:bytes,or…
+     27| }
+     28| async function parsed<T>(r:Response,status=200):Promise<T>{expect(r.st…
+       |                                                                                                                              ^
+     29| const bearer=(token:string)=>({Authorization:'Bearer '+token});
+     30| interface Room {service:object;room:{id:string;status:string};invite_u…
+ ❯ test/application-recovery.test.ts:30:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  10:25:34
+   Duration  1.92s (transform 466ms, setup 0ms, import 785ms, tests 405ms, environment 0ms)
+
+JSON report written to /home/eias/workspace/.projects/toktok--feat-release-integration-c8e59900/test/application-recovery-initial.json
