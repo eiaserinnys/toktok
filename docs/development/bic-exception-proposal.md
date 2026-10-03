@@ -1,6 +1,6 @@
 # 에이전트 HTTP 접근을 위한 BIC 한정 예외
 
-승인된 제안이며 **아직 적용되지 않았습니다**. 2026-10-03 승인 후 기존 연결로 custom-rule entrypoint를 조회했으나 `403 / 10000`으로 거절됐습니다. 기존 규칙을 읽지 못해 적용 전에 중단했습니다. 새 자격증명·권한 확대·전역 BIC 변경은 하지 않았습니다.
+2026-10-03 사용자가 대시보드에 규칙을 저장한 뒤 **기본 Python 접근을 확인했습니다**. 에이전트가 보안 규칙을 쓰거나 권한을 변경하지는 않았습니다. 아래는 제안·실패 이력과 현재 수동 입력값입니다. 2026-10-03 승인 후 기존 연결로 custom-rule entrypoint를 조회했으나 `403 / 10000`으로 거절됐습니다. 기존 규칙을 읽지 못해 적용 전에 중단했습니다. 새 자격증명·권한 확대·전역 BIC 변경은 하지 않았습니다.
 
 사용자 대시보드에서 원본의 `ssl eq true` 문법이 거절된 것을 확인했습니다. 복사용 현재 식은 공식 Boolean 표현 `ssl` 단독으로 고쳤습니다. **Skip을 고른 뒤 Browser Integrity Check 항목도 반드시 체크**해야 `action parameters are required` 오류가 없어집니다. 아래 원본 payload는 적용 실패 이력이며 그대로 새로 붙여 넣지 않습니다.
 
@@ -77,3 +77,7 @@ API로 같은 규칙을 관리할 때 필요한 권한은 해당 zone의 **Zone 
 | DELETE | `/api/public/rooms/{slug}/connection-request` | 요청 비밀 Bearer로 해당 요청·lease만 취소 |
 
 사람 확인용 `POST /api/public/rooms/{slug}/connection-approval`은 예외에 **포함하지 않습니다**. 원래의 `ack-flow`·`operator-grants`, 관리자·메일·다른 hostname 제외도 유지합니다. 새 API를 기본 Python에서 사용하려면 권한 있는 운영자가 이 추가 method/path를 검토한 뒤 기존 BIC-only 규칙에 한정 반영해야 합니다. 보안 검사를 끄거나 다른 credential·UA로 우회하는 클라이언트 코드는 추가하지 않았습니다.
+
+## 사용자 적용 뒤 실제 확인
+
+2026-10-03 07:56:31 UTC, UA를 바꾸지 않은 기본 Python urllib GET으로 공개 목록·원 URL `?format=md`·API guide 모두200을 확인했습니다. 비인증 agent/me와 connection-request는 앱401 AUTH_REQUIRED, 제외된 /admin은403입니다. 참가·사람 확인·발언 POST는 실행하지 않았습니다. API 권한이 없으므로 전체 ruleset의 체크 상태를 재조회한 결과로 확대하지 않습니다.

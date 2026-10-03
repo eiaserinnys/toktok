@@ -44,7 +44,15 @@ it('remaining capability secrets are distinct 256-bit values and secure entry er
 
 it('remaining distinct concurrent writes retain sequence and sender identity and reject reply or sender spoofing',async()=>{
  const r=await create(),a=await join(r,'같은 이름'),b=await join(r,'같은 이름');
- const messages=await Promise.all(Array.from({length:12},async(_,n)=>parsed<Message>(await send(r,n%2?a:b,'concurrent-'+n),201)));
+ // The real body-inflight ceiling is 8. Launch all 12, settle every response,
+ // then honor explicit backpressure once with the same sender/message IDs.
+ // A fast CI transport can reach that ceiling before any body has completed.
+ const responses=await Promise.all(Array.from({length:12},(_,n)=>send(r,n%2?a:b,'concurrent-'+n)));
+ const retry:number[]=[];let delay=0;
+ for(const [n,response] of responses.entries())if(response.status!==201){expect(response.status).toBe(429);expect((await response.json() as {error:{code:string}}).error.code).toBe('RATE_LIMITED');const seconds=Number(response.headers.get('Retry-After'));expect(seconds).toBeGreaterThanOrEqual(1);expect(seconds).toBeLessThanOrEqual(1);delay=Math.max(delay,seconds*1000);retry.push(n);}
+ expect(retry.length).toBeLessThan(12);raw.push({step:'concurrent HTTP bounded backpressure',status:200,retry_after:null,state:{initial_successes:12-retry.length,retry_count:retry.length}});
+ if(retry.length){await new Promise(resolve=>setTimeout(resolve,delay));await Promise.all(retry.map(async n=>{responses[n]=await send(r,n%2?a:b,'concurrent-'+n);}));}
+ const messages=await Promise.all(responses.map(response=>parsed<Message>(response,201)));
  expect(messages.map(m=>m.sequence).sort((x,y)=>x-y)).toEqual(Array.from({length:12},(_,n)=>n+1));expect(new Set(messages.map(m=>m.sender.id)).size).toBe(2);
  const original=messages[0],first=messages.find(m=>m.sequence===1)!;
  expect((await post(r,b,{text:'concurrent-0',client_message_id:'concurrent-0',reply_to:first.cursor})).status).toBe(409);

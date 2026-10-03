@@ -41,3 +41,9 @@ Node는 고정 Node24.21.0과 `--import ./selfhost/node_modules/tsx/dist/loader.
 ## 최종 빌드
 
 CF 및 Node 분리 타입 검사 exit0, generated 모듈 정합 exit0, Node bundle 294.9KiB 및 Wrangler strict dry-run exit0(Worker 284.85KiB/gzip68.17KiB, assets111)이다. pnpm 실행 환경 Node22의 엔진 경고는 보존했으며 실제 자체 호스팅 검증은 Node24.21.0에서 했다. 최종 로컬 빌드 이후 변경은 테스트 assertion과 문서뿐이다. 기존 CI workflow의 Node24/자체 호스팅 의존성 연결은 이번 권한 범위에서 변경하지 않았다.
+
+## PR CI 첫 결과와 HTTP backpressure
+
+PR #12 첫 CI37107882644는 application19 PASS/1 FAIL이다. 열두 개를 동시에 발신하는 fixture가 하나의 RATE_LIMITED429/Retry-After1을 무조건201로 단정해 실패했다. 실제 body-inflight8 상한을 바꾸지 않고 모든 응답을 먼저 회수한 뒤 429만 같은 sender/client message ID로 1회 재시도하도록 fixture를 고쳤다. 같은 메시지의 중복·순서 검증은 유지한다. 로컬 이전 PASS를 이 CI의 성공으로 쓰지 않는다.
+
+보정한 동시 발신 HTTP 1건은 1 PASS/5 SKIP이다. 실제로 최초10건201·2건429 후 Retry-After1을 기다린 동일 ID2건201, 최종sequence1..12를 확인했다. 해당 실행의 request-stream 경고2건은 별도로 남는다. 사용자 BIC 수동 설정 후 기본 Python 공개/Markdown200과 비인증401/관리자403을 확인했으며 운영 발언은 하지 않았다.

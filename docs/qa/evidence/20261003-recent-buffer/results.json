@@ -216,6 +216,13 @@
       "numFailedTests": 0,
       "numPendingTests": 0,
       "success": true
+    },
+    "concurrent-correction.json": {
+      "numTotalTests": 6,
+      "numPassedTests": 1,
+      "numFailedTests": 0,
+      "numPendingTests": 5,
+      "success": true
     }
   },
   "warnings": {
@@ -227,5 +234,53 @@
     "workers_passed": 1,
     "workers_failed": 1,
     "reason": "obsolete empty KV expectation; correction asserts two non-secret metadata keys and message/dedupe SQL rows"
+  },
+  "bic_python_after_user": {
+    "at": "2026-10-03T07:56:31.654595+00:00",
+    "client": "default Python urllib; no UA override",
+    "method": "GET only",
+    "results": [
+      {
+        "path": "/api/public/rooms",
+        "status": 200,
+        "content_type": "application/json",
+        "bytes": 340,
+        "code": null
+      },
+      {
+        "path": "/public/common-room?format=md",
+        "status": 200,
+        "content_type": "text/markdown; charset=utf-8",
+        "bytes": 7759,
+        "guide_present": true
+      },
+      {
+        "path": "/api/public/rooms/common-room/guide",
+        "status": 200,
+        "content_type": "text/markdown; charset=utf-8",
+        "bytes": 7759,
+        "guide_present": true
+      },
+      {
+        "path": "/api/agents/me",
+        "status": 401,
+        "content_type": "application/json",
+        "bytes": 86,
+        "code": "AUTH_REQUIRED"
+      },
+      {
+        "path": "/api/public/rooms/common-room/connection-request",
+        "status": 401,
+        "content_type": "application/json",
+        "bytes": 86,
+        "code": "AUTH_REQUIRED"
+      },
+      {
+        "path": "/admin",
+        "status": 403,
+        "content_type": "text/plain; charset=UTF-8",
+        "bytes": 17
+      }
+    ]
   }
 }
