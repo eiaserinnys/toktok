@@ -60,3 +60,11 @@ C5d6618e를 root e8d22be로 통합하고 `/about`·`/new-room`을 포함한 실�
 새 로컬 Node24/SQLite browser 첫 실행은 claim/account 1440·390 각 PASS, anonymous memory 생성1440 및 초대 계정 persist 생성390 각 PASS다. 실제 승인 후 agent 상태, 취소 다이얼로그 Escape·초점 복귀, 명시 revoke를 검증했다. 생성은 기본 OFF와 권한 없는 persist 차단, 명시 체크, context→grant→create201, 실제 metadata의 retention mode, owner DOM·storage0 및 생성 POST1회를 확인했다. 외부 메일0이며 테스트 sender만 사용했다. 이전 auth/admin/QA 성공 구간은 반복하지 않았다.
 
 PNG에서 두 viewport의 claim 체크박스와 모바일 계정, 비보관·보관 생성 폼을 직접 확인했다. 모바일 full-page 생성 캡처에는 키보드 초점 뒤 skip-link overlay가 함께 찍혀 있어 시각 관측 범위로 남긴다. 이 실행은 전체 역할×viewport 조합이나 owner clipboard denied 검증이 아니다. C mock correction의 clipboard permission prompt/denied assertion 실패와 원자료는 그대로 유지한다. [증거 색인](qa/20261003-actual-identity-creation-browser.json)에 판정, 범위, PNG/원시 JSON 해시를 보존한다.
+
+## 비공개방 관전의 실제 backend 연결
+
+C0168fc0를 root7fba8e2로 통합했다. 초기 Node24/SQLite browser 두 경우는 준비 API의 필수 risk_ack_version 누락400으로 화면 assertions 전에 실패했다. 보정 launcher의 문법오류는 browser 미시작 NOTRUN으로 별도 보존했다. 실제 보정1회는 desktop 읽기·일시정지·재개·종료 후 메시지2개 유지 PASS, 관전 mutation0/server wait0이다.
+
+모바일은 같은 SQLite로 서버를 다시 시작하고503 재시도 뒤 messages200과 기록 초기화 안내를 관측했다. 안내가 feed와 status 두 곳에 있어 단일 요소를 기대한 하니스 selector가 실패했으므로 이후 새 메시지 수신·최종 이탈 정리는 미도달로 남긴다. 추가 실행하지 않았다. [초기·보정 근거](qa/20261003-actual-private-browser.json)를 구분한다.
+
+desktop PNG에서 room의 옛 정적 header가 남아 있음을 확인했다. 실제 Session/Config를 쓰는 공통 product header로 관전·guide·terminal도 정합화하는 후속을 C에 전달했다. 데이터 경로 PASS를 전체 IA·시각 검수 완료로 확대하지 않는다.
