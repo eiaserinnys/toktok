@@ -1,0 +1,55 @@
+heavy verification: running in slot 1/2
+
+ RUN  v4.1.0 /home/eias/workspace/.projects/toktok--feat-claim-foundation-0ac9c22f
+
+ ❯ test/control-public-settings.test.ts (3 tests | 2 failed) 20ms
+   × public IP memory uses the engine minimum and bounded maximum in the admin schema 9ms
+   × first-window message count is an actual bounded schema option and public projection 2ms
+   ✓ public settings reject unsafe response, wait and batching relationships 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/control-public-settings.test.ts > public IP memory uses the engine minimum and bounded maximum in the admin schema
+AssertionError: expected { min: 1, max: 300000 } to deeply equal { min: 300000, max: 3600000 }
+
+- Expected
++ Received
+
+  {
+-   "max": 3600000,
+-   "min": 300000,
++   "max": 300000,
++   "min": 1,
+  }
+
+ ❯ test/control-public-settings.test.ts:6:87
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  test/control-public-settings.test.ts > first-window message count is an actual bounded schema option and public projection
+AssertionError: expected undefined to be 'integer' // Object.is equality
+
+- Expected:
+"integer"
+
++ Received:
+undefined
+
+ ❯ test/control-public-settings.test.ts:11:70
+      9| });
+     10| it('first-window message count is an actual bounded schema option and …
+     11|  const node=field('public','firstWindowMessages');expect(node?.type).t…
+       |                                                                      ^
+     12|  const accepted=validateSettings(candidate({firstWindowMessages:3}));e…
+     13|  for(const n of [0,21])expect(()=>validateSettings(candidate({firstWin…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+   Start at  09:08:44
+   Duration  273ms (transform 81ms, setup 0ms, import 104ms, tests 20ms, environment 0ms)
+
+JSON report written to /home/eias/workspace/.projects/toktok--feat-claim-foundation-0ac9c22f/test/control-public-settings-red.json

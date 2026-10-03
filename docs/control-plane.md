@@ -121,3 +121,9 @@ trusted `get-runtime-config` action은 `{settings,revision,readiness}`를 반환
 실행은 `heavy_verify.py --timeout 300 -- node node_modules/vitest/vitest.mjs run --config test/control-auth-vitest.config.ts`이며 실패1개 보정은 `-t "rejects expired and logged-out sessions"`를 추가했습니다. 각 worker1, foreground exit 회수, secret/메일주소/원문 OTP는 증거에 넣지 않았습니다. HTTP port 변경 strict tsc는 test harness 타입2건을 국소 보정해 exit0이었고 이후 maintenance helper만 추가했습니다. 최종 strict/전체 CI는 root 통합 경로에서 확인합니다. 변경 HTTP 접점의 독립 읽기전용 검수도 blocker 없이 통과했습니다.
 
 OTP cap 이후 실제 Room 왕복과 기존 room capability의 철회 후 계속 접근은 새 PrivateRoom/dispatcher 의존입니다. A는 cap 이후 session/claim/creator authority와 mail 추가0까지만 검증하고 실제 Room 메시지/링크를 root cross-runtime HTTP gate에 넘깁니다. register/guide 실제 페이지, QA shared renderer/coverage, 기존 foundation/routing fixture와 final bindings/CI도 미완료 경계입니다.
+
+## Public settings 정합 후속
+
+B 정본 4e8ad3c의 public-contracts/public-policy 두 파일은 내용 변경 없이 별도 import commit으로 보존했습니다. A 설정은 B seed/validator를 직접 재사용하고 `runtimePublicPolicy(settings)`가 초→ms 변환과 최초 읽기 개수의 직접 mapping을 제공합니다. `public.firstWindowMessages`는 1..20/default20이며 안전 공개 config에도 포함합니다. ipMemoryMs metadata는 엔진의 최소300000/최대3600000ms와 맞췄고 기존 더 좁은 catalog/lease 범위는 확대하지 않았습니다. C에 DTO를 전달했으며 root의 실제 runtime mapping 연결은 별도 통합입니다.
+
+새 순수 설정 gate만 실행했습니다. RED는 1 passed/2 failed로 누락 옵션과 역방향 IP 범위를 확인했고, 보정 후 3 passed/0 failed/exit0입니다. `test/control-public-settings-red.json/.log`와 `test/control-public-settings-green.json/.log`에 원문을 보존합니다. 명령은 `heavy_verify.py --timeout 300 -- node node_modules/vitest/vitest.mjs run --config test/control-public-settings-vitest.config.ts --reporter=default --reporter=json --outputFile=test/control-public-settings-green.json`이며 worker1인 Node Vitest입니다. Workers SQLite/core/auth/strict/browser/전체 회귀를 반복하지 않았습니다. 새 필드 없는 기존 DB config는 조용한 seed 덮어쓰기 없이 검증 실패하며 운영 DB 자동 migration은 추가하지 않았습니다.

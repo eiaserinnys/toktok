@@ -34,7 +34,9 @@ trusted installation profile은 빈 DB 최초 transaction에서만 validateSetti
 
 ## Public policy
 
-`src/settings-schema.ts` DEFAULT_PUBLIC_POLICY는 B d230fbe 엔진 seed를 보존합니다. participant100/watch50/messages100/retention1h/text2048bytes/page64KiB/wait150/handler160/wait25s/room5 per1s/operator 최소30s를 넘지 않습니다. initial tail은 최대300초/20개입니다. agent cadence5초/browser cadence2초/server batch2000ms는 별개입니다. batch는2000..10000ms, lease/grant 최대300초입니다. responseBytes는 안전 불변값65536 고정이며 byteBurst>=responseBytes, waits<=handlers, responseBurst>=1, batchMs<=waitMs를 검사합니다. throttle 0/off/unlimited는 없습니다. enabled catalog 수에서 방 수를 유도합니다.
+`src/public-contracts.ts`와 `src/public-policy.ts`는 B 소유 정본 4e8ad3c의 내용을 그대로 가져왔습니다. A `DEFAULT_PUBLIC_POLICY`는 이 seed에서 도출하며 `validateSettings`와 신뢰된 host projection `runtimePublicPolicy(settings)`는 B validator를 직접 재사용합니다. participant100/watch50/messages100/retention1h/text2048bytes/page64KiB/wait150/handler160/wait25s/room5 per1s/operator 최소30s를 넘지 않습니다. `public.firstWindowSeconds`는 1..300초/default300, `public.firstWindowMessages`는 1..20개/default20인 별도 관리자 옵션입니다. 최초 읽기 메시지 수를 pageSize로 임의 축소하지 않으며 GET /api/config에도 같은 이름으로 제공합니다. agent cadence5초/browser cadence2초/server batch2000ms는 별개입니다. batch는2000..10000ms, lease/grant 최대300초, ipMemoryMs는300000..3600000ms입니다. responseBytes는 안전 불변값65536 고정이며 byteBurst>=responseBytes, waits<=handlers, responseBurst>=1, batchMs<=waitMs를 B validator로 검사합니다. throttle 0/off/unlimited는 없습니다. enabled catalog 수에서 방 수를 유도합니다.
+
+기존 저장 config에 firstWindowMessages가 없으면 검증은 fail closed입니다. 기존 DB를 seed로 덮거나 숨은 기본값으로 복구하지 않으며 해당 config의 명시적인 shape 갱신은 통합 담당이 처리합니다. catalog0..10/title64자와 lease/grant 최소1000ms 등 기존의 더 좁은 A 범위는 유지합니다.
 
 runtime rate/cap/catalog 변경은 최종 policy revision 갱신 최대10초부터 적용합니다. capacity 감소는 기존 lease 추방 없이 신규 입장을 막고 자연 감소합니다. 실제 엔진 경로는 후속 연결 대상입니다. public disable의 새 join/send 차단 및 기존 read/leave 폐쇄 흐름도 엔진 소유 계약입니다.
 
