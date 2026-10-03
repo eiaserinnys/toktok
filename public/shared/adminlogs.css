@@ -1,0 +1,23 @@
+/* Approved invitation list rules from design d6f0e975; audit reuses the same list. */
+.invites-section{margin:38px 0 30px}
+.invites-section .section-heading{align-items:center;margin:0 0 20px;gap:16px}
+.invites-section h2{font-size:24px;margin-top:8px}
+.invite-list{background:var(--white);border:1px solid var(--line);border-radius:17px;overflow:hidden}
+.invite-row{padding:23px 24px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:16px}
+.invite-row strong{font-size:15px;overflow-wrap:anywhere}
+.invite-row p{font-size:12px;color:#5f6d56;margin-top:6px;line-height:1.7}
+.invite-row code{font-size:12px;color:#5f6d56;display:block;margin-top:8px}
+.invite-row>.text-button{font-size:16px;white-space:nowrap}
+@media(max-width:700px){
+.invites-section{margin:32px 0 25px}
+.invites-section h2{font-size:22px}
+.invite-row{padding:20px;flex-wrap:wrap;gap:10px}
+.invite-row strong{font-size:14px}
+.invite-row p{font-size:12px}
+.invite-row code{font-size:12px}
+.invite-row>.text-button{margin-left:auto;min-height:44px}
+}
+
+/* Same growing content contract as the existing owned-room list. */
+.invite-row>div{flex:1;min-width:0}
+.invite-row code,.invite-row p,.invite-row .change-list{overflow-wrap:anywhere}
