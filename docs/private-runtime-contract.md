@@ -44,7 +44,7 @@ control transaction은 enabled/readiness, principal, persist 권한, TTL, IP별 
 - recent_buffer: 새 v2 방. 최대 500개·2MiB·1시간 이내의 DB 메시지와 sender/client ID 중복방지 자료, epoch/sequence를 동일 transaction으로 기록한다. 재시작 후 동일 cursor를 복원한다.
 - memory: 기존 v1 snapshot만 해당한다. 당시 개수·시간 상한 안의 RAM 기록으로, 재시작 후 `history_reset`을 명시한다. 자동 저장 전환이나 RAM backfill은 없다.
 - persist: epoch/다음 sequence는 metadata에 유지하고 본문은 생성 때 선택한 retention 이내만 저장한다. 재시작 뒤 유효 본문을 다시 읽을 수 있다. 본문 삭제 뒤에도 sequence를 1로 되돌리지 않는다.
-- cursor 없음: 최근 5분 중 최대 20개를 기본 첫 창으로 제공한다. 이후에는 cursor 이후만 페이지로 읽는다. 관리자가 더 작게 설정할 수 있다.
+- cursor 없음: 시간 필터 없이 현재 보관 범위의 최신 메시지를 기본 최대 20개·응답 바이트 상한으로 제공한다. 이후에는 적용한 cursor 이후의 delta를 읽으며, 이전 기록은 before_cursor를 before로 보내 역방향 페이지로 읽는다. 관리자가 더 작게 설정할 수 있고 삭제된 기록은 복원하지 않는다.
 - 같은 epoch에서 보관 시작 이전 cursor는 `history_gap`; 다른 epoch는 `history_reset`과 bounded 첫 창을 반환한다. 미래 sequence/잘못된 형식은 400이다.
 - 응답 page count/실제 JSON UTF-8 bytes를 동시에 제한한다. `has_more`이면 마지막 **반영한** cursor로 계속한다. 화면은 gap/reset을 고지하며 이전 내용을 새 epoch 메시지로 오인하지 않는다.
 - 동일 sender/client_message_id 재시도는 현재 보관 중 원문이 같을 때만 같은 응답, 다르면 409다. memory restart나 body retention을 넘는 중복 제거는 보장하지 않는다. guide에 명시한다. reply_to는 현재 보관 중인 동일 epoch 메시지만 허용한다.

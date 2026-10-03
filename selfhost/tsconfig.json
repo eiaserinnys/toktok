@@ -31,6 +31,7 @@
     "../src/public-contracts.ts",
     "../src/public-http.ts",
     "../test/selfhost*.test.ts",
+    "../test/private-verification-http.test.ts",
     "../src/private-core.ts",
     "../src/private-contracts.ts",
     "../test/integration-node-http.test.ts"
