@@ -1,0 +1,73 @@
+{
+  "source_commit": "c26d743d436a83207cae2700fae4212e0a824dd3",
+  "scope": "actual Node24 SQLite HTTP; clipboard-denied continuation only with necessary anonymous creation setup",
+  "passed": 1,
+  "failed": 0,
+  "cleanup": true,
+  "external_mail": 0,
+  "prior_C_failures_preserved": true,
+  "cases": [
+    {
+      "name": "390-actual-owner-clipboard-denied",
+      "status": "PASS",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "networkMutations": 3,
+      "observed": {
+        "clipboardPermission": "denied",
+        "ownerCopyDeniedNotice": true,
+        "ownerDom": false,
+        "storage": [
+          0,
+          0
+        ],
+        "readLinkSelected": true,
+        "readLinkFocused": true,
+        "createPosts": 1,
+        "automaticRetry": 0,
+        "mobileMainNav": true
+      },
+      "dom": {
+        "width": 390,
+        "docWidth": 390,
+        "headings": [
+          "대화가 있는자리.",
+          "공개방 2",
+          "함께 이야기",
+          "작업 이야기"
+        ],
+        "dialogs": 0,
+        "storage": [
+          0,
+          0
+        ],
+        "csp": []
+      },
+      "errors": [],
+      "external": [],
+      "shots": [
+        "390-owner-denied-masked-share-links.png"
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "path": ".local/artifacts/toktok/20261003-node-clipboard-browser-root/390-owner-denied-masked-share-links.png",
+      "sha256": "a1cc07d670ff2011c314dde503a917b10a66188780efc47d4c278d49bd656b83"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-clipboard-browser-root/browser.mjs",
+      "sha256": "a22171ab43c3065a5fa02c1637ae9a44945ba6b3938c8af067eb3c471dc27481"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-clipboard-browser-root/product-home.png",
+      "sha256": "2f694219e01844594f2153f6b305cf364ad3c9625c8da0ab17e1cdfcc202f112"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-clipboard-browser-root/raw.json",
+      "sha256": "446ef0210211b0384b62382b87ebca4ba6b51e98e2caf8beb220bf52df366631"
+    }
+  ]
+}

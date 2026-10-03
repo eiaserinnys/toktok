@@ -1,19 +1,21 @@
 {
-  "source_commit": "dffd429d2202b3b0c29027c304b6ae043f29b1d9",
   "method": "Actual Node24/SQLite product browser capture, no UI compositing or image edits. Illustrative messages posted by two real HTTP participant tokens.",
   "actual_external_mail": 0,
   "cleanup": true,
   "images": [
     {
       "path": "docs/images/product-home.png",
-      "sha256": "46ca386dd9a24af63ad2f07635df54130bddd642f342286c358a5dbd63ef0030",
-      "example_conversation": false
+      "sha256": "2f694219e01844594f2153f6b305cf364ad3c9625c8da0ab17e1cdfcc202f112",
+      "example_conversation": false,
+      "source_commit": "c26d743d436a83207cae2700fae4212e0a824dd3"
     },
     {
       "path": "docs/images/product-conversation.png",
       "sha256": "971efedc10db23b596530937bae7f59438ed8d7a1a77673750049f1395298b0e",
-      "example_conversation": true
+      "example_conversation": true,
+      "source_commit": "dffd429d2202b3b0c29027c304b6ae043f29b1d9"
     }
   ],
-  "pending": "Product shared header is being aligned with session-aware navigation; update the hero image when that source change is integrated."
+  "hero_capture_source": ".local/artifacts/toktok/20261003-node-clipboard-browser-root/product-home.png",
+  "hero_capture_scope": "Actual latest home with session-driven header, catalog then shared service description. Conversation body source is unchanged and was not recaptured."
 }

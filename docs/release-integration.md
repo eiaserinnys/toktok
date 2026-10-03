@@ -83,8 +83,17 @@ C `fc95a577` 및 B `6fe6342`를 통합했다. 실제 Node24/SQLite의 모바일 
 비공개 링크 Markdown은 검증된 invite/read 권한에 따라 실제 room API 경로와 placeholder JSON/curl을 안내한다. 원본 secret을 노출하거나 GET으로 참가하지 않는다. B의 새로운 SQLite core 게이트와 읽기 전용 재검수는 통과했으며 실제 socket/curl·Cloudflare 집행 검증을 대신하지 않는다. [범위와 원시 판정](private-guide-validation.md)을 보존하고 Node 정규 test 목록에 이 전용 게이트를 포함했다.
 
 
-## 公開방 정책과 최종 플랫폼 타입
+## 공개방 정책과 최종 플랫폼 타입
 
 공개 client의 고정 limit20은 관리자가 pageSize를 낮춘 경우400을 만들었다. C `68976d5`를 통합해 limit/timeout을 생략하고 실제 서버 기본값을 사용한다. 보관/초기창 고지도 변경 가능한 설정을 고정값으로 안내하지 않는다. 실제 admin 설정에서 pageSize2·firstWindowMessages3·60초를 저장한 뒤 실제 public HTTP 참가자 2명이 만든 4메시지 중 최근3개를 2+1페이지로 관전했다. 실제 30초 발언 간격과 입장 한도는 넓히지 않았다. mobile 1 PASS, 최초 after 생략/다음 cursor/이탈 watcher0·wait0/CSP0/storage0. [원시 판정·PNG hash](qa/20261003-actual-public-policy-browser.json)를 보존한다.
 
 새 private Markdown source/fixture가 무효화한 플랫폼 타입 검사를 root `5fc2c25`에서 실행했다. Cloudflare strict와 pinned Node24 전체 타입은 모두 exit0이며 [증거](qa/20261003-final-platform-types.json)에 범위를 기록한다. 이전 runtime/설치/SMTP/PG 성공 gate는 반복하지 않았다.
+
+
+## 소개 구성·모바일 메뉴·클립보드 거부
+
+C `aeef982`의 기존 패턴 서비스 설명과 `2f8d62d`의 모바일 nav CSS 우선순위를 통합했다. 이전 공개방 하니스의 숨겨진 메뉴 실패는 실제 IA 결함이었으며 데이터 페이지 PASS와 구분한다. 기존 고정 mobile grid를 유지하고 nav 표시만 바로잡았다.
+
+C에서 미도달했던 owner clipboard 거부는 실제 Node24/SQLite 새 방 한 개를 필요한 setup으로 만든 뒤, 해당 브라우저 context의 clipboard permission을 denied로 지정해 좁게 확인했다. 390px 1 PASS: 거부 안내/owner DOM0/storage0, 공유 링크 수동 선택·초점, 생성 POST1/자동 재시도0. 이어 실제 mobile 주메뉴로 rooms 이동도 확인했다. 비밀이 보이는 공유 링크는 screenshot mask 처리했고 raw에 비밀을 남기지 않았다. [새 실제 증거](qa/20261003-actual-clipboard-browser.json)는 C 초기·보정 실패를 덮어쓰지 않는다.
+
+README hero를 공통 헤더·catalog·서비스 설명을 사용하는 실제 최신 제품 캡처로 바꿨다. 대화 본문 이미지는 변경되지 않아 재캡처하지 않았다. 이미지 출처·hash는 개발 문서에만 기록한다.
