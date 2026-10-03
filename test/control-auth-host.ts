@@ -1,4 +1,5 @@
-import {env} from 'cloudflare:workers';
+import {env as workerEnv} from 'cloudflare:workers';
+const env=workerEnv as unknown as {IDENTITIES:DurableObjectNamespace};
 import {runInDurableObject} from 'cloudflare:test';
 import {ControlCore} from '../src/control-core';
 import {CloudflareRepository} from '../src/storage/cloudflare';

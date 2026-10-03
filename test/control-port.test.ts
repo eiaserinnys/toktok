@@ -1,5 +1,6 @@
 import {SELF,runInDurableObject} from 'cloudflare:test';
-import {env} from 'cloudflare:workers';
+import {env as workerEnv} from 'cloudflare:workers';
+const env=workerEnv as unknown as {IDENTITIES:DurableObjectNamespace};
 import {beforeEach,afterEach,it,expect} from 'vitest';
 import {CloudflareRepository} from '../src/storage/cloudflare';
 import {ControlCore} from '../src/control-core';
