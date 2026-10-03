@@ -1,6 +1,6 @@
 // ViewModels carry server projections, never session/owner secrets or fixture roles.
 export const effectNames=Object.freeze([
- 'getConfig','getSession','validateInvitation','startAuth','sendEmail','completeAuth',
+ 'publicConnection','getConfig','getSession','validateInvitation','startAuth','sendEmail','completeAuth',
  'getAdminSettings','getBudget','getInvitations','getAudit','saveSettings','createInvitation','revokeInvitation','logout',
  'getClaim','approveClaim','revokeAgent','createContext','creationGrant','createRoom'
 ]);

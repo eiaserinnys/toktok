@@ -1,3 +1,4 @@
+import {PublicConnections,type ConnectionApprovalInput,type ConnectionApprovalResult} from './public-connections';
 import { bearer,bad,fail,json,newToken,queryInt,text } from './http';
 import { PUBLIC_CATALOG,PUBLIC_NOTICE,PUBLIC_POLICY,INTERNAL_IP_HEADER,available,publicAction,utf8Bytes } from './public-contracts';
 import type { PublicPolicy,ValidatedOperatorAck,PublicMessage,Bucket,PublicGrantResult } from './public-contracts';
@@ -17,7 +18,7 @@ export class PublicRoomCore {
  private stopped=false;private revision=0;
  private catalog:ReadonlyArray<{slug:string;title:string}>;
  private readonly origin:string;private readonly budget:CoreBudget;
- constructor(options:PublicRoomOptions){this.origin=options.origin;this.catalog=validatePublicCatalog(options.catalog());this.policy=validatePublicPolicy(options.policy());this.clock=options.clock??(()=>Date.now());this.budget=new CoreBudget(options.budget,this.clock);for(const bucket of [this.requests,this.responses,this.bytes])bucket.at=this.clock();}
+ constructor(options:PublicRoomOptions){this.origin=options.origin;this.connections=new PublicConnections(this.epoch,this.origin,()=>this.clock(),token=>{const g=this.grants.get(token);return !!g?.join&&this.leases.has(g.join.leaseToken);},token=>this.revokeGrant(token));this.catalog=validatePublicCatalog(options.catalog());this.policy=validatePublicPolicy(options.policy());this.clock=options.clock??(()=>Date.now());this.budget=new CoreBudget(options.budget,this.clock);for(const bucket of [this.requests,this.responses,this.bytes])bucket.at=this.clock();}
  configure(revision:number,policy:PublicPolicy,catalog:ReadonlyArray<{slug:string;title:string}>):void {if(!Number.isSafeInteger(revision)||revision<=this.revision)throw new Error('SETTINGS_REVISION');const next=validatePublicPolicy(policy),rooms=validatePublicCatalog(catalog);this.policy=next;this.catalog=rooms;this.revision=revision;this.prune();}
  shutdown():void {this.stopped=true;clearTimeout(this.batchTimer);this.batchTimer=undefined;for(const waiter of this.waiters.values())waiter.wake();}
  private slug?:string;
@@ -26,6 +27,8 @@ export class PublicRoomCore {
  private sequence=0;
  private ring:PublicMessage[]=[];
  private grants=new Map<string,Grant>();
+ private connections:PublicConnections;
+ private revokeGrant(token:string){const grant=this.grants.get(token);if(grant?.join){const lease=this.leases.get(grant.join.leaseToken);if(lease){this.leases.delete(lease.token);this.waiters.get(lease.id)?.wake();}}this.grants.delete(token);}
  private leases=new Map<string,Lease>();
  private ips=new Map<string,IpRate>();
  private sentAt:number[]=[];
@@ -43,6 +46,7 @@ export class PublicRoomCore {
  private prune() {
   const now=this.clock();this.ring=this.ring.filter(m=>now-Date.parse(m.created_at)<this.policy.retentionMs).slice(-this.policy.messages);
   for(const [token,l] of this.leases)if(now-l.activity>=this.policy.leaseMs){this.leases.delete(token);this.waiters.get(l.id)?.wake();}
+  this.connections.prune();
   for(const [token,g] of this.grants)if(g.expires<=now&&(!g.join||!this.leases.has(g.join.leaseToken)))this.grants.delete(token);
   for(const [ip,rate] of this.ips)if(now-rate.at>=this.policy.ipMemoryMs&&![...this.leases.values()].some(l=>l.ip===ip))this.ips.delete(ip);
   this.sentAt=this.sentAt.filter(t=>now-t<this.policy.roomWindowMs);
@@ -74,14 +78,25 @@ export class PublicRoomCore {
    if(ack.checked!==true||ack.risk_ack_version!==PUBLIC_NOTICE)fail(403,'OPERATOR_ACK_REQUIRED','검증된 안내 확인이 필요합니다.');
    const operation=await this.budget.admit();
    const rate=this.ipRate(ack.trustedIpHash);this.ipRequest(rate);this.admissionAvailable(rate);
-   if([...this.grants.values()].filter(g=>!g.join||!this.leases.has(g.join.leaseToken)).length>=this.policy.pendingGrants)publicLimited(this.policy.grantMs);
+   if([...this.grants.values()].filter(g=>!g.join||!this.leases.has(g.join.leaseToken)).length+this.connections.size>=this.policy.pendingGrants)publicLimited(this.policy.grantMs);
    const token=this.epoch+'.'+newToken(),expires=this.clock()+this.policy.grantMs;
    this.grants.set(token,{expires,nextSend:0});rate.admissions.push(this.clock());rate.at=this.clock();
    const data={operator_grant:token,epoch:this.epoch,expires_at:new Date(expires).toISOString(),notice_version:PUBLIC_NOTICE};await this.budget.reserve(operation,'response_bytes',utf8Bytes(JSON.stringify(data)));return {status:201,data,retry_after_ms:undefined as number|undefined};
   });}catch(error){const response=publicError(error),data=await response.json() as PublicGrantResult['data'];return {status:response.status,data,retry_after_ms:'error' in data?data.error.retry_after_ms:undefined};}
  }
+ async connectionApproval(input:ConnectionApprovalInput,trustedIpHash:string,room:string):Promise<ConnectionApprovalResult> {
+  try{return await this.handler(async()=>{
+   this.prune();this.bind(room,true);this.requestAdmission();const operation=await this.budget.admit();
+   const rate=this.ipRate(trustedIpHash);this.ipRequest(rate);
+   const result=await this.connections.approval(room,input,expires=>{
+    this.admissionAvailable(rate);
+    const token=this.epoch+'.'+newToken();this.grants.set(token,{expires,nextSend:0});rate.admissions.push(this.clock());rate.at=this.clock();return token;
+   });
+   await this.budget.reserve(operation,'response_bytes',utf8Bytes(JSON.stringify(result.data)));return result;
+  });}catch(error){const response=publicError(error);return {status:response.status,data:await response.json() as Record<string,unknown>};}
+ }
  async fetch(request:Request):Promise<Response> {
-  try{return await this.handler(async()=>{const cleanup=request.method==='DELETE'&&new URL(request.url).pathname.endsWith('/lease');const operation=cleanup?undefined:await this.budget.admit();const response=await this.dispatch(request);return operation?this.budget.respond(response,operation):response;});}catch(error){return publicError(error);}finally{cancelUnusedRequestBody(request);}
+  try{return await this.handler(async()=>{const cleanup=request.method==='DELETE'&&/\/(lease|connection-request)$/.test(new URL(request.url).pathname);const operation=cleanup?undefined:await this.budget.admit();const response=await this.dispatch(request);return operation?this.budget.respond(response,operation):response;});}catch(error){return publicError(error);}finally{cancelUnusedRequestBody(request);}
  }
  private async dispatch(request:Request):Promise<Response> {
   try{return await (async()=>{
@@ -89,8 +104,17 @@ export class PublicRoomCore {
    if(!match)fail(404,'NOT_FOUND','경로가 없습니다.');this.bind(match[1]);
    const action=publicAction(match[2]??'',request.method);if(!action)fail(404,'NOT_FOUND','경로가 없습니다.');this.requestAdmission();
    const ip=request.headers.get(INTERNAL_IP_HEADER)??'';if(!/^[a-f0-9]{64}$/.test(ip))fail(403,'TRUSTED_IP_REQUIRED','내부 IP 전달 계약이 필요합니다.');
-   if((action==='participants'||action==='watchers')&&!this.catalog.some(r=>r.slug===this.slug))fail(404,'NOT_FOUND','공개방이 비활성화되었습니다.');
+   if((action==='participants'||action==='watchers'||action==='connection-create')&&!this.catalog.some(r=>r.slug===this.slug))fail(404,'NOT_FOUND','공개방이 비활성화되었습니다.');
    if(action==='guide')return new Response(publicGuide(this.slug!,this.origin,this.catalog.find(r=>r.slug===this.slug)?.title,this.policy),{headers:{'Content-Type':'text/markdown; charset=utf-8'}});
+   if(action==='connection-create'){
+    const rate=this.ipRate(ip);this.ipRequest(rate);
+    const input=await publicBody(request,this.policy,['request_secret','client_request_id','nickname','notice_version','visibility','retention_mode']);
+    return json(await this.connections.create(this.slug!,input,this.policy.grantMs,this.policy.pendingGrants-[...this.grants.values()].filter(g=>!g.join||!this.leases.has(g.join.leaseToken)).length,()=>{this.admissionAvailable(rate);rate.admissions.push(this.clock());rate.at=this.clock();}),201);
+   }
+   if(action==='connection-status'||action==='connection-cancel'){
+    const rate=this.ipRate(ip);this.ipRequest(rate);const secret=bearer(request);
+    return json(action==='connection-status'?await this.connections.poll(this.slug!,secret):await this.connections.cancel(this.slug!,secret));
+   }
    if(action==='participants'||action==='watchers')return this.join(request,ip,action==='participants');
    const lease=this.lease(bearer(request));
    // Existing read/leave stays usable when the rate map is full; never allocate a new IP key here.
@@ -108,11 +132,12 @@ export class PublicRoomCore {
  }
  private async join(request:Request,ip:string,speaking:boolean):Promise<Response> {
   const rate=this.ipRate(ip);this.ipRequest(rate);this.admissionAvailable(rate);
-  const input=await publicBody(request,this.policy,speaking?['operator_grant','client_request_id','nickname','notice_version','visibility','retention_mode']:['notice_version']);
+  const input=await publicBody(request,this.policy,speaking?['operator_grant','request_secret','client_request_id','nickname','notice_version','visibility','retention_mode']:['notice_version']);
   this.prune();this.bind(this.slug!,true);if(input.notice_version!==PUBLIC_NOTICE)bad();let grant:Grant|undefined,requestId='',nickname='';
   if(speaking){
    if(input.visibility!=='public'||input.retention_mode!=='memory')bad();
    const token=text(input.operator_grant,1,128);requestId=text(input.client_request_id,1,128);nickname=text(input.nickname,1,64);
+   await this.connections.validateJoin(token,input.request_secret,requestId,nickname);
    grant=this.grants.get(token);if(!grant||grant.expires<=this.clock())fail(403,'OPERATOR_GRANT_EXPIRED','방 승인 grant가 없거나 만료되었습니다.');
    const prior=grant.join&&this.leases.get(grant.join.leaseToken);
    if(prior){if(grant.join!.requestId!==requestId)fail(409,'GRANT_IN_USE','이미 참여 중인 grant입니다.');prior.activity=this.clock();return json(this.leaseView(prior),201);}
@@ -174,5 +199,5 @@ export class PublicRoomCore {
  }
  private leaseCounts(){const v=[...this.leases.values()];return {participants:v.filter(l=>l.role==='participant').length,watchers:v.filter(l=>l.role==='watcher').length,unit:'logical_lease' as const};}
  private bufferBytes(){return this.ring.reduce((n,m)=>n+utf8Bytes(JSON.stringify(m)),0);}
- diagnostics(){this.prune();return {epoch:this.epoch,leases:this.leaseCounts(),active_handlers:this.activeHandlers,active_waits:this.waiters.size,max_active_handlers:this.maxHandlers,max_active_waits:this.maxWaits,buffer_bytes:this.bufferBytes(),max_buffer_bytes:this.maxBufferBytes,message_count:this.ring.length,ip_keys:this.ips.size,pending_grants:[...this.grants.values()].filter(g=>!g.join||!this.leases.has(g.join.leaseToken)).length,egress_json_bytes:this.egressBytes,data_responses:this.dataResponses,accepted_messages:this.accepted,rate_rejected:this.rateRejected,batch_timer_active:this.batchTimer!==undefined};}
+ diagnostics(){this.prune();return {epoch:this.epoch,leases:this.leaseCounts(),active_handlers:this.activeHandlers,active_waits:this.waiters.size,max_active_handlers:this.maxHandlers,max_active_waits:this.maxWaits,buffer_bytes:this.bufferBytes(),max_buffer_bytes:this.maxBufferBytes,message_count:this.ring.length,ip_keys:this.ips.size,pending_grants:this.connections.size+[...this.grants.values()].filter(g=>!g.join||!this.leases.has(g.join.leaseToken)).length,egress_json_bytes:this.egressBytes,data_responses:this.dataResponses,accepted_messages:this.accepted,rate_rejected:this.rateRejected,batch_timer_active:this.batchTimer!==undefined};}
 }

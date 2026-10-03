@@ -111,10 +111,10 @@ export function createHttpApplication(ports:ApplicationPorts){
   if(path==='/admin'||path.startsWith('/admin/')){const allowed=await authorize(original);if(!allowed.authorized)fail(allowed.status,allowed.status===401?'AUTH_REQUIRED':'ADMIN_REQUIRED','관리자 로그인이 필요합니다.');if(original.method==='GET'){if(!adminHtmlPaths.includes(path))fail(404,'NOT_FOUND','경로가 없습니다.');return responseBudget(await html(original),original);}fail(405,'METHOD_NOT_ALLOWED','읽기 요청만 허용됩니다.');}
   if(!['GET','HEAD'].includes(original.method)&&original.headers.has('Origin')&&original.headers.get('Origin')!==origin)fail(403,'ORIGIN_DENIED','외부 Origin 변경 요청은 허용되지 않습니다.');
   const config=await settings.get(),api=privateApi.exec(path),entry=privateEntry.exec(path);
-  const cleanup=!!api&&(original.method==='DELETE'||api[2]==='close')||original.method==='DELETE'&&/^\/api\/public\/rooms\/[^/]+\/lease$/.test(path);
+  const cleanup=!!api&&(original.method==='DELETE'||api[2]==='close')||original.method==='DELETE'&&/^\/api\/public\/rooms\/[^/]+\/(?:lease|connection-request)$/.test(path);
   const controlPath=path.startsWith('/api/auth/')||path.startsWith('/api/admin/')||path==='/api/session'||path.startsWith('/api/agents')||path.startsWith('/api/claims/')||path==='/api/config';
   if(!controlPath&&!cleanup)requireRuntime(config);
-  const publicRoomRequest=/^\/api\/public\/rooms\/[^/]+(?:\/(?:participants|watchers|messages|wait|lease|guide))?$/.test(path);
+  const publicRoomRequest=/^\/api\/public\/rooms\/[^/]+(?:\/(?:participants|watchers|messages|wait|lease|guide|connection-requests|connection-request))?$/.test(path);
   // Room cores account for their own admission, duration, response and body writes.
   const metered=!(api||entry||publicRoomRequest)||wantsHtml(original)&&!!entry;
   if(metered)await reserveHttp(original,'admission_requests',1);

@@ -61,3 +61,15 @@ API로 같은 규칙을 관리할 때 필요한 권한은 해당 zone의 **Zone 
 - 로컬 matching model: 포함/제외 166건 통과. **Cloudflare compiler·요금제 적용 가능성·실제 배포 검증은 아닙니다.**
 
 공식 문서: [BIC 선택적 제외](https://developers.cloudflare.com/waf/tools/browser-integrity-check/), [Skip 대상과 로그 옵션](https://developers.cloudflare.com/waf/custom-rules/skip/options/), [규칙 추가 API](https://developers.cloudflare.com/waf/custom-rules/skip/api-examples/), [Zone WAF 권한](https://developers.cloudflare.com/waf/custom-rules/custom-rulesets/), [wildcard와 regex](https://developers.cloudflare.com/ruleset-engine/rules-language/operators/).
+
+## URL 하나로 연결하는 기능의 후속 경로
+
+아래는 새 연결 프로토콜이 사용하는 **추가 검토 대상**입니다. 위의 승인 원본 expression·JSON payload는 보존했습니다. 이 문서를 수정하면서 Cloudflare 규칙·권한은 조회하거나 변경하지 않았습니다.
+
+| Method | 추가 경로 | 앱에서 계속 검사하는 경계 |
+| --- | --- | --- |
+| POST | `/api/public/rooms/{slug}/connection-requests` | 고지·공개 메모리 모드, 요청 비밀, IP/대기 수/예산 한도; 승인·참가 권한을 발급하지 않음 |
+| GET | `/api/public/rooms/{slug}/connection-request` | 요청 비밀 Bearer, room/epoch/만료, polling 간격 |
+| DELETE | `/api/public/rooms/{slug}/connection-request` | 요청 비밀 Bearer로 해당 요청·lease만 취소 |
+
+사람 확인용 `POST /api/public/rooms/{slug}/connection-approval`은 예외에 **포함하지 않습니다**. 원래의 `ack-flow`·`operator-grants`, 관리자·메일·다른 hostname 제외도 유지합니다. 새 API를 기본 Python에서 사용하려면 권한 있는 운영자가 이 추가 method/path를 검토한 뒤 기존 BIC-only 규칙에 한정 반영해야 합니다. 보안 검사를 끄거나 다른 credential·UA로 우회하는 클라이언트 코드는 추가하지 않았습니다.

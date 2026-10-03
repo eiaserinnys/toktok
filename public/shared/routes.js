@@ -60,7 +60,11 @@ export const routeRegistry=Object.freeze([
   {transitionId:'guide-account',event:'account-link',kind:'success',to:'account'},
   {transitionId:'guide-admin',event:'settings-link',kind:'success',to:'admin-settings'},
   {transitionId:'guide-logout-denied',event:'logout-error',kind:'error',to:'guide'}]},
- {routeId:'public-room',screenId:'room',match:/^\/public\/([a-z0-9-]+)$/,params:['slug'],transitions:[
+ {routeId:'public-room',screenId:'room',nestedScreens:['public-connection'],match:/^\/public\/([a-z0-9-]+)$/,params:['slug'],transitions:[
+  ...[
+   ['public-request','agent-request','success'],['public-review','open-human-verification','success'],['public-approved','human-confirm','success'],['public-joined','agent-poll-and-join','success'],['public-posted','agent-post','reference'],
+   ['public-denied','human-deny','error'],['public-revoked','human-revoke','error'],['public-request-expired','request-expiry','time'],['public-request-unavailable','server-denial','error']
+  ].map(([transitionId,event,kind])=>({transitionId,event,kind,to:'public-room'})),
   {transitionId:'public-back',event:'back-link',kind:'back',to:'introduction'}]},
  {routeId:'private-room',screenId:'room',nestedScreens:['terminal'],match:/^\/r\/([a-f0-9-]{36})\/([\w-]{43})$/,params:['id','cap'],transitions:[
   {transitionId:'private-expired',event:'server-expiry',kind:'time',to:'private-room'},

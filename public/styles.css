@@ -423,3 +423,5 @@ body:has(dialog[open]){overflow:hidden}
 /* Public notice uses the existing body type and wrapping contract. */
 dialog .risk-notice{font-size:inherit;overflow-wrap:anywhere;color:var(--ink)}
 dialog{scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+
+.connection-id { overflow-wrap: anywhere; }

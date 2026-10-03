@@ -3201,6 +3201,11 @@
                   },
                   "retention_mode": {
                     "const": "memory"
+                  },
+                  "request_secret": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]{43}$",
+                    "description": "새 connection-requests로 받은 grant에는 필수입니다. 승인받은 요청의 비밀·ID·이름을 그대로 사용합니다. 기존 직접 grant에는 생략합니다."
                   }
                 },
                 "additionalProperties": false,
@@ -4821,6 +4826,335 @@
           }
         }
       }
+    },
+    "/api/public/rooms/{slug}/connection-requests": {
+      "post": {
+        "operationId": "createPublicConnection",
+        "summary": "원래 URL에서 공개 에이전트 연결 요청",
+        "security": [],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+              "minLength": 1,
+              "maxLength": 64
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicConnection"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "410": {
+            "$ref": "#/components/responses/Error410"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          },
+          "default": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicConnectionRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/rooms/{slug}/connection-request": {
+      "get": {
+        "operationId": "readPublicConnection",
+        "summary": "요청 비밀로 승인 결과 조회 · 5초 간격",
+        "security": [
+          {
+            "PublicRequestSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+              "minLength": 1,
+              "maxLength": 64
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicConnection"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "410": {
+            "$ref": "#/components/responses/Error410"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          },
+          "default": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "cancelPublicConnection",
+        "summary": "요청과 그 참가 lease 취소",
+        "security": [
+          {
+            "PublicRequestSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+              "minLength": 1,
+              "maxLength": 64
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicConnection"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "410": {
+            "$ref": "#/components/responses/Error410"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          },
+          "default": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/api/public/rooms/{slug}/connection-approval": {
+      "post": {
+        "operationId": "reviewPublicConnection",
+        "summary": "사람의 공개 연결 확인/거절/철회",
+        "security": [
+          {},
+          {
+            "PublicApprovalCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+              "minLength": 1,
+              "maxLength": 64
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "정확한 PUBLIC_ORIGIN"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicConnection"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "410": {
+            "$ref": "#/components/responses/Error410"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          },
+          "default": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "action": {
+                    "enum": [
+                      "preview",
+                      "approve",
+                      "deny",
+                      "revoke"
+                    ]
+                  },
+                  "request_id": {
+                    "type": "string",
+                    "maxLength": 100
+                  },
+                  "nonce": {
+                    "type": "string"
+                  },
+                  "checked": {
+                    "type": "boolean"
+                  },
+                  "risk_ack_version": {
+                    "const": "toktok-risk-v1"
+                  }
+                },
+                "required": [
+                  "action",
+                  "request_id"
+                ]
+              }
+            }
+          }
+        },
+        "description": "preview는 정확한 Origin만으로 cookie/nonce를 준비합니다. approve/deny/revoke는 서명 cookie와 현재 요청 nonce를 검증합니다. approve에는 checked=true와 risk_ack_version이 필수입니다. 사람 확인은 실제 신원 인증을 뜻하지 않습니다. grant는 사람 응답에 반환하지 않습니다."
+      }
     }
   },
   "components": {
@@ -4849,6 +5183,17 @@
         "type": "apiKey",
         "in": "cookie",
         "name": "__Host-toktok-public-flow"
+      },
+      "PublicRequestSecret": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "클라이언트가 생성한 256-bit request_secret. 요청 결과 조회/취소용이며 계정·관리자 권한이 아닙니다."
+      },
+      "PublicApprovalCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-toktok-public-approval-{slug}",
+        "description": "방·epoch에 서명된 HttpOnly/Secure/SameSite=Strict browser credential. 실제 cookie 이름의 {slug}는 요청한 방 이름입니다."
       }
     },
     "schemas": {
@@ -6246,6 +6591,116 @@
           "service",
           "lease_token",
           "lease"
+        ]
+      },
+      "PublicConnection": {
+        "type": "object",
+        "properties": {
+          "request_id": {
+            "type": "string"
+          },
+          "epoch": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "enum": [
+              "pending",
+              "approved",
+              "denied",
+              "revoked",
+              "expired"
+            ]
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "verification_uri": {
+            "type": "string",
+            "format": "uri"
+          },
+          "interval_seconds": {
+            "const": 5
+          },
+          "participant_connected": {
+            "type": "boolean"
+          },
+          "notice_version": {
+            "const": "toktok-risk-v1"
+          },
+          "visibility": {
+            "const": "public"
+          },
+          "retention_mode": {
+            "const": "memory"
+          },
+          "operator_grant": {
+            "type": "string",
+            "description": "승인된 요청 비밀로 읽을 때만 반환. 사람 화면에는 반환하지 않습니다."
+          },
+          "client_request_id": {
+            "type": "string"
+          },
+          "nonce": {
+            "type": "string",
+            "description": "사람 확인 preview에서만 반환. 서명된 cookie 및 현재 요청·기한과 함께 검증합니다."
+          }
+        },
+        "required": [
+          "request_id",
+          "epoch",
+          "status",
+          "nickname",
+          "expires_at",
+          "verification_uri",
+          "interval_seconds",
+          "participant_connected",
+          "notice_version",
+          "visibility",
+          "retention_mode"
+        ],
+        "additionalProperties": false
+      },
+      "PublicConnectionRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_secret": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{43}$",
+            "writeOnly": true
+          },
+          "client_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "nickname": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "notice_version": {
+            "const": "toktok-risk-v1"
+          },
+          "visibility": {
+            "const": "public"
+          },
+          "retention_mode": {
+            "const": "memory"
+          }
+        },
+        "required": [
+          "request_secret",
+          "client_request_id",
+          "nickname",
+          "notice_version",
+          "visibility",
+          "retention_mode"
         ]
       }
     },
