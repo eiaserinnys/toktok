@@ -155,3 +155,7 @@ Targeted recapture: gallery items 3/10 and 4/10 at 390/1440; home→login→canc
 ### Opaque invitation-code contract correction
 
 Removed UUID/36-character wording and fixtures. The shared component/flow registry and invitation-creation dialogue now use the same opaque-code fixture contract. Existing invalid, used, expired and revoked gates remain; an invalid recheck clears prior validated eligibility. No format or length validator may replace the server result in production. Source regressions cover whitespace, case sensitivity, unknown suffixes, issuance and all inactive states. Actual 390/1440 invitation input and ticket recapture remains pending; the prior five-fix QA pin is independently under review.
+
+### Schema-shaped admin pattern handoff (2026-10-03)
+
+`ADMIN_SCHEMA_ALIGNMENT.md` describes the isolated Common room catalog, workload and nested-policy renderers, pinned to backend schema52e3a5d. The new admin design-review routes use `schema-patterns.js/.css`; shared components, three dialogue states and action-flow fixtures are registered together. The old flat settings/runtime simulation is intentionally retained; its illustrative limits are not production policy. C mounts these renderers into the real settings sections and remains responsible for server schema/API/version/authorization wiring. Catalog0..10, fixed six workload kinds/units, per-kind hard ceilings, USD50/70/100 thresholds and public-runtime/private-new-room metadata are demonstrated. No auth policy or operational settings were changed. New actual390/1440 captures remain pending.
