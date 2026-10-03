@@ -47,3 +47,10 @@ createServer({origin,handler,repo,close,trustedProxyCidrs?})는 Fetch Request/Re
 공통 room 엔진 호출 표면은 CF PublicRoom, Node PublicRooms, CF PrivateRoom, Node PrivateRooms 네 곳이며 각각 같은 public/private core를 사용합니다. body 저장 축은 public RAM-only, private memory RAM-only, private opted-in persist repository 세 가지로 나눴습니다. repository 구현 축은 CF DO SQLite/Node SQLite/Node PG 모두 targeted transaction이며 startup은 하나만 선택합니다. slot/seq/idempotency/cursor API는 core가 소유하고 CF alarm과 Node timer만 플랫폼별입니다.
 
 기존 src/room.ts는 root legacy 호환 경계이므로 이번 분리에서 제외했습니다. src/index.ts/contracts.ts/http.ts와 production wrangler/public UI/control/auth는 다른 세션 소유로 수정하지 않았습니다. 실제 HTTP 권한·global room 슬롯·CONTROL budget 연결은 root/A가 담당합니다. 오래된 public load의 호출 표면은 이후 최종 통합 CI에서 확인하며 이 작업에서 다시 실행하지 않았습니다.
+
+
+## Private CF 재시작 식별자
+
+trusted `inspect(id?:string)`와 `maintenance(id?:string)`는 서버가 제공한 방 ID로 core를 결합하며 ID 없이는 scope를 만들지 않습니다. CF wrapper는 exact KV `toktok_private_room_id`에 비밀 없는 ID만 저장하고 constructor의 blockConcurrencyWhile에서 복원합니다. initialize는 repository schema 준비 후 기존 ID 일치를 확인·보존하고 실제 core snapshot 초기화 성공 후 alarm을 잡습니다. alarm과 schedule은 복원된 ID를 명시 전달합니다. ID만 존재하는 부분 실패는 성공한 room/slot/body 상태가 아니며 inspect의 실제 snapshot을 확인해야 합니다. 공개 DO에는 이 KV 경로가 없습니다.
+
+CF schema 검사는 문서상 `__cf_kv`, alarm의 `_cf_METADATA`와 로컬 SQLite 런타임 mock KV에서 직접 관측한 `_cf_KV`만 제외합니다. 사용자 테이블이나 임의 내부 prefix는 허용하지 않습니다. Node/PG schema 판단은 별도이며 이 제외 목록을 상속하지 않습니다.

@@ -1,5 +1,5 @@
 import {env} from 'cloudflare:workers';
-import {runInDurableObject} from 'cloudflare:test';
+import {runInDurableObject,evictDurableObject} from 'cloudflare:test';
 import {it,expect} from 'vitest';
 import type {PrivateRoom,RecordFixture} from './selfhost-worker';
 import {PrivateRoomCore} from '../src/private-core';
@@ -16,3 +16,16 @@ it('CF private runtime keeps memory body out of SQLite and persists opted-in his
  }
 });
 it('CF metered targeted reserve and cleanup includes SQLite index row operations',async()=>{const stub=(env as unknown as Env).RECORD_ROOMS.getByName('meter');const measured=await stub.meterProbe();expect(measured.reserve.rowsWritten).toBeGreaterThan(0);expect(measured.cleanup.rowsWritten).toBeGreaterThan(0);console.log(JSON.stringify({phase:'record-sql-meter',...measured}));});
+
+it('CF trusted host inspect binds id on fresh actor after restart',async()=>{
+ const id='cf-host-inspect',stub=(env as unknown as Env).PRIVATE_ROOMS.getByName(id),{snapshot}=await privateSnapshot(id,false);await stub.initialize(snapshot);await evictDurableObject(stub);const view=await stub.inspect(id) as {id:string;status:string;initialized:boolean};expect(view).toMatchObject({id,status:'open',initialized:true});console.log(JSON.stringify({phase:'fresh-actor-inspect',initialized:view.initialized,status:view.status}));
+});
+
+it('CF cold alarm restores exact ID-only bootstrap and partial init never becomes success',async()=>{
+ const id='cf-cold-alarm',stub=(env as unknown as Env).PRIVATE_ROOMS.getByName(id),{snapshot}=await privateSnapshot(id,false);await stub.initialize(snapshot);await evictDurableObject(stub);
+ const cold=await runInDurableObject<PrivateRoom,{keys:string[];idMatches:boolean;bodyRows:number;initialized:boolean}>(stub,async(instance,ctx)=>{await instance.alarm();const metadata=await ctx.storage.list(),view=await instance.inspect() as {initialized:boolean};return {keys:[...metadata.keys()],idMatches:metadata.get('toktok_private_room_id')===id,bodyRows:Number(ctx.storage.sql.exec("SELECT COUNT(*) AS n FROM tok_records WHERE collection='private_messages'").one().n),initialized:view.initialized};});expect(cold).toEqual({keys:['toktok_private_room_id'],idMatches:true,bodyRows:0,initialized:true});
+ const failedId='cf-partial-bootstrap',failed=(env as unknown as Env).PRIVATE_ROOMS.getByName(failedId),expired=await privateSnapshot(failedId,false,Date.now()-1000000);
+ const partial=await runInDurableObject<PrivateRoom,{keys:string[];snapshotRows:number;initialized:boolean}>(failed,async(instance,ctx)=>{try{await instance.initialize(expired.snapshot);}catch{}let initialized=false;try{initialized=(await instance.inspect(failedId) as {initialized:boolean}).initialized;}catch{}return {keys:[...(await ctx.storage.list()).keys()],snapshotRows:Number(ctx.storage.sql.exec("SELECT COUNT(*) AS n FROM tok_records WHERE collection='private_rooms'").one().n),initialized};});expect(partial).toEqual({keys:['toktok_private_room_id'],snapshotRows:0,initialized:false});console.log(JSON.stringify({phase:'cold-alarm-bootstrap',kv_id_only:true,body_rows:cold.bodyRows,cold_initialized:cold.initialized,partial_snapshot_rows:partial.snapshotRows,partial_initialized:partial.initialized}));
+});
+
+it('CF bootstrap schema names diagnostic only',async()=>{const stub=(env as unknown as Env).PRIVATE_ROOMS.getByName('cf-bootstrap-schema-probe');const tables=await runInDurableObject<PrivateRoom,{name:string;type:string}[]>(stub,async(_room,ctx)=>{await ctx.storage.put('toktok_private_room_id','cf-bootstrap-schema-probe');return ctx.storage.sql.exec<{name:string;type:string}>("SELECT name,type FROM sqlite_master WHERE type IN ('table','view','trigger') AND name NOT LIKE 'sqlite_%' ORDER BY name").toArray();});console.log(JSON.stringify({phase:'bootstrap-schema-names',tables}));expect(tables.length).toBeGreaterThan(0);});
