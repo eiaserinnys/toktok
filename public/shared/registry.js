@@ -1,3 +1,5 @@
+import {renderRiskCheck} from './components/risk-check.js';
+import {renderNewRoom} from './screens/newroom.js';
 import {renderClaim} from './screens/claim.js';
 import {renderAccount} from './screens/account.js';
 import {createAgentRevokeDialog} from './dialogs/identity.js';
@@ -15,6 +17,7 @@ import {renderLobby} from './screens/lobby.js';
 
 // Product and protected QA resolve the same renderers and state inventory.
 export const componentRegistry=Object.freeze({
+ 'risk-check':{render:renderRiskCheck,requiredStates:['unchecked','checked','disabled']},
  'budget-usage':{render:renderBudgetUsage,requiredStates:['default','warning','cutoff','loading','unavailable']},
  'agent-safety':{render:renderAgentSafety,requiredStates:['service-owned']},
  icon:{render:icon,requiredStates:['default']},
@@ -27,6 +30,7 @@ export const componentRegistry=Object.freeze({
  'settings-fields':{render:renderSettingsFields,requiredStates:['catalog','empty','max','workload','nested','readonly-off']}
 });
 export const screenRegistry=Object.freeze({
+ newroom:{render:renderNewRoom,requiredStates:['anonymous','member','persist','created-memory','created-persisted','pending','lost','denied','loading','unavailable']},
  claim:{render:renderClaim,requiredStates:['anonymous','unchecked','checked','pending','approved','error','expired','loading','unavailable']},
  account:{render:renderAccount,requiredStates:['default','revoked','empty','anonymous','loading','unavailable','error']},
  room:{render:room},terminal:{render:terminal},introduction:{render:introduction},guide:{render:guide},

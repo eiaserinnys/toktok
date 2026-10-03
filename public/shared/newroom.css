@@ -1,0 +1,80 @@
+/* Existing Common room new-room composition, design d6f0e975. */
+.new-room-layout{display:grid;grid-template-columns:1fr 540px;gap:70px;align-items:start;max-width:1120px;margin:auto}
+.new-room-copy{padding-top:24px}
+.new-room-copy h1{font-size:49px;line-height:1.4;margin:22px 0}
+.new-room-copy>p{font-size:17px;color:#5f6d56}
+.room-promise{margin-top:45px;border-top:1px solid var(--line);padding-top:26px;max-width:350px}
+.room-promise>span{display:inline-flex;width:42px;height:42px;background:#e8eccf;align-items:center;justify-content:center;border-radius:50%;margin-bottom:18px}
+.room-promise h3{font-size:20px}
+.room-promise p{font-size:14px;color:#5f6d56;margin-top:10px}
+.room-create-form{padding:30px}
+.room-create-form fieldset{border:0;padding:0;margin:26px 0}
+.room-create-form legend{font-size:14px;font-weight:650;margin-bottom:12px}
+.choice-row{display:flex;gap:10px;margin-bottom:10px}
+.choice-row label{flex:1;display:flex;gap:8px;align-items:center;justify-content:center;padding:13px 8px;border:1px solid var(--line);border-radius:12px;font-size:14px;cursor:pointer;background:#f8f8f1}
+.choice-row label:has(input:checked){border-color:var(--green);background:#e8eccf}
+.choice-row label:has(input:disabled){opacity:.45;cursor:not-allowed}
+.choice-row input{accent-color:var(--green)}
+.storage-option{display:flex;gap:12px;border:1px solid var(--line);border-radius:13px;padding:17px 15px;margin-bottom:10px;align-items:flex-start;cursor:pointer}
+.storage-option.selected{border-color:#67864a;background:#f2f5e6}
+.storage-option.disabled{background:#efeee9;cursor:not-allowed}
+.storage-option.disabled strong{color:#74796e}
+.storage-option>input{accent-color:var(--green);margin:5px 0 0;flex-shrink:0}
+.storage-option>div{flex:1}
+.storage-option strong{font-size:14px;display:block}
+.storage-option p{font-size:12px;color:#5f6d56;margin-top:5px}
+.storage-option .x-tag{font-size:12px;line-height:1.4}
+.retention-field{margin:20px 0}
+.room-create-form .x-notice{margin:22px 0}
+.room-create-form>.fineprint{text-align:center;margin-top:16px}
+.created-room-card{max-width:730px;margin:20px auto;text-align:center;padding:20px 12px}
+.created-room-card h1{font-size:40px;overflow-wrap:anywhere;margin:22px 0}
+.created-room-card>p{color:#5f6d56}
+.created-room-card .room-sub{justify-content:center;margin-top:24px}
+.created-room-card .url-field{margin:26px 0;text-align:left;gap:14px}
+.created-room-card .url-field code{overflow-wrap:anywhere;white-space:normal;min-width:0}
+.created-room-card .x-notice{text-align:left}
+.created-room-card .x-button-row{justify-content:center}
+.restricted-card{max-width:660px;margin:30px auto 90px;text-align:center;background:#e8eccf;border-radius:26px;padding:50px}
+.restricted-card h1{font-size:42px;margin:25px 0}
+.restricted-card p{color:#5f6d56}
+.restricted-card .btn{margin:30px 0 18px}
+.restricted-card .text-button{display:block}
+@media(max-width:1000px){
+.grant-layout,.new-room-layout{gap:35px;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)}
+.new-room-copy h1{font-size:40px}
+}
+@media(max-width:700px){
+.new-room-layout{display:block}
+.new-room-copy{padding-top:0}
+.new-room-copy h1{font-size:37px;margin:18px 0}
+.new-room-copy>p{font-size:15px}
+.room-promise{margin:27px 0 30px;padding-top:22px;max-width:none}
+.room-promise>span{display:none}
+.room-promise h3{font-size:18px}
+.room-promise p{font-size:13px}
+.room-create-form{padding:24px 20px}
+.storage-option{padding:15px 12px;gap:9px}
+.storage-option strong{font-size:13px}
+.storage-option p{font-size:12px}
+.storage-option .x-tag{font-size:12px;padding:4px 6px}
+.choice-row{gap:7px}
+.choice-row label{font-size:13px;gap:5px;padding:13px 7px}
+.created-room-card{padding:10px 0;margin:15px auto}
+.created-room-card h1{font-size:33px;line-height:1.45}
+.created-room-card .url-field{flex-direction:column;align-items:stretch;padding:18px}
+.created-room-card .url-field code{font-size:12px;line-height:1.7}
+.created-room-card .x-button-row{flex-direction:column}
+.restricted-card{padding:35px 23px;margin:20px auto 45px}
+.restricted-card h1{font-size:32px;line-height:1.4}
+.restricted-card p{font-size:14px}
+}
+.owner-risk{border-top:1px solid var(--line);padding:22px 0 25px;margin-top:25px}
+.owner-risk h3{font-size:17px;margin-bottom:11px}
+.owner-risk p{font-size:13px;color:#5f6d56;line-height:1.8;margin-bottom:17px}
+.owner-risk>small{font-size:12px;color:#5f6d56;line-height:1.8;display:block;margin-top:14px}
+.owner-risk .check-row{font-size:13px}
+@media(max-width:700px){
+.owner-risk p{font-size:13px}
+.owner-risk h3{font-size:16px}
+}

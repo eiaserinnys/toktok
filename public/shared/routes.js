@@ -1,5 +1,12 @@
 // One route inventory is used by product navigation and the QA graph.
 export const routeRegistry=Object.freeze([
+ {routeId:'new-room',screenId:'newroom',match:/^\/new-room$/,params:[],transitions:[
+  {transitionId:'private-created',event:'create-submit',kind:'success',to:'new-room'},
+  {transitionId:'private-pending',event:'create-submit',kind:'error',to:'new-room'},
+  {transitionId:'private-result-lost',event:'create-retry',kind:'error',to:'new-room'},
+  {transitionId:'private-persist-denied',event:'create-submit',kind:'error',to:'new-room'},
+  {transitionId:'private-open-read',event:'read-link',kind:'success',to:'private-room'},
+  {transitionId:'new-room-back',event:'back-link',kind:'back',to:'rooms'}]},
  {routeId:'claim',screenId:'claim',nestedScreens:['auth'],match:/^\/claim\/([a-f0-9-]{36})\/([\w-]{43})$/,params:['id','cap'],transitions:[
   {transitionId:'claim-approved',event:'approve-confirm',kind:'success',to:'claim'},
   {transitionId:'claim-denied',event:'approve-confirm',kind:'error',to:'claim'},
@@ -34,7 +41,7 @@ export const routeRegistry=Object.freeze([
   {transitionId:'settings-conflict',event:'save-confirm',kind:'error',to:'admin-settings'},
   {transitionId:'settings-denied',event:'server-auth-check',kind:'error',to:'admin-settings'},
   {transitionId:'settings-back',event:'rooms-link',kind:'back',to:'introduction'}]},
- {routeId:'introduction',screenId:'introduction',match:/^\/$/,params:[],transitions:[
+ {routeId:'introduction',screenId:'introduction',aliases:['/about'],match:/^\/(?:about)?$/,params:[],transitions:[
   {transitionId:'catalog-open',event:'catalog-link',kind:'success',to:'public-room'}]},
  {routeId:'guide',screenId:'guide',match:/^\/guide$/,params:[],transitions:[]},
  {routeId:'public-room',screenId:'room',match:/^\/public\/([a-z0-9-]+)$/,params:['slug'],transitions:[
