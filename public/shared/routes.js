@@ -1,5 +1,11 @@
 // One route inventory is used by product navigation and the QA graph.
 export const routeRegistry=Object.freeze([
+ {routeId:'account',screenId:'account',match:/^\/account$/,params:[],transitions:[
+  {transitionId:'agent-revoked',event:'revoke-confirm',kind:'success',to:'account'},
+  {transitionId:'agent-revoke-denied',event:'revoke-confirm',kind:'error',to:'account'},
+  {transitionId:'account-denied',event:'server-auth-check',kind:'error',to:'auth-login'},
+  {transitionId:'account-logout',event:'logout',kind:'success',to:'introduction'},
+  {transitionId:'account-back',event:'rooms-link',kind:'back',to:'rooms'}]},
  {routeId:'rooms',screenId:'lobby',match:/^\/rooms$/,params:[],transitions:[
   {transitionId:'rooms-catalog-open',event:'catalog-link',kind:'success',to:'public-room'}]},
  {routeId:'auth-login',screenId:'auth',match:/^\/login$/,params:[],transitions:[

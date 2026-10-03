@@ -4,6 +4,10 @@ export class EffectError extends Error {
  constructor(code,status=null,retryAfter=null,room_id){super(code);this.code=code;this.status=status;this.retryAfter=retryAfter;if(typeof room_id==='string')this.room_id=room_id;}
 }
 const invalid=kind=>{throw new EffectError('INVALID_'+kind);};
+export function mapAgent(data){
+ if(typeof data?.id!=='string'||typeof data.name!=='string'||!['pending','approved','revoked','expired'].includes(data.status)||typeof data.pending_expires_at!=='string'||!(data.credential_expires_at===null||typeof data.credential_expires_at==='string'))invalid('AGENT');
+ return {id:data.id,name:data.name,status:data.status,pending_expires_at:data.pending_expires_at,credential_expires_at:data.credential_expires_at};
+}
 export function mapSession(data){
  if(typeof data?.authenticated!=='boolean'||!['anonymous','member','admin'].includes(data.role)
   ||data.authenticated===(data.role==='anonymous')
@@ -11,7 +15,8 @@ export function mapSession(data){
   ||!(data.owner_ack===null||(typeof data.owner_ack?.version==='string'&&Number.isFinite(data.owner_ack.confirmed_at))))invalid('SESSION');
  return {authenticated:data.authenticated,role:data.role,entitlements:{
   can_create_private:data.entitlements.can_create_private,can_persist_private:data.entitlements.can_persist_private},
-  owner_ack:data.owner_ack===null?null:{version:data.owner_ack.version,confirmed_at:data.owner_ack.confirmed_at}};
+  owner_ack:data.owner_ack===null?null:{version:data.owner_ack.version,confirmed_at:data.owner_ack.confirmed_at},
+  ...(data.authenticated&&data.agents!==undefined?{agents:Array.isArray(data.agents)?data.agents.map(mapAgent):invalid('SESSION')}:{})};
 }
 export function mapConfig(data){
  if(!Number.isSafeInteger(data?.revision)||!['demo','hosted'].includes(data.mode)||typeof data.enabled!=='boolean'
@@ -70,6 +75,7 @@ export function createLiveAdapter({fetch:fetchHTTP=globalThis.fetch}={}){
    if(!Number.isSafeInteger(data.revision)||!data.settings||!schema.schema)invalid('ADMIN_SETTINGS');
    return {revision:data.revision,settings:data.settings,schema:schema.schema,effects:settingsEffects(schema.schema)};
   },
+  revokeAgent:async id=>mapAgent((await request('/api/agents/'+encodeURIComponent(id)+'/revoke',{method:'POST',sessionMutation:true,body:{}})).agent),
   getBudget:async()=>mapBudget(await request('/api/admin/budget')),
   getInvitations:()=>request('/api/admin/invitations'),
   getAudit:()=>request('/api/admin/audit'),

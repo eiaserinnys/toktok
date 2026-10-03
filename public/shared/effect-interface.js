@@ -2,7 +2,7 @@
 export const effectNames=Object.freeze([
  'getConfig','getSession','validateInvitation','startAuth','sendEmail','completeAuth',
  'getAdminSettings','getBudget','getInvitations','getAudit','saveSettings','createInvitation','revokeInvitation','logout',
- 'createContext','creationGrant','createRoom'
+ 'revokeAgent','createContext','creationGrant','createRoom'
 ]);
 export async function loadResource(load,observe){
  observe({status:'loading',value:null,error:null});
