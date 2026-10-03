@@ -56,7 +56,7 @@ export function mountDesignReview(root,view='flows'){
    button.style.setProperty('left',node.x+'px');button.style.setProperty('top',node.y+'px');
    const frame=button.querySelector('iframe'),doc=frame.contentDocument;
    const style=doc.createElement('link');style.rel='stylesheet';style.href='/styles.css';doc.head.append(style);
-   for(const path of ['auth.css','account.css','settings.css','components/schema-patterns.css','components/selects.css']){const css=doc.createElement('link');css.rel='stylesheet';css.href='/admin/design/_assets/shared/'+path;doc.head.append(css);}
+   for(const path of ['auth.css','account.css','claim.css','settings.css','components/schema-patterns.css','components/selects.css']){const css=doc.createElement('link');css.rel='stylesheet';css.href='/admin/design/_assets/shared/'+path;doc.head.append(css);}
    doc.body.innerHTML=renderScreen(node.screenId,...(node.args??[]));
    // Every preview has independent history/state and no network effect port.
    let memory=previewContexts.get(node.id);if(!memory){memory=createFixtureAdapter();previewContexts.set(node.id,memory);}

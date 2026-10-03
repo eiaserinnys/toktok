@@ -2,7 +2,8 @@ import {internalPath} from './components/auth-primitives.js';
 
 // Product and QA provide different effect ports. No fixture is imported here.
 // Challenge, nonce and email stay in this instance's memory, never storage/URL.
-export function createAuthController({effects,paint,navigate,newRequestId=()=>crypto.randomUUID()}){
+export function createAuthController({effects,paint,navigate,newRequestId=()=>crypto.randomUUID(),claim,onVerified}){
+ let claimBinding=claim?{id:claim.id,cap:claim.cap}:null;
  let vm={status:'loading',Session:null,Config:null,ui:{}},screen='login',generation=0;
  let cancelReturn='/',successReturn='/rooms',requestId=null,retryAt=0,retryTimer=null;
  const draw=()=>{if(retryAt)vm.ui.retryAfter=Math.max(0,Math.ceil((retryAt-Date.now())/1000));paint({...vm,screen,ui:{...vm.ui}});};
@@ -13,7 +14,7 @@ export function createAuthController({effects,paint,navigate,newRequestId=()=>cr
  }
  function clear(){clearTimeout(retryTimer);retryTimer=null;retryAt=0;vm.ui={};requestId=null;}
  function enter(next,origin){
-  const purpose=next==='verify'?vm.ui.purpose:next==='signup'?'signup':'login';
+  const purpose=claimBinding?'claim':next==='verify'?vm.ui.purpose:next==='signup'?'signup':'login';
   if(vm.ui.purpose&&purpose!==vm.ui.purpose){generation++;clear();}
   screen=next;
   if(origin!==undefined&&!['/login','/signup','/verify'].includes(origin)){
@@ -52,7 +53,8 @@ export function createAuthController({effects,paint,navigate,newRequestId=()=>cr
    vm.ui.email=value;
    if(!vm.ui.challenge){
     const challenge=await effects.startAuth({purpose:vm.ui.purpose,
-     ...(vm.ui.invitation?{invite_validation_id:vm.ui.invitation.invite_validation_id}:{})});
+     ...(vm.ui.invitation?{invite_validation_id:vm.ui.invitation.invite_validation_id}:{}),
+     ...(claimBinding?{claim_id:claimBinding.id,claim_token:claimBinding.cap}:{})});
     if(!current())return;
     if(!challenge.flow||!challenge.nonce||!challenge.expires_at)throw Error('INVALID_AUTH_RESPONSE');
     if(challenge.provider_configured!==true)throw Object.assign(Error('AUTH_PROVIDER_UNCONFIGURED'),{code:'AUTH_PROVIDER_UNCONFIGURED'});
@@ -65,14 +67,14 @@ export function createAuthController({effects,paint,navigate,newRequestId=()=>cr
   },'authError'),
   verify:otp=>action(async current=>{
    const challenge=vm.ui.challenge;if(!challenge)throw Error('AUTH_FLOW_DENIED');
-   const result=await effects.completeAuth({flow:challenge.flow,nonce:challenge.nonce,otp});if(!current())return;
+   const result=await effects.completeAuth({flow:challenge.flow,nonce:challenge.nonce,otp,...(claimBinding?{claim_id:claimBinding.id,claim_token:claimBinding.cap}:{})});if(!current())return;
    if(result.verified!==true)throw Error('INVALID_AUTH_RESPONSE');
-   clear();navigate(successReturn);
+   clear();if(onVerified)onVerified();else navigate(successReturn);
   },'otpError'),
   // Only an explicit action after Retry-After may start a new mail request.
   resend:()=>{if(Date.now()<retryAt||vm.ui.pending)return;requestId=null;return api.sendEmail(vm.ui.email);},
   cancel:()=>{generation++;clear();navigate(cancelReturn);},
   changeEmail:()=>{const purpose=vm.ui.purpose,invitation=vm.ui.invitation;generation++;clear();enter(purpose==='signup'?'signup':'login');vm.ui.invitation=invitation;draw();},
-  dispose:()=>{generation++;clear();}
+  dispose:()=>{generation++;clear();claimBinding=null;}
  };return api;
 }

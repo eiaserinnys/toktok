@@ -12,10 +12,11 @@ export function validateCoverage({components,dialogs,screens,routes,fixtures}){
  for(const f of fixtures.screens){
   if(ids.has(f.fixtureId))errors.push(`duplicate:${f.fixtureId}`);ids.add(f.fixtureId);
   if(!screens[f.screenId])errors.push(`screen:${f.screenId}`);
-  if(!routes.some(r=>r.routeId===f.routeId&&r.screenId===f.screenId))errors.push(`route-entry:${f.routeId}`);
+  if(!routes.some(r=>r.routeId===f.routeId&&(r.screenId===f.screenId||r.nestedScreens?.includes(f.screenId))))errors.push(`route-entry:${f.routeId}`);
  }
  const transitions=routes.flatMap(r=>r.transitions);
  for(const route of routes){
+  for(const id of route.nestedScreens??[])if(!screens[id])errors.push(`nested-screen:${route.routeId}:${id}`);
   if(!fixtures.screens.some(f=>f.routeId===route.routeId))errors.push(`route:${route.routeId}`);
   for(const edge of route.transitions)if(!fixtures.transitions.some(f=>f.transitionId===edge.transitionId))errors.push(`transition:${edge.transitionId}`);
  }

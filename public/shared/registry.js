@@ -1,3 +1,4 @@
+import {renderClaim} from './screens/claim.js';
 import {renderAccount} from './screens/account.js';
 import {createAgentRevokeDialog} from './dialogs/identity.js';
 import {renderBudgetUsage} from './components/budget-usage.js';
@@ -26,9 +27,10 @@ export const componentRegistry=Object.freeze({
  'settings-fields':{render:renderSettingsFields,requiredStates:['catalog','empty','max','workload','nested','readonly-off']}
 });
 export const screenRegistry=Object.freeze({
+ claim:{render:renderClaim,requiredStates:['anonymous','unchecked','checked','pending','approved','error','expired','loading','unavailable']},
  account:{render:renderAccount,requiredStates:['default','revoked','empty','anonymous','loading','unavailable','error']},
  room:{render:room},terminal:{render:terminal},introduction:{render:introduction},guide:{render:guide},
- auth:{render:vm=>renderAuth(vm.screen,vm),requiredStates:['login','signup-invite','signup-email','invite-invalid','closed','verify','error','expired','loading','unavailable']},
+ auth:{render:vm=>renderAuth(vm.screen,vm),requiredStates:['claim-email','claim-verify','claim-otp-error','login','signup-invite','signup-email','invite-invalid','closed','verify','error','expired','loading','unavailable']},
  lobby:{render:renderLobby,requiredStates:['default','empty','loading','unavailable']},
  settings:{render:renderSettingsScreen,requiredStates:['overview','public','private','budget','identity','signup','deployment','loading','denied','error','conflict','budget-loading','budget-unavailable']}
 });
