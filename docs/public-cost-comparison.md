@@ -260,3 +260,10 @@ node test/selfhost-profile-cost.mjs --cpu-ms=10 --baseline=baseline.json
 ```
 
 baseline은 `worker_requests, worker_cpu_ms, do_requests, do_gb_s, sql_reads, sql_writes, sql_gb_month`의 비음수 숫자입니다. 계정 credential/SQL/본문을 넣지 않습니다. 설치 seed/운영 cutoff/메일가격/실제 CPU·persist row계측은 root 후속 입력이며 문서 저장을 기능 완료나 $100 목표 달성으로 보고하지 않습니다.
+
+
+## 원자 microUSD cutoff 구현 입력
+
+후속 root 결정은 모든 kind에 같은 strict cutoff를 적용합니다. 표시용 USD와 실제 transaction 집행을 구분한 [정수 요율 제안](public-budget-estimate.md)을 별도 보존했습니다. 월 fixed25 + 새 reservation14µUSD + kind 가중치이며 replay추가0입니다. response 면제/parent completion grant는 추가하지 않습니다. cutoff 뒤 이미 수락한 작업의 성공 응답 전달도 보장하지 않습니다. 수량cap 모두 소진 시 느슨한 추정72.152626은 cutoff60을 넘으므로 개별cap 동시소진을 약속하지 않습니다. 이 값은 이전 invoice baseline 모델62.62과 계산 목적이 다르며 새 운영 가격이나 $100 hard cap이 아닙니다.
+
+작은 D2명/1h·4h 및 E10participant+10watcher/1h의 같은 요율 계산은26.05/29.19/40.91입니다. E4h는 요청1M수량cap을 먼저넘습니다. 기존 seeded rate를 이용한 계산만 수행했으며 추가 runtime/부하/Cloudflare 변경은 없습니다. native USD 장부 delta와 실제 email provider 비용은 후속 계측·입력입니다.
