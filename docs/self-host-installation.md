@@ -32,3 +32,12 @@ PG의 consistent backup/restore는 사용자 운영 절차입니다. 자동 pg_d
 root 공통 router/ControlPlane 설정·예산·auth/admin bootstrap, startup overdue private scan, SMTP 실제 transport/template/secret 설정과 숨김 TTY 설치 UX는 후속입니다. /ready의 현재 foundation 성공은 그 제품 기능 완료를 뜻하지 않습니다. 실제 이메일/사용자 DB/계정/운영 config/Cloudflare 배포는0건입니다.
 
 공식 참고: [Node24 SQLite](https://nodejs.org/docs/latest-v24.x/api/sqlite.html), [SQLite WAL](https://www.sqlite.org/wal.html), [consistent backup](https://www.sqlite.org/backup.html), [PG locking](https://www.postgresql.org/docs/current/explicit-locking.html), [node-postgres transaction client](https://node-postgres.com/features/transactions).
+
+
+## Node schema v2 업데이트
+
+새 SQLite/PG 설치의 apply는 v2 marker와 private metadata 순회 index를 만듭니다. 기존 v1은 MIGRATION_REQUIRED로 시작을 닫으며 자동 migration하지 않습니다. 업데이트 전에 이전 앱의 consistent backup 명령 또는 PostgreSQL의 일관 backup 절차로 복구 자료를 만들고 앱을 정상 종료하세요. 살아 있는 WAL 파일 하나를 복사하지 마세요.
+
+명시적 구현 접점은 SQLite `migrateSQLite(path)`와 PG `PostgresRepository.migrate()`입니다. 기존 marker/checksum/columns를 정확히 검사하고 index와 v2 marker를 같은 transaction에서 전환합니다. SQLite는 동일 volume의 flock entrypoint 아래, PG는 serving owner가 없는 상태에서 실행합니다. root가 setup/main의 migrate 명령을 연결하는 단계이므로 현재 setup 스크립트가 이 명령을 지원한다고 가정하지 마세요.
+
+업데이트 후 check는 v2 실제 index도 확인합니다. 시작 호스트는 metadata-only room ID 페이지를 읽고 restoreRoom을 모두 완료한 뒤 ready/listen을 열어야 합니다. 실패하면 serving을 시작하지 않습니다. 되돌릴 때는 검증된 v1 backup을 복원하고 이전 앱을 사용하며 자동 down/reset은 제공하지 않습니다. backup은 본문 persistence의 복구 사본을 포함할 수 있고 메모리 body 덤프는 하지 않습니다.

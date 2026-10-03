@@ -10,7 +10,7 @@ transaction의 누적 접근 한도는 4096 records/8MiB이며 단일 JSON recor
 
 - `src/storage/sqlite.ts`: Node24 DatabaseSync, BEGIN IMMEDIATE와 로컬 직렬 mutex, WAL/foreign keys/busy timeout, await 전에 cursor 소비입니다.
 - `src/storage/postgres.ts`: 선택 시만 pg 초기화, 같은 DB/schema session advisory owner lock, 각 transaction의 같은 client와 scope advisory xact lock입니다. owner 연결 상실은 readiness를 닫고 자동 재연결하지 않습니다.
-- `src/storage/cloudflare.ts`: 좁은 structural SQL/storage port, storage.transaction(async closure)와 즉시 toArray입니다. 직접 BEGIN을 보내지 않습니다. runtime 생성 내부 테이블 중 exact `__cf_kv`, `_cf_METADATA`만 제외합니다. 임의 prefix나 사용자 테이블은 허용하지 않습니다. 기존 IdentityRegistry SQL은 자동 이주하지 않으며 새 namespace가 필요합니다. nodejs_als compatibility는 root 실제 config 연결 사항입니다.
+- `src/storage/cloudflare.ts`: 좁은 structural SQL/storage port, storage.transaction(async closure)와 즉시 toArray입니다. 직접 BEGIN을 보내지 않습니다. runtime 생성 내부 테이블 중 exact `__cf_kv`, `_cf_KV`, `_cf_METADATA`만 제외합니다. 임의 prefix나 사용자 테이블은 허용하지 않습니다. 기존 IdentityRegistry SQL은 자동 이주하지 않으며 새 namespace가 필요합니다. nodejs_als compatibility는 root 실제 config 연결 사항입니다.
 
 ## Public core와 policy
 
@@ -24,7 +24,7 @@ firstWindowMs<=300000/firstWindowMessages<=20, responseBytes=65536, byteBurst>=r
 
 memory 본문은 ring만 쓰고 private_messages 행은0입니다. metadata에는 cap hash/참여 principal 및 생성 조건을 둡니다. persist만 같은 room transaction의 metadata guard를 통과하여 body/dedupe/sequence를 저장합니다. 새 memory instance는 새 epoch, persist 재시작은 epoch/sequence를 유지합니다. 최초5분/20개, delta/gap/reset, byte-prefix cursor/has_more와 보관 범위 idempotency는 공통 page 계약입니다. 16KiB 본문도 실제 JSON envelope가64KiB에 들어가는지 수락 전에 확인합니다. 참여 secret/생성 결과는 DB에서 복구하지 않습니다.
 
-handlers 기본64/상한160, bodyInflight 기본8/상한16, waits32/cap1입니다. waits와 bodyInflight는 handlers를 넘지 않습니다. 본문 parsing 전에 RAM slot을 얻고 finally/abort/shutdown에 반환합니다. 중복 wait를 거절한 요청은 원래 wait 소유권을 해제하지 않습니다. Node registry timer는 bounded maintenance/absolute expiry용이며 root startup overdue 목록 연결은 후속입니다. 읽기 노출은 만료 시각부터 즉시 금지하되 physical row 정리는100행씩 bounded로 수행합니다. 백업/PITR 잔존까지 즉시 삭제됐다고 주장하지 않습니다.
+handlers 기본64/상한160, bodyInflight 기본8/상한16, waits32/cap1입니다. waits와 bodyInflight는 handlers를 넘지 않습니다. 본문 parsing 전에 RAM slot을 얻고 finally/abort/shutdown에 반환합니다. 중복 wait를 거절한 요청은 원래 wait 소유권을 해제하지 않습니다. Node registry timer는 bounded maintenance/absolute expiry용이며 Node metadata-only startup restore 접점은 구현했으며 ready/listen 이전 순회 연결은 root가 담당합니다. 읽기 노출은 만료 시각부터 즉시 금지하되 physical row 정리는100행씩 bounded로 수행합니다. 백업/PITR 잔존까지 즉시 삭제됐다고 주장하지 않습니다.
 
 ## 예산 예약 소유 경계
 
@@ -64,3 +64,14 @@ CF schema 검사는 문서상 `__cf_kv`, alarm의 `_cf_METADATA`와 로컬 SQLit
 `MAX_PRIVATE_PURPOSE_CHARACTERS=1000`은 private-contracts의 생성 purpose Unicode 문자 수 정본입니다. host/control은 이 상수를 import하여0..1000 HTTP 계약을 유지합니다. private-state도 같은 상한을 검증합니다.
 
 미초기화 CF actor의 GET은 schema check 읽기만으로 blank를 확인하면404 ROOM_NOT_FOUND를 반환합니다. schema apply/ID metadata 생성은 trusted initialize만 수행합니다. corrupt/schema conflict는404로 덮지 않습니다. 이미 초기화한 warm/cold actor의 정상 metadata 접근은 유지합니다.
+
+
+## Node startup restore와 명시적 schema v2
+
+`src/storage/node-maintenance.ts`의 `NodePrivateMaintenance.listPrivateRoomIds({limit,after?})`는 `{ids,next?}`를 반환합니다. `limit`은1..100, cursor는 마지막 room ID입니다. 한 페이지가 limit과 같으면 다음 페이지가 비어 있을 수 있습니다. SQLiteRepository/PostgresRepository만 구현하며 공통 RepositoryPort와 CF schema v1은 바꾸지 않았습니다. `NodeRepositoryPort`는 두 포트의 교차 타입입니다.
+
+조회는 actual private_rooms collection의 `scope=room:<key>`/snapshot ID 일치, persist=true, body_count>0 metadata만 사용하고 본문을 조회하거나 반환하지 않습니다. deleted 방의 남은 본문도 포함합니다. 목록에 없는 control의 pending creation을 초기화하지 않습니다. root는 페이지별 `PrivateRooms.restoreRoom(id)`를 await하고 전체 순회가 끝난 뒤 listen/ready를 엽니다. restoreRoom은 initialize 없이 maintenance(id)와 기존 timer를 연결하며 실패를 숨기지 않습니다. body0인 방은 나중 post/fetch의 기존 schedule로 등록합니다.
+
+Node의 빈 DB apply는 version2/checksum `toktok-records-v2-private-room-maintenance-index`와 index `tok_private_rooms_scan(collection,scope,key)`를 만듭니다. PG scope/key는 C collation입니다. v2 check는 실제 index/columns/marker를 검증하고 누락·다른 index는 SCHEMA_CONFLICT입니다. 기존 v1은 시작/check/apply에서 MIGRATION_REQUIRED로 닫히며 자동 변환하지 않습니다.
+
+명시적 migration 접점은 `migrateSQLite(path):void`와 `PostgresRepository.migrate():Promise<void>`입니다. 정확한 기존 v1 marker/checksum/columns를 검증한 뒤 index 생성과 marker 전환을 같은 transaction에서 수행합니다. PG는 serving owner lock을 확인하며 SQLite CLI는 기존 flock entrypoint 아래에서 실행해야 합니다. 무관 table/schema나 잘못된 marker를 덮지 않고 DROP/TRUNCATE/reset/down 경로는 없습니다. main/openBackend/migrate CLI와 최종 호스트 연결은 root 소유입니다.
