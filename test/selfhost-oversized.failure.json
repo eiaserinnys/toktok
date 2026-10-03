@@ -1,0 +1,51 @@
+{
+  "gate": "CF oversized private streaming body",
+  "result": "FAIL; upstream producer cancellation unconfirmed",
+  "executions": [
+    {
+      "attempt": 1,
+      "change": "bounded reader cancellation",
+      "status": 413,
+      "error_code": "BODY_TOO_LARGE",
+      "cancelled": false,
+      "body_used": true,
+      "body_locked": true,
+      "handlers": 0,
+      "body_inflight": 0,
+      "duration_ms": 9,
+      "stream_warnings_in_selected_output": 0
+    },
+    {
+      "attempt": 2,
+      "change": "original Request reader with optional abort signal",
+      "status": 413,
+      "error_code": "BODY_TOO_LARGE",
+      "cancelled": false,
+      "body_used": true,
+      "body_locked": false,
+      "handlers": 0,
+      "body_inflight": 0,
+      "duration_ms": 8,
+      "stream_warnings_in_selected_output": 0
+    },
+    {
+      "attempt": 3,
+      "authorization": "root explicit final bounded polling observation only",
+      "change": "no product change; caller cancellation observed for max100 polls with10ms nominal interval",
+      "status": 413,
+      "error_code": "BODY_TOO_LARGE",
+      "cancelled": false,
+      "body_used": true,
+      "body_locked": false,
+      "handlers": 0,
+      "body_inflight": 0,
+      "cancel_observation_ms": 1145,
+      "duration_ms": 1150,
+      "stream_warnings_in_selected_output": 0
+    }
+  ],
+  "required_assertion": "caller cancelled === true, never relaxed",
+  "reexecution_allowed": false,
+  "producer_delivery_guaranteed": false,
+  "no_body_secret_ip_output": true
+}
