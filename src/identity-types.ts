@@ -21,7 +21,7 @@ export interface RegistryInput {
  email?:string;ip?:string;request_id?:string;otp?:string;limits?:string;delivery_state?:'sent'|'uncertain';now?:number;
  risk_ack_version?:string;purpose?:'login'|'signup'|'claim';invitation_validation_hash?:string;
  confirm?:boolean;expected_revision?:unknown;settings?:unknown;limit?:number;ttl_seconds?:number;
- operation_id?:string;kind?:BudgetKind;amount?:number;
+ operation_id?:string;kind?:BudgetKind;amount?:number;mutation?:boolean;
  creation_context?:CreationContextInput;creation_grant?:CreationGrantInput;creation?:CreationReserveInput;creation_commit?:CreationCommitInput;
 }
 export interface AgentRow {id:string;name:string;token_hash:string;claim_hash:string;status:string;pending_expiry:number;credential_expiry:number|null;owner_id:string|null;}

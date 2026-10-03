@@ -9,6 +9,7 @@ import {normalizeEmail} from './email';
 import {fail,limited,bad} from './http';
 import {type RegistryInput,type AgentRow,type FlowRow,type SessionRow,agentView} from './identity-types';
 import {CreationAdmissions} from './create-admission';
+import {AdminRecovery} from './admin-recovery';
 import {requireEnforcement,type TrustedEnforcement,type InstallationSeed} from './control-installation';
 export interface ControlOptions {bootstrapEmail?:string;installation?:InstallationSeed;enforcement?:TrustedEnforcement;}
 /** One domain, injected into CF and Node. No mail/HTTP/longpoll IO in a transaction. */
@@ -58,6 +59,10 @@ export class ControlDomain {
   // Trusted host transport only. Never dispatch this action from a public route.
   if(action==='get-runtime-config'){const row=await this.settings.read();return {settings:row.settings,revision:row.revision,readiness:await this.settings.state()};}
   if(action==='invitation-validate')return this.invitations.validate(input.token_hash!,input.invitation_validation_hash!,input.browser_hash!,now);
+  if(action==='admin-recovery-reserve'){
+   if(typeof input.mutation!=='boolean')bad();await this.admin(input,input.mutation);
+   return new AdminRecovery(this.tx).reserve({session_hash:input.session_hash!,csrf:input.csrf,mutation:input.mutation,operation_id:input.operation_id!},now);
+  }
   if(action==='admin-bootstrap'){
    const {account}=await this.session(input,true);if(input.confirm!==true||!await this.bootstrapEligible(account.email))fail(403,'BOOTSTRAP_DENIED','최초 관리자 확인을 진행할 수 없습니다.');
    await save(this.tx,C.accounts,'a:'+account.id,{...account,role:'admin'});await save(this.tx,C.accounts,'admin',{id:account.id});await this.settings.stateSave({...await this.settings.state(),bootstrap_consumed:true});await this.settings.audit(account.id,now,'admin.bootstrap',null,{});return {bootstrapped:true};

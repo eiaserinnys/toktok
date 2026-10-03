@@ -1,4 +1,5 @@
 import {bad,fail} from './http';
+import {AdminRecovery} from './admin-recovery';
 import {DEFAULT_SETTINGS,validateSettings,publicConfig,type Settings,type BudgetKind,BUDGET_KINDS} from './settings-schema';
 import {budgetWindows,validateBudgetOperation} from './control-policy';
 import {C,type Tx,save,read,expire} from './control-records';
@@ -39,7 +40,7 @@ export class SettingsStore {
  async budget(now:number){
   const settings=(await this.read()).settings,w=budgetWindows(now),usage=[];
   for(const cap of settings.budget.workloadCaps)usage.push({kind:cap.kind,unit:cap.unit,day:{reserved:await this.used(`usage:${cap.kind}:d:${w.day}`),limit:cap.day},month:{reserved:await this.used(`usage:${cap.kind}:m:${w.month}`),limit:cap.month}});
-  return {windows:{day:w.day,month:w.month,next_day_at:new Date(w.dayEnd).toISOString(),next_month_at:new Date(w.monthEnd).toISOString()},usage,estimate:estimateState(settings,await this.used('estimate:d:'+w.day),await this.used('estimate:m:'+w.month)),thresholds:{target_usd:settings.budget.targetUsd,warning_usd:settings.budget.warningUsd,cutoff_usd:settings.budget.cutoffUsd},model:BUDGET_ESTIMATE_MODEL};
+  return {recovery:await new AdminRecovery(this.tx).usage(now),windows:{day:w.day,month:w.month,next_day_at:new Date(w.dayEnd).toISOString(),next_month_at:new Date(w.monthEnd).toISOString()},usage,estimate:estimateState(settings,await this.used('estimate:d:'+w.day),await this.used('estimate:m:'+w.month)),thresholds:{target_usd:settings.budget.targetUsd,warning_usd:settings.budget.warningUsd,cutoff_usd:settings.budget.cutoffUsd},model:BUDGET_ESTIMATE_MODEL};
  }
  /** Same transaction, read-only: call before checking address eligibility. */
  async checkBudget(kind:BudgetKind,amount:number,now:number){
