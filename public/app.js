@@ -4,8 +4,14 @@ import {createPublicState,startPublic,bindPublic,leavePublic} from './public-dem
 import {catalog} from './public-demo-view.js';
 import {consumeFragment} from './public-demo-session.js';
 import {resolveRoute} from './shared/routes.js';
+import {createLiveAdapter} from './effects/live-http.js';
+import {mountAuth} from './shared/auth-mount.js';
+import {mountSettings} from './shared/settings-mount.js';
+import {mountLobby} from './shared/lobby-mount.js';
 const app=document.querySelector('#app'),states=new Map();
-let active=null,toastTimer=null;
+const effects=createLiveAdapter();
+let active=null,toastTimer=null,surface=null,surfaceKind=null,previousPath='/';
+function move(path){delete document.body.dataset.error;history.pushState(null,'',path);navigate();}
 const $=(selector)=>active?.root.querySelector(selector);
 function status(copy){const e=$('#watch-status');if(e)e.textContent=copy;}
 function showTerminal(state,code){
@@ -140,6 +146,22 @@ function navigate(){
  const error=document.body.dataset.error;
  if(error){app.innerHTML=terminal(error);return;}
  const resolved=resolveRoute(location.pathname);
+ const nextKind=resolved?.screenId==='auth'?'auth':resolved?.routeId==='admin-settings'?'settings':resolved?.routeId==='rooms'?'rooms':null;
+ if(surfaceKind!==nextKind){surface?.dispose();surface=null;surfaceKind=null;}
+ if(nextKind==='auth'){
+  const screen=resolved.routeId==='auth-verify'?'verify':resolved.routeId==='auth-signup'?'signup':'login';
+  if(!surface){surface=mountAuth(app,{effects,navigate:move});surfaceKind='auth';surface.load(screen,previousPath);}else surface.enter(screen);
+  previousPath=location.pathname;return;
+ }
+ if(nextKind==='settings'){
+  const section=resolved.params.section||'overview';
+  if(!surface){surface=mountSettings(app,{effects,section});surfaceKind='settings';surface.load();}else surface.enter(section);
+  previousPath=location.pathname;return;
+ }
+ if(nextKind==='rooms'){
+  if(!surface){surface=mountLobby(app,{effects,navigate:move});surfaceKind='rooms';}surface.load();previousPath=location.pathname;return;
+ }
+ previousPath=location.pathname;
  if(resolved?.routeId==='public-room'){
   const grant=consumeFragment(location,history),key='public:'+resolved.params.slug;let state=states.get(key);
   if(!state){const root=document.createElement('div');root.innerHTML=room();state=createPublicState(root,resolved.params.slug,location.origin+location.pathname,grant);states.set(key,state);bind(state);bindPublic(state,publicUI);}
@@ -158,13 +180,26 @@ document.addEventListener('click',e=>{
  const a=e.target.closest('a');if(!a||e.defaultPrevented||e.button!==0||e.ctrlKey||e.metaKey||e.shiftKey||e.altKey)return;
  if(a.classList.contains('skip')){e.preventDefault();const main=document.querySelector('#content');main.setAttribute('tabindex','-1');main.focus();return;}
  const url=new URL(a.href);if(url.origin!==location.origin||url.search||url.hash)return;
- e.preventDefault();delete document.body.dataset.error;history.pushState(null,'',url.pathname);navigate();
+ e.preventDefault();
+ if(url.pathname.startsWith('/admin/design/')){if(surfaceKind==='settings')surface.requestLeave(()=>location.assign(url.pathname));else location.assign(url.pathname);return;}
+ if(surfaceKind==='settings'&&resolveRoute(url.pathname)?.routeId!=='admin-settings'){surface.requestLeave(()=>move(url.pathname));return;}
+ move(url.pathname);
 });
 document.addEventListener('keydown',e=>{
  if(!e.target.matches('[role=tab]')||!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;
  e.preventDefault();tab(e.key==='Home'?'chat':e.key==='End'?'connect':e.target.dataset.tab==='chat'?'connect':'chat',true);
 });
-window.addEventListener('popstate',navigate);
-window.addEventListener('pagehide',()=>{if(active){cancel(active);if(active.mode==='public')leavePublic(active);}clearTimeout(toastTimer);});
+let confirmedPop=false;
+window.addEventListener('popstate',()=>{
+ if(confirmedPop){confirmedPop=false;navigate();return;}
+ if(surfaceKind==='settings'&&resolveRoute(location.pathname)?.routeId!=='admin-settings'){
+  // Restore the current entry while its unsaved draft is being considered.
+  // The confirmed action traverses the original history once; cancel keeps it.
+  history.pushState(null,'',previousPath);
+  surface.requestLeave(()=>{confirmedPop=true;history.back();});return;
+ }
+ navigate();
+});
+window.addEventListener('pagehide',()=>{if(active){cancel(active);if(active.mode==='public')leavePublic(active);}surface?.dispose();surface=null;surfaceKind=null;clearTimeout(toastTimer);});
 window.addEventListener('pageshow',e=>{if(e.persisted)navigate();});
 navigate();

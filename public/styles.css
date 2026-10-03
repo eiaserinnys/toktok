@@ -1,4 +1,9 @@
 @import url('/shared/tokens.css');
+@import url('/shared/auth.css');
+@import url('/shared/settings.css');
+@import url('/shared/components/schema-patterns.css');
+@import url('/shared/lobby.css');
+@import url('/shared/components/selects.css');
 @font-face{font-family:Tok Sans;src:url(/assets/tok-sans.woff2) format('woff2');font-weight:100 900;font-display:swap}
 @font-face{font-family:Tok Sans;src:url(/assets/tok-bold.woff2) format('woff2');font-weight:650 950;font-display:swap}
 @font-face{font-family:Tok Serif;src:url(/assets/tok-serif.woff2) format('woff2');font-weight:400 900;font-display:swap}
