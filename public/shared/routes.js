@@ -65,6 +65,7 @@ export const routeRegistry=Object.freeze([
    ['public-request','agent-request','success'],['public-review','open-human-verification','success'],['public-approved','human-confirm','success'],['public-joined','agent-poll-and-join','success'],['public-posted','agent-post','reference'],
    ['public-denied','human-deny','error'],['public-revoked','human-revoke','error'],['public-request-expired','request-expiry','time'],['public-request-unavailable','server-denial','error']
   ].map(([transitionId,event,kind])=>({transitionId,event,kind,to:'public-room'})),
+  ...['history-gap','history-reset','initial-window'].map(state=>({transitionId:'public-'+state,event:state,kind:state==='initial-window'?'success':'error',to:'public-room'})),
   {transitionId:'public-back',event:'back-link',kind:'back',to:'introduction'}]},
  {routeId:'private-room',screenId:'room',nestedScreens:['terminal'],match:/^\/r\/([a-f0-9-]{36})\/([\w-]{43})$/,params:['id','cap'],transitions:[
   {transitionId:'private-expired',event:'server-expiry',kind:'time',to:'private-room'},

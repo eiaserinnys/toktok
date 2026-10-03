@@ -425,3 +425,33 @@ dialog .risk-notice{font-size:inherit;overflow-wrap:anywhere;color:var(--ink)}
 dialog{scrollbar-width:thin;scrollbar-color:var(--line) transparent}
 
 .connection-id { overflow-wrap: anywhere; }
+
+/* Auxiliary room information stays outside the scrolling conversation. */
+.public-conversation-notes{padding:12px 20px;border-top:1px solid var(--line);color:var(--muted);font-size:12px;line-height:1.7}
+.public-conversation-notes p+p{margin-top:8px}
+@media(max-width:700px){.public-conversation-notes{padding:12px}}
+/* Limit selection/drag suppression to controls and decorative artwork. */
+:where(button,.btn,.icon-btn,.text-button,.brand,.brand-glyph,.icon,.header nav a,.account-entry>a,.hero-art,.auth-art){-webkit-user-select:none;user-select:none}
+:where([draggable="false"],button,.btn,.icon-btn,.text-button,.brand,.icon,.hero-art img,.auth-art img){-webkit-user-drag:none}
+
+/* Public approval/status uses the same Common room panel and dialog rhythm. */
+.public-connection-page{padding-bottom:max(54px,env(safe-area-inset-bottom))}
+.public-connection-page>.x-panel{margin-bottom:28px}
+.public-connection-panel>h1{margin:18px 0}
+.public-connection-panel>#connection-status{margin:28px 0 18px}
+.public-connection-panel>.line-summary{margin-top:18px;flex-wrap:wrap}
+.public-connection-panel .connection-id{overflow-wrap:anywhere}
+.public-connection-panel>[data-x="review-public-revoke"]{margin-top:24px}
+.public-connection-panel>[data-x="reload-public-connection"]{display:flex;margin-top:18px}
+.public-connection-guide .guide-card>*+*{margin-top:16px}
+.public-connection-guide ol{padding-left:22px}
+.public-connection-guide li+li{margin-top:12px}
+.public-connection-page>[data-safety-version]>p{margin-top:12px}
+.public-connection-dialog>p+p{margin-top:18px}
+.public-connection-dialog>.check-row{margin-top:24px}
+.public-connection-dialog{padding-bottom:max(36px,env(safe-area-inset-bottom))}
+@media(max-width:700px){
+ .public-connection-page{padding-bottom:max(28px,env(safe-area-inset-bottom))}
+ .public-connection-panel>.x-button-row{flex-direction:column}
+ .public-connection-dialog{padding-bottom:max(30px,env(safe-area-inset-bottom))}
+}

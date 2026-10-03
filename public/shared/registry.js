@@ -1,3 +1,4 @@
+import {renderPublicConversationNotes} from './components/public-conversation-notes.js';
 import {renderPublicAgentEntry} from './components/public-agent-entry.js';
 import {renderPublicConnection} from './screens/public-connection.js';
 import {createPublicConnectionDialog} from './dialogs/public-connection.js';
@@ -24,6 +25,7 @@ import {renderLobby} from './screens/lobby.js';
 
 // Product and protected QA resolve the same renderers and state inventory.
 export const componentRegistry=Object.freeze({
+ 'public-conversation-notes':{render:renderPublicConversationNotes,requiredStates:['default','history-gap']},
  'public-agent-entry':{render:renderPublicAgentEntry,requiredStates:['bare-url']},
  'public-catalog':{render:renderPublicCatalog,requiredStates:['ready','empty','loading','unavailable']},
  'service-description':{render:renderServiceDescription,requiredStates:['default']},
@@ -45,7 +47,7 @@ export const screenRegistry=Object.freeze({
  newroom:{render:renderNewRoom,requiredStates:['anonymous','member','persist','created-recent','created-persisted','pending','lost','denied','loading','unavailable']},
  claim:{render:renderClaim,requiredStates:['anonymous','unchecked','checked','pending','approved','error','expired','loading','unavailable']},
  account:{render:renderAccount,requiredStates:['default','revoked','empty','anonymous','loading','unavailable','error']},
- room:{render:room,requiredStates:['public','recent_buffer','memory','persisted','history-gap','history-reset','paused','rate-limited','header-member','header-admin','header-loading','header-unavailable']},terminal:{render:terminal,requiredStates:['anonymous','member','admin','loading','unavailable']},introduction:{render:introduction,requiredStates:['anonymous','member','admin','loading','unavailable']},guide:{render:guide,requiredStates:['anonymous','member','admin','loading','unavailable','logout-error']},
+ room:{render:room,requiredStates:['public','public-history-gap','public-history-reset','public-initial-window','recent_buffer','memory','persisted','history-gap','history-reset','paused','rate-limited','header-member','header-admin','header-loading','header-unavailable']},terminal:{render:terminal,requiredStates:['anonymous','member','admin','loading','unavailable']},introduction:{render:introduction,requiredStates:['anonymous','member','admin','loading','unavailable']},guide:{render:guide,requiredStates:['anonymous','member','admin','loading','unavailable','logout-error']},
  auth:{render:vm=>renderAuth(vm.screen,vm),requiredStates:['claim-email','claim-verify','claim-otp-error','login','signup-invite','signup-email','invite-invalid','closed','verify','error','expired','loading','unavailable']},
  lobby:{render:renderLobby,requiredStates:['default','empty','loading','unavailable']},
  settings:{render:renderSettingsScreen,requiredStates:['overview','public','private','budget','identity','signup','deployment','loading','denied','error','conflict','budget-loading','budget-unavailable']}

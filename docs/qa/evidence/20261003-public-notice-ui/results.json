@@ -1,0 +1,343 @@
+{
+  "scope": "local Node24 SQLite product render, fictional conversation/session; no live posting/email/security change",
+  "unit": {
+    "unit": {
+      "numPassedTests": 3,
+      "numFailedTests": 0,
+      "numPendingTests": 3,
+      "success": true
+    },
+    "qa-delta-unit": {
+      "numPassedTests": 2,
+      "numFailedTests": 0,
+      "numPendingTests": 5,
+      "success": true
+    }
+  },
+  "browser_runs": {
+    "browser-initial": {
+      "cases": [
+        {
+          "width": 390,
+          "status": "running",
+          "errors": [],
+          "csp": [],
+          "mutations": [
+            {
+              "method": "POST",
+              "path": "/api/public/rooms/common-room/watchers"
+            },
+            {
+              "method": "POST",
+              "path": "/api/public/rooms/common-room/ack-flow"
+            }
+          ],
+          "public": {
+            "outside": true,
+            "below": true,
+            "font": 12,
+            "messageFont": 15,
+            "contrast": 4.986152226216169,
+            "copy": "auto",
+            "bodySelection": "auto",
+            "notes": "DB에 남아 있는 최근 대화부터 읽어요. 보관 한도를 넘긴 기록은 정리돼요.\n\n누구나 볼 수 있는 공개 대화입니다. 비밀이나 개인정보를 보내지 마세요. 대화 본문은 DB 최근 버퍼에 최대 500개·2MiB·1시간 이내로 저장됩니다. 서버 설정에 따라 더 적게 보관할 수 있으며 백업·PITR 사본의 즉시 물리 소거는 보장하지 않습니다. 대화를 받은 에이전트가 실행 환경에 영향을 줄 수 있음을 이해하고, 연결할 에이전트의 권한과 실행을 직접 관리하겠습니다.",
+            "login": {
+              "display": "flex",
+              "radius": "24px",
+              "border": "1px",
+              "height": 44,
+              "centerDelta": 0
+            }
+          },
+          "selectedText": "복사할",
+          "feedScroll": true,
+          "consentPreserved": true
+        }
+      ],
+      "cleanup": true,
+      "failure": "Expected values to be strictly equal:\n\n0 !== 25\n"
+    },
+    "browser-correction": {
+      "cases": [
+        {
+          "width": 390,
+          "status": "PASS",
+          "errors": [],
+          "csp": [],
+          "mutations": [],
+          "inputSelection": true,
+          "auth": {
+            "artDisplay": "none",
+            "imageBottomGap": 297.1875,
+            "captionBottomGap": 297.1875,
+            "imgDraggable": false,
+            "loginHeight": 44
+          },
+          "qa": {
+            "ready": "true",
+            "outside": true,
+            "hasNotice": true,
+            "below": true
+          }
+        },
+        {
+          "width": 1440,
+          "status": "running",
+          "errors": [],
+          "csp": [],
+          "mutations": [
+            {
+              "method": "POST",
+              "path": "/api/public/rooms/common-room/watchers"
+            },
+            {
+              "method": "DELETE",
+              "path": "/api/public/rooms/common-room/lease"
+            }
+          ],
+          "public": {
+            "outside": true,
+            "below": true,
+            "font": 12,
+            "messageFont": 16,
+            "contrast": 4.986152226216169,
+            "copy": "auto",
+            "bodySelection": "auto",
+            "notes": "DB에 남아 있는 최근 대화부터 읽어요. 보관 한도를 넘긴 기록은 정리돼요.\n\n누구나 볼 수 있는 공개 대화입니다. 비밀이나 개인정보를 보내지 마세요. 대화 본문은 DB 최근 버퍼에 최대 500개·2MiB·1시간 이내로 저장됩니다. 서버 설정에 따라 더 적게 보관할 수 있으며 백업·PITR 사본의 즉시 물리 소거는 보장하지 않습니다. 대화를 받은 에이전트가 실행 환경에 영향을 줄 수 있음을 이해하고, 연결할 에이전트의 권한과 실행을 직접 관리하겠습니다.",
+            "login": {
+              "display": "flex",
+              "radius": "24px",
+              "border": "1px",
+              "height": 46,
+              "centerDelta": 0
+            }
+          },
+          "selectedText": " ",
+          "feedScroll": true
+        }
+      ],
+      "cleanup": true,
+      "failure": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-tab=connect]')\u001b[22m\n"
+    },
+    "browser-tail": {
+      "cases": [
+        {
+          "width": 1440,
+          "status": "PASS",
+          "errors": [],
+          "csp": [],
+          "mutations": [
+            {
+              "method": "POST",
+              "path": "/api/public/rooms/common-room/watchers"
+            },
+            {
+              "method": "POST",
+              "path": "/api/public/rooms/common-room/ack-flow"
+            }
+          ],
+          "controlNativeDrag": false,
+          "consentPreserved": true,
+          "inputSelection": true,
+          "auth": {
+            "artDisplay": "block",
+            "imageBottomGap": 0,
+            "captionBottomGap": 24,
+            "imgDraggable": false,
+            "loginHeight": 46
+          },
+          "qa": {
+            "ready": "true",
+            "outside": true,
+            "hasNotice": true,
+            "below": true
+          }
+        }
+      ],
+      "cleanup": true,
+      "failure": null
+    },
+    "browser-final-delta": {
+      "cases": [
+        {
+          "width": 390,
+          "status": "PASS",
+          "errors": [],
+          "csp": [],
+          "mutations": [
+            {
+              "method": "POST",
+              "path": "/api/public/rooms/common-room/watchers"
+            }
+          ],
+          "authPolicyAligned": true,
+          "qa": [
+            {
+              "state": "public-history-gap",
+              "ready": "true",
+              "top": "최근 대화",
+              "outside": true,
+              "history": "이전 대화 일부를 더 이상 가져올 수 없습니다. 최근 대화로 다시 이어갑니다.",
+              "below": true
+            },
+            {
+              "state": "public-history-reset",
+              "ready": "true",
+              "top": "최근 대화",
+              "outside": true,
+              "history": "이전 대화 일부를 더 이상 가져올 수 없습니다. 최근 대화로 다시 이어갑니다.",
+              "below": true
+            },
+            {
+              "state": "public-initial-window",
+              "ready": "true",
+              "top": "최근 대화",
+              "outside": true,
+              "history": "서버가 안내한 최근 보관 범위부터 보여요. 그 이전 대화는 생략됐어요.",
+              "below": true
+            }
+          ]
+        },
+        {
+          "width": 1440,
+          "status": "PASS",
+          "errors": [],
+          "csp": [],
+          "mutations": [
+            {
+              "method": "POST",
+              "path": "/api/public/rooms/common-room/watchers"
+            }
+          ],
+          "authPolicyAligned": true,
+          "qa": [
+            {
+              "state": "public-history-gap",
+              "ready": "true",
+              "top": "최근 대화",
+              "outside": true,
+              "history": "이전 대화 일부를 더 이상 가져올 수 없습니다. 최근 대화로 다시 이어갑니다.",
+              "below": true
+            },
+            {
+              "state": "public-history-reset",
+              "ready": "true",
+              "top": "최근 대화",
+              "outside": true,
+              "history": "이전 대화 일부를 더 이상 가져올 수 없습니다. 최근 대화로 다시 이어갑니다.",
+              "below": true
+            },
+            {
+              "state": "public-initial-window",
+              "ready": "true",
+              "top": "최근 대화",
+              "outside": true,
+              "history": "서버가 안내한 최근 보관 범위부터 보여요. 그 이전 대화는 생략됐어요.",
+              "below": true
+            }
+          ]
+        }
+      ],
+      "cleanup": true,
+      "failure": null
+    },
+    "browser-connection-layout": {
+      "scope": "new connection pending/dialog/approved/joined layout; actual local Node24 SQLite; fictional browser consent; no message POST or email",
+      "cases": [
+        {
+          "width": 390,
+          "height": 667,
+          "status": "PASS",
+          "errors": [],
+          "pending": {
+            "panelToGuide": 28,
+            "guideToSafety": 28,
+            "bottomGap": 28,
+            "panelLastGap": 26,
+            "pageOverflow": false,
+            "status": "사람의 확인을 기다리고 있어요"
+          },
+          "dialog": {
+            "top": 33.34375,
+            "bottom": 33.359375,
+            "scrollable": true,
+            "checkGap": 24,
+            "paddingBottom": 30,
+            "overflow": false
+          },
+          "approved": {
+            "panelToGuide": 28,
+            "guideToSafety": 28,
+            "bottomGap": 28,
+            "panelLastGap": 26,
+            "pageOverflow": false,
+            "status": "이 요청의 연결을 허용했어요"
+          },
+          "joined": {
+            "panelToGuide": 28,
+            "guideToSafety": 28,
+            "bottomGap": 28,
+            "panelLastGap": 26,
+            "pageOverflow": false,
+            "status": "에이전트가 이 방에 참가했어요"
+          },
+          "localMessagePosts": 0,
+          "csp": []
+        },
+        {
+          "width": 1440,
+          "height": 1000,
+          "status": "PASS",
+          "errors": [],
+          "pending": {
+            "panelToGuide": 28,
+            "guideToSafety": 28,
+            "bottomGap": 54,
+            "panelLastGap": 33,
+            "pageOverflow": false,
+            "status": "사람의 확인을 기다리고 있어요"
+          },
+          "dialog": {
+            "top": 228.953125,
+            "bottom": 228.953125,
+            "scrollable": false,
+            "checkGap": 24,
+            "paddingBottom": 36,
+            "overflow": false
+          },
+          "approved": {
+            "panelToGuide": 28,
+            "guideToSafety": 28,
+            "bottomGap": 54,
+            "panelLastGap": 33,
+            "pageOverflow": false,
+            "status": "이 요청의 연결을 허용했어요"
+          },
+          "joined": {
+            "panelToGuide": 28,
+            "guideToSafety": 28,
+            "bottomGap": 54,
+            "panelLastGap": 33,
+            "pageOverflow": false,
+            "status": "에이전트가 이 방에 참가했어요"
+          },
+          "localMessagePosts": 0,
+          "csp": []
+        }
+      ],
+      "cleanup": true
+    }
+  },
+  "review": {
+    "initial": "one public history-state preview placement mismatch",
+    "correction": "resolved; no additional blocker found",
+    "connection_layout": "independent readonly: no defect found; control policy unchanged"
+  },
+  "limitations": [
+    "No deployment or production browser claim.",
+    "First browser run failed email input selectionStart assertion; type=email does not expose that range API.",
+    "Correction run passed 390 continuation, then 1440 dragged logo released within anchor and navigated home; untouched product navigation.",
+    "Public metrics passed before these harness failures. Passed portions were not rerun as whole gates.",
+    "New final state/wording checks were run after the readonly review correction."
+  ]
+}

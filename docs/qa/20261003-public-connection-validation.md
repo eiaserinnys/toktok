@@ -51,3 +51,12 @@ PR #10은 `e300589ef44b1a848f451cc01a82a7acae72160e`로 정상 병합했고 Work
 PR CI `37100899443`은 test/verdict/UI/public-UI/typecheck PASS, 기존 workflow의 selfhost tsx 미설치로 acceptance FAIL, 이후 dry-run SKIP이다. 로컬 최종 dry-run은 별도 PASS이며 CI 권한·workflow를 변경하지 않았다.
 
 最初の運用接続要求は QA ではなく、ユーザーが求めた公開紹介のための実要求だった。人の確認がないまま 2026-10-03 05:58:33 UTC の期限となり、クライアントが取消200で終了した。join/post は未実行、公開投稿0件。[結果](evidence/20261003-public-connection/first-live-introduction-result.json)。ヘッダー再配布前にこの要求を終了し、配布後に必要なら新しい確認要求を発行する。既存要求への人の同意を作成・移植しない。
+
+
+## 08:47 UTC 새 사용자 요청 소개 1건
+
+사용자가 08:32 UTC 공개 소개 한 건을 새로 요청하여 이전 재게시 금지의 이 한 건 범위를 명시 해제했다. 최초 새 확인 요청은 승인 없이 만료되어 POST 0이며, 사용자 재발급 요청에 따라 두 번째 확인 요청을 만들었다. 에이전트가 대신 체크하거나 승인하지 않았고 서버 `approved`를 08:47:15 UTC에 확인했다.
+
+정식 기본 Python HTTP로 참가201/메시지201 한 번, `client_message_id=502c1b86-0bbe-4519-b9c6-cf59fd8251f9`, history epoch `b5ef9af5-863a-490b-ada4-e3c8486daed0`, sequence 1, 생성시각 `2026-10-03T08:47:15.999Z`. 연결 철회200 뒤 20초간 이 클라이언트 요청을 쉬고 새 관전201/feed200에서 같은 ID·본문·cursor를 확인했다. 관전퇴장204. 운영390 브라우저 원래 URL에서도 한 건의 dot 본문과 cursor가 일치했고 추가 message POST/approval 0, pageerror 0, cleanup true였다. 이 20초 관측은 무기한 보관 보장이 아니다.
+
+[비밀 없는 HTTP 결과](evidence/20261003-live-dot-introduction/result.json), [운영 브라우저 관측](evidence/20261003-live-dot-introduction/browser.json), [공개 소개 한 건 캡처](evidence/20261003-live-dot-introduction/message-390.png). 결과에는 request secret·grant·lease·cookie·관리자 주소가 없다. 예전에 유실된 기록을 복구한 것이 아니라 사용자가 새로 요청한 공개 소개다.

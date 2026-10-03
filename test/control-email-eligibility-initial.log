@@ -1,0 +1,96 @@
+heavy verification: running in slot 1/2
+Already up to date
+Done in 382ms using pnpm v11.15.0
+
+ RUN  v4.1.0 /home/eias/workspace/.projects/toktok--feat-release-integration-c8e59900
+
+stdout | test/control-email-eligibility.test.ts > DEMO invalid or subsequently revoked, used and expired invitations cannot reserve or dispatch signup mail
+EMAIL_ELIGIBILITY_EVIDENCE [{"step":"/api/config","status":200},{"step":"/api/auth/invitations/validate","status":400,"code":"INVALID_INVITATION"},{"step":"/api/auth/start","status":400,"code":"INVALID_INVITATION"},{"step":"/api/auth/invitations/validate","status":200},{"step":"/api/auth/start","status":200},{"step":"/api/auth/email/send","status":200},{"step":"/api/auth/invitations/validate","status":200},{"step":"/api/auth/start","status":200},{"step":"/api/auth/email/send","status":200},{"step":"/api/auth/invitations/validate","status":200},{"step":"/api/auth/start","status":200},{"step":"/api/auth/email/send","status":200},{"step":"final-safe-counts","state":{"calls":0,"emailQuantity":0,"estimate":0,"codes":0,"suppressed":3,"accounts":0,"sessions":0}}]
+
+stdout | test/control-email-eligibility.test.ts > DEMO admits one valid invited signup, suppresses a second bound flow after consumption, and only logs in existing accounts
+EMAIL_ELIGIBILITY_EVIDENCE [{"step":"/api/config","status":200},{"step":"/api/auth/invitations/validate","status":200},{"step":"/api/auth/start","status":200},{"step":"/api/auth/invitations/validate","status":200},{"step":"/api/auth/start","status":200},{"step":"/api/auth/email/send","status":200},{"step":"/api/auth/complete","status":200},{"step":"/api/auth/email/send","status":200},{"step":"/api/auth/start","status":200},{"step":"/api/auth/email/send","status":200},{"step":"/api/auth/start","status":200},{"step":"/api/auth/email/send","status":200},{"step":"final-safe-counts","state":{"calls":2,"emailQuantity":2,"estimate":20028,"codes":1,"suppressed":2,"accounts":1,"sessions":1}}]
+
+stdout | test/control-email-eligibility.test.ts > DEMO bootstrap mail requires both an unused designation and no existing admin, without auto-granting admin
+EMAIL_ELIGIBILITY_EVIDENCE [{"step":"/api/config","status":200},{"step":"/api/auth/start","status":200},{"step":"/api/auth/email/send","status":200},{"step":"/api/auth/start","status":200},{"step":"/api/auth/email/send","status":200},{"step":"/api/auth/start","status":200},{"step":"/api/auth/email/send","status":200},{"step":"/api/auth/complete","status":200},{"step":"/api/session","status":200},{"step":"/api/admin/bootstrap","status":403,"code":"CSRF_DENIED"},{"step":"/api/admin/bootstrap","status":403,"code":"BOOTSTRAP_DENIED"},{"step":"/api/admin/bootstrap","status":200},{"step":"final-safe-counts","state":{"calls":1,"emailQuantity":1,"estimate":10014,"codes":0,"suppressed":0,"accounts":1,"sessions":1}}]
+
+stdout | test/control-email-eligibility.test.ts > HOSTED open signup is explicit while login stays existing-only and invite/closed reject uninvited signup
+EMAIL_ELIGIBILITY_EVIDENCE [{"step":"/api/config","status":200},{"step":"/api/auth/start","status":200},{"step":"/api/auth/email/send","status":200},{"step":"/api/auth/start","status":200},{"step":"/api/auth/email/send","status":200},{"step":"/api/auth/complete","status":200},{"step":"/api/auth/start","status":400,"code":"INVALID_INVITATION"},{"step":"/api/auth/start","status":403,"code":"SIGNUP_CLOSED"},{"step":"final-safe-counts","state":{"calls":1,"emailQuantity":1,"estimate":10014,"codes":0,"suppressed":1,"accounts":1,"sessions":1}}]
+
+stdout | test/control-email-eligibility.test.ts > demo closing signup suppresses a bound invite before mail and rejects previously issued new-account OTP
+EMAIL_ELIGIBILITY_EVIDENCE [{"step":"/api/config","status":200},{"step":"/api/auth/invitations/validate","status":200},{"step":"/api/auth/start","status":200},{"step":"/api/auth/invitations/validate","status":200},{"step":"/api/auth/start","status":200},{"step":"/api/auth/email/send","status":200},{"step":"/api/auth/email/send","status":200},{"step":"/api/auth/complete","status":200},{"step":"closed-policy-new-account-result","status":200,"state":{"calls":2,"emailQuantity":2,"estimate":20028,"codes":1,"suppressed":0,"accounts":1,"sessions":1}},{"step":"final-safe-counts","state":{"calls":2,"emailQuantity":2,"estimate":20028,"codes":1,"suppressed":0,"accounts":1,"sessions":1}}]
+
+stdout | test/control-email-eligibility.test.ts > hosted closing signup suppresses a bound invite before mail and rejects previously issued new-account OTP
+EMAIL_ELIGIBILITY_EVIDENCE [{"step":"/api/config","status":200},{"step":"/api/auth/invitations/validate","status":200},{"step":"/api/auth/start","status":200},{"step":"/api/auth/invitations/validate","status":200},{"step":"/api/auth/start","status":200},{"step":"/api/auth/email/send","status":200},{"step":"/api/auth/email/send","status":200},{"step":"/api/auth/complete","status":200},{"step":"closed-policy-new-account-result","status":200,"state":{"calls":2,"emailQuantity":2,"estimate":20028,"codes":1,"suppressed":0,"accounts":1,"sessions":1}},{"step":"final-safe-counts","state":{"calls":2,"emailQuantity":2,"estimate":20028,"codes":1,"suppressed":0,"accounts":1,"sessions":1}}]
+
+ ❯ test/control-email-eligibility.test.ts (6 tests | 3 failed) 955ms
+   ✓ DEMO invalid or subsequently revoked, used and expired invitations cannot reserve or dispatch signup mail 236ms
+   ✓ DEMO admits one valid invited signup, suppresses a second bound flow after consumption, and only logs in existing accounts 155ms
+   × DEMO bootstrap mail requires both an unused designation and no existing admin, without auto-granting admin 139ms
+   ✓ HOSTED open signup is explicit while login stays existing-only and invite/closed reject uninvited signup 137ms
+   × demo closing signup suppresses a bound invite before mail and rejects previously issued new-account OTP 149ms
+   × hosted closing signup suppresses a bound invite before mail and rejects previously issued new-account OTP 138ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/control-email-eligibility.test.ts > DEMO bootstrap mail requires both an unused designation and no existing admin, without auto-granting admin
+AssertionError: expected { calls: 1, emailQuantity: 1, …(5) } to match object { calls: 1, emailQuantity: 1, …(4) }
+(1 matching property omitted from actual)
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[33m@@ -2,7 +2,7 @@[39m
+[2m    "accounts": 1,[22m
+[2m    "calls": 1,[22m
+[2m    "codes": 0,[22m
+[2m    "emailQuantity": 1,[22m
+[2m    "sessions": 1,[22m
+[32m-   "suppressed": 2,[39m
+[31m+   "suppressed": 0,[39m
+[2m  }[22m
+
+ ❯ test/control-email-eligibility.test.ts:86:24
+     84|  expect((await call('/api/admin/bootstrap',{confirm:false},{Cookie:ver…
+     85|  expect((await call('/api/admin/bootstrap',{confirm:true},{Cookie:veri…
+     86|  expect(await state()).toMatchObject({calls:1,emailQuantity:1,codes:0,…
+       |                        ^
+     87| });
+     88|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  test/control-email-eligibility.test.ts > demo closing signup suppresses a bound invite before mail and rejects previously issued new-account OTP
+ FAIL  test/control-email-eligibility.test.ts > hosted closing signup suppresses a bound invite before mail and rejects previously issued new-account OTP
+AssertionError: expected { completion: 200, calls: 2, …(5) } to deeply equal { completion: 403, calls: 1, …(5) }
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "accounts": 0,[39m
+[32m-   "calls": 1,[39m
+[31m+   "accounts": 1,[39m
+[31m+   "calls": 2,[39m
+[2m    "codes": 1,[22m
+[32m-   "completion": 403,[39m
+[32m-   "emailQuantity": 1,[39m
+[32m-   "sessions": 0,[39m
+[32m-   "suppressed": 1,[39m
+[31m+   "completion": 200,[39m
+[31m+   "emailQuantity": 2,[39m
+[31m+   "sessions": 1,[39m
+[31m+   "suppressed": 0,[39m
+[2m  }[22m
+
+ ❯ test/control-email-eligibility.test.ts:102:192
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 3 passed (6)
+   Start at  17:53:53
+   Duration  2.65s (transform 466ms, setup 0ms, import 817ms, tests 955ms, environment 0ms)
+
+JSON report written to /home/eias/workspace/.projects/toktok--feat-release-integration-c8e59900/test/control-email-eligibility-initial.json
