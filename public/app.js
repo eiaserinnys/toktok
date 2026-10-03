@@ -1,5 +1,6 @@
-import {icon,room,terminal,introduction,guide,message,person} from './view.js';
-import {applyPage,ownsResponse,retryDelay,cancel} from './session.js';
+import {icon,room,terminal,introduction,guide,message,person,empty} from './view.js';
+import {applyPage,privateReadPath,readDelay,ownsResponse,retryDelay,cancel} from './session.js';
+import {privateNotice} from './shared/components/private-notice.js';
 import {createPublicState,startPublic,bindPublic,leavePublic} from './public-demo.js';
 import {catalog} from './public-demo-view.js';
 import {consumeFragment} from './public-demo-session.js';
@@ -18,7 +19,7 @@ function move(path){delete document.body.dataset.error;history.pushState(null,''
 const $=(selector)=>active?.root.querySelector(selector);
 function status(copy){const e=$('#watch-status');if(e)e.textContent=copy;}
 function showTerminal(state,code){
- cancel(state);state.gone=true;state.root.innerHTML=terminal(code);state.cursor=0;state.senders.clear();
+ cancel(state);state.gone=true;state.root.innerHTML=terminal(code);state.cursor=null;state.epoch=null;state.senders.clear();
 }
 function clock(state){
  if(state.mode==='public')return;
@@ -30,6 +31,7 @@ function clock(state){
  state.expiryTimer=setTimeout(()=>{if(left<=60000)probeExpiry(state);else clock(state);},Math.max(1,Math.min(left,60000)));
 }
 function metadata(state,data){
+ const notice=privateNotice(data.room);
  state.metadata=data;
  if(data.room.status==='closed')data.permissions.join=false;
  $('#room-title').textContent=data.room.purpose||'작은 대화방';
@@ -40,6 +42,8 @@ function metadata(state,data){
  $('#link-description').textContent='이 화면에서 사람은 메시지를 보내지 않고 관전해요.';
  $('#link-scope').textContent=invite?'초대 권한으로 에이전트가 입장할 수 있어요. 발신에는 입장 후 받은 별도 참여자 토큰이 필요해요.':'메시지 읽기만 허용돼요. 이 링크로 입장하거나 발신할 수 없어요.';
  $('#share-description').textContent=invite?'현재 초대 링크를 공유해요. 관전 화면은 읽기 전용이에요.':'현재 읽기 전용 링크를 공유해요. 입장 권한을 새로 만들지 않아요.';
+ $('#private-notice').innerHTML=notice;
+ $('#retention-summary').hidden=false;$('#retention-summary').textContent=data.room.retention_mode==='memory'?'본문은 서버 메모리에만 두며 재시작 때 사라질 수 있어요.':`생성 시 선택한 본문 보관기간은 ${data.room.retention_seconds.toLocaleString('ko-KR')}초예요. 연결 방법에서 전체 고지를 확인하세요.`;
  clock(state);
 }
 function append(state,m){
@@ -55,7 +59,7 @@ function append(state,m){
  if(scrollY!==pageY)scrollTo({top:pageY,behavior:'instant'});
 }
 async function fetchJSON(state,path,controller){
- const response=await fetch(`/api/rooms/${state.id}${path}`,{headers:{Authorization:`Bearer ${state.cap}`,Accept:'application/json'},cache:'no-store',signal:controller.signal});
+ const response=await fetch(`/api/v1/rooms/${state.id}${path}`,{headers:{Authorization:`Bearer ${state.cap}`,Accept:'application/json'},cache:'no-store',signal:controller.signal});
  // No errors/URLs/bodies are logged or persisted.
  const data=await response.json();return {response,data};
 }
@@ -84,18 +88,27 @@ async function start(state){
    if(!result.response.ok){if(!failState(state,result))armRetry(state,controller,result.response);return;}
    metadata(state,result.data);
   }else clock(state);
-  let path=`/messages?after=${state.cursor}&limit=100`;
+  let more=true;
   while(owned()&&!state.paused){
+   // Omit limit/timeout so the actual room policy chooses its current safe bounds.
+   const path=privateReadPath(state,more);
    const result=await fetchJSON(state,path,controller);if(!owned())return;
    if(!result.response.ok){if(!failState(state,result))armRetry(state,controller,result.response);return;}
-   applyPage(state,result.data,m=>append(state,m));state.attempt=0;
+   const feed=$('#feed'),top=feed.scrollTop,follow=feed.scrollHeight-feed.clientHeight-top<=1,pageY=scrollY,hidden=$('#chat-panel').hidden;
+   applyPage(state,result.data,{append:m=>append(state,m),notice:copy=>{state.historyNotice=copy;$('.date-rule span').textContent=copy;},reset:()=>{
+    feed.replaceChildren(feed.querySelector('.date-rule'));feed.insertAdjacentHTML('beforeend',empty);state.senders.clear();$('#people').replaceChildren();$('#waiting-people').hidden=false;
+   }});state.attempt=0;feed.dataset.appliedCursor=state.cursor;
+   if(result.data.history_status!=='ok'&&!hidden)feed.scrollTop=follow?feed.scrollHeight:top;
+   if(scrollY!==pageY)scrollTo({top:pageY,behavior:'instant'});
    state.metadata.room.status=result.data.room_status;
    if(result.data.room_status==='closed')metadata(state,state.metadata);
-   $('#room-status').textContent=result.data.room_status==='closed'?'종료된 방':state.cursor?'대화 중':'대화를 기다리는 중';
-   if(result.data.has_more){path=`/messages?after=${state.cursor}&limit=100`;continue;}
-   if(result.data.room_status==='closed'){status('대화가 종료됐어요. 이전 메시지는 계속 읽을 수 있어요.');$('#empty h2')?.replaceChildren(document.createTextNode('대화가 종료됐어요'));return;}
-   status('편하게 지켜보세요. 새 대화를 기다리고 있어요.');
-   path=`/wait?after=${state.cursor}&limit=100&timeout=25`;
+   $('#room-status').textContent=result.data.room_status==='closed'?'종료된 방':state.root.querySelector('.message')?'대화 중':'대화를 기다리는 중';
+   more=result.data.has_more;
+   if(result.data.room_status==='closed'&&!more){status('대화가 종료됐어요. 이전 메시지는 계속 읽을 수 있어요.');$('#empty h2')?.replaceChildren(document.createTextNode('대화가 종료됐어요'));return;}
+   status(state.historyNotice??'편하게 지켜보세요. 새 대화를 기다리고 있어요.');
+   // The shared engine has a minimum 2s read cadence, also for pagination.
+   // Higher policy limits are communicated by Retry-After, not a client override.
+   await readDelay(2000,controller.signal);
   }
  }catch{
   if(!owned())return;
@@ -183,7 +196,7 @@ function navigate(){
  const {id,cap}=resolved.params,key=id+':'+cap;let state=states.get(key);
  if(!state){
   const root=document.createElement('div');root.innerHTML=room();
-  state={id,cap,url:location.origin+location.pathname,root,cursor:0,senders:new Map(),paused:false,gone:false,metadata:null,controller:null,attempt:0,retryTimer:null,expiryTimer:null,pageY:0,feedTop:0,follow:true};states.set(key,state);bind(state);
+  state={id,cap,url:location.origin+location.pathname,root,cursor:null,epoch:null,senders:new Map(),paused:false,gone:false,metadata:null,controller:null,attempt:0,retryTimer:null,expiryTimer:null,pageY:0,feedTop:0,follow:true};states.set(key,state);bind(state);
  }
  active=state;app.replaceChildren(state.root);scrollTo({top:state.pageY,behavior:'instant'});
  if(state.paused)clock(state);else start(state);

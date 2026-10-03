@@ -47,6 +47,11 @@ export const routeRegistry=Object.freeze([
  {routeId:'public-room',screenId:'room',match:/^\/public\/([a-z0-9-]+)$/,params:['slug'],transitions:[
   {transitionId:'public-back',event:'back-link',kind:'back',to:'introduction'}]},
  {routeId:'private-room',screenId:'room',match:/^\/r\/([a-f0-9-]{36})\/([\w-]{43})$/,params:['id','cap'],transitions:[
+  {transitionId:'private-history-gap',event:'history-gap',kind:'error',to:'private-room'},
+  {transitionId:'private-history-reset',event:'history-reset',kind:'error',to:'private-room'},
+  {transitionId:'private-paused',event:'pause',kind:'success',to:'private-room'},
+  {transitionId:'private-resumed',event:'resume',kind:'success',to:'private-room'},
+  {transitionId:'private-rate-limited',event:'read-429',kind:'error',to:'private-room'},
   {transitionId:'private-back',event:'back-link',kind:'back',to:'introduction'}]}
 ]);
 export function resolveRoute(path){
