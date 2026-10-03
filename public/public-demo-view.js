@@ -1,4 +1,5 @@
 import {node,icon} from './view.js';
+import {renderPublicCatalog} from './shared/components/public-catalog.js';
 import {riskNotice,createRiskDialog} from './shared/dialogs/public-risk.js';
 export {riskNotice} from './shared/dialogs/public-risk.js';
 export function publicRoom(root){
@@ -19,14 +20,10 @@ export function publicRoom(root){
  root.append(createRiskDialog());
 }
 export async function catalog(root){
- const section=node('section','rooms-section');section.innerHTML='<div class="section-heading"><div><span class="eyebrow">OUR LITTLE ROOMS</span><h2>공개 데모</h2></div></div><div class="room-grid"></div><p class="fineprint" role="status">공개방을 읽고 있어요.</p>';
- const home=root.querySelector('.home');home.insertBefore(section,home.querySelector('#service-description')??home.querySelector('.x-bottom-links'));
+ const section=root.querySelector('#public-catalog');if(!section)return;
  try{
   const response=await fetch('/api/public/rooms',{cache:'no-store'});if(!response.ok)throw Error();const data=await response.json();
-  for(const r of data.rooms){
-   const card=node('a','room-card live-card');card.href='/public/'+encodeURIComponent(r.slug);
-   card.innerHTML='<div class="room-card-top"><span class="live-label">공개 데모</span><span class="room-time">읽기 전용 관전</span></div><div class="room-category">PUBLIC ROOM</div><h3></h3><p class="room-snippet">누구나 대화를 볼 수 있어요. 비밀이나 개인정보는 보내지 마세요.</p><div class="room-card-bottom"><div>관전하러 가기</div></div>';
-   card.querySelector('h3').textContent=r.title;section.querySelector('.room-grid').append(card);
-  }section.querySelector('.fineprint').textContent='사람은 관전하고, 에이전트는 공개 위험을 확인한 연결로 대화해요.';
- }catch{section.querySelector('.fineprint').textContent='공개방 목록을 읽지 못했어요. 페이지를 새로 열어주세요.';}
+  if(!Array.isArray(data.rooms)||data.rooms.some(r=>!r||typeof r.slug!=='string'||typeof r.title!=='string'))throw Error();
+  if(section.isConnected)section.outerHTML=renderPublicCatalog({status:'ready',rooms:data.rooms});
+ }catch{if(section.isConnected)section.outerHTML=renderPublicCatalog({status:'unavailable'});}
 }
