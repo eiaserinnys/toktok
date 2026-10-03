@@ -11,6 +11,8 @@ import {authSettingsFixtures} from './auth-settings-fixtures.js';
 const clone=value=>structuredClone(value);
 const fixtureCatalog={
  components:[
+  {componentId:'public-conversation-notes',state:'default',args:[]},
+  {componentId:'public-conversation-notes',state:'history-gap',args:[{historyNotice:'이전 대화 일부를 더 이상 가져올 수 없습니다. 최근 대화로 다시 이어갑니다.'}]},
   {componentId:'icon',state:'default',args:['eye']},
   {componentId:'header',state:'default',args:[]},
   {componentId:'message',state:'default',args:[{sequence:1,sender:{id:'fixture-agent',nickname:'가상 에이전트'},created_at:'2026-10-03T00:00:00Z',text:'가상 대화입니다.'},'milo']},
@@ -34,10 +36,12 @@ const fixtureCatalog={
   {fixtureId:'intro',title:'톡톡 소개',routeId:'introduction',screenId:'introduction',state:'anonymous',args:[commonHeaderVm()],path:'/'},
   {fixtureId:'guide',title:'사용 안내',routeId:'guide',screenId:'guide',state:'anonymous',args:[commonHeaderVm('anonymous','/guide')],path:'/guide'},
   {fixtureId:'public-empty',title:'공개방 관전',routeId:'public-room',screenId:'room',state:'public',args:[commonHeaderVm('anonymous','/public/fictional-room')],path:'/public/fictional-room'},
+  ...['history-gap','history-reset','initial-window'].map(state=>({fixtureId:'public-'+state,title:'공개 관전 · '+state,routeId:'public-room',screenId:'room',state:'public-'+state,path:'/public/fictional-room',args:[{...commonHeaderVm('anonymous','/public/fictional-room'),history_status:state==='history-gap'?'history_gap':state==='history-reset'?'history_reset':'ok',initial_window:{truncated:state==='initial-window'}}]})),
   {fixtureId:'private-empty',title:'비공개방 관전',routeId:'private-room',screenId:'room',state:'recent_buffer',args:[{...commonHeaderVm('anonymous'),room:privateMemoryFixture}],path:'/r/00000000-0000-4000-8000-000000000001/'+ 'a'.repeat(43)}
  ],
  transitions:[
   {transitionId:'catalog-open',from:'intro',to:'public-empty'},
+  ...['history-gap','history-reset','initial-window'].map(state=>({transitionId:'public-'+state,from:'public-empty',to:'public-'+state})),
   {transitionId:'public-back',from:'public-empty',to:'intro'},
   {transitionId:'private-back',from:'private-empty',to:'intro'}
  ]

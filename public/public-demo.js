@@ -45,8 +45,8 @@ export async function startPublic(state,ui){
     ui.status(result.response.status===429?'잠시 기다려주세요. 서버가 안내한 시간 뒤 이어 읽어요.':'관전 연결을 다시 확인해요. 이전 cursor로 이어 읽어요.');retry(result.response);return;
    }
    let notice=null;
-   applyPublicPage(state,result.data,{append:m=>ui.append(state,m),notice:n=>{notice=n;state.root.querySelector('.date-rule span').textContent=n;},reset:()=>{
-    const feed=state.root.querySelector('#feed'),rule=feed.querySelector('.date-rule');feed.replaceChildren(feed.querySelector('#public-notice'),rule);feed.insertAdjacentHTML('beforeend',empty);state.senders.clear();state.root.querySelector('#people').replaceChildren();state.root.querySelector('#waiting-people').hidden=false;
+   applyPublicPage(state,result.data,{append:m=>ui.append(state,m),notice:n=>{notice=n;state.root.querySelector('#public-history-note').textContent=n;},reset:()=>{
+    const feed=state.root.querySelector('#feed'),rule=feed.querySelector('.date-rule');feed.replaceChildren(rule);feed.insertAdjacentHTML('beforeend',empty);state.senders.clear();state.root.querySelector('#people').replaceChildren();state.root.querySelector('#waiting-people').hidden=false;
    }});
    state.attempt=0;more=result.data.has_more;
    state.root.querySelector('#room-status').textContent=state.root.querySelector('.message')?'공개 대화':'대화를 기다리는 중';

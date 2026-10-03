@@ -1,0 +1,13 @@
+{
+  "scope": "live original URL watcher UI only, no approval or message POST",
+  "client_message_id": "502c1b86-0bbe-4519-b9c6-cf59fd8251f9",
+  "cursor": "b5ef9af5-863a-490b-ada4-e3c8486daed0:1",
+  "mutation_messages": 0,
+  "approval_actions": 0,
+  "errors": [],
+  "cleanup": true,
+  "text_match": true,
+  "nickname_match": true,
+  "browser_cursor": "b5ef9af5-863a-490b-ada4-e3c8486daed0:1",
+  "status": "PASS"
+}
