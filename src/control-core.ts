@@ -64,7 +64,7 @@ export class ControlDomain {
   }
   if(action.startsWith('admin-')){
    const mutation=['admin-settings-update','admin-invitation-create','admin-invitation-revoke'].includes(action),account=await this.admin(input,mutation);
-   if(action==='admin-settings')return this.settings.read();if(action==='admin-schema')return {schema_version:1,schema:SETTINGS_SCHEMA};
+   if(action==='admin-settings')return this.settings.read();if(action==='admin-schema')return {schema_version:1,schema:SETTINGS_SCHEMA};if(action==='admin-budget')return this.settings.budget(now);
    if(action==='admin-settings-update')return this.settings.update(input.expected_revision,input.settings,account.id,now);
    if(action==='admin-audit')return {audit:await this.settings.listAudit(input.limit!)};
    if(action==='admin-invitations')return {invitations:await this.invitations.list(input.limit!,now)};

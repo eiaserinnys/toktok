@@ -63,6 +63,10 @@ PrivatePolicy 정본은 B의 src/private-contracts.ts입니다. settings.private
 
 서버 reserve(operation_id,kind,amount)는 같은 transaction에서 UTC day/month를 모두 검사·증가합니다. 하나라도 실패하면 rollback, 같은 ID kind/amount 변경409, 월 경계 재시도 최초 창 유지, 만료 ID410입니다. 종류별 한 번 발급한 ID를 동일 reservation 재시도에만 재사용합니다. window를 caller에게 받지 않고 실패/불확실 예약을 환불하지 않습니다. cap 축소는 기존 usage를 보존합니다. 실제 perform 전에 trusted enforcing path가 예약해야 하며 public body가 counters를 지정하지 않습니다. OTP와 private 생성 도메인은 같은 transaction의 budget aggregate를 사용하고 방 admission/response/write/duration 및 control router 최종 연결은 후속입니다. UTC 창은 provider billing cycle과 다릅니다.
 
+추정 비용 모델 `CF-reference-v1`은 UTC월마다 고정 25,000,000 microUSD와 각 신규 reservation의 기본 14 microUSD를 더합니다. kind별 추가 비용은 admission amount×3, response ceil(bytes/65536), active room seconds×2, persistent write ceil(bytes/16), email attempts×10000 microUSD이며 private create의 추가 비용은 0입니다. 일 합계는 해당 일의 변동 예약분이고 월 합계에는 고정 비용을 포함합니다. replay의 추가 추정 비용은 0이고 실패·불확실 예약을 환불하지 않습니다. quantity와 estimate 일·월 합계는 같은 원자 transaction이며 response도 cutoff 판정에서 제외하지 않습니다.
+
+관리자 예산 DTO는 UTC 창, 종류별 실제 예약량과 DB 한도, 추정 일·월 microUSD, warning/cutoff 상태, 현재 target/warning/cutoff USD와 모델 가정을 제공합니다. 월 projected estimate가 cutoff×1000000을 초과하면429/월말 Retry-After이며 정확히 같은 값은 허용합니다. 이 보수적인 Cloudflare 참고 모델은 included usage 0/이메일 시도 1cent 계획 가정이고 actual invoice 또는 Node 서버 운영비가 아닙니다. 설정 저장값·기존 usage는 새 모델이나 threshold 축소로 초기화하지 않습니다. 공개 config에는 배포 usage를 노출하지 않습니다.
+
 ## Auth와 개인정보
 
 초대 code 선검증 → browser-bound 증표 → signup flow → email 고정 → OTP 성공 transaction에서 초대/admission/session 일회 소비입니다. 기존 계정 signup은 초대를 소비하거나 entitlement를 더하지 않습니다. 이메일 응답은 계정 존재/가입 자격에 따라 바뀌지 않는 generic accepted이며 요청 예산은 모든 정규화 주소에 동일하게 적용합니다. 기존 flow/nonce/claim/browser와 max10분/min expiry/5오입력/새 요청 cooldown 계약을 유지합니다.

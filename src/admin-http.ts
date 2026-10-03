@@ -15,6 +15,7 @@ export async function adminRoute(request:Request,env:IdentityEnv,now=Date.now())
   if(request.method==='PUT'){const b=await body(request,['expected_revision','settings']);input.expected_revision=b.expected_revision;input.settings=b.settings;action='admin-settings-update';}
  }
  if(path==='/api/admin/settings/schema'&&request.method==='GET')action='admin-schema';
+ if(path==='/api/admin/budget'&&request.method==='GET')action='admin-budget';
  if(path==='/api/admin/audit'&&request.method==='GET'){action='admin-audit';input.limit=queryInt(url,'limit',50,1,50);}
  if(path==='/api/admin/invitations'){
   if(request.method==='GET'){action='admin-invitations';input.limit=queryInt(url,'limit',50,1,50);}
