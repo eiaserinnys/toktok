@@ -1,6 +1,14 @@
 import {readFile,realpath} from 'node:fs/promises';
 import {resolve,sep,extname} from 'node:path';
-const contentTypes:Record<string,string>={'.js':'text/javascript','.css':'text/css','.png':'image/png','.svg':'image/svg+xml','.webp':'image/webp','.ico':'image/x-icon','.woff2':'font/woff2'};
+const contentTypes:Record<string,string>={'.html':'text/html; charset=utf-8','.json':'application/json','.js':'text/javascript','.css':'text/css','.png':'image/png','.svg':'image/svg+xml','.webp':'image/webp','.ico':'image/x-icon','.woff2':'font/woff2'};
+/** Internal Assets port. The common HTTP router authorizes every external path first. */
+export function fileAssets(root:string){return {async fetch(request:Request):Promise<Response>{
+ if(!['GET','HEAD'].includes(request.method))return new Response(null,{status:405});
+ try{const base=await realpath(root),path=await realpath(resolve(base,'.'+decodeURIComponent(new URL(request.url).pathname)));
+  if(!path.startsWith(base+sep)||!contentTypes[extname(path)])return new Response(null,{status:404});
+  return new Response(request.method==='HEAD'?null:new Uint8Array(await readFile(path)),{headers:{'Content-Type':contentTypes[extname(path)]}});
+ }catch{return new Response(null,{status:404});}
+ }};}
 /** Static public assets only. No SPA fallback into /admin or other authenticated routes. */
 export async function staticAsset(request:Request,root:string):Promise<Response|null>{
   const url=new URL(request.url);if(request.method!=='GET'||!url.pathname.startsWith('/assets/'))return null;

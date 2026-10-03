@@ -1,14 +1,40 @@
 import type {RepositoryPort} from '../storage/repository';
 import type {PrivateBudgetPort} from '../private-contracts';
+import type {IdentityOptions} from '../email';
+import type {Settings} from '../settings-schema';
 import {PublicRooms} from '../runtime/public-rooms';
+import {PrivateRooms} from '../runtime/private-rooms';
 import {createServer} from '../runtime/node-http';
-import {PUBLIC_CATALOG,PUBLIC_POLICY} from '../public-contracts';
-import {staticAsset} from './static';
-export interface ApplicationOptions {origin:string;repo:RepositoryPort;budget?:PrivateBudgetPort;hostClose?:()=>void|Promise<void>;router?:(request:Request)=>Promise<Response|null>;assets?:string;trustedProxyCidrs?:readonly string[];}
-/** Public foundation only. Root injects the common authenticated control/private router later. */
+import {ControlCore} from '../control-core';
+import {createHttpApplication} from '../application';
+import {controlBudget} from '../host-budget';
+import {demoInstallationProfile} from '../installation-profile';
+import {publicPolicy,publicCatalog} from '../runtime-config';
+import {PUBLIC_POLICY} from '../public-contracts';
+import {socketAddress} from '../request-context';
+import {fileAssets} from './static';
+import type {RegistryInput,ControlHttpPort} from '../identity-types';
+
+export interface ApplicationOptions {origin:string;repo:RepositoryPort;budget?:PrivateBudgetPort;hostClose?:()=>void|Promise<void>;router?:(request:Request)=>Promise<Response|null>;assets?:string;trustedProxyCidrs?:readonly string[];bootstrapEmail?:string;profile?:Settings;auth?:Pick<IdentityOptions,'sendEmail'|'now'>;}
+/** Single-process room affinity, one selected repository, same HTTP/domain as Cloudflare. */
 export function createApplication(options:ApplicationOptions){
-  const rooms=new PublicRooms(options.origin,PUBLIC_CATALOG,{...PUBLIC_POLICY},options.budget);
-  const runtime=createServer({origin:options.origin,repo:options.repo,trustedProxyCidrs:options.trustedProxyCidrs,close:async()=>{rooms.shutdown();await options.hostClose?.();},handler:async request=>
-    await rooms.fetch(request)??await options.router?.(request)??(options.assets?await staticAsset(request,options.assets):null)??new Response(null,{status:404})});
-  return {...runtime,rooms};
+ let stopping=false,maintenanceTimer:ReturnType<typeof setTimeout>|undefined,scheduleRevision=0;
+ const core=new ControlCore(options.repo,{bootstrapEmail:options.bootstrapEmail,installation:{profile:options.profile??demoInstallationProfile(),enforcement_version:1},enforcement:{version:1,ready:()=>!stopping&&options.repo.ready()}});
+ async function schedule(){const revision=++scheduleRevision;clearTimeout(maintenanceTimer);if(stopping)return;const next=await core.maintain();if(!stopping&&revision===scheduleRevision&&next!==undefined){maintenanceTimer=setTimeout(()=>{void schedule().catch(()=>{});},Math.min(2147483647,Math.max(1,next-Date.now())));maintenanceTimer.unref();}}
+ const control:ControlHttpPort={async execute(action:string,input:RegistryInput){const result=await core.execute(action,input);await schedule();return result;}};
+ const budget=options.budget??controlBudget(control,options.auth?.now);
+ const rooms=new PublicRooms(options.origin,[],{...PUBLIC_POLICY},budget);
+ const privateRooms=new PrivateRooms({origin:options.origin,repo:options.repo,budget,clock:options.auth?.now});
+ let applied=0;
+ const buckets=new Map<string,{count:number;until:number}>();
+ const edgeLimit={async limit({key}:{key:string}){const now=Date.now();let entry=buckets.get(key);if(!entry||entry.until<=now){if(buckets.size>=4096){for(const[k,v]of buckets)if(v.until<=now)buckets.delete(k);if(buckets.size>=4096)return {success:false};}entry={count:0,until:now+60000};buckets.set(key,entry);}entry.count++;return {success:entry.count<=120};}};
+ const app=createHttpApplication({origin:options.origin,assets:options.assets?fileAssets(options.assets):{fetch:async()=>new Response(null,{status:404})},control,edgeLimit,trustedIP:socketAddress,auth:options.auth,
+  publicRoom:async(slug,config)=>{if(config.revision>applied){rooms.configure(config.revision,publicPolicy(config),publicCatalog(config));applied=config.revision;}return rooms.room(slug);},
+  privateRoom:id=>({initialize:s=>privateRooms.initialize(s),fetch:async r=>(await privateRooms.fetch(r))!,inspect:()=>privateRooms.room(id).inspect(id)}),
+  ready:()=>!stopping&&options.repo.ready()});
+ const runtime=createServer({origin:options.origin,repo:options.repo,trustedProxyCidrs:options.trustedProxyCidrs,
+  readiness:async()=>{const result=await app.fetch(new Request(options.origin+'/ready'));await result.body?.cancel();return result.ok;},
+  close:async()=>{stopping=true;clearTimeout(maintenanceTimer);rooms.shutdown();privateRooms.shutdown();await options.hostClose?.();},
+  handler:async request=>await options.router?.(request)??app.fetch(request)});
+ return {...runtime,rooms,privateRooms,control,core,app};
 }

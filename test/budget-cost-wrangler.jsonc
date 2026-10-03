@@ -1,0 +1,8 @@
+{
+  "name":"toktok-cost-fixture", "main":"budget-cost-worker.ts",
+  "compatibility_date":"2026-10-01", "compatibility_flags":["nodejs_als"],
+  "workers_dev":false, "preview_urls":false,
+  "observability":{"enabled":false},
+  "durable_objects":{"bindings":[{"name":"COST","class_name":"BudgetCostProbe"}]},
+  "migrations":[{"tag":"cost-v1","new_sqlite_classes":["BudgetCostProbe"]}]
+}

@@ -11,9 +11,11 @@ WORKDIR /app/selfhost
 COPY selfhost/package.json selfhost/package-lock.json ./
 RUN if [ "$WITH_POSTGRES" = true ]; then npm ci --omit=dev; else npm ci --omit=dev --omit=optional; fi
 COPY --from=build /app/selfhost/dist ./dist
+COPY public /app/public
 COPY selfhost/scripts ./scripts
 RUN mkdir -p /data && chown node:node /data && chmod +x scripts/*
 USER node
+ENV TOKTOK_ASSETS=/app/public
 EXPOSE 8080
 ENTRYPOINT ["./scripts/entrypoint.sh"]
 CMD ["start"]

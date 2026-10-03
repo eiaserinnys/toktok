@@ -17,7 +17,7 @@ export function normalizeIP(value:string):string{
 }
 export function trustedIP(request:Request):string{
  const ip=request.headers.get('CF-Connecting-IP');
- if(!request.cf||!ip||request.headers.has('CF-Worker'))fail(503,'TRUSTED_IP_REQUIRED','인증 발송을 준비하지 못했습니다.');
+ if(!(request as Request&{cf?:unknown}).cf||!ip||request.headers.has('CF-Worker'))fail(503,'TRUSTED_IP_REQUIRED','인증 발송을 준비하지 못했습니다.');
  try{return normalizeIP(ip);}catch{return fail(503,'TRUSTED_IP_REQUIRED','인증 발송을 준비하지 못했습니다.');}
 }
 export function sender(env:Pick<IdentityEnv,'EMAIL'|'EMAIL_FROM'>,options:IdentityOptions):EmailSender{
