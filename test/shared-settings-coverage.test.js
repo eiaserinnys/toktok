@@ -11,6 +11,7 @@ it('covers the same settings/auth renderers, states, routes and negative flow ed
  const noNested=routeRegistry.map(r=>({...r,nestedScreens:[]}));
  expect(validateCoverage({...input,routes:noNested})).toContain('route-entry:claim');
  const noAlias=structuredClone(input.fixtures);noAlias.screens=noAlias.screens.filter(f=>f.path!=='/about');expect(validateCoverage({...input,fixtures:noAlias})).toContain('route-alias:introduction:/about');
+ const noReset=structuredClone(input.fixtures);noReset.screens=noReset.screens.filter(f=>!(f.screenId==='room'&&f.state==='history-reset'));expect(validateCoverage({...input,fixtures:noReset})).toContain('screen-state:room:history-reset');
  const graph=buildGraph(input);expect(graph.edges.some(e=>e.transitionId==='settings-denied'&&e.kind==='error')).toBe(true);
  expect(graph.edges.some(e=>e.transitionId==='otp-expired'&&e.kind==='time')).toBe(true);
  expect(input.fixtures.dialogs.some(f=>f.dialogId==='settings-review'&&f.state==='pending')).toBe(true);

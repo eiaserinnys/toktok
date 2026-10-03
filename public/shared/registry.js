@@ -33,7 +33,7 @@ export const screenRegistry=Object.freeze({
  newroom:{render:renderNewRoom,requiredStates:['anonymous','member','persist','created-memory','created-persisted','pending','lost','denied','loading','unavailable']},
  claim:{render:renderClaim,requiredStates:['anonymous','unchecked','checked','pending','approved','error','expired','loading','unavailable']},
  account:{render:renderAccount,requiredStates:['default','revoked','empty','anonymous','loading','unavailable','error']},
- room:{render:room},terminal:{render:terminal},introduction:{render:introduction},guide:{render:guide},
+ room:{render:room,requiredStates:['public','memory','persisted','history-gap','history-reset','paused','rate-limited']},terminal:{render:terminal},introduction:{render:introduction},guide:{render:guide},
  auth:{render:vm=>renderAuth(vm.screen,vm),requiredStates:['claim-email','claim-verify','claim-otp-error','login','signup-invite','signup-email','invite-invalid','closed','verify','error','expired','loading','unavailable']},
  lobby:{render:renderLobby,requiredStates:['default','empty','loading','unavailable']},
  settings:{render:renderSettingsScreen,requiredStates:['overview','public','private','budget','identity','signup','deployment','loading','denied','error','conflict','budget-loading','budget-unavailable']}

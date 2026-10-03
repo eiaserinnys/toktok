@@ -1,3 +1,4 @@
+import {privateFixtures,privateMemoryFixture} from './private-fixtures.js';
 import {newroomFixtures} from './newroom-fixtures.js';
 import {claimFixtures} from './claim-fixtures.js';
 import {accountFixtures} from './account-fixtures.js';
@@ -29,8 +30,8 @@ const fixtureCatalog={
   {fixtureId:'intro-about',title:'톡톡 소개 · /about',routeId:'introduction',screenId:'introduction',path:'/about'},
   {fixtureId:'intro',title:'톡톡 소개',routeId:'introduction',screenId:'introduction',path:'/'},
   {fixtureId:'guide',title:'사용 안내',routeId:'guide',screenId:'guide',path:'/guide'},
-  {fixtureId:'public-empty',title:'공개방 관전',routeId:'public-room',screenId:'room',path:'/public/fictional-room'},
-  {fixtureId:'private-empty',title:'비공개방 관전',routeId:'private-room',screenId:'room',path:'/r/00000000-0000-4000-8000-000000000001/'+ 'a'.repeat(43)}
+  {fixtureId:'public-empty',title:'공개방 관전',routeId:'public-room',screenId:'room',state:'public',path:'/public/fictional-room'},
+  {fixtureId:'private-empty',title:'비공개방 관전',routeId:'private-room',screenId:'room',state:'memory',args:[{room:privateMemoryFixture}],path:'/r/00000000-0000-4000-8000-000000000001/'+ 'a'.repeat(43)}
  ],
  transitions:[
   {transitionId:'catalog-open',from:'intro',to:'public-empty'},
@@ -38,7 +39,7 @@ const fixtureCatalog={
   {transitionId:'private-back',from:'private-empty',to:'intro'}
  ]
 };
-for(const key of ['components','dialogs','screens','transitions'])fixtureCatalog[key].push(...authSettingsFixtures[key],...accountFixtures[key],...claimFixtures[key],...newroomFixtures[key]);
+for(const key of ['components','dialogs','screens','transitions'])fixtureCatalog[key].push(...authSettingsFixtures[key],...accountFixtures[key],...claimFixtures[key],...newroomFixtures[key],...privateFixtures[key]);
 export function createFixtureAdapter(seed={}){
  const session=clone(seed.session??{authenticated:false,role:'anonymous',entitlements:{can_create_private:false,can_persist_private:false},owner_ack:null});
  const responses=clone(seed.responses??{}),history=['/'];let index=0;
