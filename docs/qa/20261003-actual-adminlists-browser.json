@@ -1,0 +1,225 @@
+{
+  "root_checkpoint": "8942367",
+  "source_checkpoint": "784fedf922512f02a1204deec26a2d94acecd38d",
+  "wiring": "Adds /admin/invitations and /admin/audit to the admin HTML inventory only; fixed settings recovery paths unchanged.",
+  "route_inventory": {
+    "tests_passed": 1,
+    "execution": "vitest.unit.config.ts test/shared-http-route-coverage.test.js",
+    "duration_ms": 774
+  },
+  "results": [
+    {
+      "path": ".local/artifacts/toktok/20261003-node-adminlogs-browser-root/raw.json",
+      "sha256": "e026f89628bc90ef899c8d35129ab1226253f4603c615932cdbaee2031531f6c",
+      "cases": [
+        {
+          "name": "1440-actual-invitations-audit",
+          "status": "FAIL",
+          "error": "locator.click: Error: strict mode violation: locator('[data-x=close-dialog]') resolved to 2 elements:\n    1) <button type=\"button\" aria-label=\"닫기\" data-x=\"close-dialog\" class=\"icon-btn x-dialog-close\">×</button> aka getByRole('button', { name: '닫기', exact: true })\n    2) <button type=\"button\" class=\"btn primary\" data-x=\"close-dialog\">원문을 보관했어요 · 닫기</button> aka getByRole('button', { name: '원문을 보관했어요 · 닫기' })\n\nCall log:\n\u001b[2m  - waiting for locator('[data-x=close-dialog]')\u001b[22m\n",
+          "networkMutations": 1,
+          "dom": {
+            "width": 1440,
+            "docWidth": 1440,
+            "headings": [
+              "공간 돌보기",
+              "건네준 초대장",
+              "가입 초대 목록",
+              "가입 초대를 만들었어요."
+            ],
+            "dialogs": 1,
+            "storage": [
+              0,
+              0
+            ],
+            "csp": []
+          },
+          "errors": [],
+          "external": [],
+          "shots": [
+            "1440-real-invitation-list.png",
+            "1440-real-invitation-confirm.png"
+          ]
+        },
+        {
+          "name": "390-actual-invitations-audit",
+          "status": "FAIL",
+          "error": "locator.click: Error: strict mode violation: locator('[data-x=close-dialog]') resolved to 2 elements:\n    1) <button type=\"button\" aria-label=\"닫기\" data-x=\"close-dialog\" class=\"icon-btn x-dialog-close\">×</button> aka getByRole('button', { name: '닫기', exact: true })\n    2) <button type=\"button\" class=\"btn primary\" data-x=\"close-dialog\">원문을 보관했어요 · 닫기</button> aka getByRole('button', { name: '원문을 보관했어요 · 닫기' })\n\nCall log:\n\u001b[2m  - waiting for locator('[data-x=close-dialog]')\u001b[22m\n",
+          "networkMutations": 1,
+          "dom": {
+            "width": 390,
+            "docWidth": 390,
+            "headings": [
+              "공간 돌보기",
+              "건네준 초대장",
+              "가입 초대 목록",
+              "가입 초대를 만들었어요."
+            ],
+            "dialogs": 1,
+            "storage": [
+              0,
+              0
+            ],
+            "csp": []
+          },
+          "errors": [],
+          "external": [],
+          "shots": [
+            "390-real-invitation-list.png",
+            "390-real-invitation-confirm.png"
+          ]
+        }
+      ],
+      "cleanup": true,
+      "external_mail": 0
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-adminlogs-browser-root/correction-raw.json",
+      "sha256": "5c0510d58d527d92a2dcb1e366f6bf424f056df854cbb68a9e3e921d07c39364",
+      "cases": [
+        {
+          "name": "1440-actual-invitations-audit",
+          "status": "PASS",
+          "networkMutations": 2,
+          "observed": {
+            "anonymousHtml": [
+              401,
+              401
+            ],
+            "adminHtml": 200,
+            "explicitCreate": 201,
+            "explicitRevoke": 200,
+            "auditActions": [
+              "invitation.create",
+              "invitation.revoke"
+            ],
+            "plaintextAfterClose": false,
+            "browserMutations": 2
+          },
+          "dom": {
+            "width": 1440,
+            "docWidth": 1440,
+            "headings": [
+              "공간 돌보기",
+              "변경 기록",
+              "서버 변경 기록"
+            ],
+            "dialogs": 0,
+            "storage": [
+              0,
+              0
+            ],
+            "csp": []
+          },
+          "errors": [],
+          "external": [],
+          "shots": [
+            "1440-real-invitation-list-correction.png",
+            "1440-real-invitation-confirm-correction.png",
+            "1440-real-audit-correction.png"
+          ]
+        },
+        {
+          "name": "390-actual-invitations-audit",
+          "status": "PASS",
+          "networkMutations": 2,
+          "observed": {
+            "anonymousHtml": [
+              401,
+              401
+            ],
+            "adminHtml": 200,
+            "explicitCreate": 201,
+            "explicitRevoke": 200,
+            "auditActions": [
+              "invitation.create",
+              "invitation.revoke"
+            ],
+            "plaintextAfterClose": false,
+            "browserMutations": 2
+          },
+          "dom": {
+            "width": 390,
+            "docWidth": 390,
+            "headings": [
+              "공간 돌보기",
+              "변경 기록",
+              "서버 변경 기록"
+            ],
+            "dialogs": 0,
+            "storage": [
+              0,
+              0
+            ],
+            "csp": []
+          },
+          "errors": [],
+          "external": [],
+          "shots": [
+            "390-real-invitation-list-correction.png",
+            "390-real-invitation-confirm-correction.png",
+            "390-real-audit-correction.png"
+          ]
+        }
+      ],
+      "cleanup": true,
+      "external_mail": 0
+    }
+  ],
+  "artifacts": [
+    {
+      "path": ".local/artifacts/toktok/20261003-node-adminlogs-browser-root/1440-real-audit-correction.png",
+      "sha256": "56980a202d6ebcdc54fa42ff91a37d3e6451c3fb66bcaeb41f9e6e9f4cc5fc20"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-adminlogs-browser-root/1440-real-invitation-confirm-correction.png",
+      "sha256": "1931ddac631d591c360038cd07947c557ae470e6a80159c97e89d127036f6238"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-adminlogs-browser-root/1440-real-invitation-confirm.png",
+      "sha256": "1931ddac631d591c360038cd07947c557ae470e6a80159c97e89d127036f6238"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-adminlogs-browser-root/1440-real-invitation-list-correction.png",
+      "sha256": "83534e5d513d6d3f1b2fafc085c5c1746627ff27f7b7d31ff4f966dbde1ee4d0"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-adminlogs-browser-root/1440-real-invitation-list.png",
+      "sha256": "83534e5d513d6d3f1b2fafc085c5c1746627ff27f7b7d31ff4f966dbde1ee4d0"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-adminlogs-browser-root/390-real-audit-correction.png",
+      "sha256": "e4c89f8a9b2a901b0a0014140ef554d6410081392109ac6d9f5f672edad331f5"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-adminlogs-browser-root/390-real-invitation-confirm-correction.png",
+      "sha256": "223aa60efd0e74a7725f7f6f62ffdfdc0d3ef868733497d68016c2de8f29db98"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-adminlogs-browser-root/390-real-invitation-confirm.png",
+      "sha256": "2d446ede58a6f12b212880130da9d44e0669150a1488d5db18edd9933ccb4c35"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-adminlogs-browser-root/390-real-invitation-list-correction.png",
+      "sha256": "771a11b9d499bf68be2c7d3f5ce3cfe127e988b0afa242d3f4591ec55e6afef9"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-adminlogs-browser-root/390-real-invitation-list.png",
+      "sha256": "92b2be55ae6f43e873e5189a000d25219c9a89b8323c267ad8aba9055c1f610b"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-adminlogs-browser-root/browser-correction.mjs",
+      "sha256": "c5f01db89f62464e5313194c58d2df56ffa0001fc937f585c0bbba2c009f10ef"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-adminlogs-browser-root/browser.mjs",
+      "sha256": "36e9106de0ecd46305a463dfcad2c1744cce5504ee744f21dc6bb87eafe5593b"
+    }
+  ],
+  "interpretation": [
+    "Actual Node24/SQLite application with local fake sender; auth and explicit bootstrap used as setup only.",
+    "Initial two cases reached create201 and one-time display, then failed on a duplicate close-button selector. Product source was unchanged for correction.",
+    "Corrected exact named close button: both viewports passed create201, explicit revoke200, code absent from normal DOM/list/audit, and actual server audit records. Browser mutations2 per case; anonymous HTML401; authorized administrator HTML200.",
+    "No screenshot or raw response body of the real one-time invitation was saved. Only code-free list, pre-issuance confirmation and audit screens were captured.",
+    "Runtime cleanup true, external mail0, CSP/page errors0, no storage writes. This does not validate live deployment, clipboard permissions or full gallery completion."
+  ]
+}

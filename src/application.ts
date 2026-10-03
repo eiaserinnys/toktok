@@ -35,7 +35,7 @@ const privateApi=new RegExp(`^/api/v1/rooms/(${roomId})(?:/(participants|message
 const privateEntry=new RegExp(`^/r/(${roomId})/[\\w-]{43}$`);
 export const productHtmlPaths=Object.freeze(['/','/about','/rooms','/guide','/login','/signup','/invite','/verify','/account','/new-room']);
 const recoveryAdminHtmlPaths=Object.freeze(['/admin','/admin/overview','/admin/public','/admin/private','/admin/budget','/admin/identity','/admin/signup','/admin/deployment']);
-export const adminHtmlPaths=Object.freeze([...recoveryAdminHtmlPaths]);
+export const adminHtmlPaths=Object.freeze([...recoveryAdminHtmlPaths,'/admin/invitations','/admin/audit']);
 const htmlRoutes=new Set(productHtmlPaths);
 const recoveryReads=new Set([...recoveryAdminHtmlPaths,'/api/session','/api/admin/settings','/api/admin/settings/schema','/api/admin/budget']);
 const recoveryAllowed=(request:Request)=>{const path=new URL(request.url).pathname;return request.method==='GET'&&recoveryReads.has(path)||request.method==='PUT'&&path==='/api/admin/settings'||request.method==='POST'&&path==='/api/auth/logout';};

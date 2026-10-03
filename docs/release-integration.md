@@ -68,3 +68,7 @@ C0168fc0를 root7fba8e2로 통합했다. 초기 Node24/SQLite browser 두 경우
 모바일은 같은 SQLite로 서버를 다시 시작하고503 재시도 뒤 messages200과 기록 초기화 안내를 관측했다. 안내가 feed와 status 두 곳에 있어 단일 요소를 기대한 하니스 selector가 실패했으므로 이후 새 메시지 수신·최종 이탈 정리는 미도달로 남긴다. 추가 실행하지 않았다. [초기·보정 근거](qa/20261003-actual-private-browser.json)를 구분한다.
 
 desktop PNG에서 room의 옛 정적 header가 남아 있음을 확인했다. 실제 Session/Config를 쓰는 공통 product header로 관전·guide·terminal도 정합화하는 후속을 C에 전달했다. 데이터 경로 PASS를 전체 IA·시각 검수 완료로 확대하지 않는다.
+
+## 실제 초대·변경 기록 화면
+
+C `784fedf`를 통합하고 `/admin/invitations`, `/admin/audit`를 실제 관리자 HTML 목록에 추가했다. 설정 복구 경로 8개에는 추가하지 않았다. 변경된 서버·공유 route/renderer/fixture 연결 검사 1 PASS. 실제 Node24/SQLite 1440·390 브라우저는 최초 발급201 뒤 닫기 버튼 selector가 두 개여서 실패했으며, 정확한 버튼 이름으로 하니스만 보완한 뒤 2 PASS다. 명시 발급201/취소200, 정상 DOM·목록·audit에 원문 코드 없음, 서버의 실제 변경 기록 표시와 비로그인 HTML401을 확인했다. 코드가 보이는 화면과 응답 본문은 캡처·저장하지 않았다. [원시 판정·이미지 hash](qa/20261003-actual-adminlists-browser.json)에 최초 실패와 보정을 구분한다. 공통 room 헤더·모바일 private 미도달 구간·전체 QA·배포 검수는 별도다.
