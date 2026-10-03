@@ -1,0 +1,749 @@
+{
+  "source_commit": "b20e24e2deee3109c5ee1aa15b51e3e908e22e68",
+  "scope": "new private-only local Node24 SQLite actual HTTP; fictional account/session and consent; DI clock, not real five-minute elapsed time; product edits/production operations/mail/browser: 0",
+  "runs": [
+    {
+      "name": "initial",
+      "passed": 1,
+      "failed": 2,
+      "exit_code": 1,
+      "failure": "Same-port HTTP fixture reused an undici pooled connection after server shutdown; UND_ERR_SOCKET. Both DEMO cases stopped on first read after restart; HOSTED completed.",
+      "raw_log": "/home/eias/workspace/.local/artifacts/toktok/20261003-private-conformance/initial.log",
+      "sha256": "aebffb230721eb6c790d0c2f9634bcf106c36bb97c08522195f50862d2204b4e",
+      "observations": [
+        {
+          "mode": "HOSTED local explicit persistence setting",
+          "signup": "open",
+          "anonymous_enabled": false,
+          "db_entitlement_required": true,
+          "participants": 64,
+          "overflow": 429,
+          "simulated_idle_ms": 301000,
+          "automatic_seat_release": false
+        }
+      ],
+      "http_evidence": [
+        {
+          "case": "private verification DEMO anonymous HTTP retains capability past simulated five minutes and disk restart; no public leave contract",
+          "clock": "DI; no actual five-minute idle elapsed",
+          "raw": [
+            {
+              "step": "creation context",
+              "status": 200
+            },
+            {
+              "step": "explicit local creation acknowledgement",
+              "status": 200
+            },
+            {
+              "step": "anonymous persistence denied",
+              "status": 403,
+              "code": "PERSISTENCE_DENIED"
+            },
+            {
+              "step": "anonymous TTL over ceiling",
+              "status": 400,
+              "code": "INVALID_INPUT"
+            },
+            {
+              "step": "private create",
+              "status": 201
+            },
+            {
+              "step": "creation result replay",
+              "status": 409,
+              "code": "CREATE_RESULT_NOT_RECOVERABLE"
+            },
+            {
+              "step": "missing capability",
+              "status": 401,
+              "code": "AUTH_REQUIRED"
+            },
+            {
+              "step": "unknown capability",
+              "status": 403,
+              "code": "CAPABILITY_DENIED"
+            },
+            {
+              "step": "creation context",
+              "status": 200
+            },
+            {
+              "step": "explicit local creation acknowledgement",
+              "status": 200
+            },
+            {
+              "step": "private create",
+              "status": 201
+            },
+            {
+              "step": "wrong room capability",
+              "status": 403,
+              "code": "CAPABILITY_DENIED"
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "first private send",
+              "status": 201
+            },
+            {
+              "step": "latest includes older-than-five-minute retained message",
+              "status": 200
+            },
+            {
+              "step": "private lease endpoint is absent",
+              "status": 404,
+              "code": "NOT_FOUND"
+            },
+            {
+              "step": "private participant delete endpoint is absent",
+              "status": 404,
+              "code": "NOT_FOUND"
+            },
+            {
+              "step": "same participant still sends after simulated idle",
+              "status": 201
+            },
+            {
+              "step": "short room absolute TTL reached",
+              "status": 410,
+              "code": "ROOM_GONE"
+            }
+          ],
+          "cleanup": true
+        },
+        {
+          "case": "private verification DEMO invited actual HTTP default OFF and explicit persistence preserve nonce, CSRF, notice and retention boundaries",
+          "clock": "DI; no actual five-minute idle elapsed",
+          "raw": [
+            {
+              "step": "session CSRF absent",
+              "status": 403,
+              "code": "CSRF_DENIED"
+            },
+            {
+              "step": "creation context",
+              "status": 200
+            },
+            {
+              "step": "explicit local creation acknowledgement",
+              "status": 200
+            },
+            {
+              "step": "private create",
+              "status": 201
+            },
+            {
+              "step": "close first invited room",
+              "status": 200
+            },
+            {
+              "step": "creation context",
+              "status": 200
+            },
+            {
+              "step": "explicit local creation acknowledgement",
+              "status": 200
+            },
+            {
+              "step": "retention cannot exceed room TTL",
+              "status": 422,
+              "code": "RETENTION_EXCEEDS_TTL"
+            },
+            {
+              "step": "private create",
+              "status": 201
+            },
+            {
+              "step": "wrong join storage acknowledgement",
+              "status": 409,
+              "code": "NOTICE_CHANGED"
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "persisted message send",
+              "status": 201
+            }
+          ],
+          "cleanup": true
+        },
+        {
+          "case": "private verification HOSTED actual HTTP reads DB entitlement, denies anonymous by configured policy and bounds participant count",
+          "clock": "DI; no actual five-minute idle elapsed",
+          "raw": [
+            {
+              "step": "creation context",
+              "status": 200
+            },
+            {
+              "step": "explicit local creation acknowledgement",
+              "status": 200
+            },
+            {
+              "step": "HOSTED anonymous creation disabled",
+              "status": 403,
+              "code": "CREATOR_DENIED"
+            },
+            {
+              "step": "unentitled or unverified account context denied",
+              "status": 403,
+              "code": "ADMISSION_DENIED"
+            },
+            {
+              "step": "unentitled or unverified account context denied",
+              "status": 403,
+              "code": "ADMISSION_DENIED"
+            },
+            {
+              "step": "creation context",
+              "status": 200
+            },
+            {
+              "step": "explicit local creation acknowledgement",
+              "status": 200
+            },
+            {
+              "step": "private create",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "65th participant is denied",
+              "status": 429,
+              "code": "RATE_LIMITED"
+            },
+            {
+              "step": "private participants are not released after five simulated minutes",
+              "status": 429,
+              "code": "RATE_LIMITED"
+            },
+            {
+              "step": "owner ends hosted room",
+              "status": 204
+            }
+          ],
+          "cleanup": true
+        }
+      ]
+    },
+    {
+      "name": "correction",
+      "passed": 2,
+      "failed": 0,
+      "exit_code": 0,
+      "selection": "private verification DEMO only; HOSTED not repeated",
+      "fixture_change": "Connection: close creates a fresh request socket; no product code changes.",
+      "raw_log": "/home/eias/workspace/.local/artifacts/toktok/20261003-private-conformance/correction.log",
+      "sha256": "89c86d508cd0ccf4741c08ae2813b9249482cbbcfe5ba20b08f0585632e0652a",
+      "observations": [
+        {
+          "mode": "DEMO anonymous",
+          "simulated_idle_ms": 301000,
+          "participant_survives_idle": true,
+          "leave_supported": false,
+          "restart_recent_and_capability": true,
+          "join_secret_recovered": false,
+          "close_history": 2,
+          "deleted_recent_rows": 0
+        },
+        {
+          "mode": "DEMO invited",
+          "default_persist": false,
+          "opt_in_persist": true,
+          "csrf_required": true,
+          "notice_mismatch": 409,
+          "retention_gt_ttl": 422,
+          "restart_persisted": true,
+          "simulated_retention_ms": 600001,
+          "expired_body_and_dedupe": 0
+        }
+      ],
+      "http_evidence": [
+        {
+          "case": "private verification DEMO anonymous HTTP retains capability past simulated five minutes and disk restart; no public leave contract",
+          "clock": "DI; no actual five-minute idle elapsed",
+          "raw": [
+            {
+              "step": "creation context",
+              "status": 200
+            },
+            {
+              "step": "explicit local creation acknowledgement",
+              "status": 200
+            },
+            {
+              "step": "anonymous persistence denied",
+              "status": 403,
+              "code": "PERSISTENCE_DENIED"
+            },
+            {
+              "step": "anonymous TTL over ceiling",
+              "status": 400,
+              "code": "INVALID_INPUT"
+            },
+            {
+              "step": "private create",
+              "status": 201
+            },
+            {
+              "step": "creation result replay",
+              "status": 409,
+              "code": "CREATE_RESULT_NOT_RECOVERABLE"
+            },
+            {
+              "step": "missing capability",
+              "status": 401,
+              "code": "AUTH_REQUIRED"
+            },
+            {
+              "step": "unknown capability",
+              "status": 403,
+              "code": "CAPABILITY_DENIED"
+            },
+            {
+              "step": "creation context",
+              "status": 200
+            },
+            {
+              "step": "explicit local creation acknowledgement",
+              "status": 200
+            },
+            {
+              "step": "private create",
+              "status": 201
+            },
+            {
+              "step": "wrong room capability",
+              "status": 403,
+              "code": "CAPABILITY_DENIED"
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "first private send",
+              "status": 201
+            },
+            {
+              "step": "latest includes older-than-five-minute retained message",
+              "status": 200
+            },
+            {
+              "step": "private lease endpoint is absent",
+              "status": 404,
+              "code": "NOT_FOUND"
+            },
+            {
+              "step": "private participant delete endpoint is absent",
+              "status": 404,
+              "code": "NOT_FOUND"
+            },
+            {
+              "step": "same participant still sends after simulated idle",
+              "status": 201
+            },
+            {
+              "step": "short room absolute TTL reached",
+              "status": 410,
+              "code": "ROOM_GONE"
+            },
+            {
+              "step": "fresh HTTP server restores recent history",
+              "status": 200
+            },
+            {
+              "step": "retained message replay after restart",
+              "status": 200
+            },
+            {
+              "step": "join secret is not recovered after restart",
+              "status": 409,
+              "code": "JOIN_RESULT_NOT_RECOVERABLE"
+            },
+            {
+              "step": "private participant cannot close",
+              "status": 403,
+              "code": "CAPABILITY_DENIED"
+            },
+            {
+              "step": "owner closes private room",
+              "status": 200
+            },
+            {
+              "step": "closed history remains readable",
+              "status": 200
+            },
+            {
+              "step": "closed empty wait is gone",
+              "status": 410,
+              "code": "ROOM_CLOSED"
+            },
+            {
+              "step": "owner deletes private room",
+              "status": 204
+            },
+            {
+              "step": "deleted private access",
+              "status": 410,
+              "code": "ROOM_GONE"
+            }
+          ],
+          "cleanup": true
+        },
+        {
+          "case": "private verification DEMO invited actual HTTP default OFF and explicit persistence preserve nonce, CSRF, notice and retention boundaries",
+          "clock": "DI; no actual five-minute idle elapsed",
+          "raw": [
+            {
+              "step": "session CSRF absent",
+              "status": 403,
+              "code": "CSRF_DENIED"
+            },
+            {
+              "step": "creation context",
+              "status": 200
+            },
+            {
+              "step": "explicit local creation acknowledgement",
+              "status": 200
+            },
+            {
+              "step": "private create",
+              "status": 201
+            },
+            {
+              "step": "close first invited room",
+              "status": 200
+            },
+            {
+              "step": "creation context",
+              "status": 200
+            },
+            {
+              "step": "explicit local creation acknowledgement",
+              "status": 200
+            },
+            {
+              "step": "retention cannot exceed room TTL",
+              "status": 422,
+              "code": "RETENTION_EXCEEDS_TTL"
+            },
+            {
+              "step": "private create",
+              "status": 201
+            },
+            {
+              "step": "wrong join storage acknowledgement",
+              "status": 409,
+              "code": "NOTICE_CHANGED"
+            },
+            {
+              "step": "private participant",
+              "status": 201
+            },
+            {
+              "step": "persisted message send",
+              "status": 201
+            },
+            {
+              "step": "persisted HTTP restart read",
+              "status": 200
+            },
+            {
+              "step": "persisted retention clock boundary",
+              "status": 200
+            },
+            {
+              "step": "delete expired-history but live private room",
+              "status": 204
+            }
+          ],
+          "cleanup": true
+        }
+      ]
+    }
+  ],
+  "source_sha256": {
+    "src/private-core.ts": "de0e76faabea5ca840cbfad283e0a8bb86c749e97198fc2a92f92964aeda5505",
+    "src/private-state.ts": "0a6a2d118acd7aa2163e21f006c2c49014057332d59d2fa914b3d263b258dd49",
+    "src/private-contracts.ts": "e003bb16173b6cce6ebf4a298820f00d8af705f15d3b1be12fef8f4120794eab",
+    "src/history-page.ts": "9a12f913ecea8022ee1bd8b3a75b79a19fea0ca5bbafebbb65c443baeca568db",
+    "src/recent-buffer.ts": "88c8f176bce8a7693d36c4c9481ef6f682dc43da7b7932724494cf2ee492d20d",
+    "src/control-policy.ts": "c59b4e42ba09079a7142594847ab5c218713a3792094465b3da9db2517cfac95",
+    "src/create-admission.ts": "e8796b7f28e0483ec1f9bdba408b77260b722540652eeb197c6792cd5a87d78f",
+    "src/control-create-http.ts": "80742e43b1f7f7b41aa9b3182d5f2715f6568a341457f5ad8c66e637c0da8f52",
+    "src/installation-profile.ts": "d5a8316dbd1064d674e2a915d1cf96f5c920e5cbbd975f997facac5eee1db5f8",
+    "test/private-verification-http.test.ts": "13730f4501389f8a823cea52f82a7704d554b4e9dfdca0ec0bde648bc2b3fa9f"
+  },
+  "post_run_typecheck": {
+    "reported_by": "root",
+    "initial_result": "TS2345 at three caller sites: randomUUID() default inferred a UUID template literal instead of the API string contract",
+    "change": "joinInput and participate: id:string=randomUUID(); two type annotations only; no runtime or product change",
+    "runtime_test_source_sha256": "840614267b048f2511c86b7dfbf46dc3b299a4da2ff40d15412925b8b3ab2e1e",
+    "final_test_source_sha256": "13730f4501389f8a823cea52f82a7704d554b4e9dfdca0ec0bde648bc2b3fa9f",
+    "final_selfhost_tsc_exit_code": 0,
+    "runtime_rerun": false
+  }
+}

@@ -23,3 +23,13 @@ CF cold 보정에서는 구 설정 보완201→승인200→자리반납204→실
 UI 실제 로컬390/1440 보완2PASS와 최초 실패 범위는 [UI 기록](20261003-public-entry30-ui-validation.md)을 따른다. 실제 PNG에서 기한/동의/하단 버튼과 여백을 확인했다. 최종 CF·Node24 타입 검사0, strict bundle0(118assets), generated 정합0, OpenAPI JSON801ref/미해결0, diffcheck0. 새Workers case를 기본 application gate에, Node/PG 공통계약을 selfhost scripts에 연결했다. 원격CI 및 배포는 다음 단계다.
 
 최종 UI 독립 읽기 검수: controller/mount/screen/dialog/terms와 fixtures/registry/routes diff, 제공한 실제390/1440 캡처를 대조해 blocker0을 보고했다. 고지 미지원 차단·체크/중복방지·기존권한 구분·철회실패/오래된nonce 복구 동선을 확인한 범위이며 독립 실행 결과가 아니다.
+
+## PR16 운영 반영
+
+2026-10-03 [PR16](https://github.com/eiaserinnys/toktok/pull/16) 정상 merge, main `0b4a3e0`, Worker `3a782659-f20f-408a-88d9-5e2b217736c4`. strict deploy는118개 자산 중 변경9개를 업로드했다. 기존 sender EMAIL binding·secret·보안 설정을 유지했다.
+
+원격 [CI37118074860](https://github.com/eiaserinnys/toktok/actions/runs/37118074860)은 pnpm test(application 신규3case 포함), verdict, UI, publicUI, CFtypecheck를 통과했다. acceptance는 기존 Node22 runner의 selfhost tsx 미설치로 HTTP assertions 전에 실패했고 뒤 dry-run은 skip이다. 해당 제한을 전체CI 통과로 표현하지 않으며 로컬 Node24/strictdryrun과 분리한다.
+
+운영 실제 브라우저390/1440 관전2PASS, 별도 연결방법 tab을 열어 새30일·URL비밀분리 안내가 보이는 영향2PASS, overflow/pageerror0 및 reader 정리. 첫 live 캡처는 대화 탭이라 새 안내는 숨겨진 DOM 관측이었으며 연결방법 tab 캡처로 가시성 범위를 보완했다. 실제 운영 승인/참가발언/메일/관리자 승격0, watcher 읽기와 leave만 수행했다.
+
+기본 Python UA로 `/public/common-room?format=md`와 `/api/public/rooms/common-room/guide` 모두200·새entry notice/30일을 확인했다. Markdown 협상 없는 HTML 기본 Python요청403은 승인된 최소BIC예외 범위와 구분한다. UA 위장이나 보안 설정 변경은 하지 않았다. 원자료/PNG는 `.local/artifacts/toktok/20261003-entry30-ui/`의 release, live.json, live-get.json, live-guidance.json에 보존했다.
