@@ -114,3 +114,10 @@ SQLite 첫 selected 실행1 PASS(1109ms), 새 격리 Postgres16 컨테이너 첫
 각 adapter에서 metadata 페이지1/1/0으로 기존 persist 방2개를 순회하고 HTTP 요청 없이 새 registry에서 restore했습니다. 한 방의 오래된 body101개는 첫100개와 기존 timer의 후속 정리로 제거하고, 삭제 상태의 아직 젊은 body1개도 정리했습니다. 두 adapter 모두 최종 body/dedupe0, shutdown timer0, 미초기화 control 예약의 room metadata0입니다. 예시 ID/본문은 mock이며 출력은 숫자뿐입니다. 무작정 전체 스냅샷/무한 polling/DB body pubsub는 추가하지 않았습니다. Docker foreground는 exit0으로 회수했습니다.
 
 검증 명령은 Node24 heavy runner 안에서 `--test --test-concurrency=1 --test-timeout=60000 test/selfhost-restore-sqlite.test.ts` 및 `test/selfhost-restore-postgres.test.ts`를 각각 한 번 실행했습니다. 기존 통과 storage/private/100+50 부하 gate는 반복하지 않았습니다. 최종 호스트 타입 검사와 migration CLI/listen-ready 연결은 root가 담당합니다.
+
+
+## 413 취소 source 보완과 미검증 경계
+
+publicBody는 reader cancellation promise를 한 번만 생성하고 최대1초 settling 후 lock을 해제합니다. private는 new Request(signal)로 body를 이전하지 않고 원Request reader에 shutdown signal만 전달합니다. 권한/본문 parsing 순서와 초기 unused finally는 유지하며 무한 drain/무기한 cancel await는 없습니다. CF inspect RPC observation의 직접 cast는 unknown을 거치는 JSON-safe fixture observation으로만 국소 보정했습니다. 새 타입 검사를 반복하지 않았으며 root 통합 검사 범위입니다.
+
+source delta의 읽기 전용 검수는 새 반려 사유 없이 통과했습니다. 그러나 CF 413 upstream producer 취소 전달 gate는 실행 상한 내 모두 실패했으며 native source 회수 성공으로 보고하지 않습니다. source 보완과 실패 fixture/raw evidence는 별도 checkpoint로 분리합니다. 원Request local reader의 bodyUsed/unlocked와 handler/bodyInflight0은 확인했으나 caller producer cancel은 별도 미검증입니다.

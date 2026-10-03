@@ -17,26 +17,32 @@ export function publicError(error:unknown):Response {
 export function cancelUnusedRequestBody(request:Request):void {
  if(request.body&&!request.bodyUsed&&!request.body.locked)void request.body.cancel().catch(()=>{});
 }
-export async function publicBody(request:Request,p:Readonly<Pick<PublicPolicy,'jsonBytes'|'bodyMs'>>,allowed:string[]):Promise<Record<string,unknown>> {
+export async function publicBody(request:Request,p:Readonly<Pick<PublicPolicy,'jsonBytes'|'bodyMs'>>,allowed:string[],signal:AbortSignal=request.signal):Promise<Record<string,unknown>> {
  if(request.headers.get('Content-Type')?.split(';')[0].trim()!=='application/json')bad();
  if(Number(request.headers.get('Content-Length'))>p.jsonBytes)fail(413,'BODY_TOO_LARGE','JSON 요청은 최대 8KiB입니다.');
  const reader=request.body?.getReader();if(!reader)bad();
- let timer:ReturnType<typeof setTimeout>|undefined,abort=()=>{};
+ let timer:ReturnType<typeof setTimeout>|undefined,abort=()=>{},cancellation:Promise<void>|undefined;
+ const cancelReader=()=>{cancellation??=reader.cancel().catch(()=>{});};
  const stop=new Promise<never>((_resolve,reject)=>{
-  const cancel=(e:HttpError)=>{reject(e);void reader.cancel().catch(()=>{});};
+  const cancel=(e:HttpError)=>{reject(e);cancelReader();};
   timer=setTimeout(()=>cancel(new HttpError(408,'BODY_TIMEOUT','본문 읽기 시간이 초과되었습니다.')),p.bodyMs);
   abort=()=>cancel(new HttpError(499,'REQUEST_ABORTED','요청이 취소되었습니다.'));
-  request.signal.addEventListener('abort',abort,{once:true});if(request.signal.aborted)abort();
+  signal.addEventListener('abort',abort,{once:true});if(signal.aborted)abort();
  });
  let size=0;const chunks:Uint8Array[]=[];
  try {
   for(;;){const {value,done}=await Promise.race([reader.read(),stop]);if(done)break;size+=value.byteLength;
-   if(size>p.jsonBytes){void reader.cancel().catch(()=>{});fail(413,'BODY_TOO_LARGE','JSON 요청은 최대 8KiB입니다.');}chunks.push(value);}
+   if(size>p.jsonBytes){cancelReader();fail(413,'BODY_TOO_LARGE','JSON 요청은 최대 8KiB입니다.');}chunks.push(value);}
   const bytes=new Uint8Array(size);let offset=0;for(const c of chunks){bytes.set(c,offset);offset+=c.length;}
   let data:unknown;try{data=JSON.parse(new TextDecoder('utf-8',{fatal:true,ignoreBOM:true}).decode(bytes));}catch{bad();}
   if(!data||typeof data!=='object'||Array.isArray(data))bad();const input=data as Record<string,unknown>;
   if(Object.keys(input).some(k=>!allowed.includes(k)))bad();return input;
- }finally{clearTimeout(timer);request.signal.removeEventListener('abort',abort);reader.releaseLock();}
+ }finally{clearTimeout(timer);signal.removeEventListener('abort',abort);
+  // Give the cancelled native stream a bounded chance to settle before releasing its lock.
+  // No drain and no unbounded wait on a producer that ignores cancellation.
+  if(cancellation){let settleTimer:ReturnType<typeof setTimeout>|undefined;try{await Promise.race([cancellation,new Promise<void>(resolve=>{settleTimer=setTimeout(resolve,1000);})]);}finally{clearTimeout(settleTimer);}}
+  reader.releaseLock();
+ }
 }
 export function publicGuide(slug:string,origin:string,title=slug,policy:Readonly<PublicPolicy>=PUBLIC_POLICY):string {
  const base=origin+'/api/public/rooms/'+slug;
