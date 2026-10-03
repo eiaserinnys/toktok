@@ -97,3 +97,8 @@ C `aeef982`의 기존 패턴 서비스 설명과 `2f8d62d`의 모바일 nav CSS 
 C에서 미도달했던 owner clipboard 거부는 실제 Node24/SQLite 새 방 한 개를 필요한 setup으로 만든 뒤, 해당 브라우저 context의 clipboard permission을 denied로 지정해 좁게 확인했다. 390px 1 PASS: 거부 안내/owner DOM0/storage0, 공유 링크 수동 선택·초점, 생성 POST1/자동 재시도0. 이어 실제 mobile 주메뉴로 rooms 이동도 확인했다. 비밀이 보이는 공유 링크는 screenshot mask 처리했고 raw에 비밀을 남기지 않았다. [새 실제 증거](qa/20261003-actual-clipboard-browser.json)는 C 초기·보정 실패를 덮어쓰지 않는다.
 
 README hero를 공통 헤더·catalog·서비스 설명을 사용하는 실제 최신 제품 캡처로 바꿨다. 대화 본문 이미지는 변경되지 않아 재캡처하지 않았다. 이미지 출처·hash는 개발 문서에만 기록한다.
+
+
+## 관리자 복구 사용량 표시
+
+C `24479d6`의 읽기 전용 복구 DTO 표시를 통합했다. 실제 Node24/SQLite admin budget 응답의 분/일/월 사용량·한도·UTC 경계·65536 bytes 상한을 390px DOM과 대조해 1 PASS했다. 편집 요소0/브라우저 mutation0/CSP0/storage0이며 이전 backend cap/recovery gate와 구분한다. [실제 UI 증거](qa/20261003-actual-recovery-ui-browser.json)를 보존했다.

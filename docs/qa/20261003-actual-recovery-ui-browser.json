@@ -1,0 +1,73 @@
+{
+  "source_commit": "04e0b15",
+  "c_checkpoint": "24479d6",
+  "passed": 1,
+  "failed": 0,
+  "runtime": "actual Node24 SQLite administrator session and budget HTTP DTO; fake sender only in necessary bootstrap setup",
+  "cases": [
+    {
+      "name": "390-actual-budget-recovery-display",
+      "status": "PASS",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "networkMutations": 0,
+      "observed": {
+        "status": 200,
+        "bounds": {
+          "minute": 10,
+          "day": 100,
+          "month": 1000
+        },
+        "usage": {
+          "minute": 0,
+          "day": 0,
+          "month": 0
+        },
+        "responseBytes": 65536,
+        "utcDates": true,
+        "editableFields": 0,
+        "mutations": 0
+      },
+      "dom": {
+        "width": 390,
+        "docWidth": 390,
+        "headings": [
+          "공간 돌보기",
+          "작업량 예산",
+          "서버의 운영 예산",
+          "운영 예산 기준",
+          "하루와 한 달의 작업량"
+        ],
+        "dialogs": 0,
+        "storage": [
+          0,
+          0
+        ],
+        "csp": []
+      },
+      "errors": [],
+      "external": [],
+      "shots": [
+        "390-real-recovery-readonly.png"
+      ]
+    }
+  ],
+  "cleanup": true,
+  "external_mail": 0,
+  "artifacts": [
+    {
+      "path": ".local/artifacts/toktok/20261003-node-recovery-ui-root/390-real-recovery-readonly.png",
+      "sha256": "8055ad4de61bb48f23087aad3ae66e457cdace0c2321d27d2c3a01cad3afe162"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-recovery-ui-root/browser.mjs",
+      "sha256": "ce6930dac1eb2aff15c9c034f5552218e0f628cfd5d81646aae6798900fc7029"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-recovery-ui-root/raw.json",
+      "sha256": "23b56fef0dc3aa40161cfae5ecd57b6374043bc873904f4e355461091ff2c56a"
+    }
+  ]
+}
