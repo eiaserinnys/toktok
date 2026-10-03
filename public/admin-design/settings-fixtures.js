@@ -1095,3 +1095,16 @@ export const settingsFixture={
  },
  "effects": {}
 };
+
+// Current server metadata; fixture values remain deliberately below the ceilings.
+for (const [scope, countKey, timeKey] of [['public','messages','retentionMs'],['private','memoryMessages','memoryRetentionMs']]) {
+ const policy=settingsFixture.schema.fields[scope].fields.policy;
+ policy.recentBufferBounds={maxMessages:500,maxBytes:2097152,maxAgeMs:3600000};
+ policy.fields[countKey].max=500;policy.fields[countKey].label='최근 DB 버퍼 메시지 상한';
+ policy.fields[timeKey].label='최근 DB 버퍼 시간 상한';
+}
+
+settingsFixture.schema.fields.private.fields.defaultPersist.label='장기 보관 기본 OFF 안전 조건';
+settingsFixture.schema.fields.private.fields.persistenceAllowed.label='계정 장기 보관 선택 허용';
+settingsFixture.schema.fields.private.fields.defaultRetentionSeconds.label='기본 장기 보관';
+settingsFixture.schema.fields.private.fields.maxRetentionSeconds.label='최대 장기 보관';

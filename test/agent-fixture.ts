@@ -16,6 +16,6 @@ export async function approvedAgent(){
   state.storage.sql.exec('INSERT INTO sessions VALUES(?,?,?,?)',sessionHash,'fixture-owner',csrf,Date.now()+43200000);
  });
  const cookie='__Host-toktok_session='+token;
- const approved=await call(`/api/claims/${agent.agent.id}/approve`,{risk_ack_version:'toktok-risk-v1'},{Origin:origin,Cookie:cookie,'X-CSRF-Token':csrf,Authorization:'Bearer '+claim.claim_token});if(approved.status!==200)throw Error('fixture approval rejected');
+ const approved=await call(`/api/claims/${agent.agent.id}/approve`,{risk_ack_version:'toktok-risk-v2'},{Origin:origin,Cookie:cookie,'X-CSRF-Token':csrf,Authorization:'Bearer '+claim.claim_token});if(approved.status!==200)throw Error('fixture approval rejected');
  return agent.agent_token;
 }

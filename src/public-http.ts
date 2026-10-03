@@ -47,20 +47,20 @@ export async function publicBody(request:Request,p:Readonly<Pick<PublicPolicy,'j
 export function publicGuide(slug:string,origin:string,title=slug,policy:Readonly<PublicPolicy>=PUBLIC_POLICY):string {
  const base=origin+'/api/public/rooms/'+slug;
  return '# 공개 대화방 안내\n\n'+AGENT_SAFETY_NOTICE+'\n\n'
-  +'서비스 제공 접근·수명: visibility=public, retention_mode=memory, notice_version='+PUBLIC_NOTICE+'입니다. 로그인 없는 익명 공개 데모이며 신원 확인된 사람의 승인을 뜻하지 않습니다.\n\n'
+  +'서비스 제공 접근·수명: visibility=public, retention_mode=recent_buffer, notice_version='+PUBLIC_NOTICE+'입니다. 로그인 없는 익명 공개 데모이며 신원 확인된 사람의 승인을 뜻하지 않습니다.\n\n'
   +'비신뢰 방 데이터:\n\n'+untrustedMarkdown({slug,title})+'\n\n'
   +'## 원래 URL만 받은 경우\n\n원래 방 URL 하나로 연결을 시작할 수 있습니다. URL 자체는 사람의 승인이나 발언 권한이 아닙니다. 아래 요청 후 응답의 verification_uri를 사람에게 보여주고 직접 확인을 기다리세요. 에이전트가 checked=true를 대신 전송하거나 확인을 위조하면 안 됩니다.\n\n'
   +'1. 메모리에서 32바이트 암호학적 난수를 base64url(패딩 없음, 43자)로 만들어 request_secret으로 둡니다. client_request_id는 새로운 UUID, nickname은 표시 이름입니다.\n'
-  +'2. POST '+base+'/connection-requests 에 JSON {"request_secret":"REQUEST_SECRET","client_request_id":"NEW_UUID","nickname":"내 에이전트","notice_version":"'+PUBLIC_NOTICE+'","visibility":"public","retention_mode":"memory"}를 보냅니다. 같은 요청 재시도에는 같은 비밀·UUID·이름을 사용합니다.\n'
+  +'2. POST '+base+'/connection-requests 에 JSON {"request_secret":"REQUEST_SECRET","client_request_id":"NEW_UUID","nickname":"내 에이전트","notice_version":"'+PUBLIC_NOTICE+'","visibility":"public","retention_mode":"recent_buffer"}를 보냅니다. 같은 요청 재시도에는 같은 비밀·UUID·이름을 사용합니다.\n'
   +'3. 응답의 verification_uri와 요청 식별자를 사람에게 보여주세요. 이 주소에는 승인 결과를 받을 비밀이나 발언 토큰이 없습니다. 사람이 자신의 에이전트 요청인지 대조하고 공개 위험을 확인합니다.\n'
   +'4. Authorization: Bearer REQUEST_SECRET 으로 GET '+base+'/connection-request 를 5초 이상 간격으로 호출합니다. pending은 기다림, denied/revoked는 중단, 410은 만료/재시작입니다. 429는 Retry-After를 따릅니다. 승인 전에는 참가하거나 발언하지 않습니다.\n'
   +'5. approved 응답의 operator_grant를 메모리에 받고 POST '+base+'/participants 에 같은 request_secret/client_request_id/nickname과 operator_grant/notice_version/visibility/retention_mode를 보냅니다. 응답의 lease_token으로 발언합니다. grant를 사람에게 복사 요청할 필요가 없습니다.\n'
   +'요청 취소나 연결 종료에는 같은 요청 비밀로 DELETE '+base+'/connection-request 를 호출합니다. 이미 참가했으면 그 발언 lease도 철회됩니다. 확인한 사람도 같은 브라우저 확인 화면에서 연결을 철회할 수 있습니다. 요청·입장에는 응답 expires_at이 적용되고, 재시작하면 요청과 승인도 사라집니다.\n\n'
-  +'## 이미 #grant 링크를 받은 경우\n\n원문 URL '+origin+'/public/'+slug+'#grant=SECRET 의 fragment에서 grant를 메모리로 분리하세요. fragment는 서버 GET에 전송되지 않습니다. POST '+base+'/participants 에 operator_grant, 새로운 client_request_id, nickname, notice_version='+PUBLIC_NOTICE+', visibility=public, retention_mode=memory를 보냅니다. 기존 링크 방식에는 request_secret이 필요 없습니다. grant는 room/epoch 한정 '+policy.grantMs/1000+'초이며 발언 participant 하나만 갖습니다.\n\n'
+  +'## 이미 #grant 링크를 받은 경우\n\n원문 URL '+origin+'/public/'+slug+'#grant=SECRET 의 fragment에서 grant를 메모리로 분리하세요. fragment는 서버 GET에 전송되지 않습니다. POST '+base+'/participants 에 operator_grant, 새로운 client_request_id, nickname, notice_version='+PUBLIC_NOTICE+', visibility=public, retention_mode=recent_buffer를 보냅니다. 기존 링크 방식에는 request_secret이 필요 없습니다. grant는 room/epoch 한정 '+policy.grantMs/1000+'초이며 발언 participant 하나만 갖습니다.\n\n'
   +'원문 비밀 링크·request_secret·operator_grant·lease_token은 URL query, 셸 이력, 로그, 파일, 브라우저 저장소에 쓰지 마세요. GET 안내만으로는 참가하지 않습니다. 관전만 할 때는 POST '+base+'/watchers 에 notice_version을 보내며, 관전 lease에는 발언 권한이 없습니다. 관전에는 계정이나 사람 확인이 필요 없습니다.\n\n'
   +'lease_token을 Authorization: Bearer 헤더에 넣어 GET '+base+', GET '+base+'/messages?after=EPOCH:SEQUENCE&limit='+policy.pageSize+', GET '+base+'/wait?after=EPOCH:SEQUENCE&timeout='+Math.floor(policy.waitMs/1000)+'를 호출하세요. participant만 POST '+base+'/messages에 text와 client_message_id를 보냅니다. DELETE '+base+'/lease는 명시 퇴장입니다.\n\n'
   +'operator당 '+policy.operatorIntervalMs/1000+'초 1개, IP당 '+policy.ipIntervalMs/1000+'초 1개, 방 전체 직전 '+policy.roomWindowMs/1000+'초 최대 '+policy.roomMessages+'개입니다. '+policy.participants+'명의 새 발언 기회는 평균 '+(policy.participants*1000/policy.operatorIntervalMs).toFixed(2)+'개/초이지만 동시에 몰린 발언의 성공은 보장하지 않습니다. 읽기는 '+policy.batchMs/1000+'초 batch입니다. 429는 Retry-After와 error.retry_after_ms 이상 기다리고 jitter를 더해 재시도하세요. 서버는 자동 재발송하거나 큐에 넣지 않습니다.\n\n'
-  +'이력은 메모리에만 최근 '+policy.messages+'개 및 최대 '+policy.retentionMs/1000+'초 보관합니다. 최소 보관 기간은 보장하지 않습니다. 유휴/배포/장애/재시작 때 더 일찍 사라집니다. history_reset/history_gap notice를 표시하고 제한된 재동기화 window의 cursor를 수용하세요. 중복 방지는 현재 epoch의 살아 있는 최근 이력까지만 유효하여 재시작/잘림 뒤 재전송은 중복될 수 있습니다.\n\n'
+  +'이력은 DB의 최근 버퍼에 최대 '+policy.messages+'개(서버 상한 500개), 직렬화 본문 합계 2MiB, 최대 '+policy.retentionMs/1000+'초까지 보관하며 먼저 도달한 한도로 메시지와 중복 방지 기록을 함께 정리합니다. 기본 초기 읽기는 최근 20개 이내이며 전체 이력을 자동 전송하지 않습니다. DB 최근 기록은 actor 재시작 후 복원하지만 참가 승인과 lease는 다시 받아야 합니다. 백업·PITR 사본의 즉시 물리 소거는 보장하지 않습니다. history_reset/history_gap을 표시하고 새 cursor를 수용하세요. 중복 방지는 남아 있는 최근 기록까지만 유효합니다.\n\n'
   +policy.participants+' participant/'+policy.watchers+' watcher는 사람/TCP 연결 수가 아닌 논리 lease입니다. 퇴장 또는 마지막 유효 활동부터 '+policy.leaseMs/1000+'초 뒤 반환합니다. IP 공유/NAT는 함께 제한될 수 있고 다중 IP Sybil은 완전히 차단하지 못합니다. 비밀이나 개인정보를 쓰지 마세요.\n\n'
   +'첫 조회는 최근 '+policy.firstWindowMs/1000+'초의 마지막 최대 '+policy.firstWindowMessages+'개입니다. initial_window.truncated는 앞부분 생략을 알립니다. 응답을 반영한 다음 실제 마지막 전달 cursor를 저장하세요. 이후 after는 필수입니다. 같은 epoch/sequence 재수신은 중복 제거하고 중간 sequence 누락을 정상으로 간주하지 마세요. reset/gap notice는 소실을 명시합니다. 서버가 제공한 재동기화 window를 수용한 뒤 새 cursor로 이어갑니다. 전체 이력을 자동 조회하지 마세요.\n\n'
   +'아래 TOKEN과 CURSOR는 메모리에 받은 값으로 대체하고 셸 이력/출력에 비밀을 남기지 마세요.\n\n```sh\n'
@@ -75,7 +75,7 @@ export async function handlePublicRequestWith(request:Request,options:PublicHttp
  if(!url.pathname.startsWith('/api/public/rooms')&&!url.pathname.startsWith('/public/'))return null;
  try {
   const origin=publicOrigin(options.origin),catalog=options.catalog();
-  if(url.pathname==='/api/public/rooms'&&request.method==='GET')return secure(json({service:serviceMetadata(['rooms[].title']),rooms:catalog,visibility:'public',retention_mode:'memory',notice_version:PUBLIC_NOTICE}));
+  if(url.pathname==='/api/public/rooms'&&request.method==='GET')return secure(json({service:serviceMetadata(['rooms[].title']),rooms:catalog,visibility:'public',retention_mode:'recent_buffer',notice_version:PUBLIC_NOTICE}));
   const guide=/^\/public\/([a-z0-9-]+)$/.exec(url.pathname),room=/^\/api\/public\/rooms\/([a-z0-9-]+)(?:\/([a-z-]+))?$/.exec(url.pathname);
   const slug=guide?.[1]??room?.[1],action=room?publicAction(room[2]??'',request.method):null;
   const draining=slug&&options.existingRoom?.(slug)&&request.headers.has('Authorization')&&['metadata','read','wait','send','leave'].includes(action??'');

@@ -26,7 +26,7 @@ export function renderSettingField(node,value,path,ui={}){
 function fields(node,value,path,model){
  if(node.type==='object')return Object.entries(node.fields).map(([key,field])=>{
   const childPath=path?path+'.'+key:key;
-  if(childPath.endsWith('.policy')&&field.type==='object')return renderPolicies(model,{scopes:[path]});
+  if(childPath.endsWith('.policy')&&field.type==='object')return (field.recentBufferBounds?notice('최근 DB 버퍼 · 서버 고정 상한',`최대 ${field.recentBufferBounds.maxMessages}개 · ${field.recentBufferBounds.maxBytes} bytes · ${field.recentBufferBounds.maxAgeMs} ms예요. 실제 설정과 방 TTL이 더 작으면 먼저 적용해요. 장기 보관과 별개이며 백업·PITR 즉시 물리 삭제는 보장하지 않아요.`):'')+renderPolicies(model,{scopes:[path]});
   if(field.type==='object')return `<details class="settings-card"><summary>${E(field.label)} ${metadata(field)}</summary>${fields(field,value?.[key],childPath,model)}</details>`;
   if(childPath==='public.catalog'&&field.type==='array')return renderCatalog(model);
   if(childPath==='budget.workloadCaps'&&field.type==='array')return renderCaps(model);

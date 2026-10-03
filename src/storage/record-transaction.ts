@@ -5,7 +5,7 @@ export interface RecordDriver {
   delete(collection:C,key:string):Promise<void>;
   list(collection:C,options:RecordPageOptions):Promise<{key:string;value_json:string}[]>;
 }
-export function validateScope(scope:string):void {if(scope!=='control'&&!/^room:[a-zA-Z0-9_-]{1,128}$/.test(scope))throw new RepositoryError('SCOPE_DENIED');}
+export function validateScope(scope:string):void {if(scope!=='control'&&!/^room:[a-zA-Z0-9_-]{1,128}$/.test(scope)&&!/^public:[a-z0-9-]{1,64}$/.test(scope))throw new RepositoryError('SCOPE_DENIED');}
 function json(value:unknown):string {
   function validate(v:unknown,seen:Set<object>):void {
     if(v===null||typeof v==='string'||typeof v==='boolean')return;
@@ -26,9 +26,10 @@ export class TargetedTransaction implements RecordTransaction {
   private check(collection:C,key?:string):void {
     if(!this.active)throw new RepositoryError('TRANSACTION_CLOSED');
     if(!Object.values(C).includes(collection)|| (key!==undefined&&(typeof key!=='string'||key.length<1||key.length>256||key.includes('\0'))))throw new RepositoryError('INVALID_RECORD');
-    const privateCollection=collection===C.private_rooms||collection===C.private_messages;
-    if((this.scope==='control')===privateCollection)throw new RepositoryError('SCOPE_DENIED');
+    const privateCollection=collection===C.private_rooms||collection===C.private_messages,recentCollection=collection===C.recent_buffers||collection===C.recent_messages;
+    if(this.scope==='control'?(privateCollection||recentCollection):this.scope.startsWith('public:')?!recentCollection:!(privateCollection||recentCollection))throw new RepositoryError('SCOPE_DENIED');
     if(collection===C.private_rooms&&key!==undefined&&key!==this.scope.slice(5))throw new RepositoryError('SCOPE_DENIED');
+    if(collection===C.recent_buffers&&key!==undefined&&key!=='buffer')throw new RepositoryError('SCOPE_DENIED');
   }
   private account(raw:string,count=1):void {
     const size=new TextEncoder().encode(raw).byteLength;
@@ -47,6 +48,10 @@ export class TargetedTransaction implements RecordTransaction {
     this.check(collection,key);if(!value||typeof value!=='object'||Array.isArray(value))throw new RepositoryError('INVALID_JSON');
     const raw=json(value);this.account(raw);
     if(collection===C.private_messages){const room=await this.get(C.private_rooms,this.scope.slice(5));if(room?.persist_authorized!==true||room.retention_mode!=='persist')throw new RepositoryError('PERSIST_DENIED');}
+    if(collection===C.recent_buffers||collection===C.recent_messages){
+      if(this.scope.startsWith('room:')){const room=await this.get(C.private_rooms,this.scope.slice(5));if(room?.recent_authorized!==true||room.retention_mode!=='recent_buffer')throw new RepositoryError('PERSIST_DENIED');}
+      if(collection===C.recent_messages){const buffer=await this.get(C.recent_buffers,'buffer');if(buffer?.notice_version!=='toktok-risk-v2')throw new RepositoryError('PERSIST_DENIED');}
+    }
     this.check(collection,key);await this.driver.put(collection,key,raw);this.check(collection,key);
   }
   async delete(collection:C,key:string):Promise<void>{this.check(collection,key);this.account(key);await this.driver.delete(collection,key);this.check(collection,key);}

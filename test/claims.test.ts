@@ -12,7 +12,7 @@ async function register():Promise<Agent>{const r=await h.call('/api/agents',{nam
 async function proof(f:Flow,email='allowed@fixture.example'){const sent=await h.send(f,email);expect(sent.status).toBe(200);expect(h.deliveries.some(d=>d.to===email)).toBe(true);return h.deliveries.filter(d=>d.to===email).at(-1)!.code;}
 async function login(claim?:Agent['claim'],identity='allowed'):Promise<Session>{h.advance(121000);const f=await h.begin(claim),r=await h.complete(f,await proof(f,identity+'@fixture.example'));expect(r.status).toBe(200);const cookie=h.cookie(r)!;const s=await h.call('/api/session',undefined,{Cookie:cookie});expect(s.status).toBe(200);return {...await s.json() as Omit<Session,'cookie'|'setCookie'>,cookie,setCookie:r.headers.get('Set-Cookie')!};}
 const mutation=(s:Session)=>({Origin:origin,Cookie:s.cookie,'X-CSRF-Token':s.csrf_token});
-const approve=(a:Agent,s:Session)=>h.call(`/api/claims/${a.agent.id}/approve`,{risk_ack_version:'toktok-risk-v1'},{...mutation(s),...bearer(a.token)});
+const approve=(a:Agent,s:Session)=>h.call(`/api/claims/${a.agent.id}/approve`,{risk_ack_version:'toktok-risk-v2'},{...mutation(s),...bearer(a.token)});
 async function approved(){const a=await register(),s=await login(a.claim);expect((await approve(a,s)).status).toBe(200);return {a,s};}
 async function authority(headers:Record<string,string>,id?:string){try{return {status:200,value:await creatorAuthorization(new Request(origin+'/api/v1/rooms',{method:'POST',headers}),h.localEnv,id)};}catch(e){const error=e as HttpError;return {status:error.status,code:error.code};}}
 it('registers separate opaque pending credentials with side-effect-free status and claim reads',async()=>{

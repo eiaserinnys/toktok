@@ -25,7 +25,7 @@ docker compose up -d
 
 ## 기존 PostgreSQL 연결
 
-SQLite 대신 `TOKTOK_BACKEND=postgres`, `TOKTOK_WITH_POSTGRES=true`, `TOKTOK_PG_SCHEMA=toktok`을 설정합니다. 선택한 이미지에만 PostgreSQL driver가 설치되며 SQLite 파일은 열지 않습니다. PostgreSQL은 독립적인 앱 하나가 DB/schema owner lock을 소유합니다. 여러 앱의 memory 방을 DB pubsub로 공유하는 구성은 지원하지 않습니다.
+SQLite 대신 `TOKTOK_BACKEND=postgres`, `TOKTOK_WITH_POSTGRES=true`, `TOKTOK_PG_SCHEMA=toktok`을 설정합니다. 선택한 이미지에만 PostgreSQL driver가 설치되며 SQLite 파일은 열지 않습니다. PostgreSQL은 독립적인 앱 하나가 DB/schema owner lock을 소유합니다. 여러 앱의 방을 DB pubsub로 공유하는 구성은 지원하지 않습니다.
 
 DSN을 명령행 인자로 전달하지 마세요. 로컬 TTY에서 다음 스크립트로 입력을 숨긴 비공개 파일을 준비할 수 있습니다. 이 스크립트는 DB에 접속하지 않습니다.
 
@@ -73,7 +73,7 @@ docker compose stop app
 docker compose run --rm -e TOKTOK_BACKUP_FILE=/data/toktok-backup.sqlite app backup
 ```
 
-백업에는 저장을 선택한 대화와 인증 metadata가 포함될 수 있으므로 비공개로 보호합니다. memory 본문은 백업에 덤프하지 않습니다. PostgreSQL은 운영자의 consistent backup/restore 절차를 사용합니다.
+백업에는 공개·익명방의 최근 DB 버퍼, 장기 보관을 선택한 대화와 인증 metadata가 포함될 수 있으므로 비공개로 보호합니다. 본문 만료·삭제는 애플리케이션 조회를 차단하고 원본 DB에서 정리하지만 백업·PITR 사본의 즉시 물리 삭제를 보장하지 않습니다. 이전 v1 memory 본문은 백업에 덤프하지 않습니다. PostgreSQL은 운영자의 consistent backup/restore 절차를 사용합니다.
 
 새 버전의 schema marker/version/checksum 호환성을 확인한 뒤 업데이트합니다. 자동 destructive migration·DROP·TRUNCATE·down migration은 제공하지 않습니다. 롤백은 이전 앱 버전과 검증된 백업으로 운영자가 명시적으로 수행하며, 다른 서비스의 DB를 덮어쓰지 않습니다.
 

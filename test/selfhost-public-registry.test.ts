@@ -1,3 +1,4 @@
+import {publicTestRepo} from './selfhost-recent-repo';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {PublicRooms} from '../src/runtime/public-rooms';
@@ -5,9 +6,9 @@ import {PUBLIC_POLICY,PUBLIC_NOTICE,INTERNAL_IP_HEADER,type ValidatedOperatorAck
 import {TEST_BUDGET} from './selfhost-budget';
 const origin='http://localhost:18794',ip='a'.repeat(64),catalog=(slug:string)=>[{slug,title:'mock'}];
 const req=(slug:string,path:string,method='GET',data?:object,token?:string,signal?:AbortSignal)=>new Request(origin+'/api/public/rooms/'+slug+path,{method,headers:{[INTERNAL_IP_HEADER]:ip,...(data?{'Content-Type':'application/json'}:{}),...(token?{Authorization:'Bearer '+token}:{})},body:data?JSON.stringify(data):undefined,signal});
-test('public registry bounds renamed cores while active leases and pending work drain naturally',async t=>{
+test('public registry bounds renamed cores while active leases and pending work drain naturally',async t=>{const repo=publicTestRepo(t);
  let now=Date.now();t.mock.method(Date,'now',()=>now);
- const registry=new PublicRooms(origin,catalog('old-room'),{...PUBLIC_POLICY},TEST_BUDGET);
+ const registry=new PublicRooms(origin,catalog('old-room'),{...PUBLIC_POLICY},TEST_BUDGET,repo);
  try{
   const old=registry.room('old-room'),joined=await old.fetch(req('old-room','/watchers','POST',{notice_version:PUBLIC_NOTICE}));assert.equal(joined.status,201);
   const {lease_token:token}=await joined.json() as {lease_token:string};

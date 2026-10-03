@@ -68,9 +68,13 @@ export class PostgresRepository implements RepositoryPort,NodePrivateMaintenance
     if(nesting.getStore())throw new RepositoryError('NESTED_TRANSACTION');validateRoomIdPage(options);if(!this.ready())throw new RepositoryError('REPOSITORY_UNAVAILABLE');
     return this.connected(async c=>{await c.query('BEGIN READ ONLY');try{
       await c.query("SET LOCAL statement_timeout='10000ms'");if(!this.ready())throw new RepositoryError('REPOSITORY_UNAVAILABLE');
-      const rows=(await c.query(`SELECT key FROM ${identifier(this.schema)}.tok_records WHERE collection='private_rooms' AND scope COLLATE "C">$1 AND scope COLLATE "C"<'room;' AND scope='room:'||key AND value_json::jsonb#>>'{snapshot,id}'=key AND value_json::jsonb#>>'{snapshot,persist}'='true' AND (value_json::jsonb->>'body_count')::bigint>0 ORDER BY scope COLLATE "C" LIMIT $2`,['room:'+(options.after??''),options.limit])).rows;
+      const rows=(await c.query(`SELECT key FROM ${identifier(this.schema)}.tok_records WHERE collection='private_rooms' AND scope COLLATE "C">$1 AND scope COLLATE "C"<'room;' AND scope='room:'||key AND value_json::jsonb#>>'{snapshot,id}'=key AND (value_json::jsonb#>>'{snapshot,persist}'='true' OR value_json::jsonb->>'recent_authorized'='true') AND (value_json::jsonb->>'body_count')::bigint>0 ORDER BY scope COLLATE "C" LIMIT $2`,['room:'+(options.after??''),options.limit])).rows;
       if(!this.ready())throw new RepositoryError('REPOSITORY_UNAVAILABLE');const page=roomIdPage(rows.map(r=>String(r.key)),options.limit);await c.query('COMMIT');return page;
     }catch(error){await c.query('ROLLBACK');throw error;}});
+  }
+  async listPublicRoomIds(options:PrivateRoomIdOptions){
+    if(nesting.getStore())throw new RepositoryError('NESTED_TRANSACTION');validateRoomIdPage(options);if(!this.ready())throw new RepositoryError('REPOSITORY_UNAVAILABLE');
+    return this.connected(async c=>{const rows=(await c.query(`SELECT substring(scope from 8) AS id FROM ${identifier(this.schema)}.tok_records WHERE collection='recent_buffers' AND scope COLLATE "C">$1 AND scope COLLATE "C"<'public;' AND key='buffer' AND (value_json::jsonb->>'count')::bigint>0 ORDER BY scope COLLATE "C" LIMIT $2`,['public:'+(options.after??''),options.limit])).rows;return roomIdPage(rows.map(r=>String(r.id)),options.limit);});
   }
   async close(){this.closed=true;this.available=false;if(this.owner){this.owner.release(true);this.owner=undefined;}await this.pool.end();}
 }

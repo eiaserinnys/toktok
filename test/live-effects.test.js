@@ -57,7 +57,7 @@ it('uses separate browser context/grant and the new private creation payload for
  await adapter.creationGrant({nonce:'fictional-nonce',risk_ack:true});
  await adapter.createRoom({purpose:'가상 방',ttl_seconds:3600,persist:false,retention_seconds:99,client_request_id:'stable-request',creation_grant:'fictional-grant',role:'admin'});
  expect(calls.map(c=>c.path)).toEqual(['/api/private/create-context','/api/private/create-grants','/api/v1/rooms']);
- expect(JSON.parse(calls[1].options.body)).toEqual({nonce:'fictional-nonce',risk_ack:true,risk_ack_version:'toktok-risk-v1'});
+ expect(JSON.parse(calls[1].options.body)).toEqual({nonce:'fictional-nonce',risk_ack:true,risk_ack_version:'toktok-risk-v2'});
  expect(JSON.parse(calls[2].options.body)).toEqual({purpose:'가상 방',ttl_seconds:3600,persist:false,client_request_id:'stable-request',creation_grant:'fictional-grant'});
  expect(calls.every(c=>c.options.credentials==='same-origin')).toBe(true);
 });

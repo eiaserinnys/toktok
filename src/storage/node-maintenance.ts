@@ -8,6 +8,7 @@ export interface PrivateRoomIdOptions {limit:number;after?:string;}
 export interface NodePrivateMaintenance {
  /** Metadata only; no body collection scan and no initialization of absent rooms. */
  listPrivateRoomIds(options:PrivateRoomIdOptions):Promise<PrivateRoomIdPage>;
+ listPublicRoomIds(options:PrivateRoomIdOptions):Promise<PrivateRoomIdPage>;
 }
 export type NodeRepositoryPort=RepositoryPort&NodePrivateMaintenance;
 export function validateRoomIdPage(options:PrivateRoomIdOptions):void {

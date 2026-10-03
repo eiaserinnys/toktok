@@ -87,7 +87,7 @@ it('remaining registered wait rejects exactly when its server snapshot expires',
 it('remaining current private input and query limits fail safely through actual HTTP',async()=>{
  const r=await create(),p=await join(r,'창작'),grant=await anonymousGrant();
  for(const input of [{purpose:'x'.repeat(1001)},{purpose:'창작',ttl_seconds:59},{purpose:'창작',ttl_seconds:86401}])expect((await call('invalid creation bounds','/api/v1/rooms',{...input,creation_grant:grant,client_request_id:crypto.randomUUID()})).status).toBe(400);
- for(const nickname of ['', 'x'.repeat(65)])expect((await call('invalid participant name',r.base+'/participants',{nickname,client_request_id:crypto.randomUUID(),notice_version:PRIVATE_NOTICE,visibility:'private',retention_mode:'memory'},bearer(r.invite))).status).toBe(400);
+ for(const nickname of ['', 'x'.repeat(65)])expect((await call('invalid participant name',r.base+'/participants',{nickname,client_request_id:crypto.randomUUID(),notice_version:PRIVATE_NOTICE,visibility:'private',retention_mode:'recent_buffer'},bearer(r.invite))).status).toBe(400);
  for(const input of [{text:'',client_message_id:'empty'},{text:'창작',client_message_id:'x'.repeat(129)}])expect((await post(r,p,input)).status).toBe(400);
  expect((await post(r,p,{text:'가'.repeat(5462),client_message_id:'too-many-bytes'})).status).toBe(413);
  expect((await post(r,p,{text:'x'.repeat(65536),client_message_id:'too-large-json'})).status).toBe(413);

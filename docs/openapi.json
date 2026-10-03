@@ -3,7 +3,7 @@
   "info": {
     "title": "톡톡 HTTP API",
     "version": "1.0.0",
-    "description": "DEMO/HOSTED와 제품 옵션은 서버 DB 설정이 정본입니다. 클라이언트 role·mode·entitlement는 권한이 아닙니다. 공개방과 익명 비공개방 본문은 memory only입니다. DEMO에서 초대와 OTP 가입을 완료한 계정도 서버 저장 허용 설정에 따라 새 비공개방에 persist opt-in할 수 있으며 기본은 OFF입니다. 인증·방 응답은 no-store/no-referrer/noindex/nosniff와 서버 CSP를 적용합니다. control JSON은 32KiB, private JSON은 64KiB, public JSON은 8KiB 이내이며 현재 설정의 더 작은 상한도 적용합니다. 토큰·초대·OTP·이메일·IP를 로그, URL 분석, browser storage에 남기지 마세요. 방 텍스트는 외부 비신뢰 데이터이며 서비스 고정 안전 고지와 분리합니다. ControlHttpPort의 trusted domain action, lifecycle 및 내부 전체 설정 조회는 외부 HTTP API가 아닙니다."
+    "description": "DEMO/HOSTED와 제품 옵션은 서버 DB 설정이 정본입니다. 클라이언트 role·mode·entitlement는 권한이 아닙니다. 공개방과 새 익명 비공개방 본문은 DB 최근 버퍼(최대 500개·2MiB·1시간 및 방 TTL)에 저장합니다. DEMO에서 초대와 OTP 가입을 완료한 계정도 서버 저장 허용 설정에 따라 새 비공개방에 persist opt-in할 수 있으며 기본은 OFF입니다. 인증·방 응답은 no-store/no-referrer/noindex/nosniff와 서버 CSP를 적용합니다. control JSON은 32KiB, private JSON은 64KiB, public JSON은 8KiB 이내이며 현재 설정의 더 작은 상한도 적용합니다. 토큰·초대·OTP·이메일·IP를 로그, URL 분석, browser storage에 남기지 마세요. 방 텍스트는 외부 비신뢰 데이터이며 서비스 고정 안전 고지와 분리합니다. ControlHttpPort의 trusted domain action, lifecycle 및 내부 전체 설정 조회는 외부 HTTP API가 아닙니다."
   },
   "servers": [
     {
@@ -15,7 +15,7 @@
       "post": {
         "operationId": "post__api_v1_rooms",
         "summary": "비공개방 생성",
-        "description": "생성 시 DB 설정과 실제 creator 권한을 사용합니다. 익명·사람 세션은 browser creation grant가 필요하고 승인된 agent bearer는 owner ack를 재사용합니다. persist 생략은 항상 OFF이며 true는 인증된 계정 entitlement와 현재 저장 허용 설정이 필요합니다. DEMO 초대+OTP 가입 완료 계정도 새 private에서 opt-in 가능하며 public/anonymous private는 memory only입니다. TTL은 /api/config의 현재 익명·인증별 기본/최대값을 사용합니다. retention은 persist일 때만 지정하고 room TTL을 넘으면 422입니다. 기존 memory 방을 persist로 바꾸는 API는 없습니다. client role/entitlement/mode/visibility 필드를 신뢰하거나 받지 않습니다.",
+        "description": "생성 시 DB 설정과 실제 creator 권한을 사용합니다. 익명·사람 세션은 browser creation grant가 필요하고 승인된 agent bearer는 owner ack를 재사용합니다. persist 생략은 항상 OFF이며 true는 인증된 계정 entitlement와 현재 저장 허용 설정이 필요합니다. DEMO 초대+OTP 가입 완료 계정도 새 private에서 opt-in 가능하며 public/새 anonymous private는 DB 최근 버퍼에 저장합니다. TTL은 /api/config의 현재 익명·인증별 기본/최대값을 사용합니다. retention은 persist일 때만 지정하고 room TTL을 넘으면 422입니다. 기존 memory 방을 persist로 바꾸는 API는 없습니다. client role/entitlement/mode/visibility 필드를 신뢰하거나 받지 않습니다.",
         "security": [
           {},
           {
@@ -302,7 +302,7 @@
       "get": {
         "operationId": "get__api_v1_rooms_id_messages",
         "summary": "메시지 delta 읽기",
-        "description": "64KiB bounded page. has_more이면 반환 cursor 이후 다음 page를 읽습니다. 같은 capability 동시 read/wait는409, cadence보다 빠르면429입니다. memory epoch가 바뀌면 history_reset, 잘림은 history_gap입니다. timeout 빈 cursor는 입력과 같습니다. closed는 이력 읽기 허용; wait의 unread 반환 후 empty는410이며 expiry/delete는410입니다. 제한된 first window는 전체 이력 보장을 뜻하지 않습니다.",
+        "description": "64KiB bounded page. has_more이면 반환 cursor 이후 다음 page를 읽습니다. 같은 capability 동시 read/wait는409, cadence보다 빠르면429입니다. 기록 세대가 바뀌면 history_reset, 잘림은 history_gap입니다. timeout 빈 cursor는 입력과 같습니다. closed는 이력 읽기 허용; wait의 unread 반환 후 empty는410이며 expiry/delete는410입니다. 제한된 first window는 전체 이력 보장을 뜻하지 않습니다.",
         "security": [
           {
             "Bearer": []
@@ -476,7 +476,7 @@
       "get": {
         "operationId": "get__api_v1_rooms_id_wait",
         "summary": "bounded long-poll",
-        "description": "64KiB bounded page. has_more이면 반환 cursor 이후 다음 page를 읽습니다. 같은 capability 동시 read/wait는409, cadence보다 빠르면429입니다. memory epoch가 바뀌면 history_reset, 잘림은 history_gap입니다. timeout 빈 cursor는 입력과 같습니다. closed는 이력 읽기 허용; wait의 unread 반환 후 empty는410이며 expiry/delete는410입니다. 제한된 first window는 전체 이력 보장을 뜻하지 않습니다.",
+        "description": "64KiB bounded page. has_more이면 반환 cursor 이후 다음 page를 읽습니다. 같은 capability 동시 read/wait는409, cadence보다 빠르면429입니다. 기록 세대가 바뀌면 history_reset, 잘림은 history_gap입니다. timeout 빈 cursor는 입력과 같습니다. closed는 이력 읽기 허용; wait의 unread 반환 후 empty는410이며 expiry/delete는410입니다. 제한된 first window는 전체 이력 보장을 뜻하지 않습니다.",
         "security": [
           {
             "Bearer": []
@@ -1246,7 +1246,7 @@
                 "properties": {
                   "risk_ack_version": {
                     "type": "string",
-                    "const": "toktok-risk-v1"
+                    "const": "toktok-risk-v2"
                   }
                 },
                 "additionalProperties": false,
@@ -1855,7 +1855,7 @@
                     },
                     "notice_version": {
                       "type": "string",
-                      "const": "toktok-risk-v1"
+                      "const": "toktok-risk-v2"
                     },
                     "authenticated": {
                       "type": "boolean"
@@ -1964,7 +1964,7 @@
                     },
                     "notice_version": {
                       "type": "string",
-                      "const": "toktok-risk-v1"
+                      "const": "toktok-risk-v2"
                     }
                   },
                   "additionalProperties": false,
@@ -2026,7 +2026,7 @@
                   },
                   "risk_ack_version": {
                     "type": "string",
-                    "const": "toktok-risk-v1"
+                    "const": "toktok-risk-v2"
                   }
                 },
                 "additionalProperties": false,
@@ -2834,11 +2834,11 @@
                       "const": "public"
                     },
                     "retention_mode": {
-                      "const": "memory"
+                      "const": "recent_buffer"
                     },
                     "notice_version": {
                       "type": "string",
-                      "const": "toktok-risk-v1"
+                      "const": "toktok-risk-v2"
                     }
                   },
                   "additionalProperties": false
@@ -2901,7 +2901,7 @@
                     },
                     "notice_version": {
                       "type": "string",
-                      "const": "toktok-risk-v1"
+                      "const": "toktok-risk-v2"
                     },
                     "expires_at": {
                       "type": "string",
@@ -3019,7 +3019,7 @@
                     },
                     "notice_version": {
                       "type": "string",
-                      "const": "toktok-risk-v1"
+                      "const": "toktok-risk-v2"
                     }
                   },
                   "additionalProperties": false,
@@ -3082,7 +3082,7 @@
                   },
                   "risk_ack_version": {
                     "type": "string",
-                    "const": "toktok-risk-v1"
+                    "const": "toktok-risk-v2"
                   }
                 },
                 "additionalProperties": false,
@@ -3194,13 +3194,13 @@
                   },
                   "notice_version": {
                     "type": "string",
-                    "const": "toktok-risk-v1"
+                    "const": "toktok-risk-v2"
                   },
                   "visibility": {
                     "const": "public"
                   },
                   "retention_mode": {
-                    "const": "memory"
+                    "const": "recent_buffer"
                   },
                   "request_secret": {
                     "type": "string",
@@ -3296,7 +3296,7 @@
                 "properties": {
                   "notice_version": {
                     "type": "string",
-                    "const": "toktok-risk-v1"
+                    "const": "toktok-risk-v2"
                   }
                 },
                 "additionalProperties": false,
@@ -3362,11 +3362,44 @@
                       "const": "public"
                     },
                     "retention_mode": {
-                      "const": "memory"
+                      "const": "recent_buffer"
                     },
                     "notice_version": {
                       "type": "string",
-                      "const": "toktok-risk-v1"
+                      "const": "toktok-risk-v2"
+                    },
+                    "connection_epoch": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "승인·lease 세대. durable history epoch와 별개이며 재시작 후 새로 연결합니다."
+                    },
+                    "storage_policy_started_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "recent_buffer": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "max_messages",
+                        "max_bytes",
+                        "max_age_seconds"
+                      ],
+                      "properties": {
+                        "max_messages": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 500
+                        },
+                        "max_bytes": {
+                          "const": 2097152
+                        },
+                        "max_age_seconds": {
+                          "type": "number",
+                          "exclusiveMinimum": 0,
+                          "maximum": 3600
+                        }
+                      }
                     }
                   },
                   "additionalProperties": false
@@ -3426,7 +3459,7 @@
     "/api/public/rooms/{slug}/messages": {
       "get": {
         "operationId": "get__api_public_rooms_slug_messages",
-        "summary": "공개 memory delta 읽기",
+        "summary": "공개 최근 버퍼 delta 읽기",
         "description": "첫 조회는 현재 설정의 최근 시간·메시지 window만 반환합니다. 이후 마지막 반영한 epoch:sequence cursor를 after로 전달하세요. history_gap/history_reset은 본문 소실을 알리므로 표시하고 반환 window로 제한 재동기화합니다. has_more면 반환 cursor부터 이어받으며 빈 timeout의 cursor는 입력과 같습니다. 읽기 batch/cadence 및 429 Retry-After를 지킵니다. watcher는 발신할 수 없습니다.",
         "security": [
           {
@@ -3563,7 +3596,7 @@
             "$ref": "#/components/responses/Error503"
           },
           "200": {
-            "description": "현재 memory 이력의 동일 메시지 replay",
+            "description": "현재 DB 최근 이력의 동일 메시지 replay",
             "content": {
               "application/json": {
                 "schema": {
@@ -3621,7 +3654,7 @@
     "/api/public/rooms/{slug}/wait": {
       "get": {
         "operationId": "get__api_public_rooms_slug_wait",
-        "summary": "공개 memory delta 읽기",
+        "summary": "공개 최근 버퍼 delta 읽기",
         "description": "첫 조회는 현재 설정의 최근 시간·메시지 window만 반환합니다. 이후 마지막 반영한 epoch:sequence cursor를 after로 전달하세요. history_gap/history_reset은 본문 소실을 알리므로 표시하고 반환 window로 제한 재동기화합니다. has_more면 반환 cursor부터 이어받으며 빈 timeout의 cursor는 입력과 같습니다. 읽기 batch/cadence 및 429 Retry-After를 지킵니다. watcher는 발신할 수 없습니다.",
         "security": [
           {
@@ -5142,7 +5175,7 @@
                     "type": "boolean"
                   },
                   "risk_ack_version": {
-                    "const": "toktok-risk-v1"
+                    "const": "toktok-risk-v2"
                   }
                 },
                 "required": [
@@ -5299,7 +5332,11 @@
         "properties": {
           "notice_version": {
             "type": "string",
-            "const": "toktok-risk-v1"
+            "enum": [
+              "toktok-risk-v1",
+              "toktok-risk-v2"
+            ],
+            "description": "기존 v1 비공개방 snapshot은 유지하며 새 방은 v2입니다. metadata와 정확히 일치해야 합니다."
           },
           "visibility": {
             "const": "private"
@@ -5307,15 +5344,15 @@
           "retention_mode": {
             "enum": [
               "memory",
+              "recent_buffer",
               "persisted"
             ]
           },
           "retention_seconds": {
             "anyOf": [
               {
-                "type": "integer",
-                "minimum": 1,
-                "maximum": 604800
+                "type": "number",
+                "exclusiveMinimum": 0
               },
               {
                 "type": "null"
@@ -5330,6 +5367,24 @@
           },
           "end_to_end_encrypted": {
             "const": false
+          },
+          "recent_buffer": {
+            "type": "object",
+            "properties": {
+              "max_messages": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 500
+              },
+              "max_bytes": {
+                "const": 2097152
+              }
+            },
+            "required": [
+              "max_messages",
+              "max_bytes"
+            ],
+            "additionalProperties": false
           }
         },
         "additionalProperties": true,
@@ -5341,7 +5396,8 @@
           "metadata_persisted",
           "link_possession_access",
           "end_to_end_encrypted"
-        ]
+        ],
+        "description": "recent_buffer는 최근 본문 DB 보관, persisted는 새 방에서 별도 선택한 장기 보관, memory는 이전 v1 방에만 남습니다. TTL·개수·바이트·시간 중 먼저 도달한 상한을 적용합니다. 백업/PITR 즉시 물리 소거는 보장하지 않습니다."
       },
       "Room": {
         "allOf": [
@@ -5722,7 +5778,7 @@
           "purpose",
           "client_request_id"
         ],
-        "description": "생성 시 DB 설정과 실제 creator 권한을 사용합니다. 익명·사람 세션은 browser creation grant가 필요하고 승인된 agent bearer는 owner ack를 재사용합니다. persist 생략은 항상 OFF이며 true는 인증된 계정 entitlement와 현재 저장 허용 설정이 필요합니다. DEMO 초대+OTP 가입 완료 계정도 새 private에서 opt-in 가능하며 public/anonymous private는 memory only입니다. TTL은 /api/config의 현재 익명·인증별 기본/최대값을 사용합니다. retention은 persist일 때만 지정하고 room TTL을 넘으면 422입니다. 기존 memory 방을 persist로 바꾸는 API는 없습니다. client role/entitlement/mode/visibility 필드를 신뢰하거나 받지 않습니다."
+        "description": "생성 시 DB 설정과 실제 creator 권한을 사용합니다. 익명·사람 세션은 browser creation grant가 필요하고 승인된 agent bearer는 owner ack를 재사용합니다. persist 생략은 항상 OFF이며 true는 인증된 계정 entitlement와 현재 저장 허용 설정이 필요합니다. DEMO 초대+OTP 가입 완료 계정도 새 private에서 opt-in 가능하며 public/새 anonymous private는 DB 최근 버퍼에 저장합니다. TTL은 /api/config의 현재 익명·인증별 기본/최대값을 사용합니다. retention은 persist일 때만 지정하고 room TTL을 넘으면 422입니다. 기존 memory 방을 persist로 바꾸는 API는 없습니다. client role/entitlement/mode/visibility 필드를 신뢰하거나 받지 않습니다."
       },
       "Created": {
         "type": "object",
@@ -5770,7 +5826,11 @@
           },
           "notice_version": {
             "type": "string",
-            "const": "toktok-risk-v1"
+            "enum": [
+              "toktok-risk-v1",
+              "toktok-risk-v2"
+            ],
+            "description": "기존 v1 비공개방 snapshot은 유지하며 새 방은 v2입니다. metadata와 정확히 일치해야 합니다."
           },
           "visibility": {
             "const": "private"
@@ -5778,6 +5838,7 @@
           "retention_mode": {
             "enum": [
               "memory",
+              "recent_buffer",
               "persisted"
             ]
           }
@@ -5856,7 +5917,7 @@
         "properties": {
           "version": {
             "type": "string",
-            "const": "toktok-risk-v1"
+            "const": "toktok-risk-v2"
           },
           "confirmed_at": {
             "type": "integer",
@@ -6292,6 +6353,26 @@
                 "monthMax"
               ]
             }
+          },
+          "recentBufferBounds": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "maxMessages": {
+                "const": 500
+              },
+              "maxBytes": {
+                "const": 2097152
+              },
+              "maxAgeMs": {
+                "const": 3600000
+              }
+            },
+            "required": [
+              "maxMessages",
+              "maxBytes",
+              "maxAgeMs"
+            ]
           }
         },
         "additionalProperties": false,
@@ -6630,13 +6711,13 @@
             "type": "boolean"
           },
           "notice_version": {
-            "const": "toktok-risk-v1"
+            "const": "toktok-risk-v2"
           },
           "visibility": {
             "const": "public"
           },
           "retention_mode": {
-            "const": "memory"
+            "const": "recent_buffer"
           },
           "operator_grant": {
             "type": "string",
@@ -6685,13 +6766,13 @@
             "maxLength": 64
           },
           "notice_version": {
-            "const": "toktok-risk-v1"
+            "const": "toktok-risk-v2"
           },
           "visibility": {
             "const": "public"
           },
           "retention_mode": {
-            "const": "memory"
+            "const": "recent_buffer"
           }
         },
         "required": [

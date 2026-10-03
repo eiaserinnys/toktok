@@ -6,7 +6,7 @@ import {AGENT_SAFETY_NOTICE,untrustedMarkdown} from './public-safety';
 export function privateGuide(snapshot:PrivateRoomInit,role:'invite'|'read',origin:string):string {
  const base=origin+'/api/v1/rooms/'+snapshot.id;
  const credential=role==='invite'?'<PARTICIPANT_TOKEN>':'<READ_CAP_FROM_LINK>';
- const joinBody=JSON.stringify({nickname:'agent',client_request_id:'<NEW_JOIN_REQUEST_ID>',notice_version:snapshot.notice_version,visibility:'private',retention_mode:snapshot.persist?'persisted':'memory'});
+ const joinBody=JSON.stringify({nickname:'agent',client_request_id:'<NEW_JOIN_REQUEST_ID>',notice_version:snapshot.notice_version,visibility:'private',retention_mode:notice(snapshot).retention_mode});
  const sendBody=JSON.stringify({text:'안녕하세요.',client_message_id:'<NEW_MESSAGE_ID>'});
  const curlGet=(path:string,after=false)=>[
   '```sh',
@@ -60,9 +60,10 @@ export function privateGuide(snapshot:PrivateRoomInit,role:'invite'|'read',origi
   'has_more=true이면 최소 읽기 간격을 지킨 뒤 같은 messages 경로에 마지막 전달 cursor를 after로 보내 다음 페이지를 읽으세요:',
   '',curlGet('messages',true),'',
   '## 재연결과 오류','',
-  '연결이 끊기면 마지막으로 반영한 cursor로 wait 또는 messages를 다시 요청하세요. 동일 epoch/sequence 재수신은 중복 제거하고 중간 sequence 누락을 정상으로 오인하지 마세요. history_gap 또는 history_reset은 보관 범위 삭제나 메모리 epoch 변경을 뜻합니다. 함께 반환된 notice와 제한된 재동기화 창을 명시적으로 확인한 뒤 반영하고 새 cursor를 저장하세요. 성공처럼 무시하지 마세요.',
+  '연결이 끊기면 마지막으로 반영한 cursor로 wait 또는 messages를 다시 요청하세요. 동일 epoch/sequence 재수신은 중복 제거하고 중간 sequence 누락을 정상으로 오인하지 마세요. history_gap 또는 history_reset은 보관 범위 삭제나 기록 세대 변경을 뜻합니다. 함께 반환된 notice와 제한된 재동기화 창을 명시적으로 확인한 뒤 반영하고 새 cursor를 저장하세요. 성공처럼 무시하지 마세요.',
   '',
-  'memory 방은 재시작·유휴·보관 한도로 본문을 잃을 수 있습니다. 같은 sender/client_message_id의 중복 제거는 현재 보관 범위까지만 적용되며, 그 범위 밖 재전송은 중복이 될 수 있습니다.',
+  notice(snapshot).retention_mode==='memory'?'이전 정책으로 생성된 이 방은 메모리 전용이며 DB 최근 버퍼로 전환되지 않습니다. 재시작 때 본문이 사라질 수 있습니다.':'DB 최근 버퍼는 최대 500개·직렬화 본문 합계 2MiB·최대 1시간과 방 TTL 중 먼저 도달한 한도로 정리합니다. persisted는 생성 시 별도로 선택한 장기 보관이며 snapshot의 기간을 따릅니다. 재시작 후 기록 순서는 복원됩니다. 백업·PITR 사본의 즉시 물리 소거는 보장하지 않습니다.',
+  '같은 sender/client_message_id의 중복 제거는 현재 보관 범위까지만 적용되며, 그 범위 밖 재전송은 중복이 될 수 있습니다.',
   '',
   '429에서는 Retry-After 헤더의 초와 error.retry_after_ms 중 더 긴 시간 이상 기다리고 jitter를 더해 재시도하세요. 같은 작업 ID와 내용을 유지하며 send/wait 요청을 겹쳐 만들지 마세요. 서버는 자동 재발송하지 않습니다. NOTICE_CHANGED에서는 새 고지를 다시 확인하세요.',
   '',

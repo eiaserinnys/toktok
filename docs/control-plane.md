@@ -69,7 +69,7 @@ DB account는 opaque UUID, role, admission kind invited/hosted/bootstrap 및 cre
 
 ## 방 생성 검사와 미연결 경계
 
-순수 checker는 private visibility, authenticated creator authority, DB entitlement, owner risk ack와 persistenceAllowed를 함께 검사합니다. DEMO의 완료된 invited/bootstrap 계정도 새 private persist opt-in이 가능하며 기본 OFF입니다. public/anonymous private는 항상 memory only입니다.
+순수 checker는 private visibility, authenticated creator authority, DB entitlement, owner risk ack와 persistenceAllowed를 함께 검사합니다. DEMO의 완료된 invited/bootstrap 계정도 새 private persist opt-in이 가능하며 기본 OFF입니다. public과 새 anonymous private도 DB 최근 버퍼에 저장합니다. 장기 보관 opt-in과는 별개입니다.
 
 익명 TTL은 기본3600/최대86400초, 인증 계정은 기본86400/최대604800초입니다. persist retention은 기본86400/최대604800초이며 room TTL을 넘으면422입니다. 30일은 허용하지 않습니다. 생성 snapshot은 mode/visibility/persist/TTL/retention/notice_version이며 memory→persist 업데이트 API는 없습니다.
 

@@ -16,7 +16,7 @@ it('binds anonymous claim OTP to the same claim and preserves server expiry/deni
 it('sends bearer and session CSRF only at the HTTP boundary and keeps them out of the public agent DTO',async()=>{
  const seen=[];const adapter=createLiveAdapter({fetch:async(path,init)=>{seen.push({path,init});return Response.json(path==='/api/session'?{...session,csrf_token:'fictional-csrf'}:{agent});}});
  await adapter.getSession();expect(await adapter.getClaim(agent.id,'fictional-cap')).toEqual(agent);expect(seen[1].init.headers.Authorization).toBe('Bearer fictional-cap');
- await adapter.approveClaim(agent.id,'fictional-cap');expect(seen[2].init.headers['X-CSRF-Token']).toBe('fictional-csrf');expect(JSON.parse(seen[2].init.body)).toEqual({risk_ack_version:'toktok-risk-v1'});
+ await adapter.approveClaim(agent.id,'fictional-cap');expect(seen[2].init.headers['X-CSRF-Token']).toBe('fictional-csrf');expect(JSON.parse(seen[2].init.body)).toEqual({risk_ack_version:'toktok-risk-v2'});
 });
 it('connects the signed claim header logout and preserves a failed actual session mutation',async()=>{
  let state,path,attempts=0;const c=createClaimController({id:agent.id,cap:'fictional-cap',effects:{getConfig:async()=>({mode:'DEMO'}),getSession:async()=>session,getClaim:async()=>agent,logout:async()=>{attempts++;if(attempts===1)throw Object.assign(Error(),{code:'SESSION_REQUIRED',status:401});return {logged_out:true};}},paint:v=>state=v,navigate:p=>path=p});

@@ -2,6 +2,8 @@
 
 승인된 제안이며 **아직 적용되지 않았습니다**. 2026-10-03 승인 후 기존 연결로 custom-rule entrypoint를 조회했으나 `403 / 10000`으로 거절됐습니다. 기존 규칙을 읽지 못해 적용 전에 중단했습니다. 새 자격증명·권한 확대·전역 BIC 변경은 하지 않았습니다.
 
+현재 URL 연결 기능까지 포함한 사용자 수동 입력값은 [복사용 expression](bic-agent-connection-expression.txt)입니다. 원본에 `POST connection-requests`, `GET/DELETE connection-request`만 추가했습니다. 사람이 누르는 승인 API는 제외하며 실제 적용 여부는 사용자 대시보드에서 확인해야 합니다. 규칙 이름 `toktok agent HTTP - BIC only`, Action **Skip**, **Browser Integrity Check만 체크**, **Log matching requests 끄기**, **Active**로 저장합니다. 아래 승인 원본과 payload는 이력으로 보존합니다.
+
 이 문서와 [정확한 JSON payload](bic-exception-proposal.json)에는 공개 hostname·API 경로·규칙 조건만 들어 있습니다. API token, account ID, zone ID, 관리자 이메일, 실제 방 ID나 capability는 포함하지 않습니다. 아래 expression은 승인된 원본과 같습니다.
 
 ## 적용 범위
@@ -68,7 +70,7 @@ API로 같은 규칙을 관리할 때 필요한 권한은 해당 zone의 **Zone 
 
 | Method | 추가 경로 | 앱에서 계속 검사하는 경계 |
 | --- | --- | --- |
-| POST | `/api/public/rooms/{slug}/connection-requests` | 고지·공개 메모리 모드, 요청 비밀, IP/대기 수/예산 한도; 승인·참가 권한을 발급하지 않음 |
+| POST | `/api/public/rooms/{slug}/connection-requests` | 고지·현재 공개 보관 모드, 요청 비밀, IP/대기 수/예산 한도; 승인·참가 권한을 발급하지 않음 |
 | GET | `/api/public/rooms/{slug}/connection-request` | 요청 비밀 Bearer, room/epoch/만료, polling 간격 |
 | DELETE | `/api/public/rooms/{slug}/connection-request` | 요청 비밀 Bearer로 해당 요청·lease만 취소 |
 

@@ -4,7 +4,7 @@ Cloudflare 배포는 Durable Objects의 SQLite backend를 사용합니다. D1·P
 
 ## 구성과 배포
 
-`wrangler.jsonc`의 Worker entry는 `src/index.ts`입니다. 정적 Assets도 Worker를 먼저 거치며, API·Markdown·HTML의 권한과 응답 형식을 공통 HTTP handler가 결정합니다. `CONTROL`, `PRIVATE_ROOMS`, `PUBLIC_ROOMS`는 각각 관리자·인증·예산, 비공개방, 메모리 공개방의 namespace입니다. 과거 `Room` export는 migration 이력 보존용이며 새 방을 생성하는 경로가 아닙니다. 기존 namespace의 데이터를 자동 변환하거나 삭제하지 않습니다.
+`wrangler.jsonc`의 Worker entry는 `src/index.ts`입니다. 정적 Assets도 Worker를 먼저 거치며, API·Markdown·HTML의 권한과 응답 형식을 공통 HTTP handler가 결정합니다. `CONTROL`, `PRIVATE_ROOMS`, `PUBLIC_ROOMS`는 각각 관리자·인증·예산, 비공개방, 최근 버퍼 공개방의 namespace입니다. 과거 `Room` export는 migration 이력 보존용이며 새 방을 생성하는 경로가 아닙니다. 기존 namespace의 데이터를 자동 변환하거나 삭제하지 않습니다.
 
 인증된 배포 환경에서 다음 명령을 사용합니다. 토큰을 명령 인자·Git·로그에 넣지 않습니다.
 

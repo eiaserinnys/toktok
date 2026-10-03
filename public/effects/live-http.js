@@ -79,7 +79,7 @@ export function createLiveAdapter({fetch:fetchHTTP=globalThis.fetch}={}){
    return {revision:data.revision,settings:data.settings,schema:schema.schema,effects:settingsEffects(schema.schema)};
   },
   getClaim:async(id,cap)=>mapAgent((await request('/api/claims/'+encodeURIComponent(id),{capability:cap})).agent),
-  approveClaim:async(id,cap)=>mapAgent((await request('/api/claims/'+encodeURIComponent(id)+'/approve',{method:'POST',sessionMutation:true,capability:cap,body:{risk_ack_version:'toktok-risk-v1'}})).agent),
+  approveClaim:async(id,cap)=>mapAgent((await request('/api/claims/'+encodeURIComponent(id)+'/approve',{method:'POST',sessionMutation:true,capability:cap,body:{risk_ack_version:'toktok-risk-v2'}})).agent),
   revokeAgent:async id=>mapAgent((await request('/api/agents/'+encodeURIComponent(id)+'/revoke',{method:'POST',sessionMutation:true,body:{}})).agent),
   getBudget:async()=>mapBudget(await request('/api/admin/budget')),
   getInvitations:async()=>invitations(await request('/api/admin/invitations')),
@@ -90,7 +90,7 @@ export function createLiveAdapter({fetch:fetchHTTP=globalThis.fetch}={}){
   logout:async()=>{const result=await request('/api/auth/logout',{method:'POST',sessionMutation:true,body:{}});sessionGeneration++;csrf=null;return result;},
   createContext:()=>request('/api/private/create-context',{method:'POST',sessionMutation:!!csrf,body:{}}),
   creationGrant:({nonce,risk_ack})=>request('/api/private/create-grants',{method:'POST',sessionMutation:!!csrf,
-   body:{nonce,risk_ack,risk_ack_version:'toktok-risk-v1'}}),
+   body:{nonce,risk_ack,risk_ack_version:'toktok-risk-v2'}}),
   // The response contains one-time owner material; controllers must never put it in a normal ViewModel/DOM.
   createRoom:({purpose,ttl_seconds,persist,retention_seconds,client_request_id,creation_grant})=>request('/api/v1/rooms',{
    method:'POST',sessionMutation:!!csrf,body:{purpose,ttl_seconds,persist,client_request_id,creation_grant,

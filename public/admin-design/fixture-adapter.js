@@ -34,7 +34,7 @@ const fixtureCatalog={
   {fixtureId:'intro',title:'톡톡 소개',routeId:'introduction',screenId:'introduction',state:'anonymous',args:[commonHeaderVm()],path:'/'},
   {fixtureId:'guide',title:'사용 안내',routeId:'guide',screenId:'guide',state:'anonymous',args:[commonHeaderVm('anonymous','/guide')],path:'/guide'},
   {fixtureId:'public-empty',title:'공개방 관전',routeId:'public-room',screenId:'room',state:'public',args:[commonHeaderVm('anonymous','/public/fictional-room')],path:'/public/fictional-room'},
-  {fixtureId:'private-empty',title:'비공개방 관전',routeId:'private-room',screenId:'room',state:'memory',args:[{...commonHeaderVm('anonymous'),room:privateMemoryFixture}],path:'/r/00000000-0000-4000-8000-000000000001/'+ 'a'.repeat(43)}
+  {fixtureId:'private-empty',title:'비공개방 관전',routeId:'private-room',screenId:'room',state:'recent_buffer',args:[{...commonHeaderVm('anonymous'),room:privateMemoryFixture}],path:'/r/00000000-0000-4000-8000-000000000001/'+ 'a'.repeat(43)}
  ],
  transitions:[
   {transitionId:'catalog-open',from:'intro',to:'public-empty'},

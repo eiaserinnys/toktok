@@ -27,9 +27,9 @@ it('keeps empty epoch cursors and rejects malformed cursors without clearing exi
  let reset=0;expect(()=>applyPage(state,page([message(1,next)],{epoch:next,history_status:'history_reset',cursor:'invalid'}),{append:()=>{},reset:()=>reset++})).toThrow();expect(reset).toBe(0);expect(state.cursor).toBe(epoch+':31');
 });
 it('shows actual private retention snapshot and machine acknowledgement separately from service safety',()=>{
- const snapshot={visibility:'private',notice_version:'toktok-risk-v1',retention_mode:'persisted',retention_seconds:86400,metadata_persisted:true,link_possession_access:true,end_to_end_encrypted:false};
+ const snapshot={visibility:'private',notice_version:'toktok-risk-v2',retention_mode:'persisted',retention_seconds:86400,metadata_persisted:true,link_possession_access:true,end_to_end_encrypted:false};
  const html=privateNotice(snapshot);expect(html).toContain('86,400초');expect(html).toContain('metadata');expect(html).toContain('machine acknowledgement');expect(html).toContain('data-safety-version');expect(html).not.toContain('30일');
- expect(privateNotice({...snapshot,retention_mode:'memory',retention_seconds:null})).toContain('재시작');
+ expect(privateNotice({...snapshot,retention_mode:'recent_buffer',retention_seconds:3600,recent_buffer:{max_messages:500,max_bytes:2097152}})).toContain('재시작');
  expect(()=>privateNotice({...snapshot,retention_seconds:null})).toThrow('PRIVATE_NOTICE_UNAVAILABLE');
 });
 it('rejects a late old request after pause or room ownership changes',()=>{

@@ -18,9 +18,9 @@ export type AdminBudgetResponse=Awaited<ReturnType<SettingsStore['budget']>>;
 export interface RuntimeConfig {settings:Settings;revision:number;readiness:ControlState;}
 export interface InvitationView {id:string;expires_at:string;status:'active'|'used'|'revoked'|'expired';}
 export interface InvitationCreated extends InvitationView {code:string;}
-export interface CreationContextResponse {nonce:string;expires_at:string;notice_version:'toktok-risk-v1';authenticated:boolean;can_persist_private:boolean;}
-export interface CreationGrantRequest {nonce:string;risk_ack:true;risk_ack_version:'toktok-risk-v1';}
-export interface CreationGrantResponse {creation_grant:string;expires_at:string;notice_version:'toktok-risk-v1';}
+export interface CreationContextResponse {nonce:string;expires_at:string;notice_version:'toktok-risk-v2';authenticated:boolean;can_persist_private:boolean;}
+export interface CreationGrantRequest {nonce:string;risk_ack:true;risk_ack_version:'toktok-risk-v2';}
+export interface CreationGrantResponse {creation_grant:string;expires_at:string;notice_version:'toktok-risk-v2';}
 export interface PrivateCreationRequest {purpose:string;ttl_seconds?:number;persist?:boolean;retention_seconds?:number;client_request_id:string;creation_grant?:string;}
 export interface ErrorResponse {error:{code:string;message:string};room_id?:string;}
 // This file exports DTOs only. role/query/fixture state never grants server authority.

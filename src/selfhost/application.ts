@@ -25,7 +25,7 @@ export function createApplication(options:ApplicationOptions){
  async function schedule(){const revision=++scheduleRevision;clearTimeout(maintenanceTimer);if(stopping)return;const next=await core.maintain();if(!stopping&&revision===scheduleRevision&&next!==undefined){maintenanceTimer=setTimeout(()=>{void schedule().catch(()=>{});},Math.min(2147483647,Math.max(1,next-Date.now())));maintenanceTimer.unref();}}
  const control:ControlHttpPort={async execute(action:string,input:RegistryInput){const result=await core.execute(action,input);await schedule();return result;}};
  const budget=options.budget??controlBudget(control,options.auth?.now);
- const rooms=new PublicRooms(options.origin,[],{...PUBLIC_POLICY},budget);
+ const rooms=new PublicRooms(options.origin,[],{...PUBLIC_POLICY},budget,options.repo);
  const privateRooms=new PrivateRooms({origin:options.origin,repo:options.repo,budget,clock:options.auth?.now});
  let applied=0;
  const configure=(config:RuntimeConfig)=>{if(config.revision>applied){rooms.configure(config.revision,publicPolicy(config),publicCatalog(config));applied=config.revision;}};
@@ -50,6 +50,9 @@ export function createApplication(options:ApplicationOptions){
    if(page.next===after||page.ids.at(-1)!==page.next)throw new RepositoryError('INVALID_MAINTENANCE_PAGE');
    after=page.next;
   }
+  const config=await core.execute('get-runtime-config',{}) as RuntimeConfig;configure(config);
+  after=undefined;
+  for(;;){const page=await options.repo.listPublicRoomIds({limit:100,...(after?{after}:{})});for(const slug of page.ids)await rooms.restoreRoom(slug);if(page.next===undefined)break;if(page.next===after||page.ids.at(-1)!==page.next)throw new RepositoryError('INVALID_MAINTENANCE_PAGE');after=page.next;}
   startupComplete=true;
  })();
  // Retain rejection for prepare()/handler while preventing an unobserved startup promise.

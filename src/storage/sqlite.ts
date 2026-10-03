@@ -66,9 +66,13 @@ export class SQLiteRepository implements RepositoryPort,NodePrivateMaintenance {
     if(nesting.getStore())throw new RepositoryError('NESTED_TRANSACTION');validateRoomIdPage(options);
     const operation=this.tail.then(()=>{if(!this.ready())throw new RepositoryError('REPOSITORY_UNAVAILABLE');try{
       // Cursor is fully consumed synchronously; only room ID leaves the adapter.
-      const ids=this.db.prepare("SELECT key FROM tok_records WHERE collection='private_rooms' AND scope> ? AND scope < 'room;' AND scope='room:'||key AND json_extract(value_json,'$.snapshot.id')=key AND json_extract(value_json,'$.snapshot.persist')=1 AND json_extract(value_json,'$.body_count')>0 ORDER BY scope LIMIT ?").all('room:'+(options.after??''),options.limit).map(r=>String(r.key));
+      const ids=this.db.prepare("SELECT key FROM tok_records WHERE collection='private_rooms' AND scope> ? AND scope < 'room;' AND scope='room:'||key AND json_extract(value_json,'$.snapshot.id')=key AND (json_extract(value_json,'$.snapshot.persist')=1 OR json_extract(value_json,'$.recent_authorized')=1) AND json_extract(value_json,'$.body_count')>0 ORDER BY scope LIMIT ?").all('room:'+(options.after??''),options.limit).map(r=>String(r.key));
       return roomIdPage(ids,options.limit);
     }catch(error){throw transactionFailure(error);}});this.tail=operation.then(()=>{},()=>{});return operation;
+  }
+  async listPublicRoomIds(options:PrivateRoomIdOptions){
+    if(nesting.getStore())throw new RepositoryError('NESTED_TRANSACTION');validateRoomIdPage(options);
+    const operation=this.tail.then(()=>{if(!this.ready())throw new RepositoryError('REPOSITORY_UNAVAILABLE');const ids=this.db.prepare("SELECT substr(scope,8) AS id FROM tok_records WHERE collection='recent_buffers' AND scope>? AND scope<'public;' AND key='buffer' AND json_extract(value_json,'$.count')>0 ORDER BY scope LIMIT ?").all('public:'+(options.after??''),options.limit).map(r=>String(r.id));return roomIdPage(ids,options.limit);});this.tail=operation.then(()=>{},()=>{});return operation;
   }
   async backupTo(path:string):Promise<void>{await this.tail;if(!this.ready())throw new RepositoryError('REPOSITORY_UNAVAILABLE');await backup(this.db,path);}
   async close(){this.closed=true;await this.tail;this.db.close();}

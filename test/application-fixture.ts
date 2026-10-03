@@ -43,7 +43,7 @@ async function anonymousGrant(){
 async function create(grant?:string){
  return asRoom(await parsed<Room>(await call('anonymous create','/api/v1/rooms',{purpose:'창작 방 <script>비신뢰</script>',ttl_seconds:60,creation_grant:grant??await anonymousGrant(),client_request_id:crypto.randomUUID()}),201));
 }
-async function join(r:OwnedRoom,name:string){return parsed<Participant>(await call('private join',''+r.base+'/participants',{nickname:name,client_request_id:crypto.randomUUID(),notice_version:PRIVATE_NOTICE,visibility:'private',retention_mode:'memory'},bearer(r.invite)),201);}
+async function join(r:OwnedRoom,name:string){return parsed<Participant>(await call('private join',''+r.base+'/participants',{nickname:name,client_request_id:crypto.randomUUID(),notice_version:PRIVATE_NOTICE,visibility:'private',retention_mode:'recent_buffer'},bearer(r.invite)),201);}
 const send=(r:OwnedRoom,p:Participant,id:string,text=id)=>call('private send',r.base+'/messages',{text,client_message_id:id},bearer(p.participant_token));
 const waitCadence=()=>new Promise(resolve=>setTimeout(resolve,2050));
 async function readPage(r:OwnedRoom,token:string,query=''){return parsed<Page>(await call('private read',r.base+'/messages'+query,undefined,bearer(token)));}
@@ -65,7 +65,7 @@ beforeEach(async()=>{
  raw.length=0;
  await runInDurableObject(control(),async(_i,state)=>{await state.storage.deleteAlarm();await state.storage.deleteAll();await new CloudflareRepository(state.storage).apply();});
  await evictDurableObject(control());
- for(const slug of ['common-room','workshop']){const room=env.PUBLIC_ROOMS.getByName(slug);await runInDurableObject(room,()=>undefined);await evictDurableObject(room);}
+ for(const slug of ['common-room','workshop']){const room=env.PUBLIC_ROOMS.getByName(slug);await runInDurableObject(room,async(_i,state)=>{await state.storage.deleteAlarm();await state.storage.deleteAll();});await evictDurableObject(room);}
  await (await SELF.fetch(origin+'/__application/reset')).arrayBuffer();
 });
 afterEach(async()=>{

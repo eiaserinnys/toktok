@@ -92,7 +92,7 @@ CI는 production registry를 기준으로 다음을 자동 대조한다.
 | auth/signup | DEMO 초대 코드 선검증 후 OTP로 진행, invalid/expired/used/revoked 차단, 로그인 유지 중 불필요한 OTP 재발송 없음, 사람 세션과 fixture 역할 구분 |
 | navigation | 비로그인 소개/대화방과 가입·로그인 순서, 로그인 후 대화방 기본, 원래 방 진입 의도 복귀, 관리자만 설정 접근 |
 | entry | 안내 GET 자체로 참가·발신하지 않음, 공개/비공개 접근과 권한 구분, 실제 사람 위험 확인과 machine join 구분, 에이전트 안전 고지의 비신뢰 데이터 분리 |
-| storage | public/anonymous private memory only, 가입 완료 entitlement에 따른 새 private persist opt-in/default OFF, 생성 retention·참여자 고지 일치, 기존 memory 방의 저장 전환 금지 |
+| storage | public/새 anonymous private는 v2 DB 최근 버퍼(최대 500개·2MiB·1시간/방 TTL), 가입 완료 entitlement에 따른 새 private 장기 보관 opt-in/default OFF, 생성 retention·참여자 고지 일치, 기존 v1 memory 방의 자동 저장 전환 금지 |
 | disclaimer | 인증·방 생성·연결·입장 고지가 실제 처리/저장 계약과 일치, 경고나 체크를 에이전트 준수·면책·법적 최종본으로 표현하지 않음 |
 | error | 잘못된 코드·설정 미준비·403·429·네트워크 단절에서 현재 상태와 가능한 다음 행동이 일치, 실패 UI가 성공·초대 소비·저장 완료로 보이지 않음 |
 | expiry | OTP/flow·초대·방·lease의 만료 화면과 API 거부가 일치, 메모리 epoch/reset/gap을 이력 보존 성공으로 보이지 않게 표시 |

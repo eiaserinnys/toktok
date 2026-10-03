@@ -14,7 +14,7 @@ export function createPublicConnectionController({effects,slug,requestId,paint})
  async function decide(action,checked=false){
   if(gone||state.pending||!state.connection||!nonce||action==='approve'&&!checked)return;
   const own=generation;state.pending=true;state.error=null;show();
-  try{const data=await effects.publicConnection(slug,{action,request_id:requestId,nonce,...(action==='approve'?{checked:true,risk_ack_version:'toktok-risk-v1'}:{})});if(gone||own!==generation)return;state.connection=project(data);state.dialog=null;}
+  try{const data=await effects.publicConnection(slug,{action,request_id:requestId,nonce,...(action==='approve'?{checked:true,risk_ack_version:'toktok-risk-v2'}:{})});if(gone||own!==generation)return;state.connection=project(data);state.dialog=null;}
   catch(error){if(gone||own!==generation)return;state.error={code:error.code??'CONNECTION_UNAVAILABLE'};if(error.code==='CONNECTION_GONE'){state.status='expired';state.connection=null;state.dialog=null;nonce=null;}}
   if(!gone&&own===generation){state.pending=false;show();}
  }

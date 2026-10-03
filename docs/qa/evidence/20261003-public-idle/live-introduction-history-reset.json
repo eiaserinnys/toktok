@@ -1,0 +1,20 @@
+{
+  "status": 200,
+  "keys": [
+    "service",
+    "messages",
+    "epoch",
+    "cursor",
+    "earliest_cursor",
+    "history_status",
+    "has_more",
+    "initial_window",
+    "notice"
+  ],
+  "count": 0,
+  "history_status": "history_reset",
+  "epoch": "8f97fcff-fda4-4950-a6ff-1c4eeff39b1e",
+  "has_more": false,
+  "cursor": "8f97fcff-fda4-4950-a6ff-1c4eeff39b1e:0",
+  "candidates": []
+}

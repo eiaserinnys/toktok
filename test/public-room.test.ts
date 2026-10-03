@@ -20,14 +20,14 @@ async function api(path:string,token?:string,method='GET',data?:unknown,ip='192.
 async function grant(ip:string) {const r=await api('/__fixture/grants/common-room',undefined,'POST',undefined,ip);expect(r.status).toBe(201);return (await r.json() as any).operator_grant;}
 async function join(ip=freshIP(),operator?:string,id=crypto.randomUUID()) {
   const g=operator??await grant(ip);
-  const r=await api(base+'/participants',undefined,'POST',{operator_grant:g,client_request_id:id,nickname:'창작 참여자',notice_version:PUBLIC_NOTICE,visibility:'public',retention_mode:'memory'},ip);
+  const r=await api(base+'/participants',undefined,'POST',{operator_grant:g,client_request_id:id,nickname:'창작 참여자',notice_version:PUBLIC_NOTICE,visibility:'public',retention_mode:'recent_buffer'},ip);
   expect(r.status).toBe(201);return {...await r.json() as any,ip,operator:g,joinId:id};
 }
 async function watch(ip=freshIP()) {const r=await api(base+'/watchers',undefined,'POST',{notice_version:PUBLIC_NOTICE},ip);expect(r.status).toBe(201);return {...await r.json() as any,ip};}
 const send=(p:any,id:string,text='창작 메시지')=>api(base+'/messages',p.lease_token,'POST',{text,client_message_id:id},p.ip);
 const advance=(ms:number)=>inRoom(i=>{const now=i.clock()+ms;i.clock=()=>now;});
-const reset=async()=>{await inRoom(()=>null);await evictDurableObject(stub());};
-describe('independent public memory engine through Worker HTTP',()=>{
+const reset=async()=>{await runInDurableObject(stub(),async(_i,state)=>{await state.storage.deleteAlarm();await state.storage.deleteAll();});await evictDurableObject(stub());};
+describe('independent public DB recent engine through Worker HTTP',()=>{
  it('validates allowlist/method/origin/notice and keeps unchecked operator HTTP closed',async()=>{
   expect((await api('/api/public/rooms')).status).toBe(200);
   expect((await api('/api/public/rooms/arbitrary')).status).toBe(404);
@@ -40,7 +40,7 @@ describe('independent public memory engine through Worker HTTP',()=>{
   const retry=await join(first.ip,first.operator,first.joinId);expect(retry.lease_token).toBe(first.lease_token);
   for(let n=1;n<100;n++)await join();
   const ip=freshIP(),g=await grant(ip);
-  const denied=await api(base+'/participants',undefined,'POST',{operator_grant:g,client_request_id:'overflow',nickname:'넘침',notice_version:PUBLIC_NOTICE,visibility:'public',retention_mode:'memory'},ip);
+  const denied=await api(base+'/participants',undefined,'POST',{operator_grant:g,client_request_id:'overflow',nickname:'넘침',notice_version:PUBLIC_NOTICE,visibility:'public',retention_mode:'recent_buffer'},ip);
   expect(denied.status).toBe(429);expect(denied.headers.get('Retry-After')).not.toBeNull();
   for(let n=0;n<50;n++)await watch();
   expect((await api(base+'/watchers',undefined,'POST',{notice_version:PUBLIC_NOTICE},freshIP())).status).toBe(429);
@@ -85,10 +85,10 @@ describe('independent public memory engine through Worker HTTP',()=>{
   const retry=await send(ps[0],'id0');expect(retry.status).toBe(200);expect(await retry.json()).toEqual(posted[0]);
   expect((await send(ps[0],'id0','別の創作')).status).toBe(409);
   const empty=await runInDurableObject<PublicRoom,{keys:number;tables:{name:string}[];alarm:number|null}>(stub(),async(_i,s)=>({keys:(await s.storage.list()).size,tables:s.storage.sql.exec<{name:string}>("SELECT name FROM sqlite_master WHERE name NOT LIKE 'sqlite_%'").toArray(),alarm:await s.storage.getAlarm()}));
-  expect(empty.keys).toBe(0);expect(empty.tables).toEqual([]);expect(empty.alarm).toBeNull();
+  expect(empty.keys).toBeGreaterThan(0);expect(empty.tables.map(t=>t.name)).toContain('tok_records');expect(empty.alarm).not.toBeNull();
  });
- it('enforces UTF8/body/page bytes and 100/count + 1h/time pruning with explicit gaps',async()=>{
-  await reset();const p=await join(),second=await join();
+ it('enforces UTF8/body/page bytes and bounded/count + 1h/time pruning with explicit gaps',async()=>{
+  await reset();await inRoom(i=>{i.policy={...i.policy,messages:100};});const p=await join(),second=await join();
   expect((await send(p,'large','한'.repeat(683))).status).toBe(413);
   expect((await send(p,'body','x'.repeat(8193))).status).toBe(413);
   for(let n=0;n<101;n++){await advance(15000);const r=await send(n%2?p:second,'m'+n,'\u0001'.repeat(1024));expect(r.status).toBe(201);}
@@ -99,13 +99,13 @@ describe('independent public memory engine through Worker HTTP',()=>{
   expect(JSON.parse(raw).initial_window).toEqual({max_age_seconds:300,max_messages:20,truncated:true});
   expect(JSON.parse(raw).cursor).toBe(JSON.parse(raw).messages.at(-1).cursor);
   await advance(3600001);const w=await watch();const page=await (await api(base+'/messages',w.lease_token,'GET',undefined,w.ip)).json() as any;
-  expect(page.messages).toEqual([]);expect((await stub().diagnostics()).buffer_bytes).toBe(0);
+  expect(page.messages).toEqual([]);await runInDurableObject(stub(),async i=>{await i.core.maintenance('common-room');});expect((await stub().diagnostics()).buffer_bytes).toBe(0);
  });
- it('changes epoch on eviction and reports reset without reproducing old body',async()=>{
+ it('keeps history on eviction while old lease closes',async()=>{
   await reset();const p=await join(),sent=await (await send(p,'old','忘れる本文')).json() as any;
-  await reset();expect((await api(base,p.lease_token)).status).toBe(409);
+  await evictDurableObject(stub());expect((await api(base,p.lease_token)).status).toBe(409);
   const w=await watch();const r=await api(base+'/messages?after='+encodeURIComponent(sent.cursor),w.lease_token,'GET',undefined,w.ip);
-  const raw=await r.text();expect(JSON.parse(raw).history_status).toBe('history_reset');expect(raw).not.toContain('忘れる本文');
+  const raw=await r.text();expect(JSON.parse(raw).history_status).toBe('ok');expect(JSON.parse(raw).epoch).toBe(sent.cursor.split(':')[0]);
  });
  it('batches reads at 2s, rejects duplicate waits and cleans abort through Worker fetch to DO fetch',async()=>{
   await reset();const p=await join(),w=await watch();

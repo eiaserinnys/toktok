@@ -1,0 +1,231 @@
+{
+  "scope": "Local implementation gates; not a real Cloudflare bill or production human approval",
+  "reports": {
+    "ui-tail.json": {
+      "numTotalTests": 14,
+      "numPassedTests": 14,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "success": true
+    },
+    "storage-cf.json": {
+      "numTotalTests": 10,
+      "numPassedTests": 8,
+      "numFailedTests": 2,
+      "numPendingTests": 0,
+      "success": false
+    },
+    "auth.json": {
+      "numTotalTests": 22,
+      "numPassedTests": 22,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "success": true
+    },
+    "unit.json": {
+      "numTotalTests": 106,
+      "numPassedTests": 106,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "success": true
+    },
+    "browser-admin.json": {
+      "cases": [
+        {
+          "width": 1440,
+          "status": "PASS",
+          "errors": [],
+          "mutation": 0,
+          "csp": [],
+          "public": {
+            "max": 500,
+            "invalid501": true
+          },
+          "private": {
+            "max": 500,
+            "invalid501": true
+          }
+        },
+        {
+          "width": 390,
+          "status": "PASS",
+          "errors": [],
+          "mutation": 0,
+          "csp": [],
+          "public": {
+            "max": 500,
+            "invalid501": true
+          },
+          "private": {
+            "max": 500,
+            "invalid501": true
+          }
+        },
+        {
+          "name": "shared-flow-and-dialog-v2",
+          "status": "running",
+          "errors": [],
+          "api": 0,
+          "recent": true,
+          "legacy": true
+        }
+      ],
+      "cleanup": true,
+      "failure": {
+        "message": "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.dialog-review-shell[open]') to be visible\u001b[22m\n"
+      },
+      "scope": "actual local Node SQLite admin/API schema; fictional admin session/data; read-only UI and protected QA"
+    },
+    "browser-recent.json": {
+      "cases": [
+        {
+          "name": "recent-human-join-post-390",
+          "status": "PASS",
+          "errors": [],
+          "pending": "사람의 확인을 기다리고 있어요",
+          "layout": {
+            "width": 390,
+            "docWidth": 390,
+            "storage": [
+              0,
+              0
+            ],
+            "csp": []
+          },
+          "approved": "이 요청의 연결을 허용했어요",
+          "clientPosted": true,
+          "authorityLeak": false,
+          "messages": 1,
+          "privateCreated": true
+        },
+        {
+          "name": "recent-human-join-post-1440",
+          "status": "PASS",
+          "errors": [],
+          "pending": "사람의 확인을 기다리고 있어요",
+          "layout": {
+            "width": 1440,
+            "docWidth": 1440,
+            "storage": [
+              0,
+              0
+            ],
+            "csp": []
+          },
+          "approved": "이 요청의 연결을 허용했어요",
+          "clientPosted": true,
+          "authorityLeak": false,
+          "messages": 2,
+          "privateCreated": true
+        }
+      ],
+      "cleanup": true,
+      "failure": null,
+      "scope": "recent buffer actual Node24 SQLite + default Python client + fictional browser approval (local only)"
+    },
+    "public.json": {
+      "numTotalTests": 12,
+      "numPassedTests": 12,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "success": true
+    },
+    "browser-admin-numeric-red.json": {
+      "cases": [
+        {
+          "width": 1440,
+          "status": "running",
+          "errors": [],
+          "mutation": 0,
+          "csp": []
+        }
+      ],
+      "cleanup": true,
+      "failure": {
+        "message": "Expected values to be strictly equal:\n\nnull !== '500'\n"
+      },
+      "scope": "actual local Node SQLite admin/API schema; fictional admin session/data; read-only UI and protected QA"
+    },
+    "storage-cf-correction.json": {
+      "numTotalTests": 10,
+      "numPassedTests": 2,
+      "numFailedTests": 0,
+      "numPendingTests": 8,
+      "success": true
+    },
+    "browser-admin-initial.json": {
+      "cases": [],
+      "cleanup": true,
+      "failure": {
+        "message": "browserContext.addCookies: Protocol error (Storage.setCookies): Invalid cookie fields"
+      },
+      "scope": "actual local Node SQLite admin/API schema; fictional admin session/data; read-only UI and protected QA"
+    },
+    "meter-correction.json": {
+      "numTotalTests": 3,
+      "numPassedTests": 1,
+      "numFailedTests": 0,
+      "numPendingTests": 2,
+      "success": true
+    },
+    "schema-final.json": {
+      "numTotalTests": 11,
+      "numPassedTests": 11,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "success": true
+    },
+    "application.json": {
+      "numTotalTests": 20,
+      "numPassedTests": 19,
+      "numFailedTests": 1,
+      "numPendingTests": 0,
+      "success": false
+    },
+    "browser-admin-dialog-tail.json": {
+      "cases": [
+        {
+          "width": 1440,
+          "status": "PASS",
+          "errors": [],
+          "api": 0,
+          "csp": []
+        },
+        {
+          "width": 390,
+          "status": "PASS",
+          "errors": [],
+          "api": 0,
+          "csp": []
+        }
+      ],
+      "cleanup": true,
+      "failure": null,
+      "scope": "actual local Node SQLite admin/API schema; fictional admin session/data; read-only UI and protected QA"
+    },
+    "public-ui-correction.json": {
+      "numTotalTests": 2,
+      "numPassedTests": 1,
+      "numFailedTests": 0,
+      "numPendingTests": 1,
+      "success": true
+    },
+    "control-port.json": {
+      "numTotalTests": 8,
+      "numPassedTests": 8,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "success": true
+    }
+  },
+  "warnings": {
+    "application_request_stream_uncaught": 10,
+    "upstream_cancel_resolved": false
+  },
+  "public_ui_initial": {
+    "node_passed": 10,
+    "workers_passed": 1,
+    "workers_failed": 1,
+    "reason": "obsolete empty KV expectation; correction asserts two non-secret metadata keys and message/dedupe SQL rows"
+  }
+}

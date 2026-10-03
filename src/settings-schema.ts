@@ -1,3 +1,4 @@
+import {RECENT_BUFFER_MAX_MESSAGES,RECENT_BUFFER_MAX_BYTES,RECENT_BUFFER_MAX_AGE_MS} from './recent-buffer';
 import {bad} from './http';
 import {PRIVATE_POLICY,validatePrivatePolicy,type PrivatePolicy} from './private-contracts';
 import {PUBLIC_POLICY,type PublicPolicy} from './public-contracts';
@@ -29,12 +30,12 @@ export const DEFAULT_SETTINGS:Settings={
 /** Source ceilings, independent of the persisted operational limits. Shared by schema and validator. */
 export const WORKLOAD_CAP_BOUNDS=Object.fromEntries(DEFAULT_SETTINGS.budget.workloadCaps.map(cap=>[cap.kind,{unit:cap.unit,dayMax:cap.day,monthMax:cap.month}])) as Record<BudgetKind,WorkloadCapBound>;
 type ApplyTo='runtime'|'new_room'|'authentication'|'provisioning';
-interface Meta {label:string;unit:string;min:number|null;max:number|null;applyTo:ApplyTo;readOnly?:boolean;constant?:boolean;}
+interface Meta {recentBufferBounds?:{maxMessages:number;maxBytes:number;maxAgeMs:number};label:string;unit:string;min:number|null;max:number|null;applyTo:ApplyTo;readOnly?:boolean;constant?:boolean;}
 export type SchemaNode=Meta&({type:'object';fields:Record<string,SchemaNode>}|{type:'integer'}|{type:'boolean'}|{type:'enum';values:readonly string[]}|{type:'string';pattern?:string}|{type:'array';items:SchemaNode;boundsByKind?:Record<BudgetKind,WorkloadCapBound>});
 const number=(label:string,min:number,max:number,unit:string,applyTo:ApplyTo='runtime'):SchemaNode=>({type:'integer',label,min,max,unit,applyTo});
 const bool=(label:string,applyTo:ApplyTo='runtime'):SchemaNode=>({type:'boolean',label,min:null,max:null,unit:'boolean',applyTo});
 const enumeration=(label:string,values:readonly string[],applyTo:ApplyTo='runtime'):SchemaNode=>({type:'enum',label,values,min:null,max:null,unit:'enum',applyTo});
-const object=(label:string,fields:Record<string,SchemaNode>,applyTo:ApplyTo='runtime'):SchemaNode=>({type:'object',label,fields,min:null,max:null,unit:'object',applyTo});
+const object=(label:string,fields:Record<string,SchemaNode>,applyTo:ApplyTo='runtime'):SchemaNode=>({type:'object',label,fields,min:null,max:null,unit:'object',applyTo,...(fields.messages&&fields.retentionMs||fields.memoryMessages&&fields.memoryRetentionMs?{recentBufferBounds:{maxMessages:RECENT_BUFFER_MAX_MESSAGES,maxBytes:RECENT_BUFFER_MAX_BYTES,maxAgeMs:RECENT_BUFFER_MAX_AGE_MS}}:{})});
 const list=(label:string,min:number,max:number,items:SchemaNode):Extract<SchemaNode,{type:'array'}>=>({type:'array',label,min,max,items,unit:'items',applyTo:'runtime'});
 const string=(label:string,min:number,max:number,pattern?:string):SchemaNode=>({type:'string',label,min,max,...(pattern===undefined?{}:{pattern}),unit:'characters',applyTo:'runtime'});
 const publicFields:Record<string,SchemaNode>={};
@@ -42,6 +43,8 @@ for(const [key,value] of Object.entries(DEFAULT_PUBLIC_POLICY)){
  const interval=['operatorIntervalMs','ipIntervalMs','roomWindowMs','admissionWindowMs','ipMemoryMs'].includes(key);
  publicFields[key]=number(key,interval?value:1,interval?3600000:value,key.endsWith('Ms')?'ms':key.toLowerCase().includes('bytes')?'bytes':'count');
 }
+publicFields.messages=number('최근 DB 버퍼 메시지 상한',1,500,'count');
+publicFields.retentionMs=number('최근 DB 버퍼 시간 상한',1,3600000,'ms');
 publicFields.leaseMs=number('참여 수명',1000,300000,'ms');publicFields.grantMs=number('입장 허가 수명',1000,300000,'ms');
 publicFields.batchMs=number('응답 묶음 간격',2000,10000,'ms');
 publicFields.responseBytes=number('응답 안전 불변 상한',65536,65536,'bytes');
@@ -49,13 +52,15 @@ const privateFields:Record<string,SchemaNode>={};
 for(const [key,value] of Object.entries(PRIVATE_POLICY))privateFields[key]=number(key,key==='readCadenceMs'?2000:key==='responseBytes'?65536:1,key==='readCadenceMs'?10000:value,key.endsWith('Ms')?'ms':key.endsWith('Bytes')?'bytes':'count','new_room');
 privateFields.handlers=number('동시 처리',1,160,'count','new_room');
 privateFields.bodyInflight=number('동시 본문 처리',1,16,'count','new_room');
+privateFields.memoryMessages=number('새 방 최근 DB 버퍼 메시지 상한',1,500,'count','new_room');
+privateFields.memoryRetentionMs=number('새 방 최근 DB 버퍼 시간 상한',1,3600000,'ms','new_room');
 export const SETTINGS_SCHEMA=object('설정',{
  deployment:object('서비스',{mode:enumeration('모드',['demo','hosted'],'new_room'),enabled:bool('서비스 활성화')}),
  signup:object('가입',{policy:enumeration('가입 정책',['closed','invite','open'],'authentication')}),
  public:object('공개방',{catalog:list('공개방 목록',0,10,object('공개방',{slug:string('경로',1,64,'^[a-z0-9]+(?:-[a-z0-9]+)*$'),title:string('표시 제목',1,64),enabled:bool('활성화')})),policy:object('공개방 정책',publicFields),firstWindowSeconds:number('최초 읽기 범위',1,300,'seconds'),firstWindowMessages:number('최초 읽기 메시지 수',1,20,'count'),agentReadCadenceSeconds:number('에이전트 권장 읽기 간격',1,300,'seconds'),browserReadCadenceSeconds:number('브라우저 권장 읽기 간격',1,300,'seconds')}),
  private:object('비공개방',{
  anonymousEnabled:bool('익명 생성'),createPerIpHour:number('IP별 시간 생성',1,3,'count'),activePerIp:number('IP별 활성 방',1,3,'count'),activeGlobal:number('전체 활성 방',1,10,'count'),dailyCreates:number('일 생성',1,100,'count'),
- anonymousDefaultTtlSeconds:number('익명 기본 수명',60,86400,'seconds','new_room'),anonymousMaxTtlSeconds:number('익명 최대 수명',60,86400,'seconds','new_room'),authenticatedDefaultTtlSeconds:number('계정 기본 수명',60,604800,'seconds','new_room'),authenticatedMaxTtlSeconds:number('계정 최대 수명',60,604800,'seconds','new_room'),persistenceAllowed:bool('계정 저장 허용','new_room'),defaultPersist:{...bool('기본 저장 OFF 안전 조건','new_room'),readOnly:true,constant:false},defaultRetentionSeconds:number('기본 보관',1,604800,'seconds','new_room'),maxRetentionSeconds:number('최대 보관',1,604800,'seconds','new_room'),policy:object('방 정책',privateFields,'new_room')},'new_room'),
+ anonymousDefaultTtlSeconds:number('익명 기본 수명',60,86400,'seconds','new_room'),anonymousMaxTtlSeconds:number('익명 최대 수명',60,86400,'seconds','new_room'),authenticatedDefaultTtlSeconds:number('계정 기본 수명',60,604800,'seconds','new_room'),authenticatedMaxTtlSeconds:number('계정 최대 수명',60,604800,'seconds','new_room'),persistenceAllowed:bool('계정 장기 보관 선택 허용','new_room'),defaultPersist:{...bool('장기 보관 기본 OFF 안전 조건','new_room'),readOnly:true,constant:false},defaultRetentionSeconds:number('기본 장기 보관',1,604800,'seconds','new_room'),maxRetentionSeconds:number('최대 장기 보관',1,604800,'seconds','new_room'),policy:object('방 정책',privateFields,'new_room')},'new_room'),
  identity:object('인증',{
  emailLimits:object('메일 요청 및 발송 제한',{email_hour:number('이메일 시간 요청',1,2,'count','authentication'),email_day:number('이메일 일 요청',1,3,'count','authentication'),cooldown_seconds:number('재요청 간격',120,86400,'seconds','authentication'),ip_hour:number('IP 시간 요청',1,30,'count','authentication'),ip_day:number('IP 일 요청',1,100,'count','authentication'),month:number('배포 월 발송',1,10000,'count','authentication')},'authentication'),
  otpLifetimeSeconds:number('OTP 수명',1,600,'seconds','authentication'),otpAttempts:number('OTP 오입력',1,5,'count','authentication'),flowTtlSeconds:number('인증 흐름 수명',1,600,'seconds','authentication'),sessionTtlSeconds:number('세션 수명',1,43200,'seconds','authentication'),invitationTtlSeconds:number('초대 수명',1,2592000,'seconds','authentication')},'authentication'),
