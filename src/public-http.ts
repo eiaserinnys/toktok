@@ -13,6 +13,10 @@ export function publicError(error:unknown):Response {
  const response=json({error:{code:e.code,message:e.message,...(retry!==undefined?{retry_after_ms:retry}:{})}},e.status);
  if(e.status===429||retry!==undefined)response.headers.set('Retry-After',String(Math.ceil((retry??1000)/1000)));return response;
 }
+/** Cancel early-denied request bodies without reading/draining or waiting on an upstream producer. */
+export function cancelUnusedRequestBody(request:Request):void {
+ if(request.body&&!request.bodyUsed&&!request.body.locked)void request.body.cancel().catch(()=>{});
+}
 export async function publicBody(request:Request,p:Readonly<Pick<PublicPolicy,'jsonBytes'|'bodyMs'>>,allowed:string[]):Promise<Record<string,unknown>> {
  if(request.headers.get('Content-Type')?.split(';')[0].trim()!=='application/json')bad();
  if(Number(request.headers.get('Content-Length'))>p.jsonBytes)fail(413,'BODY_TOO_LARGE','JSON 요청은 최대 8KiB입니다.');

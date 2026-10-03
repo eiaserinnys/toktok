@@ -89,3 +89,12 @@ operator grant의 outer DTO도 publicError가 직렬화한 `error.retry_after_ms
 공유 MAX_PRIVATE_PURPOSE_CHARACTERS=1000을 private-contracts 정본에 두고 private-state 생성 snapshot에 사용합니다. 신규 targeted1 PASS(9ms): 빈 문자열/Unicode1000 허용,1001은400 INVALID_SNAPSHOT입니다. 원래 HTTP 생성 계약0..1000을 보존하며 client 미허용 키 거절은 바꾸지 않았습니다.
 
 CF wrapper GET은 읽기 전용 repo.check가 blank인 경우404 ROOM_NOT_FOUND를 반환하고 schema apply/metadata KV/예산 work를 만들지 않습니다. check 오류는 일반 오류 응답으로 남겨 실제 schema conflict를404로 위장하지 않습니다. 신규 selected1 PASS(86ms): unknown GET404/schema tables0/metadata keys0, 새 fixture 기존 방의 warm+cold GET200, unrelated schema conflict500/table보존입니다. 원래 coldalarm/inspect 등 통과 case는 선택하지 않았습니다. 최종 host/typecheck/CONTROL 연결은 root 통합 범위입니다.
+
+
+## 초기 권한 거절의 request stream 회수
+
+public/private core fetch finally에서 아직 미소비이고 unlocked인 request body만 비동기로 cancel합니다. 데이터를 읽거나 무한 drain하지 않으며 upstream cancel 완료를 기다려 handler를 붙잡지 않습니다. 권한 검사/본문 parsing 순서는 유지합니다. 요청 body 취소와 fixture response body 소비는 서로 다른 경계입니다.
+
+새 six-denial gate 최초는 include에 새 파일이 없어0 tests였으며 PASS가 아닙니다. include만 추가한 허용 하니스 보정1회가1 PASS(167ms)입니다. 실제 CF stub private read→join/read→send/invite→send/participant→close/read→close 및 public watcher→send 모두403, fixture 관측 bodyUsed true/locked false, private handler0/bodyInflight0/public handler0입니다. 그 selected 출력에 request-stream 경고는 없었습니다. 운영 전체 경고 부재나 모든 transport cancellation 성공을 보장하지 않습니다. 독립 읽기 전용 delta 검수 PASS이며 기존 통과 case/부하/전체검증은 반복하지 않았습니다.
+
+관련 공식 근거는 [workerd #918](https://github.com/cloudflare/workerd/issues/918)와 [Miniflare proxy](https://github.com/cloudflare/workers-sdk/blob/main/packages/miniflare/src/workers/core/proxy.worker.ts)입니다. core에 도달하지 않는 root HTTP의 초기 거절은 root가 별도 회수합니다. upstream cancel 실패는 제품 응답/handler를 무한 대기시키지 않으며 해당 미확인 transport를 성공으로 쓰지 않습니다.

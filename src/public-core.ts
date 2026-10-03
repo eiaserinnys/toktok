@@ -1,7 +1,7 @@
 import { bearer,bad,fail,json,newToken,queryInt,text } from './http';
 import { PUBLIC_CATALOG,PUBLIC_NOTICE,PUBLIC_POLICY,INTERNAL_IP_HEADER,available,publicAction,utf8Bytes } from './public-contracts';
 import type { PublicPolicy,ValidatedOperatorAck,PublicMessage,Bucket,PublicGrantResult } from './public-contracts';
-import { publicBody,publicError,publicLimited,publicGuide } from './public-http';
+import { publicBody,publicError,publicLimited,publicGuide,cancelUnusedRequestBody } from './public-http';
 import {validatePublicPolicy,validatePublicCatalog} from './public-policy';
 import {serviceMetadata,messageFields,pageFields} from './public-safety';
 import {CoreBudget} from './runtime/budget';
@@ -81,7 +81,7 @@ export class PublicRoomCore {
   });}catch(error){const response=publicError(error),data=await response.json() as PublicGrantResult['data'];return {status:response.status,data,retry_after_ms:'error' in data?data.error.retry_after_ms:undefined};}
  }
  async fetch(request:Request):Promise<Response> {
-  try{return await this.handler(async()=>{const cleanup=request.method==='DELETE'&&new URL(request.url).pathname.endsWith('/lease');const operation=cleanup?undefined:await this.budget.admit();const response=await this.dispatch(request);return operation?this.budget.respond(response,operation):response;});}catch(error){return publicError(error);}
+  try{return await this.handler(async()=>{const cleanup=request.method==='DELETE'&&new URL(request.url).pathname.endsWith('/lease');const operation=cleanup?undefined:await this.budget.admit();const response=await this.dispatch(request);return operation?this.budget.respond(response,operation):response;});}catch(error){return publicError(error);}finally{cancelUnusedRequestBody(request);}
  }
  private async dispatch(request:Request):Promise<Response> {
   try{return await (async()=>{
