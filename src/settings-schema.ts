@@ -5,6 +5,7 @@ import {validatePublicPolicy} from './public-policy';
 export const BUDGET_KINDS=['admission_requests','response_bytes','private_creates','active_room_seconds','persistent_write_bytes','email_attempts'] as const;
 export type BudgetKind=typeof BUDGET_KINDS[number];
 export interface WorkloadCap {kind:BudgetKind;unit:'count'|'bytes'|'seconds';day:number;month:number;}
+export interface WorkloadCapBound {unit:WorkloadCap['unit'];dayMax:number;monthMax:number;}
 // B owns the engine seed/validator. Settings expose first-window units separately, without duplicate policy fields.
 const {firstWindowMs,firstWindowMessages,...basePublicPolicy}=PUBLIC_POLICY;
 export const DEFAULT_PUBLIC_POLICY=basePublicPolicy;
@@ -25,9 +26,11 @@ export const DEFAULT_SETTINGS:Settings={
  {kind:'private_creates',unit:'count',day:100,month:2000}, {kind:'active_room_seconds',unit:'seconds',day:144000,month:4320000},
  {kind:'persistent_write_bytes',unit:'bytes',day:16777216,month:268435456}, {kind:'email_attempts',unit:'count',day:1000,month:10000}]}
 };
+/** Source ceilings, independent of the persisted operational limits. Shared by schema and validator. */
+export const WORKLOAD_CAP_BOUNDS=Object.fromEntries(DEFAULT_SETTINGS.budget.workloadCaps.map(cap=>[cap.kind,{unit:cap.unit,dayMax:cap.day,monthMax:cap.month}])) as Record<BudgetKind,WorkloadCapBound>;
 type ApplyTo='runtime'|'new_room'|'authentication'|'provisioning';
 interface Meta {label:string;unit:string;min:number|null;max:number|null;applyTo:ApplyTo;readOnly?:boolean;constant?:boolean;}
-export type SchemaNode=Meta&({type:'object';fields:Record<string,SchemaNode>}|{type:'integer'}|{type:'boolean'}|{type:'enum';values:readonly string[]}|{type:'string';pattern?:string}|{type:'array';items:SchemaNode});
+export type SchemaNode=Meta&({type:'object';fields:Record<string,SchemaNode>}|{type:'integer'}|{type:'boolean'}|{type:'enum';values:readonly string[]}|{type:'string';pattern?:string}|{type:'array';items:SchemaNode;boundsByKind?:Record<BudgetKind,WorkloadCapBound>});
 const number=(label:string,min:number,max:number,unit:string,applyTo:ApplyTo='runtime'):SchemaNode=>({type:'integer',label,min,max,unit,applyTo});
 const bool=(label:string,applyTo:ApplyTo='runtime'):SchemaNode=>({type:'boolean',label,min:null,max:null,unit:'boolean',applyTo});
 const enumeration=(label:string,values:readonly string[],applyTo:ApplyTo='runtime'):SchemaNode=>({type:'enum',label,values,min:null,max:null,unit:'enum',applyTo});
@@ -56,7 +59,7 @@ export const SETTINGS_SCHEMA=object('설정',{
  identity:object('인증',{
  emailLimits:object('메일 요청 및 발송 제한',{email_hour:number('이메일 시간 요청',1,2,'count','authentication'),email_day:number('이메일 일 요청',1,3,'count','authentication'),cooldown_seconds:number('재요청 간격',120,86400,'seconds','authentication'),ip_hour:number('IP 시간 요청',1,30,'count','authentication'),ip_day:number('IP 일 요청',1,100,'count','authentication'),month:number('배포 월 발송',1,10000,'count','authentication')},'authentication'),
  otpLifetimeSeconds:number('OTP 수명',1,600,'seconds','authentication'),otpAttempts:number('OTP 오입력',1,5,'count','authentication'),flowTtlSeconds:number('인증 흐름 수명',1,600,'seconds','authentication'),sessionTtlSeconds:number('세션 수명',1,43200,'seconds','authentication'),invitationTtlSeconds:number('초대 수명',1,2592000,'seconds','authentication')},'authentication'),
- budget:object('작업량 예산',{targetUsd:number('목표',1,10000,'USD'),warningUsd:number('경고',1,10000,'USD'),cutoffUsd:number('차단',1,10000,'USD'),calendar:enumeration('달력',['UTC']),workloadCaps:list('작업량 상한',6,6,object('상한',{kind:enumeration('종류',BUDGET_KINDS),unit:enumeration('단위',['count','bytes','seconds']),day:number('일 상한',1,68719476736,'units'),month:number('월 상한',1,68719476736,'units')}))})
+ budget:object('작업량 예산',{targetUsd:number('목표',1,10000,'USD'),warningUsd:number('경고',1,10000,'USD'),cutoffUsd:number('차단',1,10000,'USD'),calendar:enumeration('달력',['UTC']),workloadCaps:{...list('작업량 상한',BUDGET_KINDS.length,BUDGET_KINDS.length,object('상한',{kind:enumeration('종류',BUDGET_KINDS),unit:enumeration('단위',['count','bytes','seconds']),day:number('일 상한',1,Math.max(...Object.values(WORKLOAD_CAP_BOUNDS).map(c=>c.dayMax)),'units'),month:number('월 상한',1,Math.max(...Object.values(WORKLOAD_CAP_BOUNDS).map(c=>c.monthMax)),'units')})),boundsByKind:WORKLOAD_CAP_BOUNDS}})
 });
 function validateNode(node:SchemaNode,value:unknown):void{
  if(node.constant!==undefined&&value!==node.constant)bad();
@@ -80,7 +83,7 @@ export function validateSettings(value:unknown):Settings{
  if(s.budget.warningUsd>s.budget.cutoffUsd||s.budget.cutoffUsd>s.budget.targetUsd)bad();
  if(new Set(s.public.catalog.map(c=>c.slug)).size!==s.public.catalog.length)bad();
  if(new Set(s.budget.workloadCaps.map(c=>c.kind)).size!==BUDGET_KINDS.length)bad();
- for(const cap of s.budget.workloadCaps){const bound=DEFAULT_SETTINGS.budget.workloadCaps.find(c=>c.kind===cap.kind)!;if(cap.unit!==bound.unit||cap.day>bound.day||cap.month>bound.month||cap.day>cap.month)bad();}
+ for(const cap of s.budget.workloadCaps){const bound=WORKLOAD_CAP_BOUNDS[cap.kind];if(cap.unit!==bound.unit||cap.day>bound.dayMax||cap.month>bound.monthMax||cap.day>cap.month)bad();}
  return structuredClone(s);
 }
 /** Trusted host projection uses exactly the engine validator. No hidden min(pageSize,20) substitution. */
