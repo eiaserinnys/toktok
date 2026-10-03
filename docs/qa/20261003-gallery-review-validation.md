@@ -36,3 +36,11 @@ New external protected asset: /admin/design/_assets/admin-design/dialogue-galler
 Entry /admin/design/dialogues exposes buttons with data-review-index. Open shell .dialog-review-shell has data-review-index (zero-based), data-dialog-id and data-dialog-state; heading #reviewDialogTitle shows name and state; .review-dialog-count shows one-based index/total. Child dialog[data-review-product] is the registered product node. Controls are [data-review=prev|next|close]. Alt+ArrowLeft/Right move within bounds; Escape closes the QA shell even for a pending fixture and returns focus. No initial/API fetch is needed.
 
 The new actual server gallery/mode slice and final bundle/deployment are root follow-ups. Recovery read-only display was committed separately at 24479d64 and root reports its actual 390 PASS; no recovery toggle or limit exception was added.
+
+## Actual-server title-focus boundary correction
+
+Root actual gallery QA after aa2d0ee found a new boundary: next/Alt navigation intentionally focuses #reviewDialogTitle (tabindex=-1), but immediately pressing Shift+Tab escaped the modal shell. Earlier C wrap observations began from the tabbable close button and did not cover this position. Root preserves both viewport failures separately. Flow cases stopped at actual edge asset 429 before graph judgment; they are not graph failures and no quota was changed.
+
+The common trap now treats an active element absent from the visible enabled tabbable control list as a boundary in either direction. Shift+Tab selects last and Tab selects first, including the non-tabbable title. Ordinary middle-control native movement, endpoint wrapping and product pending-close policy are unchanged. This is a two-line shared focus-owner correction.
+
+New narrow test: RED Tests 1 failed | 3 skipped (4), exit 1; GREEN Tests 1 passed | 3 skipped (4), exit 0. It covers title both directions, ordinary middle movement and first/last endpoints. Existing successful unit/browser cases were skipped, not repeated. Syntax/diff check passed; independent readonly review found no blocker. C ran no new browser. Root actual title-boundary continuation and flow loading under normal existing rate windows remain integration evidence to collect.
