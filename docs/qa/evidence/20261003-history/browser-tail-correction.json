@@ -1,0 +1,32 @@
+{
+  "scope": "actual Node24 SQLite product remaining top/end, leave/reenter and paused expiry; fictional records only",
+  "cases": [
+    {
+      "width": 390,
+      "status": "PASS",
+      "errors": [],
+      "startReached": true,
+      "leave": {
+        "waits": 0,
+        "watchers": 0
+      },
+      "reentry": true,
+      "pausedExpiry": true,
+      "csp": []
+    },
+    {
+      "width": 1440,
+      "status": "PASS",
+      "errors": [],
+      "startReached": true,
+      "leave": {
+        "waits": 0,
+        "watchers": 0
+      },
+      "reentry": true,
+      "pausedExpiry": true,
+      "csp": []
+    }
+  ],
+  "cleanup": true
+}

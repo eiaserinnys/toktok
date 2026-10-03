@@ -1,0 +1,22 @@
+{
+  "scope": "actual local Node24 SQLite fictional verified bootstrap account + production account UI; no external mail or production privileges",
+  "cases": [
+    {
+      "width": 1440,
+      "status": "PASS",
+      "errors": [],
+      "csp": [],
+      "mutations": [
+        {
+          "method": "POST",
+          "path": "/api/admin/bootstrap"
+        }
+      ],
+      "dialogFits": true,
+      "bootstrapPostCount": 1,
+      "adminMenu": true,
+      "sharedQaDialog": true
+    }
+  ],
+  "cleanup": true
+}

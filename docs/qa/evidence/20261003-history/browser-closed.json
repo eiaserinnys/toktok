@@ -1,0 +1,12 @@
+{
+  "scope": "actual Node24 SQLite product remaining top/end, leave/reenter and paused expiry; fictional records only",
+  "cases": [
+    {
+      "width": 390,
+      "status": "RUNNING",
+      "errors": []
+    }
+  ],
+  "cleanup": true,
+  "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n410 !== 200\n\n    at <anonymous> (/home/eias/workspace/.local/artifacts/toktok/20261003-history/browser-closed.mjs:13:141)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)"
+}

@@ -14,7 +14,7 @@ export function mapSession(data){
   ||data.authenticated===(data.role==='anonymous')
   ||typeof data.entitlements?.can_create_private!=='boolean'||typeof data.entitlements?.can_persist_private!=='boolean'
   ||!(data.owner_ack===null||(typeof data.owner_ack?.version==='string'&&Number.isFinite(data.owner_ack.confirmed_at))))invalid('SESSION');
- return {authenticated:data.authenticated,role:data.role,entitlements:{
+ return {authenticated:data.authenticated,role:data.role,can_bootstrap_admin:data.authenticated&&data.role==='member'&&data.can_bootstrap_admin===true,entitlements:{
   can_create_private:data.entitlements.can_create_private,can_persist_private:data.entitlements.can_persist_private},
   owner_ack:data.owner_ack===null?null:{version:data.owner_ack.version,confirmed_at:data.owner_ack.confirmed_at},
   ...(data.authenticated&&data.agents!==undefined?{agents:Array.isArray(data.agents)?data.agents.map(mapAgent):invalid('SESSION')}:{})};
@@ -78,6 +78,7 @@ export function createLiveAdapter({fetch:fetchHTTP=globalThis.fetch}={}){
    if(!Number.isSafeInteger(data.revision)||!data.settings||!schema.schema)invalid('ADMIN_SETTINGS');
    return {revision:data.revision,settings:data.settings,schema:schema.schema,effects:settingsEffects(schema.schema)};
   },
+  bootstrapAdmin:confirm=>{if(confirm!==true)invalid('BOOTSTRAP_CONFIRMATION');return request('/api/admin/bootstrap',{method:'POST',sessionMutation:true,body:{confirm:true}});},
   getClaim:async(id,cap)=>mapAgent((await request('/api/claims/'+encodeURIComponent(id),{capability:cap})).agent),
   approveClaim:async(id,cap)=>mapAgent((await request('/api/claims/'+encodeURIComponent(id)+'/approve',{method:'POST',sessionMutation:true,capability:cap,body:{risk_ack_version:'toktok-risk-v2'}})).agent),
   revokeAgent:async id=>mapAgent((await request('/api/agents/'+encodeURIComponent(id)+'/revoke',{method:'POST',sessionMutation:true,body:{}})).agent),

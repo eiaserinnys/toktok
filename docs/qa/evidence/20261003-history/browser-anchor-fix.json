@@ -1,0 +1,182 @@
+{
+  "scope": "actual local HTTP, SQLite and product UI; fictional 10min-old retained history",
+  "cases": [
+    {
+      "width": 390,
+      "status": "PASS",
+      "errors": [],
+      "reads": [
+        {
+          "path": "/api/public/rooms/common-room/messages",
+          "query": ""
+        },
+        {
+          "path": "/api/public/rooms/common-room/messages",
+          "query": "?before=63431f85-336d-4c83-a164-e82a33247e3f%3A161"
+        },
+        {
+          "path": "/api/public/rooms/common-room/messages",
+          "query": "?before=63431f85-336d-4c83-a164-e82a33247e3f%3A141"
+        },
+        {
+          "path": "/api/public/rooms/common-room/messages",
+          "query": "?before=63431f85-336d-4c83-a164-e82a33247e3f%3A121"
+        },
+        {
+          "path": "/api/public/rooms/common-room/wait",
+          "query": "?after=63431f85-336d-4c83-a164-e82a33247e3f%3A180"
+        },
+        {
+          "path": "/api/public/rooms/common-room/messages",
+          "query": "?before=63431f85-336d-4c83-a164-e82a33247e3f%3A101"
+        },
+        {
+          "path": "/api/public/rooms/common-room/wait",
+          "query": "?after=63431f85-336d-4c83-a164-e82a33247e3f%3A180"
+        },
+        {
+          "path": "/api/public/rooms/common-room/messages",
+          "query": "?before=63431f85-336d-4c83-a164-e82a33247e3f%3A81"
+        },
+        {
+          "path": "/api/public/rooms/common-room/wait",
+          "query": "?after=63431f85-336d-4c83-a164-e82a33247e3f%3A180"
+        },
+        {
+          "path": "/api/public/rooms/common-room/messages",
+          "query": "?before=63431f85-336d-4c83-a164-e82a33247e3f%3A61"
+        },
+        {
+          "path": "/api/public/rooms/common-room/wait",
+          "query": "?after=63431f85-336d-4c83-a164-e82a33247e3f%3A180"
+        },
+        {
+          "path": "/api/public/rooms/common-room/messages",
+          "query": ""
+        }
+      ],
+      "mutations": [
+        {
+          "method": "POST",
+          "path": "/api/public/rooms/common-room/watchers"
+        }
+      ],
+      "initial": {
+        "cache": 20,
+        "bytes": 11308,
+        "dom": 3,
+        "atBottom": 0,
+        "last": "180"
+      },
+      "prepend": {
+        "before": {
+          "cursor": "63431f85-336d-4c83-a164-e82a33247e3f:161",
+          "y": 65.390625
+        },
+        "afterY": 65.328125
+      },
+      "bounded": {
+        "cache": 100,
+        "bytes": 56304,
+        "dom": 6
+      },
+      "realtimeAnchor": {
+        "before": {
+          "cursor": "63431f85-336d-4c83-a164-e82a33247e3f:42",
+          "y": 25.234375
+        },
+        "afterY": 25.234375
+      },
+      "csp": []
+    },
+    {
+      "width": 1440,
+      "status": "PASS",
+      "errors": [],
+      "reads": [
+        {
+          "path": "/api/public/rooms/common-room/messages",
+          "query": ""
+        },
+        {
+          "path": "/api/public/rooms/common-room/messages",
+          "query": "?before=c0c8e70a-aa96-42e0-a658-a663288ee758%3A161"
+        },
+        {
+          "path": "/api/public/rooms/common-room/messages",
+          "query": "?before=c0c8e70a-aa96-42e0-a658-a663288ee758%3A141"
+        },
+        {
+          "path": "/api/public/rooms/common-room/messages",
+          "query": "?before=c0c8e70a-aa96-42e0-a658-a663288ee758%3A121"
+        },
+        {
+          "path": "/api/public/rooms/common-room/wait",
+          "query": "?after=c0c8e70a-aa96-42e0-a658-a663288ee758%3A180"
+        },
+        {
+          "path": "/api/public/rooms/common-room/messages",
+          "query": "?before=c0c8e70a-aa96-42e0-a658-a663288ee758%3A101"
+        },
+        {
+          "path": "/api/public/rooms/common-room/wait",
+          "query": "?after=c0c8e70a-aa96-42e0-a658-a663288ee758%3A180"
+        },
+        {
+          "path": "/api/public/rooms/common-room/messages",
+          "query": "?before=c0c8e70a-aa96-42e0-a658-a663288ee758%3A81"
+        },
+        {
+          "path": "/api/public/rooms/common-room/wait",
+          "query": "?after=c0c8e70a-aa96-42e0-a658-a663288ee758%3A180"
+        },
+        {
+          "path": "/api/public/rooms/common-room/messages",
+          "query": "?before=c0c8e70a-aa96-42e0-a658-a663288ee758%3A61"
+        },
+        {
+          "path": "/api/public/rooms/common-room/wait",
+          "query": "?after=c0c8e70a-aa96-42e0-a658-a663288ee758%3A180"
+        },
+        {
+          "path": "/api/public/rooms/common-room/messages",
+          "query": ""
+        }
+      ],
+      "mutations": [
+        {
+          "method": "POST",
+          "path": "/api/public/rooms/common-room/watchers"
+        }
+      ],
+      "initial": {
+        "cache": 20,
+        "bytes": 11308,
+        "dom": 4,
+        "atBottom": 0,
+        "last": "180"
+      },
+      "prepend": {
+        "before": {
+          "cursor": "c0c8e70a-aa96-42e0-a658-a663288ee758:161",
+          "y": 73.390625
+        },
+        "afterY": 73.796875
+      },
+      "bounded": {
+        "cache": 100,
+        "bytes": 56304,
+        "dom": 7
+      },
+      "realtimeAnchor": {
+        "before": {
+          "cursor": "c0c8e70a-aa96-42e0-a658-a663288ee758:42",
+          "y": 13.265625
+        },
+        "afterY": 13.265625
+      },
+      "csp": []
+    }
+  ],
+  "cleanup": true
+}

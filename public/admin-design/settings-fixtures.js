@@ -541,7 +541,8 @@ export const settingsFixture={
      },
      "firstWindowSeconds": {
       "type": "integer",
-      "label": "최초 읽기 범위",
+      "label": "이전 버전 초기 시간 범위 (현재 미사용)",
+      "readOnly": true,
       "min": 1,
       "max": 300,
       "unit": "seconds",

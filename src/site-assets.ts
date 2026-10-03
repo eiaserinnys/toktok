@@ -7,7 +7,7 @@ export interface DesignSurfacePorts {
 }
 
 const rootAssets = new Set(['/styles.css', '/app.js', '/view.js', '/session.js',
-  '/public-demo.js', '/public-demo-session.js', '/public-demo-view.js', '/favicon.svg']);
+  '/history-feed.js', '/history-window.js', '/public-demo.js', '/public-demo-session.js', '/public-demo-view.js', '/favicon.svg']);
 const productModule = /^\/(?:shared|effects)\/(?:[a-zA-Z0-9_-]+\/)*[a-zA-Z0-9_-]+\.(?:js|css)$/;
 const staticAsset = /^\/assets\/(?:[a-zA-Z0-9_-]+\/)*[a-zA-Z0-9_.-]+\.(?:woff2?|svg|png|jpe?g|webp|ico)$/;
 

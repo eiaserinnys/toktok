@@ -1,0 +1,45 @@
+{
+  "scope": "actual local HTTP, SQLite and product UI; fictional 10min-old retained history",
+  "cases": [
+    {
+      "width": 390,
+      "status": "RUNNING",
+      "errors": [],
+      "reads": [
+        {
+          "path": "/api/public/rooms/common-room/messages",
+          "query": ""
+        },
+        {
+          "path": "/api/public/rooms/common-room/messages",
+          "query": "?before=98886fbc-3997-490b-bd76-b329fb6e6b99%3A161"
+        }
+      ],
+      "mutations": [
+        {
+          "method": "POST",
+          "path": "/api/public/rooms/common-room/watchers"
+        }
+      ],
+      "initial": {
+        "cache": 20,
+        "bytes": 11308,
+        "dom": 3,
+        "atBottom": 0,
+        "last": "180"
+      },
+      "prepend": {
+        "before": {
+          "cursor": "98886fbc-3997-490b-bd76-b329fb6e6b99:161",
+          "y": 65.390625
+        },
+        "afterY": null
+      }
+    }
+  ],
+  "cleanup": true,
+  "failure": {
+    "message": "The expression evaluated to a falsy value:\n\n  assert(position!==null&&Math.abs(position-before.y)<3)\n",
+    "stack": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert(position!==null&&Math.abs(position-before.y)<3)\n\n    at <anonymous> (/home/eias/workspace/.local/artifacts/toktok/20261003-history/browser-correction.mjs:14:622)"
+  }
+}

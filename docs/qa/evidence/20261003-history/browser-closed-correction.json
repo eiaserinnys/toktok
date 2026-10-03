@@ -1,0 +1,14 @@
+{
+  "scope": "actual Node24 SQLite browser reads; synthetic-room close triggered through real core because fixture has no CONTROL creation reservation",
+  "cases": [
+    {
+      "width": 390,
+      "status": "PASS",
+      "errors": [],
+      "closedWaitThenOlder": true,
+      "activeWaits": 0,
+      "csp": []
+    }
+  ],
+  "cleanup": true
+}

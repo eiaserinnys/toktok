@@ -455,3 +455,9 @@ dialog{scrollbar-width:thin;scrollbar-color:var(--line) transparent}
  .public-connection-panel>.x-button-row{flex-direction:column}
  .public-connection-dialog{padding-bottom:max(30px,env(safe-area-inset-bottom))}
 }
+
+.history-navigation{display:flex;align-items:center;gap:12px;padding:10px 20px;border-bottom:1px solid var(--line);font-size:12px;line-height:1.5;flex-wrap:wrap;color:var(--muted)}
+.history-navigation [data-history-status]{flex:1;min-width:100px}.history-navigation button{min-height:44px;font-size:12px}.history-navigation button:disabled{opacity:.55;cursor:default}
+.virtual-history{overflow-anchor:none;scroll-behavior:auto}.virtual-history .history-spacer{flex:none;padding:0;margin:0;pointer-events:none}.virtual-history .message{overflow-anchor:none}
+
+.virtual-history .message{animation:none}

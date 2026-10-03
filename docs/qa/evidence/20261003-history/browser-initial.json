@@ -1,0 +1,17 @@
+{
+  "scope": "actual local HTTP, SQLite and product UI; fictional 10min-old retained history",
+  "cases": [
+    {
+      "width": 390,
+      "status": "RUNNING",
+      "errors": [],
+      "reads": [],
+      "mutations": []
+    }
+  ],
+  "cleanup": true,
+  "failure": {
+    "message": "page.waitForFunction: Timeout 15000ms exceeded.",
+    "stack": "page.waitForFunction: Timeout 15000ms exceeded.\n    at <anonymous> (/home/eias/workspace/.local/artifacts/toktok/20261003-history/browser.mjs:11:80)"
+  }
+}

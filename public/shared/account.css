@@ -72,3 +72,7 @@
 .owned-room-list article>div{flex-basis:100%}
 .owned-room-list .btn{margin-left:auto}
 }
+
+.bootstrap-entry{margin:24px 0;padding:24px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.bootstrap-entry h3{font-size:18px;line-height:1.5}
+.bootstrap-entry p{font-size:14px;line-height:1.8;color:#5f6d56;margin:12px 0 20px}

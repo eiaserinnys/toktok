@@ -16,7 +16,7 @@ export function applyPage(state,page,{append,reset=()=>{},notice=()=>{}}){
  const replace=page.history_status!=='ok';
  if(replace){reset();state.cursor=null;state.epoch=null;notice('이전 대화 일부를 더 이상 가져올 수 없습니다. 최근 보관 범위로 다시 이어갑니다.');}
  else if(state.epoch&&state.epoch!==page.epoch)throw Error('SEQUENCE_GAP');
- else if(page.initial_window?.truncated)notice(`처음에는 최근 ${page.initial_window.max_age_seconds}초 중 최대 ${page.initial_window.max_messages}개를 보여요. 그 이전 대화는 생략됐어요.`);
+ else if(page.initial_window?.truncated)notice(`처음에는 보관 중인 최근 대화 최대 ${page.initial_window.max_messages}개를 보여요. 이전 대화는 추가로 읽을 수 있어요.`);
  for(const m of page.messages){
   if(state.cursor){const previous=cursor(state.cursor);if(m.sequence<=previous.sequence)continue;if(m.sequence!==previous.sequence+1)throw Error('SEQUENCE_GAP');}
   append(m);state.cursor=m.cursor;state.epoch=page.epoch;

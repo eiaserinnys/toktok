@@ -51,6 +51,7 @@ export function mountDesignReview(root,view='flows'){
    frame.dataset.previewReady='false';delete frame.dataset.previewError;
    const ready=waitPreviewReady(doc,style);if(!style.isConnected)doc.head.append(style);
    doc.body.innerHTML=renderScreen(node.screenId,...(node.args??[]));
+   if(node.dialog){const preview=dialogRegistry[node.dialog.dialogId].render(...node.dialog.args,doc);doc.body.append(preview);preview.showModal();}
    ready.then(()=>{frame.dataset.previewReady='true';},error=>{frame.dataset.previewError=error.message;});
    // Every preview has independent history/state and no network effect port.
    let memory=previewContexts.get(node.id);if(!memory){memory=createFixtureAdapter();previewContexts.set(node.id,memory);}

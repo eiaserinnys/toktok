@@ -29,6 +29,7 @@ export const routeRegistry=Object.freeze([
   {transitionId:'claim-logout',event:'logout',kind:'success',to:'rooms'},
   {transitionId:'claim-back',event:'cancel',kind:'back',to:'rooms'}]},
  {routeId:'account',screenId:'account',match:/^\/account$/,params:[],transitions:[
+  ...[['bootstrap-review','request-bootstrap','success'],['bootstrap-check','explicit-checkbox','success'],['bootstrap-submit','confirm-bootstrap','success'],['bootstrap-complete','server-admin-session','success'],['bootstrap-denied','server-denial','error'],['bootstrap-cancel','cancel','back']].map(([transitionId,event,kind])=>({transitionId,event,kind,to:'account'})),
   {transitionId:'agent-revoked',event:'revoke-confirm',kind:'success',to:'account'},
   {transitionId:'agent-revoke-denied',event:'revoke-confirm',kind:'error',to:'account'},
   {transitionId:'account-denied',event:'server-auth-check',kind:'error',to:'auth-login'},
@@ -66,6 +67,7 @@ export const routeRegistry=Object.freeze([
    ['public-denied','human-deny','error'],['public-revoked','human-revoke','error'],['public-request-expired','request-expiry','time'],['public-request-unavailable','server-denial','error']
   ].map(([transitionId,event,kind])=>({transitionId,event,kind,to:'public-room'})),
   ...['history-gap','history-reset','initial-window'].map(state=>({transitionId:'public-'+state,event:state,kind:state==='initial-window'?'success':'error',to:'public-room'})),
+  ...[['history-scroll-up','scroll-to-top','success'],['history-reached-start','before-page-empty','success'],['history-expired','retention-gap','error'],['history-arrives-while-reading','new-message','success'],['history-back-to-latest','latest-button','reference']].map(([transitionId,event,kind])=>({transitionId,event,kind,to:'public-room'})),
   {transitionId:'public-back',event:'back-link',kind:'back',to:'introduction'}]},
  {routeId:'private-room',screenId:'room',nestedScreens:['terminal'],match:/^\/r\/([a-f0-9-]{36})\/([\w-]{43})$/,params:['id','cap'],transitions:[
   {transitionId:'private-expired',event:'server-expiry',kind:'time',to:'private-room'},
