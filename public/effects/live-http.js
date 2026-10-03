@@ -1,3 +1,4 @@
+import {mapBudget} from './budget-projection.js';
 // Product-only HTTP adapter. No fixture import, storage, synthetic identity or retry loop.
 export class EffectError extends Error {
  constructor(code,status=null,retryAfter=null,room_id){super(code);this.code=code;this.status=status;this.retryAfter=retryAfter;if(typeof room_id==='string')this.room_id=room_id;}
@@ -69,6 +70,7 @@ export function createLiveAdapter({fetch:fetchHTTP=globalThis.fetch}={}){
    if(!Number.isSafeInteger(data.revision)||!data.settings||!schema.schema)invalid('ADMIN_SETTINGS');
    return {revision:data.revision,settings:data.settings,schema:schema.schema,effects:settingsEffects(schema.schema)};
   },
+  getBudget:async()=>mapBudget(await request('/api/admin/budget')),
   getInvitations:()=>request('/api/admin/invitations'),
   getAudit:()=>request('/api/admin/audit'),
   saveSettings:({revision,settings})=>request('/api/admin/settings',{method:'PUT',sessionMutation:true,body:{expected_revision:revision,settings}}),

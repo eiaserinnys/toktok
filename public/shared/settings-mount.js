@@ -36,5 +36,5 @@ export function mountSettings(root,{effects,section='overview'}){
   else if(button.dataset.x==='logout')controller.requestLeave(()=>effects.logout().then(()=>window.location.assign('/')).catch(()=>{button.textContent='로그아웃하지 못했어요. 다시 시도해주세요.';}));
  };
  root.addEventListener('change',change);root.addEventListener('click',click);
- return {load:controller.load,enter(next){currentSection=next;paint(lastState);},requestLeave:controller.requestLeave,dispose(){controller.dispose();root.removeEventListener('change',change);root.removeEventListener('click',click);removeDialog();selects.dispose();},state:()=>structuredClone(lastState)};
+ return {async load(){await controller.load();if(currentSection==='budget')await controller.loadBudget();},enter(next){currentSection=next;paint(lastState);if(next==='budget')controller.loadBudget();},requestLeave:controller.requestLeave,dispose(){controller.dispose();root.removeEventListener('change',change);root.removeEventListener('click',click);removeDialog();selects.dispose();},state:()=>structuredClone(lastState)};
 }

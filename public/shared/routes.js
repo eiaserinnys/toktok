@@ -14,6 +14,7 @@ export const routeRegistry=Object.freeze([
   {transitionId:'auth-cancel',event:'cancel',kind:'back',to:'introduction'},
   {transitionId:'auth-success',event:'otp-submit',kind:'success',to:'rooms'}]},
  {routeId:'admin-settings',screenId:'settings',match:/^\/admin(?:\/(overview|public|private|budget|identity|signup|deployment))?$/,params:['section'],transitions:[
+  {transitionId:'budget-unavailable',event:'budget-read',kind:'error',to:'admin-settings'},
   {transitionId:'settings-conflict',event:'save-confirm',kind:'error',to:'admin-settings'},
   {transitionId:'settings-denied',event:'server-auth-check',kind:'error',to:'admin-settings'},
   {transitionId:'settings-back',event:'rooms-link',kind:'back',to:'introduction'}]},
