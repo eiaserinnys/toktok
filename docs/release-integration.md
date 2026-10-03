@@ -9,7 +9,7 @@ Cloudflare와 Node는 `src/application.ts`의 같은 HTTP handler를 사용한�
 - Node24 실제 HTTP/SQLite, 신규 bounded upload 취소, 설치·backup, 명시 v2 migration/startup restore, compiled HTTP→격리 TLS SMTP mock은 각 영향 gate에서 통과했다. PostgreSQL metadata restore는 B의 격리 컨테이너 신규 gate PASS다. 실제 이메일·사용자 DB는 사용하지 않았다.
 - 관리자 recovery의 synthetic 64KiB/정확 HTML 경로 gate는 최초 PASS. 실제 CF schema500를 optional undefined 속성 생략으로 수정했고 기존 read5는200을 확인했다. QA는 기존503 fail closed 계약이며, 미도달 경계 continuation1 PASS에서 QA recovery0, email/invite/create429, CSRF 설정PUT·logout 및 폐기cookie401을 확인했다. 최초·보정 실패도 지우지 않았다.
 - 413의 CF upstream producer 취소 전달은 별도 진단3회 FAIL이다. 로컬 reader unlock·handler/body0과 upstream 전달을 구분한다. 알려진 실패 fixture/raw를 독립 config로 보존했으며 추가 반복하지 않는다.
-- 계정·인증·설정·budget·claim의 shared UI checkpoint를 통합했다. 실제 로컬 Node/SQLite에서도 로그인과 관리자 설정 저장·예산 조회·보호된 QA의 390/1440 화면을 확인했다. new-room도 후속 실제 Node browser로 확인했으며 private epoch/초대·audit/전체 검수면과 운영 배포 후 합격은 남는다.
+- 계정·인증·설정·budget·claim의 shared UI checkpoint를 통합했다. 실제 로컬 Node/SQLite에서도 로그인과 관리자 설정 저장·예산 조회·보호된 QA의 390/1440 화면을 확인했다. new-room, private epoch/초대·audit 및 마지막 gallery도 후속 실제 Node browser로 확인했다. 운영 배포 후 검증은 별도이다.
 
 ## 연결과 적용
 
@@ -21,7 +21,7 @@ Cloudflare와 Node는 `src/application.ts`의 같은 HTTP handler를 사용한�
 
 ## 남은 수용 검증
 
-후속 변경의 최종 타입·CI, 새 shared auth/admin/private 화면·registry·390/1440 실제 backend 브라우저, Cloudflare 배포 후 endpoint/HTTP 및 challenge 검증이 남는다. SMTP/Cloudflare 발신 설정은 인프라 권한과 분리하며 실제 발송 전 preview OFF 등 별도 승인·확인이 필요하다. 이 문서를 배포 완료나 전체 시각 합격으로 해석하지 않는다.
+최종 source의 CF/Node 타입과 변경 범위의 실제 backend 브라우저를 확인했다. 기존 원격 CI의 Node22/selfhost 의존성 누락은 workflow 권한 제한으로 남아 있고, Cloudflare 배포 후 endpoint/HTTP 및 challenge 검증을 이어간다. SMTP/Cloudflare 발신 설정은 인프라 권한과 분리하며 실제 발송 전 preview OFF 등 별도 승인·확인이 필요하다. 이 문서를 배포 완료나 전체 시각 합격으로 해석하지 않는다.
 
 ## 2026-10-03 공통 경로 추가 관측
 
@@ -102,3 +102,9 @@ README hero를 공통 헤더·catalog·서비스 설명을 사용하는 실제 �
 ## 관리자 복구 사용량 표시
 
 C `24479d6`의 읽기 전용 복구 DTO 표시를 통합했다. 실제 Node24/SQLite admin budget 응답의 분/일/월 사용량·한도·UTC 경계·65536 bytes 상한을 390px DOM과 대조해 1 PASS했다. 편집 요소0/브라우저 mutation0/CSP0/storage0이며 이전 backend cap/recovery gate와 구분한다. [실제 UI 증거](qa/20261003-actual-recovery-ui-browser.json)를 보존했다.
+
+## 최종 보호 갤러리와 모드·여정
+
+C aa2d0ee/71eb70c/e1e6417을 통합했다. 실제 Node24/SQLite 관리자 세션으로 수행한 최초4개는 제목의 역방향 Tab 경계2개와 후속 자산 edge429로 인한 미로드2개로 실패했다. 공통 Tab trap의 비탭 제목 경계를 수정하고, 기존 120/min 한도를 바꾸지 않은 채 정상 창을 61초 기다린 보정은4 PASS다. 1440/390 gallery 이전·다음/Alt·이름·순번·Tab/Escape/초점복귀, HOSTED/admin1440 및 DEMO/invited390 graph·오류 연결·canonical iframe stylesheet1·ready·Tok Sans를 확인했다. API/변경 요청/CSP 위반/storage는0이며 screenshot을 직접 확인했다. [초기·보정 증거](qa/20261003-actual-gallery-browser.json)를 구분하고 이전 성공 인증·방 데이터 검사는 반복하지 않았다.
+
+최종 공유 UI 통합 뒤 generated check와 production dry-run은 exit0이다. Assets104개, Worker243.05KiB/gzip58.37KiB 및 기존 CONTROL/PRIVATE_ROOMS/PUBLIC_ROOMS·120/min 바인딩을 확인했다. 이 결과는 upload·DNS 성공을 뜻하지 않으며 [bundle 기록](qa/20261003-final-bundle.json)에 구분한다.
