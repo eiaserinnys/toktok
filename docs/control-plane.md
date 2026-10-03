@@ -34,6 +34,7 @@
 | POST /api/claims/:id/approve | risk_ack_version → agent | claim bearer+session-CSRF+DB admission |
 | GET /api/admin/settings | schema_version/revision/settings/updated_at/updated_by | 실제 session+DB admin role |
 | GET /api/admin/settings/schema | schema_version/schema metadata | 실제 session+DB admin role |
+| GET /api/admin/budget | windows/usage/estimate/thresholds/model | 실제 session+DB admin role, 공개 config에 usage 비노출 |
 | PUT /api/admin/settings | expected_revision/settings → settings envelope+effect_summary | exact Origin+session-CSRF+DB admin role |
 | GET /api/admin/audit | audit 배열, limit 기본/최대50 | 실제 session+DB admin role |
 | GET /api/admin/invitations | invitations 배열 id/expires_at/status, limit 기본/최대50 | 실제 session+DB admin role, code/hash 미반환 |
@@ -81,6 +82,12 @@ pending은 확인된 initialize 이후에만 active가 되고, 종료/미초기�
 ## Budget
 
 typed cap 6종 및 provisional 숫자는 modes-settings 문서와 schema가 정본입니다. `reserve(operation_id,kind,amount)`는 trusted server operation 전용이며 공개 HTTP request body로 호출하지 않습니다. 서버 clock의 UTC day+month를 한 transaction에서 모두 검사·증가하며 실패 시 전부 rollback합니다. 재시도는 최초 예약 창에 귀속하고 내용 변경은409입니다. 실패/불확실 처리에 환불하거나 자동 재예약하지 않습니다.
+
+`control-budget.ts`의 `CF-reference-v1` 추정 모델은 같은 reserve transaction에서 수량과 추정 microUSD의 일·월 합계를 함께 저장합니다. 월 고정 25,000,000 microUSD를 포함한 projected 값이 현재 cutoffUsd를 넘으면 `ESTIMATED_BUDGET_EXCEEDED` 429와 UTC 다음 월까지의 Retry-After를 반환하며 수량·추정값·operation 기록 모두 증가하지 않습니다. 정확히 cutoff와 같은 값은 허용합니다. warning 도달은 관리자 DTO에 계산된 상태로 표시하고, replay는 원래 창에서 추가 비용 0입니다. 이 값은 실제 청구량, Cloudflare invoice cap 또는 Node 운영비가 아닙니다. 포함 무료 사용량은 0으로 가정하고 이메일은 시도당 1cent 계획값을 사용합니다. 현재 settings의 threshold나 기존 DB 설정은 모델 추가로 덮어쓰지 않습니다.
+
+추정 모델 신규 검증은 실제 Workers SQLite에서 6종 비용, 동시 cutoff winner1, 부분쓰기 rollback, 월 경계 replay·conflict·expiry, 수량 한도 실패와 response 비용, 실제 admin HTTP 권한·공개 config 비노출을 다루는 5개 targeted 케이스입니다. RED와 최소 구현 뒤 GREEN **5 passed / 0 failed, exit0**의 기록은 `test/control-budget-estimate-red`와 `test/control-budget-estimate-green`의 JSON/log에 보존합니다. 기존 core8/auth22/전체 회귀·타입검사는 반복하지 않았으며, 이 신규 비용 계약을 이전 통과 결과로 대신하지 않습니다. root 공통 router와 recovery headroom의 최종 연결 검증은 별도입니다.
+
+미완료 경계: 기존 OTP 발송의 수량 한도 precheck는 주소 자격 판단 전에 적용하지만, 새 추정액 검사도 같은 순서로 적용해야 generic 응답 차이로 자격을 노출하지 않습니다. 이 국소 보완은 root에 보고했으며 현재 5개 통과를 이메일 generic 응답 경계의 통과로 확대하지 않습니다. 관리자 recovery headroom과 최종 통합 타입·회귀 검증도 남아 있습니다.
 
 operation ID는 서버 발급 시각/고정 작업 만료/UUID를 포함합니다. 일반 내부 operation은 최대60초, email_attempts는 최대 flow 상한600초이며 만료 ID는 기록 정리 뒤에도410으로 거부합니다. 종류별 새 ID를 한 번 발급하고 같은 reservation 재시도에만 원래 ID를 유지합니다. 이는 외부 공개 토큰이 아닙니다. cap 축소는 기존 usage를 보존합니다. OTP 실제 발송 예약은 동일 email_attempts UTC day/month aggregate를 같은 transaction에서 사용하고 IP/이메일 요청 예산과 별도로 검사합니다. private_creates도 생성 slot transaction 안에서 예약하며 중첩 budget transaction을 열지 않습니다. 방 내부 admission/response/body write/duration은 B, control/config/auth/admin router admission/response 연결은 root 후속입니다. 금액/typed cap가 실제 청구 상한을 보장하지 않습니다.
 
