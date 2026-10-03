@@ -78,3 +78,7 @@ PrivatePolicy 정본은 B의 src/private-contracts.ts입니다. settings.private
 B async RepositoryPort는 targeted CRUD, control scope, 누적 transaction4096 records/8MiB, record64KiB/list1000 계약입니다. 총 DB4096행 제한이나 전체 snapshot 로딩으로 구현하지 않습니다. 신규 ControlPlane wrapper에 주입하며 기존 SQL IdentityRegistry state를 자동 변환하지 않습니다. SQLite/PG/CF 같은 domain을 사용하고 메일은 transaction 밖 한 번 호출합니다. selfhost backend는 한 번에 하나이며 설치/운영은 이번 검증 범위가 아닙니다.
 
 CF milestone 15 runtime PASS/strict exit0와 새 이식 gate 진행, 기존WIP/미연결 범위는 [control-plane](control-plane.md)에 기록합니다. UI/C renderer 및 registry, production index/Env/bindings/OpenAPI, 실제 PrivateRoom lifecycle, control/room budget enforcing 연결과 최종 회귀는 root 통합 후 검증합니다.
+
+## 복구 사용량 DTO
+
+관리자 budget 화면은 현재 ordinary estimate와 별도로 `recovery.usage` 및 `recovery.bounds`를 표시합니다. bounds는 서버 불변값인 분 10회·일 100회·월 1000회이며 settings schema의 수정 가능한 옵션이 아닙니다. `recovery.response_bytes_limit`은 65536이고 다음 UTC 창 시각은 ISO 문자열로 제공합니다. 이 한정 복구 예산은 정상 요청의 계수를 없애거나 무제한 관리자 접근을 허용하지 않으며 실제 청구량 상한을 보장하지 않습니다. 공개 config와 일반 회원에게 계정 사용량을 제공하지 않습니다.

@@ -1,0 +1,24 @@
+heavy verification: running in slot 1/2
+
+ RUN  v4.1.0 /home/eias/workspace/.projects/toktok--feat-claim-foundation-0ac9c22f
+
+stdout | test/control-recovery.test.ts > trusted recovery requires a current DB admin and strict mutation CSRF, separate from ordinary budget exhaustion
+ADMIN_RECOVERY_EVIDENCE [{"step":"config","status":200},{"step":"admin-recovery-reserve","status":401,"code":"SESSION_REQUIRED"},{"step":"admin-recovery-reserve","status":403,"code":"ADMIN_REQUIRED"},{"step":"admin-recovery-reserve","status":403,"code":"CSRF_DENIED"},{"step":"admin-recovery-reserve","status":403,"code":"CSRF_DENIED"},{"step":"admin-recovery-reserve","status":400,"code":"INVALID_INPUT"},{"step":"admin-recovery-reserve","status":200},{"step":"admin-recovery-reserve","status":200},{"step":"admin-only recovery state before assertions","status":200,"state":{"minute":2,"day":2,"month":2,"normalEstimate":90000000}},{"step":"admin-recovery-reserve","status":401,"code":"SESSION_REQUIRED"}]
+
+stdout | test/control-recovery.test.ts > minute recovery race is bounded and replay has no charge while binding changes conflict
+ADMIN_RECOVERY_EVIDENCE [{"step":"config","status":200},{"step":"admin-recovery-reserve","status":200},{"step":"admin-recovery-reserve","status":200},{"step":"admin-recovery-reserve","status":409,"code":"IDEMPOTENCY_CONFLICT"},{"step":"admin-recovery-reserve","status":409,"code":"IDEMPOTENCY_CONFLICT"},{"step":"admin-recovery-reserve","status":200},{"step":"admin-recovery-reserve","status":200},{"step":"admin-recovery-reserve","status":200},{"step":"admin-recovery-reserve","status":200},{"step":"admin-recovery-reserve","status":200},{"step":"admin-recovery-reserve","status":200},{"step":"admin-recovery-reserve","status":200},{"step":"admin-recovery-reserve","status":200},{"step":"admin-recovery-reserve","status":200},{"step":"admin-recovery-reserve","status":429,"code":"ADMIN_RECOVERY_LIMITED","retry_after":60},{"step":"admin-recovery-reserve","status":429,"code":"ADMIN_RECOVERY_LIMITED","retry_after":60},{"step":"recovery race before assertions","status":200,"state":{"minute":10,"day":10,"month":10,"normalEstimate":0}}]
+
+stdout | test/control-recovery.test.ts > day and month recovery bounds are atomic and report the longest blocking UTC window
+ADMIN_RECOVERY_EVIDENCE [{"step":"config","status":200},{"step":"admin-recovery-reserve","status":200},{"step":"admin-recovery-reserve","status":429,"code":"ADMIN_RECOVERY_LIMITED","retry_after":2678400},{"step":"day-month recovery race before assertions","status":200,"state":{"minute":1,"day":100,"month":1000,"normalEstimate":0}},{"step":"admin-recovery-reserve","status":401,"code":"SESSION_REQUIRED"},{"step":"admin-recovery-reserve","status":429,"code":"ADMIN_RECOVERY_LIMITED","retry_after":2592000}]
+
+stdout | test/control-recovery.test.ts > recovery replay retains the first UTC windows and usage DTO exposes fixed bounds only to an admin
+ADMIN_RECOVERY_EVIDENCE [{"step":"config","status":200},{"step":"admin-recovery-reserve","status":200},{"step":"admin-recovery-reserve","status":200},{"step":"recovery month replay before assertions","status":200,"state":{"minute":0,"day":0,"month":0,"normalEstimate":0}},{"step":"admin-budget","status":200},{"step":"admin-budget","status":403,"code":"ADMIN_REQUIRED"},{"step":"config","status":200},{"step":"admin-recovery-reserve","status":410,"code":"OPERATION_EXPIRED"}]
+
+ ✓ test/control-recovery.test.ts (4 tests) 275ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  10:13:00
+   Duration  1.63s (transform 371ms, setup 0ms, import 627ms, tests 275ms, environment 0ms)
+
+JSON report written to /home/eias/workspace/.projects/toktok--feat-claim-foundation-0ac9c22f/test/control-recovery-green.json

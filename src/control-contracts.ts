@@ -11,6 +11,8 @@ export interface InvitationValidation {valid:true;invite_validation_id:string;ex
 export interface EmailSendResponse {receipt:string;state:'attempted';retry_after:number;expires_at:string;message:string;}
 export interface SettingsEnvelope {schema_version:number;revision:number;settings:Settings;updated_at:number;updated_by:string|null;}
 export interface SettingsSchemaResponse {schema_version:number;schema:SchemaNode;}
+/** Trusted transport only; authorization is checked again by ControlCore. */
+export interface AdminRecoveryReservation {response_bytes_limit:65536;}
 export type AdminBudgetResponse=Awaited<ReturnType<SettingsStore['budget']>>;
 /** Trusted host projection. Never publish as GET /api/config. */
 export interface RuntimeConfig {settings:Settings;revision:number;readiness:ControlState;}

@@ -1,0 +1,88 @@
+heavy verification: running in slot 1/2
+
+ RUN  v4.1.0 /home/eias/workspace/.projects/toktok--feat-claim-foundation-0ac9c22f
+
+stdout | test/control-recovery.test.ts > trusted recovery requires a current DB admin and strict mutation CSRF, separate from ordinary budget exhaustion
+ADMIN_RECOVERY_EVIDENCE [{"step":"config","status":200},{"step":"admin-recovery-reserve","status":401,"code":"SESSION_REQUIRED"},{"step":"admin-recovery-reserve","status":403,"code":"ADMIN_REQUIRED"},{"step":"admin-recovery-reserve","status":404,"code":"NOT_FOUND"}]
+
+stdout | test/control-recovery.test.ts > minute recovery race is bounded and replay has no charge while binding changes conflict
+ADMIN_RECOVERY_EVIDENCE [{"step":"config","status":200},{"step":"admin-recovery-reserve","status":404,"code":"NOT_FOUND"}]
+
+stdout | test/control-recovery.test.ts > day and month recovery bounds are atomic and report the longest blocking UTC window
+ADMIN_RECOVERY_EVIDENCE [{"step":"config","status":200},{"step":"admin-recovery-reserve","status":404,"code":"NOT_FOUND"},{"step":"admin-recovery-reserve","status":404,"code":"NOT_FOUND"},{"step":"day-month recovery race before assertions","status":200,"state":{"minute":0,"day":99,"month":999,"normalEstimate":0}}]
+
+stdout | test/control-recovery.test.ts > recovery replay retains the first UTC windows and usage DTO exposes fixed bounds only to an admin
+ADMIN_RECOVERY_EVIDENCE [{"step":"config","status":200},{"step":"admin-recovery-reserve","status":404,"code":"NOT_FOUND"}]
+
+ ❯ test/control-recovery.test.ts (4 tests | 4 failed) 127ms
+   × trusted recovery requires a current DB admin and strict mutation CSRF, separate from ordinary budget exhaustion 54ms
+   × minute recovery race is bounded and replay has no charge while binding changes conflict 22ms
+   × day and month recovery bounds are atomic and report the longest blocking UTC window 27ms
+   × recovery replay retains the first UTC windows and usage DTO exposes fixed bounds only to an admin 23ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/control-recovery.test.ts > trusted recovery requires a current DB admin and strict mutation CSRF, separate from ordinary budget exhaustion
+AssertionError: expected 'NOT_FOUND' to be 'CSRF_DENIED' // Object.is equality
+
+Expected: [32m"[7mCSRF_DENIE[27mD"[39m
+Received: [31m"[7mNOT_FOUN[27mD"[39m
+
+ ❯ test/control-recovery.test.ts:26:240
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  test/control-recovery.test.ts > minute recovery race is bounded and replay has no charge while binding changes conflict
+AssertionError: expected 404 to be 200 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 200[39m
+[31m+ 404[39m
+
+ ❯ test/control-recovery.test.ts:33:88
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  test/control-recovery.test.ts > day and month recovery bounds are atomic and report the longest blocking UTC window
+AssertionError: expected [ 404, 404 ] to deeply equal [ 200, 429 ]
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  [[22m
+[32m-   200,[39m
+[32m-   429,[39m
+[31m+   404,[39m
+[31m+   404,[39m
+[2m  ][22m
+
+ ❯ test/control-recovery.test.ts:39:218
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  test/control-recovery.test.ts > recovery replay retains the first UTC windows and usage DTO exposes fixed bounds only to an admin
+AssertionError: expected 404 to be 200 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 200[39m
+[31m+ 404[39m
+
+ ❯ test/control-recovery.test.ts:43:121
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed (4)
+   Start at  10:11:50
+   Duration  1.45s (transform 395ms, setup 0ms, import 604ms, tests 127ms, environment 0ms)
+
+JSON report written to /home/eias/workspace/.projects/toktok--feat-claim-foundation-0ac9c22f/test/control-recovery-red.json

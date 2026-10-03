@@ -134,3 +134,13 @@ OTP cap 이후 실제 Room 왕복과 기존 room capability의 철회 후 계속
 B 정본 4e8ad3c의 public-contracts/public-policy 두 파일은 내용 변경 없이 별도 import commit으로 보존했습니다. A 설정은 B seed/validator를 직접 재사용하고 `runtimePublicPolicy(settings)`가 초→ms 변환과 최초 읽기 개수의 직접 mapping을 제공합니다. `public.firstWindowMessages`는 1..20/default20이며 안전 공개 config에도 포함합니다. ipMemoryMs metadata는 엔진의 최소300000/최대3600000ms와 맞췄고 기존 더 좁은 catalog/lease 범위는 확대하지 않았습니다. C에 DTO를 전달했으며 root의 실제 runtime mapping 연결은 별도 통합입니다.
 
 새 순수 설정 gate만 실행했습니다. RED는 1 passed/2 failed로 누락 옵션과 역방향 IP 범위를 확인했고, 보정 후 3 passed/0 failed/exit0입니다. `test/control-public-settings-red.json/.log`와 `test/control-public-settings-green.json/.log`에 원문을 보존합니다. 명령은 `heavy_verify.py --timeout 300 -- node node_modules/vitest/vitest.mjs run --config test/control-public-settings-vitest.config.ts --reporter=default --reporter=json --outputFile=test/control-public-settings-green.json`이며 worker1인 Node Vitest입니다. Workers SQLite/core/auth/strict/browser/전체 회귀를 반복하지 않았습니다. 새 필드 없는 기존 DB config는 조용한 seed 덮어쓰기 없이 검증 실패하며 운영 DB 자동 migration은 추가하지 않았습니다.
+
+## 관리자 복구 한도
+
+trusted transport의 `admin-recovery-reserve`는 `{session_hash,csrf?,mutation:boolean,operation_id,now}`를 받습니다. 공개 dispatcher는 없으며 실제 DB admin role과 현재 유효 세션을 다시 검사하고 mutation=true면 session CSRF도 필수입니다. 서버가 발급한 operation은 60초 이내 작업만 허용하며 재시도는 같은 세션/읽기·변경/CSRF 결합과 최초 UTC 창을 유지합니다. 결합 변경은 409, 만료는 410입니다.
+
+고정 recovery headroom은 전체 관리자 요청 합계로 UTC 분 10회·일 100회·월 1000회이며 일반 수량·추정 USD 예산과 별도로 같은 control transaction에서 세 창을 모두 검사·증가합니다. 어느 창이든 초과하면 429 ADMIN_RECOVERY_LIMITED와 가장 늦은 차단 해제 Retry-After를 반환하고 추가 기록은 없습니다. 중복 replay는 추가 0이며 반환값은 `{response_bytes_limit:65536}`입니다. 이 상한은 관리자 UI에서 끄거나 늘리는 설정이 아닙니다. 저장된 session/hash/CSRF와 binding 값은 DTO·감사에 노출하지 않습니다.
+
+`GET /api/admin/budget`의 실제 admin 전용 DTO는 `recovery:{bounds:{minute:10,day:100,month:1000},usage:{minute,day,month},response_bytes_limit:65536,next_minute_at,next_day_at,next_month_at}`를 함께 제공합니다. 시각은 UTC ISO 문자열이며 public config에는 이 usage가 없습니다.
+
+host 후속 경계: 일반 budget 계열 429일 때만 root가 제한된 관리자 HTML 7개, GET session/settings/schema/budget, PUT settings, POST logout에서 fallback을 호출하고 exact method/path·cheap edge·응답 64KiB를 지킵니다. QA·초대·이메일·방 생성·권한 확대는 예외가 없습니다. 이 문서는 control action의 구현과 실제 Workers SQLite 신규 4 passed를 기록하며 아직 연결하지 않은 host fallback까지 완료했다고 주장하지 않습니다. RED/GREEN 증거는 test/control-recovery-{red,green}.json과 log에 있습니다. 기존 core/auth/estimate 성공 게이트는 반복하지 않았습니다.
