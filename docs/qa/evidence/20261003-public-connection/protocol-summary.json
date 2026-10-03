@@ -1,0 +1,26 @@
+{
+  "legacy_public": {
+    "numPassedTests": 5,
+    "numFailedTests": 0,
+    "numPendingTests": 7
+  },
+  "source_review": {
+    "request_result_bearer_required": true,
+    "human_exact_origin_signed_cookie_request_nonce": true,
+    "room_epoch_expiry_bound": true,
+    "grant_not_in_human_response_or_viewmodel": true,
+    "approval_never_implied_by_url": true,
+    "multi_request_browser_revoke": true,
+    "infrastructure_permissions_changed": false
+  },
+  "workers_new_flow": {
+    "passed": 1,
+    "request_stream_warnings": 1,
+    "warning_root_cause": "unresolved; no upstream cancellation success claimed"
+  },
+  "node_protocol": {
+    "passed": 4,
+    "uses": "Fetch API + core with TEST_BUDGET; socket/control covered separately in browser evidence"
+  },
+  "production_post": "not performed; requires genuine human confirmation"
+}

@@ -1,3 +1,6 @@
+import {renderPublicAgentEntry} from './components/public-agent-entry.js';
+import {renderPublicConnection} from './screens/public-connection.js';
+import {createPublicConnectionDialog} from './dialogs/public-connection.js';
 import {renderServiceDescription} from './components/service-description.js';
 import {renderPublicCatalog} from './components/public-catalog.js';
 import {renderRiskCheck} from './components/risk-check.js';
@@ -21,6 +24,7 @@ import {renderLobby} from './screens/lobby.js';
 
 // Product and protected QA resolve the same renderers and state inventory.
 export const componentRegistry=Object.freeze({
+ 'public-agent-entry':{render:renderPublicAgentEntry,requiredStates:['bare-url']},
  'public-catalog':{render:renderPublicCatalog,requiredStates:['ready','empty','loading','unavailable']},
  'service-description':{render:renderServiceDescription,requiredStates:['default']},
  'risk-check':{render:renderRiskCheck,requiredStates:['unchecked','checked','disabled']},
@@ -36,6 +40,7 @@ export const componentRegistry=Object.freeze({
  'settings-fields':{render:renderSettingsFields,requiredStates:['catalog','empty','max','workload','nested','readonly-off']}
 });
 export const screenRegistry=Object.freeze({
+ 'public-connection':{render:renderPublicConnection,requiredStates:['loading','pending','approved','joined','denied','revoked','expired','unavailable']},
  adminlogs:{render:renderAdminLogs,requiredStates:['invitations','empty-invitations','used','expired','revoked','audit','empty-audit','loading','denied','unavailable','error']},
  newroom:{render:renderNewRoom,requiredStates:['anonymous','member','persist','created-memory','created-persisted','pending','lost','denied','loading','unavailable']},
  claim:{render:renderClaim,requiredStates:['anonymous','unchecked','checked','pending','approved','error','expired','loading','unavailable']},
@@ -46,6 +51,7 @@ export const screenRegistry=Object.freeze({
  settings:{render:renderSettingsScreen,requiredStates:['overview','public','private','budget','identity','signup','deployment','loading','denied','error','conflict','budget-loading','budget-unavailable']}
 });
 export const dialogRegistry=Object.freeze({
+ 'public-connection':{render:createPublicConnectionDialog,requiredStates:['unchecked','pending','error','revoke']},
  'invitation-create':{render:params=>createInvitationDialog({kind:'invitation-create',...params}),requiredStates:['default','pending','error']},
  'invitation-created':{render:params=>createInvitationDialog({kind:'invitation-created',...params}),requiredStates:['one-time']},
  'invitation-revoke':{render:params=>createInvitationDialog({kind:'invitation-revoke',...params}),requiredStates:['default','pending','error']},

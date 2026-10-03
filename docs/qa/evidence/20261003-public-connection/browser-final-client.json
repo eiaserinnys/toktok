@@ -1,0 +1,26 @@
+{
+  "scope": "actual Node24 SQLite + default Python HTTP client + browser human fixture",
+  "cases": [
+    {
+      "name": "python-human-join-post-390",
+      "status": "PASS",
+      "errors": [],
+      "pending": "사람의 확인을 기다리고 있어요",
+      "layout": {
+        "width": 390,
+        "docWidth": 390,
+        "storage": [
+          0,
+          0
+        ],
+        "csp": []
+      },
+      "approved": "이 요청의 연결을 허용했어요",
+      "clientPosted": true,
+      "authorityLeak": false,
+      "messages": 1
+    }
+  ],
+  "cleanup": true,
+  "externalMail": 0
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "gate": "cf-types-correction",
+    "exit": 0
+  },
+  {
+    "gate": "node-types",
+    "exit": 0
+  },
+  {
+    "gate": "ui-adapter",
+    "exit": 0
+  },
+  {
+    "gate": "generated",
+    "exit": 0
+  }
+]

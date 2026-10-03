@@ -1,3 +1,4 @@
+import {publicConnectionFixtures} from './public-connection-fixtures.js';
 import {commonHeaderFixtures,commonHeaderVm} from './common-header-fixtures.js';
 import {privateFixtures,privateMemoryFixture} from './private-fixtures.js';
 import {adminlogsFixtures} from './adminlogs-fixtures.js';
@@ -41,7 +42,7 @@ const fixtureCatalog={
   {transitionId:'private-back',from:'private-empty',to:'intro'}
  ]
 };
-for(const key of ['components','dialogs','screens','transitions'])fixtureCatalog[key].push(...authSettingsFixtures[key],...accountFixtures[key],...claimFixtures[key],...newroomFixtures[key],...privateFixtures[key],...adminlogsFixtures[key],...commonHeaderFixtures[key]);
+for(const key of ['components','dialogs','screens','transitions'])fixtureCatalog[key].push(...authSettingsFixtures[key],...accountFixtures[key],...claimFixtures[key],...newroomFixtures[key],...privateFixtures[key],...adminlogsFixtures[key],...commonHeaderFixtures[key],...publicConnectionFixtures[key]);
 export function createFixtureAdapter(seed={}){
  const session=clone(seed.session??{authenticated:false,role:'anonymous',entitlements:{can_create_private:false,can_persist_private:false},owner_ack:null});
  const responses=clone(seed.responses??{}),history=['/'];let index=0;

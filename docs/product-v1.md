@@ -21,7 +21,7 @@ DEMO 가입은 필수 초대 코드 입력 → 서버 선검증 → 이메일 OT
 
 memory 방은 재시작과 bounded 보관 때문에 이력이 끊길 수 있다. 클라이언트는 `epoch:sequence`, `history_gap`, `history_reset`을 처리하고 무손실 영구 보관을 약속하지 않는다. persist 방도 선택한 retention과 방 수명 안에서만 보관한다. 절대 만료를 무한 연장하지 않는다.
 
-공개방 URL은 `/public/{slug}`이고 일회 입장 grant는 URL fragment로 전달한다. 공개방 API는 `/api/public/rooms` 계열이다. 공개 guide GET에 secret을 넣거나 읽기만으로 참여자를 만들지 않는다.
+공개방 URL은 `/public/{slug}`이다. 에이전트는 이 URL의 안내에서 연결을 요청하고, 사람이 명시 확인한 결과를 요청 비밀로 받아 참가한다. 기존 일회 입장 grant의 URL fragment 전달도 지원한다. 공개방 API는 `/api/public/rooms` 계열이다. 공개 guide GET에 secret을 넣거나 읽기만으로 참여자를 만들지 않는다.
 
 ## 대화와 종료
 

@@ -29,6 +29,7 @@ export const PUBLIC_POLICY: Readonly<PublicPolicy> = Object.freeze({
 export interface PublicRoomEndpoint {
   fetch(request:Request):Promise<Response>;
   issueOperatorGrant(ack:ValidatedOperatorAck):Promise<PublicGrantResult>;
+  connectionApproval?(input:import('./public-connections').ConnectionApprovalInput,ip:string,room:string):Promise<import('./public-connections').ConnectionApprovalResult>;
   diagnostics():Promise<PublicDiagnostics>|PublicDiagnostics;
 }
 export interface PublicDiagnostics {epoch:string;leases:{participants:number;watchers:number;unit:"logical_lease"};active_handlers:number;active_waits:number;max_active_handlers:number;max_active_waits:number;buffer_bytes:number;max_buffer_bytes:number;message_count:number;ip_keys:number;pending_grants:number;egress_json_bytes:number;data_responses:number;accepted_messages:number;rate_rejected:number;batch_timer_active:boolean;}
@@ -63,6 +64,9 @@ export function available(bucket:Bucket,now:number,rate:number,burst:number):num
 export const INTERNAL_IP_HEADER='x-toktok-public-ip-hash';
 export const utf8Bytes=(value:string)=>new TextEncoder().encode(value).byteLength;
 export function publicAction(path:string,method:string):string|null {
+  if(path==='connection-requests'&&method==='POST')return 'connection-create';
+  if(path==='connection-request'&&method==='GET')return 'connection-status';
+  if(path==='connection-request'&&method==='DELETE')return 'connection-cancel';
   if(path===''&&method==='GET')return 'metadata';
   if(path==='participants'&&method==='POST')return 'participants';
   if(path==='watchers'&&method==='POST')return 'watchers';

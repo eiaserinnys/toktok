@@ -4,7 +4,7 @@ import {publicRoom} from './public-demo-view.js';
 import {empty} from './view.js';
 const NOTICE='toktok-risk-v1';
 export function createPublicState(root,slug,url,grant){
- publicRoom(root);return {mode:'public',id:slug,url,root,cursor:null,epoch:null,lease:null,senders:new Map(),paused:false,gone:false,metadata:null,controller:null,attempt:0,retryTimer:null,expiryTimer:null,pageY:0,feedTop:0,follow:true,agentUrl:grant?url+'#grant='+encodeURIComponent(grant):null,grantExpiry:null};
+ publicRoom(root,slug);return {mode:'public',id:slug,url,root,cursor:null,epoch:null,lease:null,senders:new Map(),paused:false,gone:false,metadata:null,controller:null,attempt:0,retryTimer:null,expiryTimer:null,pageY:0,feedTop:0,follow:true,agentUrl:grant?url+'#grant='+encodeURIComponent(grant):null,grantExpiry:null};
 }
 async function request(state,path,controller,method='GET',body){
  const response=await fetch('/api/public/rooms/'+state.id+path,{method,cache:'no-store',signal:controller?.signal,headers:{Accept:'application/json',...(state.lease?{Authorization:'Bearer '+state.lease}:{}),...(body===undefined?{}:{'Content-Type':'application/json'})},...(body===undefined?{}:{body:JSON.stringify(body)})});

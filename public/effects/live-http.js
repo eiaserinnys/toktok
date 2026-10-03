@@ -58,6 +58,7 @@ export function createLiveAdapter({fetch:fetchHTTP=globalThis.fetch}={}){
   return data;
  }
  return Object.freeze({
+  publicConnection:(slug,body)=>{if(!/^[a-z0-9-]+$/.test(slug))invalid('ROOM');return request('/api/public/rooms/'+slug+'/connection-approval',{method:'POST',body});},
   getConfig:async()=>mapConfig(await request('/api/config')),
   getSession:async()=>{
    const own=++sessionGeneration;csrf=null;const data=await request('/api/session');

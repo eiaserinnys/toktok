@@ -1,3 +1,4 @@
+import {mountPublicConnection} from './shared/public-connection-mount.js';
 import {mountCommonHeader} from './shared/common-header-mount.js';
 import {icon,room,terminal,introduction,guide,message,person,empty} from './view.js';
 import {applyPage,privateReadPath,readDelay,ownsResponse,retryDelay,cancel} from './session.js';
@@ -166,8 +167,10 @@ function navigate(){
  const error=document.body.dataset.error;
  if(error){app.innerHTML=terminal(error);commonHeader=mountCommonHeader(app,{effects,navigate:move,route:location.pathname});return;}
  const resolved=resolveRoute(location.pathname);
- const nextKind=resolved?.screenId==='auth'?'auth':resolved?.routeId==='admin-settings'?'settings':resolved?.routeId==='admin-invitations'||resolved?.routeId==='admin-audit'?'adminlogs':resolved?.routeId==='rooms'?'rooms':resolved?.routeId==='account'?'account':resolved?.routeId==='claim'?'claim':resolved?.routeId==='new-room'?'newroom':null;
+ const connectionId=resolved?.routeId==='public-room'?new URLSearchParams(location.search).get('connect'):null;
+ const nextKind=connectionId?'publicconnection':resolved?.screenId==='auth'?'auth':resolved?.routeId==='admin-settings'?'settings':resolved?.routeId==='admin-invitations'||resolved?.routeId==='admin-audit'?'adminlogs':resolved?.routeId==='rooms'?'rooms':resolved?.routeId==='account'?'account':resolved?.routeId==='claim'?'claim':resolved?.routeId==='new-room'?'newroom':null;
  if(surfaceKind!==nextKind){surface?.dispose();surface=null;surfaceKind=null;}
+ if(nextKind==='publicconnection'){surface?.dispose();surface=mountPublicConnection(app,{effects,slug:resolved.params.slug,requestId:connectionId,navigate:move});surfaceKind='publicconnection';surface.load();previousPath=location.pathname;return;}
  if(nextKind==='auth'){
   const screen=resolved.routeId==='auth-verify'?'verify':resolved.routeId==='auth-signup'?'signup':'login';
   if(!surface){surface=mountAuth(app,{effects,navigate:move});surfaceKind='auth';surface.load(screen,previousPath);}else surface.enter(screen);

@@ -1,8 +1,10 @@
+import {renderPublicAgentEntry} from './public-connection-content';
 import type {ValidatedOperatorAck,PublicPolicy,PublicRoomEndpoint,PublicEnv} from './public-contracts';
 import type {AssetPort} from './site-assets';
 import {PUBLIC_CATALOG,PUBLIC_NOTICE,PUBLIC_POLICY,INTERNAL_IP_HEADER,publicAction} from './public-contracts';
 import {handlePublicRequest,publicBody,publicError,publicLimited} from './public-http';
 import {fail,hash,json,newToken,publicOrigin,secure} from './http';
+const APPROVAL_COOKIE='__Host-toktok-public-approval';
 const COOKIE='__Host-toktok-public-flow';
 const cookieFlags='; Secure; HttpOnly; SameSite=Strict; Path=/; Max-Age=';
 const nonceShape=/^[\w-]{43}$/;
@@ -51,14 +53,29 @@ export async function handlePublicBrowserWith(request:Request,ports:PublicBrowse
   if(page){
    if(request.method!=='GET')fail(404,'NOT_FOUND','경로가 없습니다.');
    if(url.searchParams.get('format')==='md'||request.headers.get('Accept')?.includes('text/markdown'))return ports.dispatch(request);
-   return secure(await ports.assets.fetch(new Request(new URL('/index.html',request.url))));
+   const asset=await ports.assets.fetch(new Request(new URL('/index.html',request.url)));if(!asset.ok)return secure(asset);
+   const markdown='/public/'+slug+'?format=md';
+   const html=(await asset.text()).replace('</head>',`<link rel="alternate" type="text/markdown" href="${markdown}"></head>`).replace('<div id="app"></div>',`<div id="app"><main id="content" class="x-main x-wrap">${renderPublicAgentEntry({slug,title:ports.catalog.find(r=>r.slug===slug)?.title})}</main></div>`);
+   const response=new Response(html,asset);response.headers.delete('Content-Length');response.headers.set('Link',`<${markdown}>; rel="alternate"; type="text/markdown"`);return secure(response);
   }
-  const action=api![2]??'',browser=['ack-flow','operator-grants'].includes(action);
+  const action=api![2]??'',browser=['ack-flow','operator-grants','connection-approval'].includes(action);
   if(browser?request.method!=='POST':!publicAction(action,request.method))fail(404,'NOT_FOUND','경로가 없습니다.');
   if(browser&&request.headers.get('Origin')!==origin)fail(403,'ORIGIN_DENIED','같은 Origin의 확인 요청이 필요합니다.');
   const ip=ports.trustedIP(request);
   if(!(await ports.limit(ip)).success)publicLimited(60000);
   if(browser){
+   if(action==='connection-approval'){
+    const input=await publicBody(request,ports.policy,['action','request_id','nonce','checked','risk_ack_version']);
+    if(!['preview','approve','deny','revoke'].includes(String(input.action))||typeof input.request_id!=='string'||input.request_id.length>100)fail(400,'INVALID_INPUT','연결 요청을 확인해주세요.');
+    const cookieName=APPROVAL_COOKIE+'-'+slug;
+    const cookies=(request.headers.get('Cookie')??'').split(';').map(v=>v.trim()).filter(v=>v.startsWith(cookieName+'='));
+    const endpoint=await ports.room(slug);if(!endpoint.connectionApproval)fail(503,'CONNECTION_UNAVAILABLE','연결 확인이 준비되지 않았습니다.');
+    const result=await endpoint.connectionApproval({action:input.action as 'preview'|'approve'|'deny'|'revoke',request_id:input.request_id,
+     proof:cookies.length===1?cookies[0].slice(cookieName.length+1):undefined,nonce:typeof input.nonce==='string'?input.nonce:undefined,
+     checked:input.checked===true,risk_ack_version:typeof input.risk_ack_version==='string'?input.risk_ack_version:undefined},await hash(ip),slug);
+    const response=json(result.data,result.status);if(result.cookie)response.headers.set('Set-Cookie',cookieName+'='+result.cookie+'; Secure; HttpOnly; SameSite=Strict; Path=/');
+    if(result.status===429){const retry=(result.data.error as {retry_after_ms?:number}|undefined)?.retry_after_ms;response.headers.set('Retry-After',String(Math.max(1,Math.ceil((typeof retry==='number'&&Number.isFinite(retry)?retry:5000)/1000))));}return secure(response);
+   }
    if(action==='ack-flow'){
     await publicBody(request,ports.policy,[]);
     const nonce=newToken(),issued_at=Date.now(),response=json({nonce,notice_version:PUBLIC_NOTICE,expires_at:new Date(issued_at+300000).toISOString()},201);

@@ -18,7 +18,7 @@
     "test:storage-cf": "vitest run --config test/selfhost.vitest.config.ts",
     "test:public": "vitest run --config vitest.public.config.ts",
     "test:unit": "vitest run --config vitest.unit.config.ts",
-    "check:generated": "node scripts/agent-safety.mjs --check"
+    "check:generated": "node scripts/agent-safety.mjs --check && node scripts/public-entry.mjs --check"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "0.22.0",
