@@ -9,7 +9,7 @@ Cloudflare와 Node는 `src/application.ts`의 같은 HTTP handler를 사용한�
 - Node24 실제 HTTP/SQLite, 신규 bounded upload 취소, 설치·backup, 명시 v2 migration/startup restore, compiled HTTP→격리 TLS SMTP mock은 각 영향 gate에서 통과했다. PostgreSQL metadata restore는 B의 격리 컨테이너 신규 gate PASS다. 실제 이메일·사용자 DB는 사용하지 않았다.
 - 관리자 recovery의 synthetic 64KiB/정확 HTML 경로 gate는 최초 PASS. 실제 CF schema500를 optional undefined 속성 생략으로 수정했고 기존 read5는200을 확인했다. QA는 기존503 fail closed 계약이며, 미도달 경계 continuation1 PASS에서 QA recovery0, email/invite/create429, CSRF 설정PUT·logout 및 폐기cookie401을 확인했다. 최초·보정 실패도 지우지 않았다.
 - 413의 CF upstream producer 취소 전달은 별도 진단3회 FAIL이다. 로컬 reader unlock·handler/body0과 upstream 전달을 구분한다. 알려진 실패 fixture/raw를 독립 config로 보존했으며 추가 반복하지 않는다.
-- 계정·인증·설정·budget의 shared UI checkpoint를 통합했다. UI mock HTTP/390·1440 증거는 C 문서에 있고 전체 실제 backend 화면·배포 후 합격으로 확대하지 않는다. claim/new-room/private epoch/초대·audit/전체 검수면 통합이 남는다.
+- 계정·인증·설정·budget·claim의 shared UI checkpoint를 통합했다. 실제 로컬 Node/SQLite에서도 로그인과 관리자 설정 저장·예산 조회·보호된 QA의 390/1440 화면을 확인했다. new-room/private epoch/초대·audit/전체 검수면과 운영 배포 후 합격은 남는다.
 
 ## 연결과 적용
 
@@ -40,3 +40,13 @@ Cloudflare와 Node는 `src/application.ts`의 같은 HTTP handler를 사용한�
 제품 pin `8e371afc600840b47d78d435c20bccbd8fb05b73`의 [run37086166901](https://github.com/eiaserinnys/toktok/actions/runs/37086166901)은 기존 Node22 workflow에서 test/verdict/ui/public-ui/CF typecheck PASS, acceptance는 selfhost tsx 미설치로 FAIL, dry-run SKIPPED다. 새 Node24·SQLite/PG·SMTP job는 원격에서 실행되지 않았다. 정확한 proposal/pin/diff와 사용자 반영 절차는 [workflow 인계](development/ci-workflow-adoption.md)에 있다. 기존 연결의 workflow 권한을 임의 확대하거나 다른 credential로 우회하지 않는다.
 
 로컬 production `pnpm dry-run`은 schema optional-property fix와 account shared UI 통합 뒤 exit0이다. Worker234.08KiB(gzip55.64KiB), Assets74파일 및 CONTROL/PRIVATE_ROOMS/PUBLIC_ROOMS binding을 확인했으며 실제 upload/운영 변경은 하지 않았다. 통과했던 HTTP·Node 설치 검사는 workflow 권한 문제만으로 재실행하지 않았다.
+
+## 실제 관리자 브라우저 연결
+
+로컬 Node24·SQLite와 실제 ControlCore/HTTP를 사용한 최초 실행은 로그인 및 데스크톱 설정 2 PASS, QA 자산 요청 한도 및 뒤따른 모바일 3 FAIL이었다. 미리보기마다 제품 CSS와 중복된 보호 CSS를 요청해 정상 검수 화면 자체가 요청 한도를 소진했다. C7e17a2d의 canonical stylesheet 단일 연결·준비 완료 관측을 통합했으며 요청 한도·권한·캐시 정책은 변경하지 않았다.
+
+실패했던 세 구간만 보정 1회 실행하여 3 PASS/0 FAIL, exit0을 회수했다. 1440×1000과 390×844의 QA 각각 53 iframe이 CSS1개·Tok Sans·ready=true/error없음을 보였고 HTTP/CSP/page 오류0, API 호출 및 mutation0이었다. 모바일 설정은 검토 Escape로 초안을 유지하고 명시 저장 1회로 실제 DB revision+1, budget 조회를 확인했다. PNG를 직접 대조해 스타일 적용과 모바일 검토창의 여백·글자·버튼을 확인했다. 이는 전체 gallery/keyboard 검수 완료가 아니다.
+
+테스트 OTP 발송은 메모리 fake sender만 사용했고 관리자 지정은 실제 OTP session 뒤 bootstrap API fixture로 수행했다. 실제 운영 계정·외부 메일·bootstrap UI 검증을 뜻하지 않는다. 브라우저·서버는 모두 종료했고 최초 실패와 보정 원자료는 덮지 않았다. [증거 색인](qa/20261003-actual-admin-browser.json)에 각 결과와 원본 PNG/JSON 해시를 보존한다.
+
+후속 [CI run37087197519](https://github.com/eiaserinnys/toktok/actions/runs/37087197519)은 서버 test/verdict PASS, UI 70 PASS/1 FAIL이었다. account mock이 공유 session을 변경해 다음 사례를 오염시킨 원인이며 C7e17a2d에서 test getSession만 structuredClone으로 격리하고 영향 파일의 3개 사례가 통과했다. 이 수정의 새 원격 CI는 별도 확인하며 기존 workflow의 Node24 설치 누락도 여전히 구분한다.

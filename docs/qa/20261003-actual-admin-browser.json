@@ -1,0 +1,331 @@
+{
+  "source_head": "24dce41",
+  "working_diff": "src/application.ts HTML route inventory; unrelated to these selected paths",
+  "artifact_directory": ".local/artifacts/toktok/20261003-node-admin-browser-root",
+  "external_mail": 0,
+  "setup": "Actual local Node24/SQLite/ControlCore + fake email sender. Admin bootstrap invoked through real API after OTP login; not bootstrap UI proof. QA previews use isolated memory fixture data behind actual DB authorization.",
+  "runs": [
+    {
+      "file": "raw.json",
+      "sha256": "dd3f22bdc7e60ebe1b287365e07a76f520229b6ead1b7ad2b50a4cada25c5cf9",
+      "scope": "actual localhost HTTP + Node24 + SQLite + shared product; fake sender only; explicit bootstrap API fixture",
+      "pin": "3c1f610662a2b09f1db36684f8966253f1de79b8",
+      "cleanup": true,
+      "cases": [
+        {
+          "name": "actual-auth-desktop",
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "status": "PASS",
+          "error": null,
+          "shots": [
+            "1440-real-login-rooms.png"
+          ],
+          "preview_count": 0,
+          "http_failures": [],
+          "page_errors": [],
+          "dom": {
+            "width": 1440,
+            "docWidth": 1440,
+            "headings": [
+              "대화가 있는자리.",
+              "공개방 2",
+              "함께 이야기",
+              "작업 이야기"
+            ],
+            "dialogs": 0,
+            "storage": [
+              0,
+              0
+            ],
+            "csp": []
+          },
+          "saved": null,
+          "authorized": null
+        },
+        {
+          "name": "1440-actual-settings",
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "status": "PASS",
+          "error": null,
+          "shots": [
+            "1440-real-admin-public.png",
+            "1440-real-settings-review.png",
+            "1440-real-admin-budget.png"
+          ],
+          "preview_count": 0,
+          "http_failures": [],
+          "page_errors": [],
+          "dom": {
+            "width": 1440,
+            "docWidth": 1440,
+            "headings": [
+              "공간 돌보기",
+              "작업량 예산",
+              "서버의 운영 예산",
+              "운영 예산 기준",
+              "하루와 한 달의 작업량"
+            ],
+            "dialogs": 0,
+            "storage": [
+              0,
+              0
+            ],
+            "csp": []
+          },
+          "saved": {
+            "revision": 2,
+            "mutations": 1
+          },
+          "authorized": null
+        },
+        {
+          "name": "1440-actual-protected-QA",
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "status": "FAIL",
+          "error": "Expected values to be strictly equal:\n\n429 !== 404\n",
+          "shots": [
+            "1440-real-admin-flow.png",
+            "1440-actual-protected-QA-failure.png"
+          ],
+          "preview_count": 0,
+          "http_failures": [],
+          "page_errors": [],
+          "dom": {
+            "width": 1440,
+            "docWidth": 1440,
+            "headings": [],
+            "dialogs": 0,
+            "storage": [
+              0,
+              0
+            ],
+            "csp": []
+          },
+          "saved": null,
+          "authorized": null
+        },
+        {
+          "name": "390-actual-settings",
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "status": "FAIL",
+          "error": "locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-schema-field=\"public.catalog.0.title\"]') to be visible\u001b[22m\n",
+          "shots": [
+            "390-actual-settings-failure.png"
+          ],
+          "preview_count": 0,
+          "http_failures": [],
+          "page_errors": [],
+          "dom": {
+            "width": 980,
+            "docWidth": 980,
+            "headings": [],
+            "dialogs": 0,
+            "storage": [
+              0,
+              0
+            ],
+            "csp": []
+          },
+          "saved": null,
+          "authorized": null
+        },
+        {
+          "name": "390-actual-protected-QA",
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "status": "FAIL",
+          "error": "Expected values to be strictly equal:\n\n429 !== 401\n",
+          "shots": [
+            "390-actual-protected-QA-failure.png"
+          ],
+          "preview_count": 0,
+          "http_failures": [],
+          "page_errors": [],
+          "dom": null,
+          "saved": null,
+          "authorized": null
+        }
+      ]
+    },
+    {
+      "file": "correction-raw.json",
+      "sha256": "0788e0015745965b9e26b861988c5315888b3d8f5f9ecd1fe10432a4c6ca5e7d",
+      "scope": "actual localhost HTTP + Node24 + SQLite + shared product; fake sender only; explicit bootstrap API fixture",
+      "pin": "C7e17a2d + root67fcf80 + root HTML inventory WIP",
+      "cleanup": true,
+      "cases": [
+        {
+          "name": "1440-actual-protected-QA",
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "status": "PASS",
+          "error": null,
+          "shots": [
+            "1440-real-admin-flow-correction.png"
+          ],
+          "preview_count": 53,
+          "http_failures": [],
+          "page_errors": [],
+          "dom": {
+            "width": 1440,
+            "docWidth": 1440,
+            "headings": [],
+            "dialogs": 0,
+            "storage": [
+              0,
+              0
+            ],
+            "csp": []
+          },
+          "saved": null,
+          "authorized": {
+            "anonymous": 401,
+            "actualAdmin": 200,
+            "liveEffects": 404
+          }
+        },
+        {
+          "name": "390-actual-settings",
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "status": "PASS",
+          "error": null,
+          "shots": [
+            "390-real-admin-public-correction.png",
+            "390-real-settings-review-correction.png",
+            "390-real-admin-budget-correction.png"
+          ],
+          "preview_count": 0,
+          "http_failures": [],
+          "page_errors": [],
+          "dom": {
+            "width": 390,
+            "docWidth": 390,
+            "headings": [
+              "공간 돌보기",
+              "작업량 예산",
+              "서버의 운영 예산",
+              "운영 예산 기준",
+              "하루와 한 달의 작업량"
+            ],
+            "dialogs": 0,
+            "storage": [
+              0,
+              0
+            ],
+            "csp": []
+          },
+          "saved": {
+            "revision": 2,
+            "mutations": 1
+          },
+          "authorized": null
+        },
+        {
+          "name": "390-actual-protected-QA",
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "status": "PASS",
+          "error": null,
+          "shots": [
+            "390-real-admin-flow-correction.png"
+          ],
+          "preview_count": 53,
+          "http_failures": [],
+          "page_errors": [],
+          "dom": {
+            "width": 390,
+            "docWidth": 390,
+            "headings": [],
+            "dialogs": 0,
+            "storage": [
+              0,
+              0
+            ],
+            "csp": []
+          },
+          "saved": null,
+          "authorized": {
+            "anonymous": 401,
+            "actualAdmin": 200,
+            "liveEffects": 404
+          }
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "1440-actual-protected-QA-failure.png",
+      "sha256": "1cc0177ccc3814d3e07d62347a5baf105ca00af20cde48e7117650335cfe926c"
+    },
+    {
+      "file": "1440-real-admin-budget.png",
+      "sha256": "c6549856a532a7443a4002b3396d8901ad84fafb8292d6e3bf85699700771335"
+    },
+    {
+      "file": "1440-real-admin-flow-correction.png",
+      "sha256": "0997ca428ac6b2c8639e16ed56799f699f332a42aeda7b36f503c213aa761703"
+    },
+    {
+      "file": "1440-real-admin-flow.png",
+      "sha256": "56dadf13cfe529f2238db71fd69075a6783d1fe00dca2bfcff39453468207e4b"
+    },
+    {
+      "file": "1440-real-admin-public.png",
+      "sha256": "d3d954840ad5160d66346e8df217647263fd28d1fbb73da258299faa248b7117"
+    },
+    {
+      "file": "1440-real-login-rooms.png",
+      "sha256": "9215717e75d1960a8fc3f0ed7ccac31af00b6d26e1416f65f775bf55e2ed683a"
+    },
+    {
+      "file": "1440-real-settings-review.png",
+      "sha256": "6522cade81393c86400abde94d7e0e857f537d78b7cc6198181fb58edf9897ae"
+    },
+    {
+      "file": "390-actual-protected-QA-failure.png",
+      "sha256": "fb32313e11bc8ffbd5310a1660e630b64cedb4622f8462a5eae2d5464ac8279e"
+    },
+    {
+      "file": "390-actual-settings-failure.png",
+      "sha256": "681a6e150144689025e9488cee3591602b073fa70cc75e294051d990a7b78306"
+    },
+    {
+      "file": "390-real-admin-budget-correction.png",
+      "sha256": "158340fc5fb53702e1f85ffe5504383e30a2dca998af6faf9918e93e9df0f9fa"
+    },
+    {
+      "file": "390-real-admin-flow-correction.png",
+      "sha256": "74462f3090bff4391018717dfd65d6f9587b8d10c8f38b0aa29c9fd324645b0e"
+    },
+    {
+      "file": "390-real-admin-public-correction.png",
+      "sha256": "6b6e58eea3c67baf322217858087e6749bbb2c7590fd356eeff033b0a9883676"
+    },
+    {
+      "file": "390-real-settings-review-correction.png",
+      "sha256": "ef09f9f9727f14c5cd64848441b97a1aab3a013ecce3e0dcfb486bf22a0a2086"
+    }
+  ]
+}
