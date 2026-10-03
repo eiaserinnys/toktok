@@ -5,8 +5,8 @@ export function trapDialogTab(dialog,event){
  const controls=[...dialog.querySelectorAll('button,input,select,textarea,a[href],[tabindex]')].filter(x=>!x.disabled&&x.tabIndex>=0&&x.getClientRects().length);
  const first=controls[0],last=controls.at(-1),active=document.activeElement;
  if(!first){event.preventDefault();dialog.focus();}
- else if(event.shiftKey&&(active===first||!dialog.contains(active))){event.preventDefault();last.focus();}
- else if(!event.shiftKey&&(active===last||!dialog.contains(active))){event.preventDefault();first.focus();}
+ else if(event.shiftKey&&(active===first||!controls.includes(active))){event.preventDefault();last.focus();}
+ else if(!event.shiftKey&&(active===last||!controls.includes(active))){event.preventDefault();first.focus();}
 }
 export function createCommonDialog(content,{pending=false}={},document=globalThis.document){
  const dialog=document.createElement('dialog');dialog.className='x-dialog';dialog.setAttribute('aria-labelledby','xDialogTitle');

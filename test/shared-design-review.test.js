@@ -1,4 +1,5 @@
 import {it,expect} from 'vitest';
+import {trapDialogTab} from '../public/shared/dialogs/common-dialog.js';
 import {createGalleryState} from '../public/admin-design/gallery-state.js';
 import {createFixtureAdapter} from '../public/admin-design/fixture-adapter.js';
 import {validateCoverage,buildGraph} from '../public/admin-design/coverage.js';
@@ -24,4 +25,18 @@ it('fails missing component, dialog, route entry and negative expiry flow from t
  const dialog=structuredClone(input.fixtures);dialog.dialogs=dialog.dialogs.filter(f=>!(f.dialogId==='invitation-revoke'&&f.state==='error'));expect(validateCoverage({...input,fixtures:dialog})).toContain('dialog:invitation-revoke:error');
  const route=structuredClone(input.fixtures);route.screens=route.screens.filter(f=>f.routeId!=='account');expect(validateCoverage({...input,fixtures:route})).toContain('route:account');
  const expiry=structuredClone(input.fixtures);expiry.transitions=expiry.transitions.filter(f=>f.transitionId!=='claim-expired');expect(validateCoverage({...input,fixtures:expiry})).toContain('transition:claim-expired');
+});
+
+it('contains Tab from the focused non-tabbable gallery title while preserving ordinary control movement',()=>{
+ const title={tabIndex:-1},doc={activeElement:title};
+ const control=()=>({disabled:false,tabIndex:0,getClientRects:()=>[{}],focus(){doc.activeElement=this;}});
+ const first=control(),middle=control(),last=control();let prevented=0;
+ const dialog={ownerDocument:doc,querySelectorAll:()=>[title,first,middle,last],contains:n=>[title,first,middle,last].includes(n)};
+ title.getClientRects=()=>[{}];
+ const press=shiftKey=>trapDialogTab(dialog,{key:'Tab',shiftKey,preventDefault(){prevented++;}});
+ press(true);expect(doc.activeElement).toBe(last);expect(prevented).toBe(1);
+ doc.activeElement=title;press(false);expect(doc.activeElement).toBe(first);expect(prevented).toBe(2);
+ doc.activeElement=middle;press(true);expect(doc.activeElement).toBe(middle);expect(prevented).toBe(2);
+ doc.activeElement=first;press(true);expect(doc.activeElement).toBe(last);
+ doc.activeElement=last;press(false);expect(doc.activeElement).toBe(first);
 });
