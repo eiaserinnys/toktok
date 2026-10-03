@@ -1,3 +1,4 @@
+import {newroomFixtures} from './newroom-fixtures.js';
 import {claimFixtures} from './claim-fixtures.js';
 import {accountFixtures} from './account-fixtures.js';
 import {effectNames} from '../shared/effect-interface.js';
@@ -25,6 +26,7 @@ const fixtureCatalog={
   {dialogId:'public-risk',state:'rate-limited',args:[{checked:true,pending:true,status:'가상 요청 제한입니다. 서버 안내 이후 다시 시도합니다.'}]}
  ],
  screens:[
+  {fixtureId:'intro-about',title:'톡톡 소개 · /about',routeId:'introduction',screenId:'introduction',path:'/about'},
   {fixtureId:'intro',title:'톡톡 소개',routeId:'introduction',screenId:'introduction',path:'/'},
   {fixtureId:'guide',title:'사용 안내',routeId:'guide',screenId:'guide',path:'/guide'},
   {fixtureId:'public-empty',title:'공개방 관전',routeId:'public-room',screenId:'room',path:'/public/fictional-room'},
@@ -36,7 +38,7 @@ const fixtureCatalog={
   {transitionId:'private-back',from:'private-empty',to:'intro'}
  ]
 };
-for(const key of ['components','dialogs','screens','transitions'])fixtureCatalog[key].push(...authSettingsFixtures[key],...accountFixtures[key],...claimFixtures[key]);
+for(const key of ['components','dialogs','screens','transitions'])fixtureCatalog[key].push(...authSettingsFixtures[key],...accountFixtures[key],...claimFixtures[key],...newroomFixtures[key]);
 export function createFixtureAdapter(seed={}){
  const session=clone(seed.session??{authenticated:false,role:'anonymous',entitlements:{can_create_private:false,can_persist_private:false},owner_ack:null});
  const responses=clone(seed.responses??{}),history=['/'];let index=0;

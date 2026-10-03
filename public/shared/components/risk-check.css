@@ -1,0 +1,6 @@
+/* Existing Common room check-row styling, design d6f0e975. */
+.check-row{display:flex;gap:12px;align-items:flex-start;font-size:14px;line-height:1.6;background:#e8eccf;padding:17px;border-radius:12px;cursor:pointer}
+.check-row input{width:20px;height:20px;margin:2px 0;accent-color:var(--green);flex-shrink:0}
+@media(max-width:700px){
+.check-row{padding:15px 13px;font-size:13px;gap:10px}
+}

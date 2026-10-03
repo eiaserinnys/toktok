@@ -16,6 +16,7 @@ export function validateCoverage({components,dialogs,screens,routes,fixtures}){
  }
  const transitions=routes.flatMap(r=>r.transitions);
  for(const route of routes){
+  for(const alias of route.aliases??[]){if(!route.match.test(alias))errors.push(`route-alias-match:${route.routeId}:${alias}`);if(!fixtures.screens.some(f=>f.routeId===route.routeId&&f.path===alias))errors.push(`route-alias:${route.routeId}:${alias}`);}
   for(const id of route.nestedScreens??[])if(!screens[id])errors.push(`nested-screen:${route.routeId}:${id}`);
   if(!fixtures.screens.some(f=>f.routeId===route.routeId))errors.push(`route:${route.routeId}`);
   for(const edge of route.transitions)if(!fixtures.transitions.some(f=>f.transitionId===edge.transitionId))errors.push(`transition:${edge.transitionId}`);

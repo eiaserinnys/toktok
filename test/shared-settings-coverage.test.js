@@ -10,6 +10,7 @@ it('covers the same settings/auth renderers, states, routes and negative flow ed
  expect(validateCoverage({...input,fixtures:missing})).toContain('screen-state:settings:denied');
  const noNested=routeRegistry.map(r=>({...r,nestedScreens:[]}));
  expect(validateCoverage({...input,routes:noNested})).toContain('route-entry:claim');
+ const noAlias=structuredClone(input.fixtures);noAlias.screens=noAlias.screens.filter(f=>f.path!=='/about');expect(validateCoverage({...input,fixtures:noAlias})).toContain('route-alias:introduction:/about');
  const graph=buildGraph(input);expect(graph.edges.some(e=>e.transitionId==='settings-denied'&&e.kind==='error')).toBe(true);
  expect(graph.edges.some(e=>e.transitionId==='otp-expired'&&e.kind==='time')).toBe(true);
  expect(input.fixtures.dialogs.some(f=>f.dialogId==='settings-review'&&f.state==='pending')).toBe(true);

@@ -7,6 +7,7 @@ import {resolveRoute} from './shared/routes.js';
 import {createLiveAdapter} from './effects/live-http.js';
 import {mountAuth} from './shared/auth-mount.js';
 import {mountSettings} from './shared/settings-mount.js';
+import {mountNewRoom} from './shared/newroom-mount.js';
 import {mountClaim} from './shared/claim-mount.js';
 import {mountAccount} from './shared/account-mount.js';
 import {mountLobby} from './shared/lobby-mount.js';
@@ -148,7 +149,7 @@ function navigate(){
  const error=document.body.dataset.error;
  if(error){app.innerHTML=terminal(error);return;}
  const resolved=resolveRoute(location.pathname);
- const nextKind=resolved?.screenId==='auth'?'auth':resolved?.routeId==='admin-settings'?'settings':resolved?.routeId==='rooms'?'rooms':resolved?.routeId==='account'?'account':resolved?.routeId==='claim'?'claim':null;
+ const nextKind=resolved?.screenId==='auth'?'auth':resolved?.routeId==='admin-settings'?'settings':resolved?.routeId==='rooms'?'rooms':resolved?.routeId==='account'?'account':resolved?.routeId==='claim'?'claim':resolved?.routeId==='new-room'?'newroom':null;
  if(surfaceKind!==nextKind){surface?.dispose();surface=null;surfaceKind=null;}
  if(nextKind==='auth'){
   const screen=resolved.routeId==='auth-verify'?'verify':resolved.routeId==='auth-signup'?'signup':'login';
@@ -159,6 +160,9 @@ function navigate(){
   const section=resolved.params.section||'overview';
   if(!surface){surface=mountSettings(app,{effects,section});surfaceKind='settings';surface.load();}else surface.enter(section);
   previousPath=location.pathname;return;
+ }
+ if(nextKind==='newroom'){
+  surface?.dispose();surface=mountNewRoom(app,{effects,navigate:move});surfaceKind='newroom';surface.load();previousPath=location.pathname;return;
  }
  if(nextKind==='claim'){
   surface?.dispose();surface=mountClaim(app,{effects,navigate:move,...resolved.params});surfaceKind='claim';surface.load();previousPath=location.pathname;return;
@@ -175,7 +179,7 @@ function navigate(){
   if(!state){const root=document.createElement('div');root.innerHTML=room();state=createPublicState(root,resolved.params.slug,location.origin+location.pathname,grant);states.set(key,state);bind(state);bindPublic(state,publicUI);}
   active=state;app.replaceChildren(state.root);scrollTo({top:state.pageY,behavior:'instant'});if(!state.paused)start(state);return;
  }
- if(resolved?.routeId!=='private-room'){app.innerHTML=resolved?.screenId==='guide'?guide():introduction();if(location.pathname==='/')catalog(app);return;}
+ if(resolved?.routeId!=='private-room'){app.innerHTML=resolved?.screenId==='guide'?guide():introduction();if(resolved?.routeId==='introduction')catalog(app);return;}
  const {id,cap}=resolved.params,key=id+':'+cap;let state=states.get(key);
  if(!state){
   const root=document.createElement('div');root.innerHTML=room();
