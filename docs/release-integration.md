@@ -81,3 +81,10 @@ C `fc95a577` 및 B `6fe6342`를 통합했다. 실제 Node24/SQLite의 모바일 
 실제 Session/Config를 쓰는 공통 헤더는 1440·390 2 PASS다. 비로그인 소개/실제 DB admin 메뉴, 공개 catalog→footer 순서, 390 로그아웃200 후 관리자 메뉴 제거를 확인했고 CSP/page error/storage0, cleanup true다. [헤더 증거](qa/20261003-actual-common-header-browser.json)는 C의 mock 화면 및 공유 검수면 증거와 분리한다.
 
 비공개 링크 Markdown은 검증된 invite/read 권한에 따라 실제 room API 경로와 placeholder JSON/curl을 안내한다. 원본 secret을 노출하거나 GET으로 참가하지 않는다. B의 새로운 SQLite core 게이트와 읽기 전용 재검수는 통과했으며 실제 socket/curl·Cloudflare 집행 검증을 대신하지 않는다. [범위와 원시 판정](private-guide-validation.md)을 보존하고 Node 정규 test 목록에 이 전용 게이트를 포함했다.
+
+
+## 公開방 정책과 최종 플랫폼 타입
+
+공개 client의 고정 limit20은 관리자가 pageSize를 낮춘 경우400을 만들었다. C `68976d5`를 통합해 limit/timeout을 생략하고 실제 서버 기본값을 사용한다. 보관/초기창 고지도 변경 가능한 설정을 고정값으로 안내하지 않는다. 실제 admin 설정에서 pageSize2·firstWindowMessages3·60초를 저장한 뒤 실제 public HTTP 참가자 2명이 만든 4메시지 중 최근3개를 2+1페이지로 관전했다. 실제 30초 발언 간격과 입장 한도는 넓히지 않았다. mobile 1 PASS, 최초 after 생략/다음 cursor/이탈 watcher0·wait0/CSP0/storage0. [원시 판정·PNG hash](qa/20261003-actual-public-policy-browser.json)를 보존한다.
+
+새 private Markdown source/fixture가 무효화한 플랫폼 타입 검사를 root `5fc2c25`에서 실행했다. Cloudflare strict와 pinned Node24 전체 타입은 모두 exit0이며 [증거](qa/20261003-final-platform-types.json)에 범위를 기록한다. 이전 runtime/설치/SMTP/PG 성공 gate는 반복하지 않았다.

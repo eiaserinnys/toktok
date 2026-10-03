@@ -1,0 +1,28 @@
+{
+  "pin": "5fc2c25",
+  "reason": "new private-guide source and fixture imports invalidate prior type evidence",
+  "results": [
+    {
+      "platform": "cloudflare",
+      "exit_code": 0
+    },
+    {
+      "platform": "node24",
+      "exit_code": 0
+    }
+  ],
+  "artifacts": [
+    {
+      "path": ".local/artifacts/toktok/20261003-final-types-root/cloudflare.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-final-types-root/node24.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-final-types-root/result.json",
+      "sha256": "8ce577d1ccdd2b749deb4191c832befb17da00625a79bc414ef4e45ad69b214d"
+    }
+  ]
+}
