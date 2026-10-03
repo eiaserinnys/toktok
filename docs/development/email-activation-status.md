@@ -1,4 +1,4 @@
-# Email Sending 활성화 대기 — 2026-10-03
+# Email Sending 활성화 — 2026-10-03
 
 승인 범위는 `notify.toktok.eiaserinnys.me`의 발신 인증 DNS, `login@notify.toktok.eiaserinnys.me` 하나로 제한한 Workers 발송 binding, 본문 preview OFF, 지정 최초 관리자 bootstrap을 통한 인증 메일 1회다. 기존 수량·주소·IP·추정 비용 한도를 유지한다. 새 토큰 발급, 권한 확대, 유료 플랜 변경은 이 실행에 포함하지 않는다.
 
@@ -24,3 +24,7 @@
 위 단계는 사용자의 대시보드 작업 안내다. 현재 실행이 차단된 API를 다른 자격증명으로 대신 호출하는 절차가 아니다. [공식 하위 도메인 등록](https://developers.cloudflare.com/email-service/configuration/subdomains/), [preview 설정](https://developers.cloudflare.com/email-service/configuration/domains/#email-preview), [sender 제한](https://developers.cloudflare.com/email-service/configuration/send-bindings/).
 
 DEMO의 일반 미가입 로그인에는 이메일을 보내지 않는다. 유효한 초대의 첫 가입과 지정 bootstrap은 별도 정상 경로이며, HOSTED의 명시적 공개 가입은 운영 설정에 따른다. [발송 대상·가입 중지 경계 검증](../qa/20261003-email-eligibility-validation.md).
+
+## 승인된 발신 연결
+
+2026-10-03 09:13:46 UTC 사용자가 도메인 인증 활성화와 이메일 preview OFF를 완료했다고 확인했다. 403으로 막힌 도메인 관리 API는 재시도하거나 우회하지 않았다. 이 사용자 확인을 근거로 기존 Workers 배포 권한으로 `EMAIL`의 `allowed_sender_addresses`를 승인된 주소 하나로 제한하고 `EMAIL_FROM`을 연결한다. 실제 메일 시험은 정식 bootstrap eligibility 및 발송 한도를 통과하는 1회만 허용하며, 일반 응답 200만으로 제공자 수락이나 수신함 도착을 주장하지 않는다.
