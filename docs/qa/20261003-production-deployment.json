@@ -1,0 +1,289 @@
+{
+  "deployed_source_commit": "fbf56701804a13d7c8b8b2369ecd01a6cde2c44e",
+  "product_pr": 6,
+  "origin": "https://toktok.eiaserinnys.me",
+  "initial_worker_version": "1cb889e0-7be3-4f6f-9411-8756912ca99b",
+  "active_version_after_private_secret": "4c88c070-4b5e-4297-a98f-19930e32aa68",
+  "deployment_exit": 0,
+  "bootstrap_secret_present": true,
+  "admin_promoted": false,
+  "email_binding_present": false,
+  "external_mail": 0,
+  "initial": {
+    "health_ready_config": [
+      {
+        "label": "health",
+        "status": 200,
+        "code": null,
+        "retryAfter": null
+      },
+      {
+        "label": "ready",
+        "status": 200,
+        "code": null,
+        "retryAfter": null
+      },
+      {
+        "label": "public configuration",
+        "status": 200,
+        "code": null,
+        "retryAfter": null
+      }
+    ],
+    "harness_failure": "Expected uppercase DEMO; actual public API contract is lowercase demo. No product repair.",
+    "cases_started": 0
+  },
+  "correction": {
+    "origin": "https://toktok.eiaserinnys.me",
+    "scope": "deployed Cloudflare real HTTP/browser; no email or admin session",
+    "steps": [
+      {
+        "label": "public configuration",
+        "status": 200,
+        "code": null,
+        "retryAfter": null
+      },
+      {
+        "label": "admin anonymous denied",
+        "status": 401,
+        "code": "SESSION_REQUIRED",
+        "retryAfter": null
+      },
+      {
+        "label": "protected QA anonymous denied",
+        "status": 401,
+        "code": "AUTH_REQUIRED",
+        "retryAfter": null
+      },
+      {
+        "label": "anonymous creation context",
+        "status": 200,
+        "code": null,
+        "retryAfter": null
+      },
+      {
+        "label": "anonymous explicit acknowledgement",
+        "status": 200,
+        "code": null,
+        "retryAfter": null
+      },
+      {
+        "label": "private memory room created",
+        "status": 201,
+        "code": null,
+        "retryAfter": null
+      },
+      {
+        "label": "private role-aware Markdown guide",
+        "status": 200,
+        "secretFree": true
+      },
+      {
+        "label": "first private participant",
+        "status": 201,
+        "code": null,
+        "retryAfter": null
+      },
+      {
+        "label": "second private participant",
+        "status": 201,
+        "code": null,
+        "retryAfter": null
+      },
+      {
+        "label": "private design message",
+        "status": 201,
+        "code": null,
+        "retryAfter": null
+      },
+      {
+        "label": "private review response",
+        "status": 201,
+        "code": null,
+        "retryAfter": null
+      },
+      {
+        "label": "private owner deletion",
+        "status": 204,
+        "code": null,
+        "retryAfter": null
+      },
+      {
+        "label": "private read after deletion",
+        "status": 410,
+        "code": "ROOM_GONE",
+        "retryAfter": null
+      },
+      {
+        "label": "public room catalog",
+        "status": 200,
+        "code": null,
+        "retryAfter": null
+      },
+      {
+        "label": "public acknowledgement flow",
+        "status": 201,
+        "code": null,
+        "retryAfter": null
+      },
+      {
+        "label": "public operator grant",
+        "status": 201,
+        "code": null,
+        "retryAfter": null
+      },
+      {
+        "label": "public participant",
+        "status": 201,
+        "code": null,
+        "retryAfter": null
+      },
+      {
+        "label": "public acknowledgement flow",
+        "status": 201,
+        "code": null,
+        "retryAfter": null
+      },
+      {
+        "label": "public operator grant",
+        "status": 201,
+        "code": null,
+        "retryAfter": null
+      },
+      {
+        "label": "public participant",
+        "status": 201,
+        "code": null,
+        "retryAfter": null
+      },
+      {
+        "label": "public message 1",
+        "status": 201,
+        "code": null,
+        "retryAfter": null
+      },
+      {
+        "label": "public message 2",
+        "status": 201,
+        "code": null,
+        "retryAfter": null
+      },
+      {
+        "label": "release public participant",
+        "status": 204,
+        "code": null,
+        "retryAfter": null
+      },
+      {
+        "label": "release public participant",
+        "status": 204,
+        "code": null,
+        "retryAfter": null
+      }
+    ],
+    "cases": [
+      {
+        "name": "actual deployment UI",
+        "status": "PASS",
+        "errors": [],
+        "csp": []
+      }
+    ],
+    "cleanup": true,
+    "externalMail": 0
+  },
+  "protected_assets": [
+    {
+      "client": "actual curl default user-agent",
+      "path": "/health",
+      "status": 200,
+      "code": null
+    },
+    {
+      "client": "actual curl default user-agent",
+      "path": "/admin-design/index.html",
+      "status": 404,
+      "code": "NOT_FOUND"
+    },
+    {
+      "client": "actual curl default user-agent",
+      "path": "/admin/design/_assets/admin-design/controller.js",
+      "status": 401,
+      "code": "AUTH_REQUIRED"
+    },
+    {
+      "client": "actual curl default user-agent",
+      "path": "/admin/design/_assets/shared/screens/common-room.js",
+      "status": 401,
+      "code": "AUTH_REQUIRED"
+    },
+    {
+      "client": "Python urllib default user-agent",
+      "status": 403,
+      "edge_error_code": "1010",
+      "security_settings_changed": false
+    }
+  ],
+  "limits_unchanged": true,
+  "security_overrides": 0,
+  "known_limits": [
+    "Email sending/domain/DNS/binding/preview OFF/test-send approvals remain pending; no operational login/bootstrap claim.",
+    "Python urllib default signature returns Cloudflare 1010; actual curl and browser/Playwright HTTP pass. Existing BIC/security policy remains unchanged.",
+    "CF upstream producer cancellation diagnostic has three separate failed runs; local reader cleanup is distinct.",
+    "Existing remote workflow misses selfhost tsx/Node24 setup; exact proposal remains pending workflow permission."
+  ],
+  "artifacts": [
+    {
+      "path": ".local/artifacts/toktok/20261003-deployment-root/1440-deployed-home.png",
+      "sha256": "2f694219e01844594f2153f6b305cf364ad3c9625c8da0ab17e1cdfcc202f112"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-deployment-root/390-deployed-private-conversation.png",
+      "sha256": "7f20eb451aee90cc1e945d138f7cce1f08aa7d915e9e60695c9ac1bbbf002591"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-deployment-root/390-deployed-public-conversation.png",
+      "sha256": "72dd69815c5afaf60809a297bb67881d25e0f8793fa9800cac9858077eeae6e4"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-deployment-root/configuration-readback.json",
+      "sha256": "968932074827062eaf31c7b8789b8387d7f181dc3555039d3845e3d8058e22ff"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-deployment-root/deploy-result.json",
+      "sha256": "10bfe36365720d6d6870ea7a6acdd64048ad6bce2ad8d8e81461d536696e08dc"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-deployment-root/deploy.log",
+      "sha256": "1b3c688544360e32c6caa64fb06be5710bc99d200b1d8654682db36afb41b058"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-deployment-root/live-check.mjs",
+      "sha256": "9af3866de18db71b81e77108374fc8c8408b748af77964d0be4b41db84d736fb"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-deployment-root/live-correction-raw.json",
+      "sha256": "5b5efc189b74e487f04651a02a9df4a4c553086d489902b986325d01db10e3c5"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-deployment-root/live-correction.mjs",
+      "sha256": "f5d9a192c960233bfa00c3989a8a797aa9db74ca342604c91cb6b05fdc22c89e"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-deployment-root/live-protected-assets-diagnostic.json",
+      "sha256": "eb6ba31637c2301b0d4006984963704a56662f97df352e0cfebeed20fb2b66ef"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-deployment-root/live-protected-assets.json",
+      "sha256": "01c4ad9d10b9907a0212284da391d6c0e4612319ccf2f1691666add0ce2e3878"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-deployment-root/live-raw.json",
+      "sha256": "7a5ca4680793e53845a4cc782357441b9a924327f88cb23d8b0697eb89da4c72"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-deployment-root/private-input-scan.json",
+      "sha256": "aaec36fcb62fa61bb980bda5469a7e47328f3bffacda8b0be57c70c7cda47005"
+    }
+  ]
+}
