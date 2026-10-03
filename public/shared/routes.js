@@ -53,15 +53,21 @@ export const routeRegistry=Object.freeze([
   {transitionId:'settings-denied',event:'server-auth-check',kind:'error',to:'admin-settings'},
   {transitionId:'settings-back',event:'rooms-link',kind:'back',to:'introduction'}]},
  {routeId:'introduction',screenId:'introduction',aliases:['/about'],match:/^\/(?:about)?$/,params:[],transitions:[
+  {transitionId:'introduction-rooms',event:'rooms-link',kind:'success',to:'rooms'},
+  {transitionId:'introduction-guide',event:'guide-link',kind:'success',to:'guide'},
   {transitionId:'catalog-open',event:'catalog-link',kind:'success',to:'public-room'}]},
- {routeId:'guide',screenId:'guide',match:/^\/guide$/,params:[],transitions:[]},
+ {routeId:'guide',screenId:'guide',match:/^\/guide$/,params:[],transitions:[
+  {transitionId:'guide-account',event:'account-link',kind:'success',to:'account'},
+  {transitionId:'guide-admin',event:'settings-link',kind:'success',to:'admin-settings'},
+  {transitionId:'guide-logout-denied',event:'logout-error',kind:'error',to:'guide'}]},
  {routeId:'public-room',screenId:'room',match:/^\/public\/([a-z0-9-]+)$/,params:['slug'],transitions:[
   {transitionId:'public-back',event:'back-link',kind:'back',to:'introduction'}]},
- {routeId:'private-room',screenId:'room',match:/^\/r\/([a-f0-9-]{36})\/([\w-]{43})$/,params:['id','cap'],transitions:[
+ {routeId:'private-room',screenId:'room',nestedScreens:['terminal'],match:/^\/r\/([a-f0-9-]{36})\/([\w-]{43})$/,params:['id','cap'],transitions:[
+  {transitionId:'private-expired',event:'server-expiry',kind:'time',to:'private-room'},
   {transitionId:'private-history-gap',event:'history-gap',kind:'error',to:'private-room'},
   {transitionId:'private-history-reset',event:'history-reset',kind:'error',to:'private-room'},
   {transitionId:'private-paused',event:'pause',kind:'success',to:'private-room'},
-  {transitionId:'private-resumed',event:'resume',kind:'success',to:'private-room'},
+  {transitionId:'private-resumed',event:'resume',kind:'reference',to:'private-room'},
   {transitionId:'private-rate-limited',event:'read-429',kind:'error',to:'private-room'},
   {transitionId:'private-back',event:'back-link',kind:'back',to:'introduction'}]}
 ]);

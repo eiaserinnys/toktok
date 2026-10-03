@@ -1,3 +1,4 @@
+import {mountCommonHeader} from './shared/common-header-mount.js';
 import {icon,room,terminal,introduction,guide,message,person,empty} from './view.js';
 import {applyPage,privateReadPath,readDelay,ownsResponse,retryDelay,cancel} from './session.js';
 import {privateNotice} from './shared/components/private-notice.js';
@@ -15,12 +16,13 @@ import {mountAccount} from './shared/account-mount.js';
 import {mountLobby} from './shared/lobby-mount.js';
 const app=document.querySelector('#app'),states=new Map();
 const effects=createLiveAdapter();
+let commonHeader=null;
 let active=null,toastTimer=null,surface=null,surfaceKind=null,previousPath='/';
 function move(path){delete document.body.dataset.error;history.pushState(null,'',path);navigate();}
 const $=(selector)=>active?.root.querySelector(selector);
 function status(copy){const e=$('#watch-status');if(e)e.textContent=copy;}
 function showTerminal(state,code){
- cancel(state);state.gone=true;state.root.innerHTML=terminal(code);state.cursor=null;state.epoch=null;state.senders.clear();
+ cancel(state);state.gone=true;state.root.innerHTML=terminal(code);state.cursor=null;state.epoch=null;state.senders.clear();commonHeader?.load();
 }
 function clock(state){
  if(state.mode==='public')return;
@@ -158,10 +160,11 @@ function bind(state){
  });
 }
 function navigate(){
+ commonHeader?.dispose();commonHeader=null;
  if(active){active.pageY=scrollY;cancel(active);if(active.mode==='public')leavePublic(active);}clearTimeout(toastTimer);
  document.querySelector('#toast').classList.remove('visible');active=null;
  const error=document.body.dataset.error;
- if(error){app.innerHTML=terminal(error);return;}
+ if(error){app.innerHTML=terminal(error);commonHeader=mountCommonHeader(app,{effects,navigate:move,route:location.pathname});return;}
  const resolved=resolveRoute(location.pathname);
  const nextKind=resolved?.screenId==='auth'?'auth':resolved?.routeId==='admin-settings'?'settings':resolved?.routeId==='admin-invitations'||resolved?.routeId==='admin-audit'?'adminlogs':resolved?.routeId==='rooms'?'rooms':resolved?.routeId==='account'?'account':resolved?.routeId==='claim'?'claim':resolved?.routeId==='new-room'?'newroom':null;
  if(surfaceKind!==nextKind){surface?.dispose();surface=null;surfaceKind=null;}
@@ -194,15 +197,15 @@ function navigate(){
  if(resolved?.routeId==='public-room'){
   const grant=consumeFragment(location,history),key='public:'+resolved.params.slug;let state=states.get(key);
   if(!state){const root=document.createElement('div');root.innerHTML=room();state=createPublicState(root,resolved.params.slug,location.origin+location.pathname,grant);states.set(key,state);bind(state);bindPublic(state,publicUI);}
-  active=state;app.replaceChildren(state.root);scrollTo({top:state.pageY,behavior:'instant'});if(!state.paused)start(state);return;
+  active=state;app.replaceChildren(state.root);commonHeader=mountCommonHeader(state.root,{effects,navigate:move,route:location.pathname});scrollTo({top:state.pageY,behavior:'instant'});if(!state.paused)start(state);return;
  }
- if(resolved?.routeId!=='private-room'){app.innerHTML=resolved?.screenId==='guide'?guide():introduction();if(resolved?.routeId==='introduction')catalog(app);return;}
+ if(resolved?.routeId!=='private-room'){app.innerHTML=resolved?.screenId==='guide'?guide():introduction();commonHeader=mountCommonHeader(app,{effects,navigate:move,route:location.pathname});if(resolved?.routeId==='introduction')catalog(app);return;}
  const {id,cap}=resolved.params,key=id+':'+cap;let state=states.get(key);
  if(!state){
   const root=document.createElement('div');root.innerHTML=room();
   state={id,cap,url:location.origin+location.pathname,root,cursor:null,epoch:null,senders:new Map(),paused:false,gone:false,metadata:null,controller:null,attempt:0,retryTimer:null,expiryTimer:null,pageY:0,feedTop:0,follow:true};states.set(key,state);bind(state);
  }
- active=state;app.replaceChildren(state.root);scrollTo({top:state.pageY,behavior:'instant'});
+ active=state;app.replaceChildren(state.root);commonHeader=mountCommonHeader(state.root,{effects,navigate:move,route:location.pathname});scrollTo({top:state.pageY,behavior:'instant'});
  if(state.paused)clock(state);else start(state);
 }
 document.addEventListener('click',e=>{
@@ -229,6 +232,6 @@ window.addEventListener('popstate',()=>{
  }
  navigate();
 });
-window.addEventListener('pagehide',()=>{if(active){cancel(active);if(active.mode==='public')leavePublic(active);}surface?.dispose();surface=null;surfaceKind=null;clearTimeout(toastTimer);});
+window.addEventListener('pagehide',()=>{commonHeader?.dispose();commonHeader=null;if(active){cancel(active);if(active.mode==='public')leavePublic(active);}surface?.dispose();surface=null;surfaceKind=null;clearTimeout(toastTimer);});
 window.addEventListener('pageshow',e=>{if(e.persisted)navigate();});
 navigate();

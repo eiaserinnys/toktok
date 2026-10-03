@@ -1,3 +1,4 @@
+import {renderFlowBoard} from '../public/shared/screens/flow-board.js';
 import {it,expect} from 'vitest';
 import {componentRegistry,dialogRegistry,screenRegistry} from '../public/shared/registry.js';
 import {routeRegistry} from '../public/shared/routes.js';
@@ -13,7 +14,9 @@ it('covers the same settings/auth renderers, states, routes and negative flow ed
  const noAlias=structuredClone(input.fixtures);noAlias.screens=noAlias.screens.filter(f=>f.path!=='/about');expect(validateCoverage({...input,fixtures:noAlias})).toContain('route-alias:introduction:/about');
  const noReset=structuredClone(input.fixtures);noReset.screens=noReset.screens.filter(f=>!(f.screenId==='room'&&f.state==='history-reset'));expect(validateCoverage({...input,fixtures:noReset})).toContain('screen-state:room:history-reset');
  const noAudit=structuredClone(input.fixtures);noAudit.screens=noAudit.screens.filter(f=>f.routeId!=='admin-audit');expect(validateCoverage({...input,fixtures:noAudit})).toContain('route:admin-audit');
- const graph=buildGraph(input);expect(graph.edges.some(e=>e.transitionId==='settings-denied'&&e.kind==='error')).toBe(true);
+ const noHeader=structuredClone(input.fixtures);noHeader.screens=noHeader.screens.filter(f=>!(f.screenId==='guide'&&f.state==='admin'));expect(validateCoverage({...input,fixtures:noHeader})).toContain('screen-state:guide:admin');
+ const noTerminal=routeRegistry.map(r=>r.routeId==='private-room'?{...r,nestedScreens:[]}:r);expect(validateCoverage({...input,routes:noTerminal})).toContain('route-entry:private-room');
+ const graph=buildGraph(input);expect(()=>renderFlowBoard(graph,{boardMode:'DEMO',boardRole:'all'})).not.toThrow();expect(graph.edges.some(e=>e.transitionId==='settings-denied'&&e.kind==='error')).toBe(true);
  expect(graph.edges.some(e=>e.transitionId==='otp-expired'&&e.kind==='time')).toBe(true);
  expect(input.fixtures.dialogs.some(f=>f.dialogId==='settings-review'&&f.state==='pending')).toBe(true);
 });

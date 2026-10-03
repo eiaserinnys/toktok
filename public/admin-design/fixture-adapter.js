@@ -1,3 +1,4 @@
+import {commonHeaderFixtures,commonHeaderVm} from './common-header-fixtures.js';
 import {privateFixtures,privateMemoryFixture} from './private-fixtures.js';
 import {adminlogsFixtures} from './adminlogs-fixtures.js';
 import {newroomFixtures} from './newroom-fixtures.js';
@@ -28,11 +29,11 @@ const fixtureCatalog={
   {dialogId:'public-risk',state:'rate-limited',args:[{checked:true,pending:true,status:'가상 요청 제한입니다. 서버 안내 이후 다시 시도합니다.'}]}
  ],
  screens:[
-  {fixtureId:'intro-about',title:'톡톡 소개 · /about',routeId:'introduction',screenId:'introduction',path:'/about'},
-  {fixtureId:'intro',title:'톡톡 소개',routeId:'introduction',screenId:'introduction',path:'/'},
-  {fixtureId:'guide',title:'사용 안내',routeId:'guide',screenId:'guide',path:'/guide'},
-  {fixtureId:'public-empty',title:'공개방 관전',routeId:'public-room',screenId:'room',state:'public',path:'/public/fictional-room'},
-  {fixtureId:'private-empty',title:'비공개방 관전',routeId:'private-room',screenId:'room',state:'memory',args:[{room:privateMemoryFixture}],path:'/r/00000000-0000-4000-8000-000000000001/'+ 'a'.repeat(43)}
+  {fixtureId:'intro-about',title:'톡톡 소개 · /about',routeId:'introduction',screenId:'introduction',state:'anonymous',args:[commonHeaderVm('anonymous','/about')],path:'/about'},
+  {fixtureId:'intro',title:'톡톡 소개',routeId:'introduction',screenId:'introduction',state:'anonymous',args:[commonHeaderVm()],path:'/'},
+  {fixtureId:'guide',title:'사용 안내',routeId:'guide',screenId:'guide',state:'anonymous',args:[commonHeaderVm('anonymous','/guide')],path:'/guide'},
+  {fixtureId:'public-empty',title:'공개방 관전',routeId:'public-room',screenId:'room',state:'public',args:[commonHeaderVm('anonymous','/public/fictional-room')],path:'/public/fictional-room'},
+  {fixtureId:'private-empty',title:'비공개방 관전',routeId:'private-room',screenId:'room',state:'memory',args:[{...commonHeaderVm('anonymous'),room:privateMemoryFixture}],path:'/r/00000000-0000-4000-8000-000000000001/'+ 'a'.repeat(43)}
  ],
  transitions:[
   {transitionId:'catalog-open',from:'intro',to:'public-empty'},
@@ -40,7 +41,7 @@ const fixtureCatalog={
   {transitionId:'private-back',from:'private-empty',to:'intro'}
  ]
 };
-for(const key of ['components','dialogs','screens','transitions'])fixtureCatalog[key].push(...authSettingsFixtures[key],...accountFixtures[key],...claimFixtures[key],...newroomFixtures[key],...privateFixtures[key],...adminlogsFixtures[key]);
+for(const key of ['components','dialogs','screens','transitions'])fixtureCatalog[key].push(...authSettingsFixtures[key],...accountFixtures[key],...claimFixtures[key],...newroomFixtures[key],...privateFixtures[key],...adminlogsFixtures[key],...commonHeaderFixtures[key]);
 export function createFixtureAdapter(seed={}){
  const session=clone(seed.session??{authenticated:false,role:'anonymous',entitlements:{can_create_private:false,can_persist_private:false},owner_ack:null});
  const responses=clone(seed.responses??{}),history=['/'];let index=0;
