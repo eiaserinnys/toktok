@@ -14,3 +14,9 @@
 ## 자료와 범위
 
 가상 원자료·PNG는 `.local/artifacts/toktok/20261003-public-policy-44ae/`의 raw.json, observations.json, 390-public-page-size-two.png에 보존합니다. 실제 서버 pageSize 2와 firstWindowMessages 3/60초의 초기 2+1 페이지는 root의 별도 실제 backend gate입니다. 운영 정책·권한·예산·엔진·root HTTP 변경은 없습니다.
+
+## Shared entry/dialog notice follow-up
+
+Gallery inspection after aa2d0ee found the shared public-risk notice still claimed 100 messages/1 hour, while the earlier room detail and initial-window notices were corrected. The public feed entry and risk dialog already import this same owner. The single shared string now says the server-selected recent memory range may disappear at restart, preserving public visibility, secret/PII warning and operator responsibility. No invented metadata number or duplicate constant was added.
+
+This is a text-only follow-up to the existing public-policy scope. Syntax/import and owner reuse were checked directly; no prior successful interaction or browser slice was repeated. Gallery checked PNGs retain the earlier text and are evidence of gallery mechanics at aa2d0ee, not evidence of this final notice copy. Root final bundle/visual inspection uses the new shared string.
