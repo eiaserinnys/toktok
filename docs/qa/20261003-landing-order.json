@@ -219,7 +219,67 @@
     "failed": 0,
     "exit_code": 0
   },
-  "deployed_after": null,
+  "deployed_after": {
+    "scope": "deployed landing order only",
+    "cases": [
+      {
+        "name": "1440-deployed-landing",
+        "errors": [],
+        "mutations": 0,
+        "status": "PASS",
+        "dom": {
+          "order": [
+            "hero",
+            "description",
+            "catalog",
+            "footer"
+          ],
+          "description": 545.25,
+          "catalog": 903.984375,
+          "rooms": 2,
+          "sections": 1,
+          "width": 1440,
+          "docWidth": 1440,
+          "fonts": true
+        },
+        "csp": [],
+        "storage": [
+          0,
+          0
+        ],
+        "screenshot": "live-1440-landing.png"
+      },
+      {
+        "name": "390-deployed-landing",
+        "errors": [],
+        "mutations": 0,
+        "status": "PASS",
+        "dom": {
+          "order": [
+            "hero",
+            "description",
+            "catalog",
+            "footer"
+          ],
+          "description": 753.6875,
+          "catalog": 1462.40625,
+          "rooms": 2,
+          "sections": 1,
+          "width": 390,
+          "docWidth": 390,
+          "fonts": true
+        },
+        "csp": [],
+        "storage": [
+          0,
+          0
+        ],
+        "screenshot": "live-390-landing.png"
+      }
+    ],
+    "cleanup": true,
+    "externalMail": 0
+  },
   "assets": [
     {
       "path": ".local/artifacts/toktok/20261003-landing-order-root/1440-before.png",
@@ -240,6 +300,65 @@
     {
       "path": ".local/artifacts/toktok/20261003-landing-order-root/protected-flow.png",
       "sha256": "c643e3b83666e1cf08858c70cb31d8a51f5b9183a5b4134edbd923decc8f2031"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-landing-order-root/live-1440-landing.png",
+      "sha256": "b4bb44bfecdad6a49bafcb7bad8b05ce286d599c8d2d493a2fff5c0492d178f6"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-landing-order-root/live-390-landing.png",
+      "sha256": "a86afb53e5c18fa784018324fc9ff643ffd607ee52d9b198dc8864673d3ac207"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-landing-order-root/live-after.json",
+      "sha256": "556114892503c7f219abd85991a5f5de7ad4063f8ba87ac316fb3b441899fc1c"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-landing-order-root/readback.json",
+      "sha256": "3a19ad928411c61624d6d52b384993585ee2cbad615991de10d8f656e6f9973d"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-landing-order-root/deploy-result.json",
+      "sha256": "e450b8c3763eea2d0f6f7b18b6516cde41fc907d54c6bde92cac42eee5352191"
     }
-  ]
+  ],
+  "deployment": {
+    "source_commit": "195987978fc6f445dc3a69133114d172d2841045",
+    "version": "24d30916-02c4-4e7c-ba78-00809bb79ca1",
+    "origin": "https://toktok.eiaserinnys.me",
+    "exit_code": 0,
+    "changed_static_assets": 5,
+    "assets_total": 105,
+    "bundle_kib": 243.05,
+    "gzip_kib": 58.37,
+    "cpu_ms": 10,
+    "ip_requests_per_minute": 120
+  },
+  "readback": {
+    "checked_at": "2026-10-03T04:18:47.229563+00:00",
+    "security_writes_by_agent": 0,
+    "worker_settings": {
+      "status": 200,
+      "error_codes": [],
+      "bootstrap_secret_present": true,
+      "email_binding_present": false,
+      "observability_enabled": false
+    },
+    "bic": {
+      "status": 200,
+      "error_codes": [],
+      "value": "on"
+    }
+  },
+  "remote_ci": {
+    "run": 37095873310,
+    "tests": "PASS",
+    "ui": "PASS",
+    "typecheck": "PASS",
+    "acceptance": "FAIL: existing missing selfhost/node_modules/tsx/dist/loader.mjs under Node22.23.3",
+    "dry_run": "SKIPPED",
+    "local_dry_run": "PASS",
+    "workflow_changed": false
+  },
+  "readme_hero_matches_live_capture": true
 }
