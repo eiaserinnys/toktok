@@ -166,7 +166,7 @@
 .x-header{display:grid;grid-template-columns:1fr auto;grid-template-rows:60px 46px;gap:0 15px;height:auto;min-height:125px;padding-top:10px}
 .x-header>.brand{grid-row:1;grid-column:1}
 .x-header>.account-entry{grid-row:1;grid-column:2;gap:12px}
-.x-header>nav{grid-row:2;grid-column:1/-1;align-items:center;justify-content:flex-start;gap:28px;align-self:stretch}
+.header.x-header>nav{display:flex;grid-row:2;grid-column:1/-1;align-items:center;justify-content:flex-start;gap:28px;align-self:stretch}
 .x-header>nav a{font-size:13px;min-height:44px;display:flex;align-items:center}
 .x-header>nav a.active:after{bottom:-1px;left:0;width:100%}
 .x-header .signup-entry{font-size:12px}
