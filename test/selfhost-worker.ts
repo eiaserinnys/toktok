@@ -8,8 +8,9 @@ import {handlePublicRequest} from '../src/public-http';
 import type {PublicEnv} from '../src/public-contracts';
 import {PublicRoom as BasePublicRoom} from '../src/public-room';
 import {TEST_BUDGET} from './selfhost-budget';
-export class PublicRoom extends BasePublicRoom {constructor(ctx:DurableObjectState,env:PublicEnv){super(ctx,env,{budgetFactory:()=>TEST_BUDGET});}}
-export class PrivateRoom extends BasePrivateRoom {constructor(ctx:DurableObjectState,env:PrivateEnv){super(ctx,env,{budgetFactory:()=>TEST_BUDGET});}}
+function bodyObservation(request:Request,response:Response){const headers=new Headers(response.headers);headers.set('x-fixture-body-used',String(request.bodyUsed));headers.set('x-fixture-body-locked',String(request.body?.locked??false));return new Response(response.body,{status:response.status,headers});}
+export class PublicRoom extends BasePublicRoom {constructor(ctx:DurableObjectState,env:PublicEnv){super(ctx,env,{budgetFactory:()=>TEST_BUDGET});}async fetch(request:Request){return bodyObservation(request,await super.fetch(request));}}
+export class PrivateRoom extends BasePrivateRoom {constructor(ctx:DurableObjectState,env:PrivateEnv){super(ctx,env,{budgetFactory:()=>TEST_BUDGET});}async fetch(request:Request){return bodyObservation(request,await super.fetch(request));}}
 interface RecordFixtureEnv {PUBLIC_ORIGIN:string;}
 export class RecordFixture extends DurableObject<RecordFixtureEnv> {
   readonly repo:CloudflareRepository;
