@@ -1,3 +1,4 @@
+const {approvedAgent}=require('./claim-fixture.cjs');
 // Local SQLite Worker + curl participants + Chromium. No production credentials or URL/body logs.
 const {spawn,spawnSync}=require('node:child_process');
 const fs=require('node:fs'),path=require('node:path'),net=require('node:net'),http=require('node:http'),crypto=require('node:crypto');
@@ -12,7 +13,7 @@ const mobileRemaining=process.env.TOKTOK_BROWSER_SCOPE==='mobile-remaining';
 const evidence={scope:mobileRemaining?'390 remaining only; root pause evidence adopted':'1440/390 integration',cases:[],requests:[],errors:[],shots:[],observations:[]};
 const save=()=>fs.writeFileSync(out+'evidence.json',JSON.stringify(evidence,null,2));
 async function record(page,label){evidence.observations.push({label,...await state(page)});save();}
-const token='local-fixture-curl-creator';
+let token;
 function curl(base,route,cap,method='GET',body){
  const args=['--silent','--show-error','--fail-with-body','--max-time','8','-X',method,base+route];
  if(cap)args.push('-H','Authorization: Bearer '+cap);
@@ -41,8 +42,7 @@ async function metrics(page){return page.evaluate(()=>{
 });}
 async function main(){
  const reservation=net.createServer();await new Promise(r=>reservation.listen(0,'127.0.0.1',r));const port=reservation.address().port;await new Promise(r=>reservation.close(r));const base='http://127.0.0.1:'+port;
- const registry=JSON.stringify([{creator_id:'local-curl',token_sha256:crypto.createHash('sha256').update(token).digest('hex'),enabled:true}]);
- const server=spawn(process.execPath,['node_modules/wrangler/bin/wrangler.js','dev','--local','--ip','127.0.0.1','--port',String(port),'--inspector-port','0','--var','PUBLIC_ORIGIN:'+base,'--var','CREATOR_CREDENTIALS_JSON:'+registry],{cwd:root,stdio:['ignore','pipe','pipe'],env:{...process.env,WRANGLER_SEND_METRICS:'false'}});server.stdout.resume();server.stderr.resume();
+ const server=spawn(process.execPath,['node_modules/wrangler/bin/wrangler.js','dev','--config','test/wrangler.jsonc','--local','--ip','127.0.0.1','--port',String(port),'--inspector-port','0','--var','PUBLIC_ORIGIN:'+base],{cwd:root,stdio:['ignore','pipe','pipe'],env:{...process.env,WRANGLER_SEND_METRICS:'false'}});server.stdout.resume();server.stderr.resume();
  const design=process.env.TOKTOK_DESIGN_PROTOTYPE;
  if(!design||!path.isAbsolute(design))throw Error('TOKTOK_DESIGN_PROTOTYPE requires an absolute read-only prototype path');
  const reference=http.createServer((req,res)=>{
@@ -55,7 +55,7 @@ async function main(){
  await new Promise(r=>reference.listen(0,'127.0.0.1',r));const designBase='http://127.0.0.1:'+reference.address().port;
  let exited=false;const stopped=new Promise(r=>server.once('exit',()=>{exited=true;r();}));let browser;
  try{
-  let ready=false;for(let i=0;i<150&&!exited;i++){try{curl(base,'/health');ready=true;break;}catch{}await delay(100);}assert(ready,'Worker ready');
+  let ready=false;for(let i=0;i<150&&!exited;i++){try{curl(base,'/health');ready=true;break;}catch{}await delay(100);}assert(ready,'Worker ready');token=approvedAgent(base);
   const expiry=create(base,60);
   browser=await chromium.launch({headless:true,args:['--disable-dev-shm-usage']});evidence.browser=browser.version();
   for(const width of mobileRemaining?[390]:[1440,390]){

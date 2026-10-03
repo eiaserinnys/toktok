@@ -1,0 +1,87 @@
+heavy verification: running in slot 1/2
+
+ RUN  v4.1.0 /home/eias/workspace/.projects/toktok--feat-claim-foundation-0ac9c22f
+
+ ❯ test/control-budget-schema.test.ts (3 tests | 2 failed) 22ms
+   × workload cap metadata exports kind-specific source bounds, not current configured values 9ms
+   ✓ workload cap validator accepts source maxima and rejects each kind-specific overflow or unit mismatch 7ms
+   × workload schema keeps its item shape and generic envelope agrees with source bounds 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/control-budget-schema.test.ts > workload cap metadata exports kind-specific source bounds, not current configured values
+AssertionError: expected undefined to deeply equal { admission_requests: { …(3) }, …(5) }
+
+- Expected:
+{
+  "active_room_seconds": {
+    "dayMax": 144000,
+    "monthMax": 4320000,
+    "unit": "seconds",
+  },
+  "admission_requests": {
+    "dayMax": 100000,
+    "monthMax": 3000000,
+    "unit": "count",
+  },
+  "email_attempts": {
+    "dayMax": 1000,
+    "monthMax": 10000,
+    "unit": "count",
+  },
+  "persistent_write_bytes": {
+    "dayMax": 16777216,
+    "monthMax": 268435456,
+    "unit": "bytes",
+  },
+  "private_creates": {
+    "dayMax": 100,
+    "monthMax": 2000,
+    "unit": "count",
+  },
+  "response_bytes": {
+    "dayMax": 3221225472,
+    "monthMax": 68719476736,
+    "unit": "bytes",
+  },
+}
+
++ Received:
+undefined
+
+ ❯ test/control-budget-schema.test.ts:14:28
+     12|  // Exercise the JSON form delivered by SettingsSchemaResponse, withou…
+     13|  const node=JSON.parse(JSON.stringify(capSchema())) as {boundsByKind?:…
+     14|  expect(node.boundsByKind).toEqual(Object.fromEntries(DEFAULT_SETTINGS…
+       |                            ^
+     15|  for(const source of DEFAULT_SETTINGS.budget.workloadCaps){
+     16|   const reduced=validateSettings(candidate({...source,day:1,month:1}))…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  test/control-budget-schema.test.ts > workload schema keeps its item shape and generic envelope agrees with source bounds
+AssertionError: expected 68719476736 to be 3221225472 // Object.is equality
+
+- Expected
++ Received
+
+- 3221225472
++ 68719476736
+
+ ❯ test/control-budget-schema.test.ts:30:36
+     28|  expect(node.items.type).toBe('object');if(node.items.type!=='object')…
+     29|  expect(Object.keys(node.items.fields)).toEqual(['kind','unit','day','…
+     30|  expect(node.items.fields.day.max).toBe(Math.max(...DEFAULT_SETTINGS.b…
+       |                                    ^
+     31|  expect(node.items.fields.month.max).toBe(Math.max(...DEFAULT_SETTINGS…
+     32| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+   Start at  09:41:07
+   Duration  317ms (transform 110ms, setup 0ms, import 144ms, tests 22ms, environment 0ms)
+
+JSON report written to /home/eias/workspace/.projects/toktok--feat-claim-foundation-0ac9c22f/test/control-budget-schema-red.json

@@ -1,5 +1,6 @@
 import {icon,room,terminal,introduction,guide,message,person} from './view.js';
 import {applyPage,ownsResponse,retryDelay,cancel} from './session.js';
+import {renderIdentity,stopIdentity} from './identity-ui.js';
 const app=document.querySelector('#app'),states=new Map();
 let active=null,toastTimer=null;
 const $=(selector)=>active?.root.querySelector(selector);
@@ -129,8 +130,10 @@ function bind(state){
  });
 }
 function navigate(){
+ stopIdentity();
  if(active){active.pageY=scrollY;cancel(active);}clearTimeout(toastTimer);
  document.querySelector('#toast').classList.remove('visible');active=null;
+ if(renderIdentity(location.pathname,app,toast))return;
  const error=document.body.dataset.error;
  if(error){app.innerHTML=terminal(error);return;}
  const match=shared.exec(location.pathname);
@@ -154,6 +157,6 @@ document.addEventListener('keydown',e=>{
  e.preventDefault();tab(e.key==='Home'?'chat':e.key==='End'?'connect':e.target.dataset.tab==='chat'?'connect':'chat',true);
 });
 window.addEventListener('popstate',navigate);
-window.addEventListener('pagehide',()=>{if(active)cancel(active);clearTimeout(toastTimer);});
+window.addEventListener('pagehide',()=>{if(active)cancel(active);stopIdentity();clearTimeout(toastTimer);});
 window.addEventListener('pageshow',e=>{if(e.persisted)navigate();});
 navigate();

@@ -1,0 +1,27 @@
+heavy verification: running in slot 1/2
+
+ RUN  v4.1.0 /home/eias/workspace/.projects/toktok--feat-claim-foundation-0ac9c22f
+
+stdout | test/control-budget-estimate.test.ts > estimated costs for all six kinds reserve day and month with immutable source settings
+CONTROL_ESTIMATE_EVIDENCE [{"step":"config","status":200},{"step":"budget-reserve","status":200},{"step":"budget-reserve","status":200},{"step":"budget-reserve","status":200},{"step":"budget-reserve","status":200},{"step":"budget-reserve","status":200},{"step":"budget-reserve","status":200},{"step":"all kinds estimate before assertions","status":200,"state":{"quantityDay":2,"quantityMonth":2,"estimateDay":20100,"estimateMonth":20100}}]
+
+stdout | test/control-budget-estimate.test.ts > estimated cutoff has exactly one concurrent winner and rejects without partial quantity or estimate writes
+CONTROL_ESTIMATE_EVIDENCE [{"step":"config","status":200},{"step":"budget-reserve","status":200},{"step":"budget-reserve","status":429,"code":"ESTIMATED_BUDGET_EXCEEDED","retry_after":2678400},{"step":"budget-reserve","status":429,"code":"ESTIMATED_BUDGET_EXCEEDED","retry_after":2678400},{"step":"estimate race before assertions","status":200,"state":{"quantityDay":1,"quantityMonth":1,"estimateDay":17,"estimateMonth":1000000}}]
+
+stdout | test/control-budget-estimate.test.ts > replay retains the initial UTC day and month with zero added estimate, conflicts and expired IDs remain closed
+CONTROL_ESTIMATE_EVIDENCE [{"step":"config","status":200},{"step":"budget-reserve","status":200},{"step":"budget-reserve","status":200},{"step":"month-boundary replay before assertions","status":200,"state":{"quantityDay":0,"quantityMonth":0,"estimateDay":0,"estimateMonth":0,"previous_day":17,"previous_month":17}},{"step":"budget-reserve","status":409,"code":"IDEMPOTENCY_CONFLICT"},{"step":"budget-reserve","status":409,"code":"IDEMPOTENCY_CONFLICT"},{"step":"budget-reserve","status":410,"code":"OPERATION_EXPIRED"}]
+
+stdout | test/control-budget-estimate.test.ts > quantity rejection rolls back estimated totals and a tightened cutoff applies to response byte reservations
+CONTROL_ESTIMATE_EVIDENCE [{"step":"config","status":200},{"step":"budget-reserve","status":429,"code":"BUDGET_EXCEEDED","retry_after":86400},{"step":"budget-reserve","status":429,"code":"ESTIMATED_BUDGET_EXCEEDED","retry_after":2678400}]
+
+stdout | test/control-budget-estimate.test.ts > budget HTTP requires actual admin role and exposes model assumptions without public config usage
+CONTROL_ESTIMATE_EVIDENCE [{"step":"config","status":200},{"step":"admin budget HTTP","status":401,"code":"SESSION_REQUIRED"},{"step":"admin budget HTTP","status":403,"code":"ADMIN_REQUIRED"},{"step":"admin budget HTTP","status":200},{"step":"config","status":200}]
+
+ ✓ test/control-budget-estimate.test.ts (5 tests) 200ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  09:58:17
+   Duration  1.34s (transform 306ms, setup 0ms, import 509ms, tests 200ms, environment 0ms)
+
+JSON report written to /home/eias/workspace/.projects/toktok--feat-claim-foundation-0ac9c22f/test/control-budget-estimate-green.json
