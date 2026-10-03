@@ -6,7 +6,7 @@ export function commonHeaderVm(state='anonymous',route='/'){
 }
 const privatePath='/r/00000000-0000-4000-8000-000000000001/'+'r'.repeat(43);
 export const commonHeaderFixtures={
- components:['member-open','admin-open','logout-pending','logout-error'].map(state=>({componentId:'product-header',state,args:[{...commonHeaderVm(state==='admin-open'?'admin':'member','/guide'),ui:{route:'/guide',accountOpen:true,logoutPending:state==='logout-pending',logoutError:state==='logout-error'?'가상 로그아웃 오류입니다.':''}}]})),
+ components:[{componentId:'service-description',state:'default',args:[]},...['member-open','admin-open','logout-pending','logout-error'].map(state=>({componentId:'product-header',state,args:[{...commonHeaderVm(state==='admin-open'?'admin':'member','/guide'),ui:{route:'/guide',accountOpen:true,logoutPending:state==='logout-pending',logoutError:state==='logout-error'?'가상 로그아웃 오류입니다.':''}}]}))],
  dialogs:[],
  screens:[
   ...['introduction','guide'].flatMap(screenId=>['member','admin','loading','unavailable'].map(state=>({fixtureId:screenId+'-header-'+state,title:screenId+' · '+state,routeId:screenId,screenId,state,path:screenId==='guide'?'/guide':'/',audiences:state==='member'||state==='admin'?[state]:['guest'],args:[commonHeaderVm(state,screenId==='guide'?'/guide':'/')]}))),

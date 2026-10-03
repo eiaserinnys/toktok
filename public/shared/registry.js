@@ -1,3 +1,4 @@
+import {renderServiceDescription} from './components/service-description.js';
 import {renderRiskCheck} from './components/risk-check.js';
 import {renderAdminLogs} from './screens/adminlogs.js';
 import {createInvitationDialog} from './dialogs/invitations.js';
@@ -19,6 +20,7 @@ import {renderLobby} from './screens/lobby.js';
 
 // Product and protected QA resolve the same renderers and state inventory.
 export const componentRegistry=Object.freeze({
+ 'service-description':{render:renderServiceDescription,requiredStates:['default']},
  'risk-check':{render:renderRiskCheck,requiredStates:['unchecked','checked','disabled']},
  'budget-usage':{render:renderBudgetUsage,requiredStates:['default','warning','cutoff','loading','unavailable']},
  'agent-safety':{render:renderAgentSafety,requiredStates:['service-owned']},
