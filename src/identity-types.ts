@@ -1,7 +1,14 @@
-import type {Env} from './contracts';
 import type {BudgetKind} from './settings-schema';
 import type {CreationContextInput,CreationGrantInput,CreationReserveInput,CreationCommitInput} from './create-admission';
-export interface IdentityEnv extends Env {ADMIN_BOOTSTRAP_EMAIL?:string;}
+/** HTTP host dependencies only; no Durable Object namespace or runtime emulation. */
+export interface ControlHttpPort {execute(action:string,input:RegistryInput):Promise<unknown>;}
+export interface IdentityEnv {
+ PUBLIC_ORIGIN:string;
+ IP_RATE_LIMIT:{limit(input:{key:string}):Promise<{success:boolean}>};
+ controlPort?:ControlHttpPort;
+ EMAIL?:{send(input:{from:string;to:string;subject:string;text:string}):Promise<unknown>};
+ EMAIL_FROM?:string;ADMIN_BOOTSTRAP_EMAIL?:string;
+}
 export interface VerifiedHuman {provider:string;subject:string;email:string;email_verified:true;}
 export interface AuthContext {flow:string;nonce:string;}
 export type HumanIdentityVerifier=(proof:string,context:AuthContext)=>Promise<VerifiedHuman>;

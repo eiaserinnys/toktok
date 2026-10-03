@@ -1,27 +1,23 @@
-import type {Env} from './contracts';
 import type {IdentityEnv,RegistryInput,ClaimBinding} from './identity-types';
 import {HttpError,fail,bad,body,bearer,hash,newToken,json,text,publicOrigin,limited} from './http';
 import {normalizeEmail,normalizeIP,sender,trustedIP,type IdentityOptions} from './email';
 import type {Reservation} from './otp-store';
 import type {CreatorPrincipal} from './control-policy';
-import {CreationResultError} from './control-errors';
 const idPattern=/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/;
 export function agentId(value:unknown){const id=text(value,36,36);if(!idPattern.test(id))bad();return id;}
 function cookie(request:Request,name:string){return request.headers.get('Cookie')?.split(';').map(s=>s.trim()).find(s=>s.startsWith(name+'='))?.slice(name.length+1);}
 const flowCookie='__Host-toktok-flow';
 function setCookie(name:string,token:string,maxAge:number){return `${name}=${token}; Secure; HttpOnly; SameSite=Lax; Path=/; Max-Age=${maxAge}`;}
-export function requireOrigin(request:Request,env:Env){if(request.headers.get('Origin')!==publicOrigin(env.PUBLIC_ORIGIN))fail(403,'ORIGIN_DENIED','정확한 공개 Origin이 필요합니다.');}
+export function requireOrigin(request:Request,env:Pick<IdentityEnv,'PUBLIC_ORIGIN'>){if(request.headers.get('Origin')!==publicOrigin(env.PUBLIC_ORIGIN))fail(403,'ORIGIN_DENIED','정확한 공개 Origin이 필요합니다.');}
 export async function registry<T>(env:IdentityEnv,action:string,input:RegistryInput):Promise<T>{
- const response=await env.IDENTITIES.get(env.IDENTITIES.idFromName('team')).fetch(new Request('https://identity/'+action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input)}));
- const data=await response.json() as T&{room_id?:string;error?:{code:string;message:string}};
- if(!response.ok&&data.room_id&&['CREATE_PENDING','CREATE_RESULT_NOT_RECOVERABLE'].includes(data.error!.code))throw new CreationResultError(data.error!.code as 'CREATE_PENDING'|'CREATE_RESULT_NOT_RECOVERABLE',data.error!.message,data.room_id);
- if(!response.ok)throw new HttpError(response.status,data.error!.code,data.error!.message,response.headers.has('Retry-After')?Number(response.headers.get('Retry-After')):undefined);return data;
+ if(!env.controlPort)fail(503,'CONTROL_UNCONFIGURED','서비스 연결을 준비하고 있습니다.');
+ return await env.controlPort.execute(action,input) as T;
 }
 async function claimBinding(id:unknown,token:unknown):Promise<ClaimBinding|null>{
  if(id===undefined&&token===undefined)return null;
  const cap=text(token,43,43);if(!/^[\w-]{43}$/.test(cap))bad();return {agent_id:agentId(id),claim_hash:await hash(cap)};
 }
-export async function sessionInput(request:Request,env:Env,mutation=false):Promise<RegistryInput>{
+export async function sessionInput(request:Request,env:Pick<IdentityEnv,'PUBLIC_ORIGIN'>,mutation=false):Promise<RegistryInput>{
  if(mutation)requireOrigin(request,env);
  const token=cookie(request,'__Host-toktok_session');if(!token)fail(401,'SESSION_REQUIRED','사람 확인 세션이 필요합니다.');
  return {session_hash:await hash(token),csrf:mutation?request.headers.get('X-CSRF-Token')??undefined:undefined};
@@ -31,7 +27,7 @@ export async function creatorAuthorization(request:Request,env:IdentityEnv,agent
  const input=request.headers.has('Authorization')?{token_hash:await hash(bearer(request))}:{...await sessionInput(request,env,true),id:agentId(agent_id)};
  return registry<{creator_id:string;principal:CreatorPrincipal}>(env,'creator',input);
 }
-export async function creatorIdentity(request:Request,env:Env,agent_id?:unknown):Promise<string>{return (await creatorAuthorization(request,env,agent_id)).creator_id;}
+export async function creatorIdentity(request:Request,env:IdentityEnv,agent_id?:unknown):Promise<string>{return (await creatorAuthorization(request,env,agent_id)).creator_id;}
 async function authGuard(request:Request,env:IdentityEnv,options:IdentityOptions){
  requireOrigin(request,env);if(request.headers.has('CF-Worker'))fail(403,'ORIGIN_DENIED','직접 브라우저 확인만 허용합니다.');
  if(Number(request.headers.get('Content-Length'))>32768)fail(413,'BODY_TOO_LARGE','JSON 요청은 최대 32KiB입니다.');
