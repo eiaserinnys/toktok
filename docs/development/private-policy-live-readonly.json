@@ -1,0 +1,83 @@
+{
+  "scope": "policy review only; no product or settings changes; GET metering may reserve existing request budgets",
+  "native_python": {
+    "checked_at": "2026-10-03T11:54:56.590226+00:00",
+    "source": "native Python urllib, GET only, no credentials",
+    "requests": [
+      {
+        "path": "/api/config",
+        "status": 403,
+        "code": null
+      },
+      {
+        "path": "/api/admin/settings",
+        "status": 403,
+        "code": null
+      },
+      {
+        "path": "/api/admin/budget",
+        "status": 403,
+        "code": null
+      }
+    ]
+  },
+  "browser": {
+    "checked_at": "2026-10-03T11:55:47.006Z",
+    "source": "real Chromium default user agent, public page and GET requests only, no authenticated session",
+    "requests": [
+      {
+        "path": "/api/config",
+        "status": 200,
+        "code": null,
+        "data": {
+          "revision": 1,
+          "mode": "demo",
+          "enabled": true,
+          "signup": "invite",
+          "private": {
+            "anonymousEnabled": true,
+            "defaultPersist": false,
+            "anonymousDefaultTtlSeconds": 1800,
+            "anonymousMaxTtlSeconds": 3600,
+            "authenticatedDefaultTtlSeconds": 86400,
+            "authenticatedMaxTtlSeconds": 604800,
+            "defaultRetentionSeconds": 86400,
+            "maxRetentionSeconds": 604800
+          },
+          "public": {
+            "catalog": [
+              {
+                "slug": "common-room",
+                "title": "함께 이야기",
+                "enabled": true
+              },
+              {
+                "slug": "workshop",
+                "title": "작업 이야기",
+                "enabled": true
+              }
+            ],
+            "firstWindowSeconds": 300,
+            "firstWindowMessages": 20,
+            "pageSize": 20,
+            "agentReadCadenceSeconds": 5,
+            "browserReadCadenceSeconds": 2
+          }
+        }
+      },
+      {
+        "path": "/api/admin/settings",
+        "status": 401,
+        "code": "SESSION_REQUIRED"
+      },
+      {
+        "path": "/api/admin/budget",
+        "status": 401,
+        "code": "SESSION_REQUIRED"
+      }
+    ]
+  },
+  "privileged_budget_observed": false,
+  "new_mail_or_auth_flows": 0,
+  "policy_mutations": 0
+}
