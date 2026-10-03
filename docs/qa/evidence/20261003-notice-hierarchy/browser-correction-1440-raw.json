@@ -1,0 +1,25 @@
+{
+  "width": 1440,
+  "checks": [
+    "zoom",
+    "newroom-continuity"
+  ],
+  "failures": [
+    {
+      "name": "public-dialog-continuity",
+      "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ null\n- 'review-public-connection'\n"
+    }
+  ],
+  "shots": [
+    "intro-zoom200",
+    "newroom-persist-zoom200",
+    "private-empty-zoom200",
+    "auth-login-zoom200",
+    "public-connection-pending-zoom200",
+    "settings-budget-zoom200",
+    "newroom-error"
+  ],
+  "pageErrors": 0,
+  "apiMutations": 0,
+  "cleanup": true
+}

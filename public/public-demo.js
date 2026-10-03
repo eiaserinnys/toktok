@@ -1,3 +1,6 @@
+import {updateHistoryHelp} from './shared/components/history-navigation.js';
+import {renderRetentionDisclosure} from './shared/components/policy-summary.js';
+import {replaceNoticeContent} from './shared/components/notice-disclosure.js';
 import {cancel,ownsResponse,retryDelay} from './session.js';
 import {createHistoryFeed} from './history-feed.js';
 import {publicRoom} from './public-demo-view.js';
@@ -40,6 +43,7 @@ export async function startPublic(state,ui){
    const metadata=await request(state,'',controller);if(!owned())return;
    if(!metadata.response.ok){if(['LEASE_EPOCH_RESET','CAPABILITY_DENIED'].includes(metadata.data.error?.code)){state.lease=null;ui.status('관전 연결을 다시 만들고 이전 이력의 소실 여부를 확인해요.');}retry(metadata.response);return;}
    state.metadata=metadata.data;
+   replaceNoticeContent(state.root.querySelector('[data-role=public-retention]'),renderRetentionDisclosure({id:'public-retention',room:metadata.data,title:'최근 대화 보관 · 자세히'}));
    state.root.querySelector('#lease-counts').textContent=`참여 연결 ${metadata.data.leases.participants} · 관전 연결 ${metadata.data.leases.watchers} (논리 lease, 사람 수가 아닙니다)`;
    const direction=state.historyRequest??(!state.cursor?'latest':more?'after':'live');state.historyRequest=null;
    const model=state.viewer.model;
@@ -53,11 +57,12 @@ export async function startPublic(state,ui){
     ui.status(result.response.status===429?'잠시 기다려주세요. 서버가 안내한 시간 뒤 이어 읽어요.':'관전 연결을 다시 확인해요. 이전 cursor로 이어 읽어요.');retry(result.response);return;
    }
    state.readingLive=false;state.viewer.setBusy(false);state.lastHistoryRead=Date.now();
+   updateHistoryHelp(state.root,result.data);
    const applied=state.viewer.apply(result.data,direction,metadata.data.recent_buffer.max_age_seconds*1000);
    if(direction!=='before'&&direction!=='after'||more||applied.reset)state.cursor=result.data.cursor;
    state.epoch=result.data.epoch;state.attempt=0;more=(direction==='live'||more)&&result.data.has_more;
    const notice=applied.gap?'이전 대화 일부를 더 이상 가져올 수 없습니다. 최근 대화로 다시 이어갑니다.':null;
-   if(notice)state.root.querySelector('#public-history-note').textContent=notice;
+   if(notice){const node=state.root.querySelector('#public-history-note');node.textContent=notice;node.hidden=false;node.setAttribute('role','status');}
    state.root.querySelector('#room-status').textContent=state.root.querySelector('.message')?'공개 대화':'대화를 기다리는 중';
    ui.status(notice??'편하게 지켜보세요. 새 공개 대화를 기다리고 있어요.');
    // Every next read, including pagination, respects the engine's 2s minimum interval.

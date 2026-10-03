@@ -1,0 +1,28 @@
+{
+  "width": 1440,
+  "checks": [
+    "review-delta-surfaces"
+  ],
+  "failures": [
+    {
+      "name": "auth-error-continuity",
+      "error": "locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#email')\u001b[22m\n"
+    },
+    {
+      "name": "actual-public",
+      "error": "public metadata (response body deliberately omitted)\n\n401 !== 200\n"
+    },
+    {
+      "name": "actual-qa",
+      "error": "locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'public-connection · unchecked', exact: true })\u001b[22m\n"
+    }
+  ],
+  "shots": [
+    "public-history-gap-review-final",
+    "public-connection-pending-review-final",
+    "public-connection-approved-review-final"
+  ],
+  "pageErrors": 0,
+  "apiMutations": 0,
+  "cleanup": true
+}

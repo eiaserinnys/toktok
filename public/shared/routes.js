@@ -12,6 +12,7 @@ export const routeRegistry=Object.freeze([
   {transitionId:'admin-audit-unavailable',event:'audit-read',kind:'error',to:'admin-audit'},
   {transitionId:'admin-audit-back',event:'settings-link',kind:'back',to:'admin-settings'}]},
  {routeId:'new-room',screenId:'newroom',match:/^\/new-room$/,params:[],transitions:[
+  ...[['notice-name-input','input','success'],['notice-retention-expand','expand','success'],['notice-retention-collapse','collapse','reference'],['notice-risk-check','explicit-check','success'],['notice-create-submit','submit','success'],['notice-create-success','server-success','success'],['notice-create-uncertain','unknown-result','error'],['notice-create-retry','same-idempotent-request','reference']].map(([transitionId,event,kind])=>({transitionId,event,kind,to:'new-room'})),
   {transitionId:'private-anonymous-created',event:'anonymous-create-submit',kind:'success',to:'new-room'},
   {transitionId:'private-created',event:'create-submit',kind:'success',to:'new-room'},
   {transitionId:'private-pending',event:'create-submit',kind:'error',to:'new-room'},
@@ -72,6 +73,7 @@ export const routeRegistry=Object.freeze([
   ...[['history-scroll-up','scroll-to-top','success'],['history-reached-start','before-page-empty','success'],['history-expired','retention-gap','error'],['history-arrives-while-reading','new-message','success'],['history-back-to-latest','latest-button','reference']].map(([transitionId,event,kind])=>({transitionId,event,kind,to:'public-room'})),
   {transitionId:'public-back',event:'back-link',kind:'back',to:'introduction'}]},
  {routeId:'private-room',screenId:'room',nestedScreens:['terminal'],match:/^\/r\/([a-f0-9-]{36})\/([\w-]{43})$/,params:['id','cap'],transitions:[
+  ...[['notice-room-expand','expand','success'],['notice-room-collapse','collapse','reference']].map(([transitionId,event,kind])=>({transitionId,event,kind,to:'private-room'})),
   {transitionId:'private-expired',event:'server-expiry',kind:'time',to:'private-room'},
   {transitionId:'private-history-gap',event:'history-gap',kind:'error',to:'private-room'},
   {transitionId:'private-history-reset',event:'history-reset',kind:'error',to:'private-room'},

@@ -1,0 +1,14 @@
+{
+  "width": 1440,
+  "checks": [
+    "actual-qa"
+  ],
+  "failures": [],
+  "shots": [
+    "qa-dialog-disclosure",
+    "qa-notice-flow"
+  ],
+  "pageErrors": 0,
+  "apiMutations": 0,
+  "cleanup": true
+}

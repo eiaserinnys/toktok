@@ -1,0 +1,19 @@
+{
+  "width": 390,
+  "checks": [
+    "actual-public"
+  ],
+  "failures": [
+    {
+      "name": "actual-qa",
+      "error": "{\"url\":\"/admin/design/dialogues\",\"body\":\"검수 화면을 불러오는 중이에요.\",\"failedAssets\":[{\"path\":\"/admin/design/_assets/admin-design/notice-fixtures.js\",\"status\":429},{\"path\":\"/admin/design/_assets/admin-design/public-connection-fixtures.js\",\"status\":429},{\"path\":\"/admin/design/_assets/admin-design/common-header-fixtures.js\",\"status\":429},{\"path\":\"/admin/design/_assets/admin-design/private-fixtures.js\",\"status\":429},{\"path\":\"/admin/design/_assets/admin-design/adminlogs-fixtures.js\",\"status\":429},{\"path\":\"/admin/design/_assets/admin-design/newroom-fixtures.js\",\"status\":429},{\"path\":\"/admin/design/_assets/admin-design/claim-fixtures.js\",\"status\":429},{\"path\":\"/admin/design/_assets/admin-design/account-fixtures.js\",\"status\":429},{\"path\":\"/admin/design/_assets/shared/effect-interface.js\",\"status\":429},{\"path\":\"/admin/design/_assets/admin-design/auth-settings-fixtures.js\",\"status\":429},{\"path\":\"/admin/des"
+    }
+  ],
+  "shots": [
+    "actual-public-chat",
+    "actual-public-connect"
+  ],
+  "pageErrors": 0,
+  "apiMutations": 0,
+  "cleanup": true
+}

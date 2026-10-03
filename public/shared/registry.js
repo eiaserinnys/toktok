@@ -1,3 +1,5 @@
+import {renderNoticeDisclosure} from './components/notice-disclosure.js';
+import {renderPolicySummary} from './components/policy-summary.js';
 import {renderPublicEntryTerms} from './components/public-entry-terms.js';
 import {renderHistoryNavigation} from './components/history-navigation.js';
 import {renderPublicConversationNotes} from './components/public-conversation-notes.js';
@@ -29,6 +31,8 @@ import {renderLobby} from './screens/lobby.js';
 
 // Product and protected QA resolve the same renderers and state inventory.
 export const componentRegistry=Object.freeze({
+ 'notice-disclosure':{render:renderNoticeDisclosure,requiredStates:['closed','open','focus','long','unavailable']},
+ 'policy-summary':{render:renderPolicySummary,requiredStates:['recent_buffer','persisted','memory','tighter-server-limit','unavailable']},
  'public-entry-terms':{render:renderPublicEntryTerms,requiredStates:['pending','approved','unavailable']},
  'bootstrap-entry':{render:renderBootstrapEntry,requiredStates:['eligible','member','admin','anonymous']},
  'history-navigation':{render:renderHistoryNavigation,requiredStates:['loading','older','start','gap','new']},
@@ -36,7 +40,7 @@ export const componentRegistry=Object.freeze({
  'public-agent-entry':{render:renderPublicAgentEntry,requiredStates:['bare-url']},
  'public-catalog':{render:renderPublicCatalog,requiredStates:['ready','empty','loading','unavailable']},
  'service-description':{render:renderServiceDescription,requiredStates:['default']},
- 'risk-check':{render:renderRiskCheck,requiredStates:['unchecked','checked','disabled']},
+ 'risk-check':{render:renderRiskCheck,requiredStates:['unchecked','checked','disabled','pending']},
  'budget-usage':{render:renderBudgetUsage,requiredStates:['default','warning','cutoff','loading','unavailable','recovery-unavailable']},
  'agent-safety':{render:renderAgentSafety,requiredStates:['service-owned']},
  icon:{render:icon,requiredStates:['default']},
@@ -51,10 +55,10 @@ export const componentRegistry=Object.freeze({
 export const screenRegistry=Object.freeze({
  'public-connection':{render:renderPublicConnection,requiredStates:['loading','pending','review','checked','approving','approval-error','revoke-error','approved','joined','idle','legacy','notice-unavailable','denied','revoked','expired','unavailable']},
  adminlogs:{render:renderAdminLogs,requiredStates:['invitations','empty-invitations','used','expired','revoked','audit','empty-audit','loading','denied','unavailable','error']},
- newroom:{render:renderNewRoom,requiredStates:['anonymous','member','persist','created-recent','created-persisted','pending','lost','denied','loading','unavailable']},
+ newroom:{render:renderNewRoom,requiredStates:['created-demo','notice-name','notice-retention','notice-policy-open','notice-checked','notice-submitting','notice-uncertain','anonymous','member','persist','created-recent','created-persisted','pending','lost','denied','loading','unavailable']},
  claim:{render:renderClaim,requiredStates:['anonymous','unchecked','checked','pending','approved','error','expired','loading','unavailable']},
  account:{render:renderAccount,requiredStates:['default','revoked','empty','anonymous','loading','unavailable','error','bootstrap-ready','bootstrap-review','bootstrap-checked','bootstrap-pending','bootstrap-error','bootstrap-complete']},
- room:{render:room,requiredStates:['public-scroll-older','public-scroll-start','public-scroll-gap','public-scroll-new','public','public-history-gap','public-history-reset','public-initial-window','recent_buffer','memory','persisted','history-gap','history-reset','paused','rate-limited','header-member','header-admin','header-loading','header-unavailable']},terminal:{render:terminal,requiredStates:['anonymous','member','admin','loading','unavailable']},introduction:{render:introduction,requiredStates:['anonymous','member','admin','loading','unavailable']},guide:{render:guide,requiredStates:['anonymous','member','admin','loading','unavailable','logout-error']},
+ room:{render:room,requiredStates:['policy-open','public-scroll-older','public-scroll-start','public-scroll-gap','public-scroll-new','public','public-history-gap','public-history-reset','public-initial-window','recent_buffer','memory','persisted','history-gap','history-reset','paused','rate-limited','header-member','header-admin','header-loading','header-unavailable']},terminal:{render:terminal,requiredStates:['anonymous','member','admin','loading','unavailable']},introduction:{render:introduction,requiredStates:['anonymous','member','admin','loading','unavailable']},guide:{render:guide,requiredStates:['anonymous','member','admin','loading','unavailable','logout-error']},
  auth:{render:vm=>renderAuth(vm.screen,vm),requiredStates:['claim-email','claim-verify','claim-otp-error','login','signup-invite','signup-email','invite-invalid','closed','verify','error','expired','loading','unavailable']},
  lobby:{render:renderLobby,requiredStates:['default','empty','loading','unavailable']},
  settings:{render:renderSettingsScreen,requiredStates:['overview','public','private','budget','identity','signup','deployment','loading','denied','error','conflict','budget-loading','budget-unavailable']}

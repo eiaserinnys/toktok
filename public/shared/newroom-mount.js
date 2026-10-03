@@ -1,13 +1,14 @@
+import {captureDisclosures,restoreDisclosures} from './components/notice-disclosure.js';
 import {createRoomController} from './newroom-controller.js';
 import {renderNewRoom} from './screens/newroom.js';
 import {createSelects} from './components/selects.js';
 export function mountNewRoom(root,{effects,navigate}){
  const doc=root.ownerDocument,selects=createSelects(doc);let state,alive=true;
  const controller=createRoomController({effects,origin:doc.defaultView.location.origin,paint:vm=>{
-  state=vm;const current=doc.activeElement,focused=root.contains(current)?{id:current.id,name:current.name,action:current.dataset.x,start:current.selectionStart,end:current.selectionEnd}:null,top=window.scrollY;
+  const saved=state?.status==='created'||vm.status==='created'?null:captureDisclosures(root);state=vm;const current=doc.activeElement,focused=root.contains(current)?{id:current.id,name:current.name,action:current.dataset.x,start:current.selectionStart,end:current.selectionEnd}:null,top=window.scrollY;
   selects.clear();root.innerHTML=renderNewRoom(vm);selects.enhance(root);
   if(focused){const target=focused.id?doc.getElementById(focused.id):[...root.querySelectorAll('input,button')].find(x=>focused.name?x.name===focused.name:x.dataset.x===focused.action);target?.focus({preventScroll:true});if(focused.start!==null&&focused.start!==undefined&&target?.type==='text')target.setSelectionRange(focused.start,focused.end);}
-  window.scrollTo({top,behavior:'instant'});
+  restoreDisclosures(root,saved);window.scrollTo({top,behavior:'instant'});
  }});
  const submit=event=>{if(event.target.id==='xRoomForm'){event.preventDefault();controller.submit();}};
  const change=event=>{const x=event.target;if(['purpose','ttl_seconds','retention_seconds','persist','checked'].includes(x.name))controller.set(x.name,x.name==='checked'?x.checked:x.name==='persist'?x.value==='on':['ttl_seconds','retention_seconds'].includes(x.name)?Number(x.value):x.value);};

@@ -1,3 +1,6 @@
+import {updateHistoryHelp} from './shared/components/history-navigation.js';
+import {renderRetentionDisclosure} from './shared/components/policy-summary.js';
+import {replaceNoticeContent} from './shared/components/notice-disclosure.js';
 import {createHistoryFeed} from './history-feed.js';
 import {mountPublicConnection} from './shared/public-connection-mount.js';
 import {mountCommonHeader} from './shared/common-header-mount.js';
@@ -49,8 +52,8 @@ function metadata(state,data){
  $('#link-description').textContent='이 화면에서 사람은 메시지를 보내지 않고 관전해요.';
  $('#link-scope').textContent=invite?'초대 권한으로 에이전트가 입장할 수 있어요. 발신에는 입장 후 받은 별도 참여자 토큰이 필요해요.':'메시지 읽기만 허용돼요. 이 링크로 입장하거나 발신할 수 없어요.';
  $('#share-description').textContent=invite?'현재 초대 링크를 공유해요. 관전 화면은 읽기 전용이에요.':'현재 읽기 전용 링크를 공유해요. 입장 권한을 새로 만들지 않아요.';
- $('#private-notice').innerHTML=notice;
- $('#retention-summary').hidden=false;$('#retention-summary').textContent=data.room.retention_mode==='recent_buffer'?'최근 대화는 DB에 최대 500개·2MiB·1시간 이내로 보관해요. 이 방의 실제 한도는 연결 방법에 있어요.':data.room.retention_mode==='memory'?'이전 정책의 본문은 서버 메모리에만 두며 재시작 때 사라질 수 있어요.':`생성 시 선택한 본문 보관기간은 ${data.room.retention_seconds.toLocaleString('ko-KR')}초예요. 연결 방법에서 전체 고지를 확인하세요.`;
+ replaceNoticeContent($('#private-notice'),notice);
+ replaceNoticeContent($('[data-role=private-retention]'),renderRetentionDisclosure({id:'private-retention-chat',room:data.room,title:'최근 대화 보관 · 자세히'}));
  clock(state);
 }
 function append(state,m){
@@ -106,6 +109,7 @@ async function start(state){
    const result=await fetchJSON(state,path,controller);if(!owned())return;
    if(!result.response.ok){state.readingLive=false;state.viewer.setBusy(false);if(direction!=='live')state.historyRequest=direction;if(!failState(state,result))armRetry(state,controller,result.response);return;}
    state.readingLive=false;state.viewer.setBusy(false);state.lastHistoryRead=Date.now();
+   updateHistoryHelp(state.root,result.data);
    const applied=state.viewer.apply(result.data,direction,(state.metadata.room.history_retention_seconds??state.metadata.room.retention_seconds??3600)*1000);
    if(direction!=='before'&&direction!=='after'||more||applied.reset)state.cursor=result.data.cursor;
    state.epoch=result.data.epoch;state.attempt=0;more=(direction==='live'||more)&&result.data.has_more;
@@ -204,7 +208,7 @@ function navigate(){
  previousPath=location.pathname;
  if(resolved?.routeId==='public-room'){
   const grant=consumeFragment(location,history),key='public:'+resolved.params.slug;let state=states.get(key);
-  if(!state){const root=document.createElement('div');root.innerHTML=room();state=createPublicState(root,resolved.params.slug,location.origin+location.pathname,grant);states.set(key,state);bind(state);bindPublic(state,publicUI);}
+  if(!state){const root=document.createElement('div');root.innerHTML=room({ui:{route:location.pathname}});state=createPublicState(root,resolved.params.slug,location.origin+location.pathname,grant);states.set(key,state);bind(state);bindPublic(state,publicUI);}
   active=state;app.replaceChildren(state.root);commonHeader=mountCommonHeader(state.root,{effects,navigate:move,route:location.pathname});scrollTo({top:state.pageY,behavior:'instant'});if(!state.paused)start(state);return;
  }
  if(resolved?.routeId!=='private-room'){app.innerHTML=resolved?.screenId==='guide'?guide():introduction();commonHeader=mountCommonHeader(app,{effects,navigate:move,route:location.pathname});if(resolved?.routeId==='introduction')catalog(app);return;}

@@ -1,0 +1,26 @@
+{
+  "width": 390,
+  "checks": [
+    "newroom-continuity",
+    "public-dialog-continuity"
+  ],
+  "failures": [
+    {
+      "name": "zoom",
+      "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ [\n+   'intro',\n+   'newroom-persist',\n+   'private-empty',\n+   'auth-login',\n+   'public-connection-pending'\n+ ]\n- []\n"
+    }
+  ],
+  "shots": [
+    "intro-zoom200",
+    "newroom-persist-zoom200",
+    "private-empty-zoom200",
+    "auth-login-zoom200",
+    "public-connection-pending-zoom200",
+    "settings-budget-zoom200",
+    "newroom-error",
+    "public-approval-error-return"
+  ],
+  "pageErrors": 0,
+  "apiMutations": 0,
+  "cleanup": true
+}

@@ -1,3 +1,4 @@
+import {captureDisclosures,restoreDisclosures} from './components/notice-disclosure.js';
 import {createSettingsController} from './settings-controller.js';
 import {renderSettingsScreen} from './screens/settings.js';
 import {createSettingsDialog} from './dialogs/settings.js';
@@ -5,13 +6,13 @@ import {createSelects} from './components/selects.js';
 
 export function mountSettings(root,{effects,section='overview'}){
  const document=root.ownerDocument,window=document.defaultView,selects=createSelects(document);
- let dialog=null,lock=null,lastState,currentSection=section;
+ let dialog=null,lock=null,lastState,currentSection=section,paintedSection=null;
  function removeDialog(){const previous=dialog;dialog=null;if(previous){previous.close();previous.remove();}if(lock!==null){document.body.style.overflow=lock;lock=null;}}
  const paint=state=>{
-  lastState=state;
+  const saved=paintedSection===currentSection?captureDisclosures(root):null;paintedSection=currentSection;lastState=state;
   const focus=document.activeElement?.id,top=window.scrollY;
   selects.clear();root.innerHTML=renderSettingsScreen({...state,section:currentSection});selects.enhance(root);
-  if(!dialog&&focus)document.getElementById(focus)?.focus({preventScroll:true});window.scrollTo({top,behavior:'instant'});
+  if(!dialog&&focus)document.getElementById(focus)?.focus({preventScroll:true});restoreDisclosures(root,saved);window.scrollTo({top,behavior:'instant'});
   const priorKind=dialog?.dataset.kind,priorAction=dialog?.contains(document.activeElement)?document.activeElement.dataset.x:null;
   removeDialog();
   if(state.dialog){

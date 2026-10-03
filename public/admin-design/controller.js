@@ -20,6 +20,7 @@ export function mountDesignReview(root,view='flows'){
    const rendered=componentRegistry[fixture.componentId].render(...fixture.args);
    if(typeof rendered==='string'){const container=document.createElement('div');container.innerHTML=rendered;section.append(container);}else section.append(rendered);
    root.append(section);
+   if(fixture.focusSelector){const focus=section.querySelector(fixture.focusSelector);focus?.focus({preventScroll:true});}
   }
   const selects=createSelects(root.ownerDocument);selects.enhance(root);
   root.querySelector('#fixture-select-opened')?.parentElement.querySelector('.tok-select-button')?.click();

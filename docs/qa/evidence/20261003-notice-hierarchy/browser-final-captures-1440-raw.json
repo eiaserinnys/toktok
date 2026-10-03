@@ -1,0 +1,19 @@
+{
+  "width": 1440,
+  "checks": [
+    "final-captures"
+  ],
+  "failures": [],
+  "shots": [
+    "intro-final",
+    "rooms-default-final",
+    "newroom-member-final",
+    "newroom-persist-final",
+    "auth-login-final",
+    "public-history-gap-final",
+    "settings-budget-final"
+  ],
+  "pageErrors": 0,
+  "apiMutations": 0,
+  "cleanup": true
+}

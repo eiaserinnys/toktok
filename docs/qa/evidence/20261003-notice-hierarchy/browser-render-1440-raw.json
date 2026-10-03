@@ -1,0 +1,67 @@
+{
+  "width": 1440,
+  "checks": [
+    "surfaces",
+    "dialogs",
+    "actual-private"
+  ],
+  "failures": [
+    {
+      "name": "zoom",
+      "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ [\n+   'newroom-persist'\n+ ]\n- []\n"
+    },
+    {
+      "name": "newroom-continuity",
+      "error": "page.evaluate: ReferenceError: __name is not defined\n    at eval (eval at evaluate (:311:30), <anonymous>:1:402)\n    at async <anonymous>:337:30"
+    },
+    {
+      "name": "public-dialog-continuity",
+      "error": "page.evaluate: ReferenceError: __name is not defined\n    at eval (eval at evaluate (:311:30), <anonymous>:1:463)\n    at async <anonymous>:337:30"
+    }
+  ],
+  "shots": [
+    "intro",
+    "rooms-default",
+    "newroom-anonymous",
+    "notice-newroom-policy-open",
+    "newroom-persist",
+    "newroom-created-recent",
+    "newroom-lost",
+    "auth-login",
+    "auth-signup-email",
+    "claim-unchecked",
+    "account-default",
+    "settings-private",
+    "settings-budget",
+    "adminlogs-invitations",
+    "adminlogs-audit",
+    "public-connection-pending",
+    "public-connection-approved",
+    "public-connection-legacy",
+    "public-connection-notice-unavailable",
+    "private-empty",
+    "private-persisted",
+    "private-memory",
+    "public-history-gap",
+    "guide",
+    "intro-zoom200",
+    "newroom-persist-zoom200",
+    "private-empty-zoom200",
+    "auth-login-zoom200",
+    "public-connection-pending-zoom200",
+    "settings-budget-zoom200",
+    "dialog-public-connection-unchecked",
+    "dialog-public-connection-notice-unavailable",
+    "dialog-public-connection-revoke-error",
+    "dialog-public-risk-unchecked",
+    "dialog-settings-review-default",
+    "dialog-settings-reload-default",
+    "dialog-invitation-created-one-time",
+    "dialog-agent-revoke-error",
+    "dialog-admin-bootstrap-unchecked",
+    "actual-private-connect-redacted"
+  ],
+  "pageErrors": 0,
+  "apiMutations": 0,
+  "cleanup": true
+}
