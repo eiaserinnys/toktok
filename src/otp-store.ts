@@ -24,6 +24,7 @@ export class OtpStore{
   const day=Number((await this.tx.get(C.budgets,`usage:email_attempts:d:${w.day}`))?.used??0),month=Number((await this.tx.get(C.budgets,`usage:email_attempts:m:${w.month}`))?.used??0);
   const decision=budgetDecision(settings,'email_attempts',1,day,month);if(month>=limits.month||decision.monthExceeded)retry=Math.max(retry,w.monthEnd-now);if(decision.dayExceeded)retry=Math.max(retry,w.dayEnd-now);
   if(retry>0)throw new HttpError(429,'EMAIL_RATE_LIMITED','이메일 발송 한도를 초과했습니다.',Math.ceil(retry/1000));
+  await store.checkBudget('email_attempts',1,now);
   const allowed=await eligible(email,f),code=allowed?this.code():'',otpDigest=code?await this.digest('otp',input.flow_hash!,email,f.nonce_hash,code):'',expires=Math.min(f.expires_at,now+lifetimeSeconds*1000);
   if(allowed)await store.reserveBudget(newBudgetOperation(now,expires),'email_attempts',1,now);
   await save(this.tx,C.flows,'f:'+input.flow_hash!,{...f,email_key:emailKey});

@@ -1,4 +1,5 @@
-import {bad,fail} from './http';
+import {HttpError,bad,fail} from './http';
+import {budgetDecision,budgetWindows} from './control-policy';
 import type {BudgetKind,Settings} from './settings-schema';
 
 /** Conservative reference estimate, not an invoice meter or a Node hosting cost model. */
@@ -22,4 +23,14 @@ export function estimateState(settings:Settings,dayVariable:number,monthVariable
  const month=BUDGET_ESTIMATE_MODEL.fixed_month_micro_usd+monthVariable;
  if([dayVariable,monthVariable,month].some(n=>!Number.isSafeInteger(n)||n<0))fail(503,'CONTROL_STATE_INVALID','추정 예산 상태를 확인하지 못했습니다.');
  return {day_micro_usd:dayVariable,month_micro_usd:month,warning_reached:month>=settings.budget.warningUsd*BUDGET_ESTIMATE_MODEL.micro_usd_per_usd,cutoff_exceeded:month>settings.budget.cutoffUsd*BUDGET_ESTIMATE_MODEL.micro_usd_per_usd};
+}
+
+/** Read-only shared decision; admission and actual reservation use the same cutoff calculation. */
+export function budgetPreflight(settings:Settings,kind:BudgetKind,amount:number,now:number,used:{day:number;month:number;estimatedDay:number;estimatedMonth:number}){
+ if(Object.values(used).some(n=>!Number.isSafeInteger(n)||n<0))fail(503,'CONTROL_STATE_INVALID','예산 상태를 확인하지 못했습니다.');
+ const w=budgetWindows(now),quantity=budgetDecision(settings,kind,amount,used.day,used.month);
+ if(!quantity.allowed)throw new HttpError(429,'BUDGET_EXCEEDED','작업량 상한에 도달했습니다.',Math.max(1,Math.ceil(((quantity.monthExceeded?w.monthEnd:w.dayEnd)-now)/1000)));
+ const cost=reservationMicroUsd(kind,amount);
+ if(estimateState(settings,used.estimatedDay+cost,used.estimatedMonth+cost).cutoff_exceeded)throw new HttpError(429,'ESTIMATED_BUDGET_EXCEEDED','추정 예산 상한에 도달했습니다.',Math.max(1,Math.ceil((w.monthEnd-now)/1000)));
+ return cost;
 }

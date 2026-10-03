@@ -1,0 +1,21 @@
+heavy verification: running in slot 1/2
+
+ RUN  v4.1.0 /home/eias/workspace/.projects/toktok--feat-claim-foundation-0ac9c22f
+
+stdout | test/control-email-preflight.test.ts > allowed and suppressed addresses receive the same estimated cutoff denial before eligibility writes
+EMAIL_PREFLIGHT_EVIDENCE [{"step":"config","status":200},{"step":"start","status":200},{"step":"start","status":200},{"step":"email-reserve","status":429,"code":"ESTIMATED_BUDGET_EXCEEDED","retry_after":2678400},{"step":"email-reserve","status":429,"code":"ESTIMATED_BUDGET_EXCEEDED","retry_after":2678400},{"step":"estimate preflight state before assertion","status":200,"state":{"estimate":990000,"quantity":0,"codes":0,"requests":0}}]
+
+stdout | test/control-email-preflight.test.ts > quantity preflight denial is also identical and makes no email reservations
+EMAIL_PREFLIGHT_EVIDENCE [{"step":"config","status":200},{"step":"start","status":200},{"step":"start","status":200},{"step":"email-reserve","status":429,"code":"EMAIL_RATE_LIMITED","retry_after":2678400},{"step":"email-reserve","status":429,"code":"EMAIL_RATE_LIMITED","retry_after":2678400},{"step":"quantity preflight state before assertion","status":200,"state":{"estimate":0,"quantity":10000,"codes":0,"requests":0}}]
+
+stdout | test/control-email-preflight.test.ts > successful preflight only charges and creates OTP for the eligible path while suppressed receipt stays generic
+EMAIL_PREFLIGHT_EVIDENCE [{"step":"config","status":200},{"step":"start","status":200},{"step":"email-reserve","status":200},{"step":"start","status":200},{"step":"email-reserve","status":200},{"step":"eligible versus suppressed storage before assertion","status":200,"state":{"estimate":10014,"quantity":1,"codes":1,"requests":2}}]
+
+ ✓ test/control-email-preflight.test.ts (3 tests) 111ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  10:09:32
+   Duration  1.44s (transform 346ms, setup 0ms, import 554ms, tests 111ms, environment 0ms)
+
+JSON report written to /home/eias/workspace/.projects/toktok--feat-claim-foundation-0ac9c22f/test/control-email-preflight-green.json

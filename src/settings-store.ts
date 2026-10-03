@@ -1,9 +1,9 @@
-import {HttpError,bad,fail} from './http';
+import {bad,fail} from './http';
 import {DEFAULT_SETTINGS,validateSettings,publicConfig,type Settings,type BudgetKind,BUDGET_KINDS} from './settings-schema';
-import {budgetDecision,budgetWindows,validateBudgetOperation} from './control-policy';
+import {budgetWindows,validateBudgetOperation} from './control-policy';
 import {C,type Tx,save,read,expire} from './control-records';
 import {CONTROL_ENFORCEMENT_VERSION,enforcementReady,type TrustedEnforcement,type InstallationSeed} from './control-installation';
-import {BUDGET_ESTIMATE_MODEL,reservationMicroUsd,estimateState} from './control-budget';
+import {BUDGET_ESTIMATE_MODEL,estimateState,budgetPreflight} from './control-budget';
 export interface ControlState {bootstrap_consumed:boolean;budget_ready:boolean;lifecycle_ready:boolean;active_private:number;pending_agents:number;}
 export interface SettingsRow {schema_version:number;revision:number;settings:Settings;updated_at:number;updated_by:string|null;}
 /** One transaction is owned by ControlCore. Helpers never open nested transactions. */
@@ -41,16 +41,16 @@ export class SettingsStore {
   for(const cap of settings.budget.workloadCaps)usage.push({kind:cap.kind,unit:cap.unit,day:{reserved:await this.used(`usage:${cap.kind}:d:${w.day}`),limit:cap.day},month:{reserved:await this.used(`usage:${cap.kind}:m:${w.month}`),limit:cap.month}});
   return {windows:{day:w.day,month:w.month,next_day_at:new Date(w.dayEnd).toISOString(),next_month_at:new Date(w.monthEnd).toISOString()},usage,estimate:estimateState(settings,await this.used('estimate:d:'+w.day),await this.used('estimate:m:'+w.month)),thresholds:{target_usd:settings.budget.targetUsd,warning_usd:settings.budget.warningUsd,cutoff_usd:settings.budget.cutoffUsd},model:BUDGET_ESTIMATE_MODEL};
  }
+ /** Same transaction, read-only: call before checking address eligibility. */
+ async checkBudget(kind:BudgetKind,amount:number,now:number){
+  const settings=(await this.read()).settings,w=budgetWindows(now),dayKey=`usage:${kind}:d:${w.day}`,monthKey=`usage:${kind}:m:${w.month}`,estimateDayKey='estimate:d:'+w.day,estimateMonthKey='estimate:m:'+w.month;
+  const day=await this.used(dayKey),month=await this.used(monthKey),estimatedDay=await this.used(estimateDayKey),estimatedMonth=await this.used(estimateMonthKey);
+  const cost=budgetPreflight(settings,kind,amount,now,{day,month,estimatedDay,estimatedMonth});return {w,dayKey,monthKey,day,month,cost,estimateDayKey,estimateMonthKey,estimatedDay,estimatedMonth};
+ }
  async reserveBudget(operation_id:string,kind:BudgetKind,amount:number,now:number){
   if(!BUDGET_KINDS.includes(kind))bad();const key='op:'+operation_id;
   const old=await this.tx.get(C.budgets,key);if(old&& (old.kind!==kind||old.amount!==amount))fail(409,'IDEMPOTENCY_CONFLICT','작업 식별자의 내용이 다릅니다.');const expiry=validateBudgetOperation(operation_id,kind,now);if(old)return {day:String(old.day),month:String(old.month),reserved:true,replayed:true};
-  const settings=(await this.read()).settings,w=budgetWindows(now),dayKey=`usage:${kind}:d:${w.day}`,monthKey=`usage:${kind}:m:${w.month}`;
-  const day=Number((await this.tx.get(C.budgets,dayKey))?.used??0),month=Number((await this.tx.get(C.budgets,monthKey))?.used??0);
-  if([day,month].some(n=>!Number.isSafeInteger(n)||n<0))fail(503,'CONTROL_STATE_INVALID','작업량 상태를 확인하지 못했습니다.');
-  const decision=budgetDecision(settings,kind,amount,day,month);if(!decision.allowed)throw new HttpError(429,'BUDGET_EXCEEDED','작업량 상한에 도달했습니다.',Math.ceil(((decision.monthExceeded?w.monthEnd:w.dayEnd)-now)/1000));
-  const cost=reservationMicroUsd(kind,amount),estimateDayKey='estimate:d:'+w.day,estimateMonthKey='estimate:m:'+w.month;
-  const estimatedDay=await this.used(estimateDayKey),estimatedMonth=await this.used(estimateMonthKey);
-  if(estimateState(settings,estimatedDay+cost,estimatedMonth+cost).cutoff_exceeded)throw new HttpError(429,'ESTIMATED_BUDGET_EXCEEDED','추정 예산 상한에 도달했습니다.',Math.max(1,Math.ceil((w.monthEnd-now)/1000)));
+  const {w,dayKey,monthKey,day,month,cost,estimateDayKey,estimateMonthKey,estimatedDay,estimatedMonth}=await this.checkBudget(kind,amount,now);
   await save(this.tx,C.budgets,estimateDayKey,{used:estimatedDay+cost});await save(this.tx,C.budgets,estimateMonthKey,{used:estimatedMonth+cost});
   await save(this.tx,C.budgets,dayKey,{used:day+amount});await save(this.tx,C.budgets,monthKey,{used:month+amount});await save(this.tx,C.budgets,key,{kind,amount,day:w.day,month:w.month,estimated_micro_usd:cost,estimate_model:BUDGET_ESTIMATE_MODEL.version,expires_at:expiry});
   await expire(this.tx,C.budgets,key,expiry);return {day:w.day,month:w.month,reserved:true,replayed:false};
