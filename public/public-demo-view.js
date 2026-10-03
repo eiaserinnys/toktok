@@ -20,7 +20,7 @@ export function publicRoom(root){
 }
 export async function catalog(root){
  const section=node('section','rooms-section');section.innerHTML='<div class="section-heading"><div><span class="eyebrow">OUR LITTLE ROOMS</span><h2>공개 데모</h2></div></div><div class="room-grid"></div><p class="fineprint" role="status">공개방을 읽고 있어요.</p>';
- const home=root.querySelector('.home');home.insertBefore(section,home.querySelector('.x-bottom-links'));
+ const home=root.querySelector('.home');home.insertBefore(section,home.querySelector('#service-description')??home.querySelector('.x-bottom-links'));
  try{
   const response=await fetch('/api/public/rooms',{cache:'no-store'});if(!response.ok)throw Error();const data=await response.json();
   for(const r of data.rooms){
