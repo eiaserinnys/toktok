@@ -1,5 +1,5 @@
 import {bad,fail,text} from './http';
-import type {Env} from './contracts';
+import type {IdentityEnv} from './identity-types';
 export interface EmailDelivery {to:string;code:string;expires_at:number;}
 export type EmailSender=(delivery:EmailDelivery)=>Promise<void>;
 export interface IdentityOptions {sendEmail?:EmailSender;trustedIP?:(request:Request)=>string;now?:()=>number;}
@@ -20,7 +20,7 @@ export function trustedIP(request:Request):string{
  if(!request.cf||!ip||request.headers.has('CF-Worker'))fail(503,'TRUSTED_IP_REQUIRED','인증 발송을 준비하지 못했습니다.');
  try{return normalizeIP(ip);}catch{return fail(503,'TRUSTED_IP_REQUIRED','인증 발송을 준비하지 못했습니다.');}
 }
-export function sender(env:Env,options:IdentityOptions):EmailSender{
+export function sender(env:Pick<IdentityEnv,'EMAIL'|'EMAIL_FROM'>,options:IdentityOptions):EmailSender{
  if(options.sendEmail)return options.sendEmail;
  if(!env.EMAIL||!env.EMAIL_FROM)fail(503,'AUTH_PROVIDER_UNCONFIGURED','이메일 확인 연결을 준비하고 있습니다.');
  const from=normalizeEmail(env.EMAIL_FROM);

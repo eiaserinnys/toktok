@@ -93,7 +93,7 @@ operation ID는 서버 발급 시각/고정 작업 만료/UUID를 포함합니�
 - 15개는 seed 재초기화 유지/손상 닫힘, admin role/Origin/CSRF/CAS/audit, readiness/drain fixture, bootstrap1회, invite browser/flow/email/동시소비/만료/폐기/오입력/기존회원, DB persist checker, cap 축소 후 OTP/session/claim, UTC budget 경합/월경계/dedupe/만료를 확인합니다. seed 증거는 같은 DB 새 Store init이며 프로세스 재시작 시험으로 확대하지 않습니다.
 - firstWindow 최대300초와 batch2000..10000ms는 첫15개 실행 뒤 root 지시에 따라 검증 schema만 좁게 정정했습니다. 같은 Worker pool에서 이 경계만 선택해 1 passed / 15 skipped, exit0을 확인했습니다(`../test/control-bounds-targeted.json`). responseBytes는 admin schema min=max=65536, byteBurst>=responseBytes, waits<=handlers, responseBurst>=1, batchMs<=waitMs를 확정했습니다. 이전15개 전체는 반복하지 않았습니다.
 - 기존 OTP 13개/2215 browser 증거는 `qa/claim-wip-20261002`에 보존됩니다. 새 admin/auth UI나 Repository/selfhost 통과로 확대하지 않습니다. 새 browser/메일/설치/배포는 실행하지 않았습니다.
-- 기존 auth/OTP 테스트 fixture는 옛 start payload/cookie/allowlist/session DTO를 사용하므로 최종 통합 시 새 DB admission fixture로 이관해야 합니다. 전체 회귀와 최종 OpenAPI/production dispatcher wiring은 root 책임이며 이번 targeted 결과가 그 회귀 통과를 뜻하지 않습니다.
+- 기존 auth/OTP fixture는 아래 HTTP port 후속에서 새 DB admission으로 이관했습니다. foundation/routing의 실제 Room fixture 이관, 전체 회귀와 최종 OpenAPI/production dispatcher wiring은 root 책임이며 이 targeted 결과가 그 회귀 통과를 뜻하지 않습니다.
 - 동일 domain을 async RepositoryPort(control scope)로 이식합니다. B CloudflareRepository의 tok_records/tok_migrations schema는 기존 SQL DO에 바로 적용하지 않고 신규 ControlPlane namespace에 주입합니다. 운영 계정/방이 아직 없으며 old WIP 자동변환은 하지 않습니다. B SQLite/PG/CF adapter와 같은 core를 사용하고 callback 안에 외부메일/HTTP/longpoll을 넣지 않습니다.
 - 실제 초기 admin provisioning, sender binding/DNS/preview OFF 실측/실제메일, UI renderer/registry, lifecycle/budget enforcement 및 최종 통합 CI는 남았습니다.
 
@@ -101,7 +101,23 @@ operation ID는 서버 발급 시각/고정 작업 만료/UUID를 포함합니�
 
 - CF milestone 당시 control test/config/worker는 `.milestone.txt`로 보존했습니다. 기존 결과를 취소한 것이 아니며 이식 후 runtime fixture와 구분합니다.
 - 새 pool은 `test/control-port-vitest.config.ts`/`control-port-wrangler.jsonc`/`control-port-worker.ts`입니다. 실제 Workers SQLite Repository, controlled edge, DI clock, fake sender만 사용하고 운영 메일0입니다.
-- 첫 이식 runtime 시도는 잘못 지정된 fixture entry가 ControlPlane을 export하지 않아 초기화 단계에서 실패했습니다. domain assertion은 실행되지 않았으며 entry 수정 후 허용된 보정 실행을 기다립니다.
+- 첫 이식 runtime 시도는 잘못 지정된 fixture entry가 ControlPlane을 export하지 않아 초기화 단계에서 실패했습니다. domain assertion은 실행되지 않았습니다. entry와 B adapter 정본 보정 후 허용된 실행 1회가 8 passed / 0 failed / exit0으로 끝났습니다. `test/control-port-runtime.json`에 테스트별 판정, `test/control-port-runtime.log`에 비밀을 제외한 status/errorcode/Retry-After 원시 결과가 있습니다.
 - 첫 이식 타입검사는 B CF storage exec generic과 설치 Workers 타입의 제약 차이로 TS2345 6건을 냈습니다. B 단독 generic checkpoint f55ae735를 반영하고 같은 tsc --noEmit 보정 실행 1회가 exit0으로 끝났습니다. strict 설정/any/ts-ignore를 완화하지 않았습니다.
-- CF alarm 내부 테이블 취급 보정은 B checkpoint를 기다립니다. 신규 domain gate에는 seed/HMAC 보존, enabled seed 음성 조건, CAS/bootstrap/invite/OTP 일회성, UTC budget 및 생성 grant/slot 경합만 포함합니다. 기존 전체 회귀나 browser를 반복하지 않습니다.
+- B alarm checkpoint e013eb3는 정확한 __cf_kv/_cf_METADATA만 제외하며 임의 사용자 테이블은 계속 닫습니다. 이후 통과한 신규 domain gate는 seed/HMAC 보존과 무인 admin 생성0, enabled seed 음성 조건, bootstrap/CAS/DB admin-CSRF, invite 동시소비/OTP dedupe/browser/nonce/5오입력, 로그인 중 추가 claim 메일0, agent 기존 ack 시각, UTC day+month budget 경합/내용충돌/만료/월경계, 익명 persist 거부, account DB persist snapshot/retention422, grant 1회·전역 slot 경합·결과 유실409·close/절대 만료 slot 반환을 확인합니다. PrivateRoom 자체 initialize/본문 저장은 호출하지 않았습니다. 기존 전체 회귀나 browser를 반복하지 않았습니다.
+- 실제 실행 명령은 `heavy_verify.py --timeout 300 -- node node_modules/vitest/vitest.mjs run --config test/control-port-vitest.config.ts --reporter=default --reporter=json --outputFile=test/control-port-runtime.json`입니다. worker1, nodejs_als, 실제 SQLite targeted Repository, controlled edge/DI clock/fake sender이며 remote binding/실제메일0입니다. foreground는 exit0으로 회수했습니다.
 - 단계3 독립 읽기전용 reviewer는 새 core/create/seed 구현을 정적 검수해 추가 blocker 없이 통과했습니다. runtime 결과나 B adapter/최종 root wiring 검증을 대신하지 않습니다.
+- draft PR #5의 head52e3a5d CI run37079104598은 pnpm test에서 34 failed/1 passed로 실패했습니다. 원문은 기존 OTP fixture의 purpose 없는 start 입력400 INVALID_INPUT, 기존 agent fixture의 humans SQL 테이블 참조 실패 등을 포함합니다. 옛 fixture의 DB/payload 이관과 final wiring을 root에 넘겼으며 뒤의 타입검사/acceptance/dry-run은 skipped입니다. 이 실패를 통합 성공으로 표기하거나 로컬 gate를 반복하지 않았습니다.
+
+## 공통 HTTP port 및 auth fixture 이관
+
+`ControlHttpPort.execute(action,input):Promise<unknown>`를 최소 `IdentityEnv.controlPort`로 주입합니다. HTTP handler Env는 PUBLIC_ORIGIN/IP limiter/control port/optional mail만 요구하며 DO namespace를 알지 않습니다. 옛 root 소스 타입 호환을 위해 optional이지만 누락은 CONTROL_UNCONFIGURED503이고 DO fallback은 없습니다. CF host는 `responseControlPort(send)` callback에서 실제 CONTROL.fetch를 주입하고 Node는 같은 ControlCore를 직접 주입합니다. Response adapter는 domain status/code/Retry-After와 creation409 room_id를 보존합니다. auth/admin/create handler나 domain을 복제하지 않습니다.
+
+trusted `get-runtime-config` action은 `{settings,revision,readiness}`를 반환합니다. 공개 GET /api/config는 기존 안전 projection만 반환합니다. budget-reserve는 trusted control port의 operation_id/kind/amount 입력이며 HTTP 공개 body로 dispatch하지 않습니다. root가 control/auth/config/admin router 비용 예약과 방 정책 revision 갱신에 연결합니다.
+
+`test/control-auth-host.ts`는 같은 identity/admin/private HTTP handler에 포트를 주입하고 실제 Workers SQLite Repository를 사용합니다. 실제 메일0, edge binding controlled, clock/IP/provider만 test DI입니다. 기존 OTP 13개와 claim 9개를 새 purpose/DB admission/session DTO/row storage로 이관했고 의미를 삭제하거나 skip해서 통과시키지 않았습니다. 이메일 월9999 경합/10000차단/늦은 전월 결과, 1회 발송·재시작 지문 replay·주소/IP 제한·동시오입력·native template 개인정보, claim owner 경쟁/Origin/CSRF/철회/만료/등록한도를 검증합니다.
+
+첫 이관 실행은 21 passed / 1 failed였습니다. 만료 물리정리 case의 원인은 거부 HTTP transaction에서 정리가 rollback되는 데 독립 maintenance 호출을 fixture가 누락한 것입니다. test-only DI clock으로 실제 ControlCore.maintain을 호출해 실패1개만 1 passed / 21 skipped로 보정했습니다. 이는 domain maintenance 검사이며 실제 CF alarm dispatch/실시간 clock 검증으로 확대하지 않습니다. `test/control-auth-runtime.json/.log`와 `test/control-auth-maintenance-targeted.json/.log`에 최초/보정 원문을 함께 보존합니다. productsource 수리나 통과21개 반복은 하지 않았습니다.
+
+실행은 `heavy_verify.py --timeout 300 -- node node_modules/vitest/vitest.mjs run --config test/control-auth-vitest.config.ts`이며 실패1개 보정은 `-t "rejects expired and logged-out sessions"`를 추가했습니다. 각 worker1, foreground exit 회수, secret/메일주소/원문 OTP는 증거에 넣지 않았습니다. HTTP port 변경 strict tsc는 test harness 타입2건을 국소 보정해 exit0이었고 이후 maintenance helper만 추가했습니다. 최종 strict/전체 CI는 root 통합 경로에서 확인합니다. 변경 HTTP 접점의 독립 읽기전용 검수도 blocker 없이 통과했습니다.
+
+OTP cap 이후 실제 Room 왕복과 기존 room capability의 철회 후 계속 접근은 새 PrivateRoom/dispatcher 의존입니다. A는 cap 이후 session/claim/creator authority와 mail 추가0까지만 검증하고 실제 Room 메시지/링크를 root cross-runtime HTTP gate에 넘깁니다. register/guide 실제 페이지, QA shared renderer/coverage, 기존 foundation/routing fixture와 final bindings/CI도 미완료 경계입니다.

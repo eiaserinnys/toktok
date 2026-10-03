@@ -55,6 +55,8 @@ export class ControlDomain {
  async execute(action:string,input:RegistryInput):Promise<unknown>{
   const settings=(await this.settings.read()).settings,now=this.now;
   if(action==='config')return this.settings.projection();
+  // Trusted host transport only. Never dispatch this action from a public route.
+  if(action==='get-runtime-config'){const row=await this.settings.read();return {settings:row.settings,revision:row.revision,readiness:await this.settings.state()};}
   if(action==='invitation-validate')return this.invitations.validate(input.token_hash!,input.invitation_validation_hash!,input.browser_hash!,now);
   if(action==='admin-bootstrap'){
    const {account}=await this.session(input,true);if(input.confirm!==true||!await this.bootstrapEligible(account.email))fail(403,'BOOTSTRAP_DENIED','최초 관리자 확인을 진행할 수 없습니다.');

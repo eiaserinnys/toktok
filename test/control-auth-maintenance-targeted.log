@@ -1,0 +1,16 @@
+heavy verification: running in slot 1/2
+
+ RUN  v4.1.0 /home/eias/workspace/.projects/toktok--feat-claim-foundation-0ac9c22f
+
+stdout | test/claims.test.ts > rejects expired and logged-out sessions and physically cleans expired pending agents, flows and sessions
+TOKTOK_CLAIM_HTTP [{"path":"/api/agents","status":201,"retry_after":null},{"path":"/api/auth/start","status":200,"retry_after":null},{"path":"/api/auth/email/send","status":200,"retry_after":"120"},{"path":"/api/auth/complete","status":200,"retry_after":null},{"path":"/api/session","status":200,"retry_after":null},{"path":"/api/auth/logout","status":200,"retry_after":null},{"path":"/api/session","status":200,"retry_after":null},{"path":"/api/claims/<id>/approve","status":401,"code":"SESSION_REQUIRED","retry_after":null},{"path":"/api/auth/start","status":200,"retry_after":null},{"path":"/api/auth/email/send","status":200,"retry_after":"120"},{"path":"/api/auth/complete","status":200,"retry_after":null},{"path":"/api/session","status":200,"retry_after":null},{"path":"/api/auth/start","status":200,"retry_after":null},{"path":"/api/auth/complete","status":403,"code":"AUTH_FLOW_DENIED","retry_after":null},{"path":"/api/session","status":200,"retry_after":null},{"path":"/api/claims/<id>","status":410,"code":"CLAIM_GONE","retry_after":null}]
+
+ ✓ test/claims.test.ts (9 tests | 8 skipped) 207ms
+ ↓ test/otp.test.ts (13 tests | 13 skipped)
+
+ Test Files  1 passed | 1 skipped (2)
+      Tests  1 passed | 21 skipped (22)
+   Start at  09:00:10
+   Duration  2.54s (transform 399ms, setup 0ms, import 870ms, tests 207ms, environment 0ms)
+
+JSON report written to /home/eias/workspace/.projects/toktok--feat-claim-foundation-0ac9c22f/test/control-auth-maintenance-targeted.json
