@@ -1,3 +1,4 @@
+import {renderPublicEntryTerms} from './components/public-entry-terms.js';
 import {renderHistoryNavigation} from './components/history-navigation.js';
 import {renderPublicConversationNotes} from './components/public-conversation-notes.js';
 import {renderPublicAgentEntry} from './components/public-agent-entry.js';
@@ -28,6 +29,7 @@ import {renderLobby} from './screens/lobby.js';
 
 // Product and protected QA resolve the same renderers and state inventory.
 export const componentRegistry=Object.freeze({
+ 'public-entry-terms':{render:renderPublicEntryTerms,requiredStates:['pending','approved','unavailable']},
  'bootstrap-entry':{render:renderBootstrapEntry,requiredStates:['eligible','member','admin','anonymous']},
  'history-navigation':{render:renderHistoryNavigation,requiredStates:['loading','older','start','gap','new']},
  'public-conversation-notes':{render:renderPublicConversationNotes,requiredStates:['default','history-gap']},
@@ -47,7 +49,7 @@ export const componentRegistry=Object.freeze({
  'settings-fields':{render:renderSettingsFields,requiredStates:['catalog','empty','max','workload','nested','readonly-off']}
 });
 export const screenRegistry=Object.freeze({
- 'public-connection':{render:renderPublicConnection,requiredStates:['loading','pending','approved','joined','denied','revoked','expired','unavailable']},
+ 'public-connection':{render:renderPublicConnection,requiredStates:['loading','pending','review','checked','approving','approval-error','revoke-error','approved','joined','idle','legacy','notice-unavailable','denied','revoked','expired','unavailable']},
  adminlogs:{render:renderAdminLogs,requiredStates:['invitations','empty-invitations','used','expired','revoked','audit','empty-audit','loading','denied','unavailable','error']},
  newroom:{render:renderNewRoom,requiredStates:['anonymous','member','persist','created-recent','created-persisted','pending','lost','denied','loading','unavailable']},
  claim:{render:renderClaim,requiredStates:['anonymous','unchecked','checked','pending','approved','error','expired','loading','unavailable']},
@@ -59,7 +61,7 @@ export const screenRegistry=Object.freeze({
 });
 export const dialogRegistry=Object.freeze({
  'admin-bootstrap':{render:createBootstrapDialog,requiredStates:['unchecked','checked','pending','error']},
- 'public-connection':{render:createPublicConnectionDialog,requiredStates:['unchecked','pending','error','revoke']},
+ 'public-connection':{render:createPublicConnectionDialog,requiredStates:['unchecked','checked','pending','error','revoke','revoke-error','notice-unavailable']},
  'invitation-create':{render:params=>createInvitationDialog({kind:'invitation-create',...params}),requiredStates:['default','pending','error']},
  'invitation-created':{render:params=>createInvitationDialog({kind:'invitation-created',...params}),requiredStates:['one-time']},
  'invitation-revoke':{render:params=>createInvitationDialog({kind:'invitation-revoke',...params}),requiredStates:['default','pending','error']},

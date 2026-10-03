@@ -13,7 +13,7 @@ it('actual Workers public approval/post survives actor eviction; no restored aut
  expect((await call('old notice denied',base+'/connection-requests',{...input,notice_version:'toktok-risk-v1',retention_mode:'memory'})).status).toBe(400);
  const pending=await parsed<{request_id:string}>(await call('request',base+'/connection-requests',input),201);
  const preview=await call('preview',base+'/connection-approval',{action:'preview',request_id:pending.request_id},{Origin:origin}),cookie=takeCookie(preview,'__Host-toktok-public-approval-common-room'),view=await parsed<{nonce:string}>(preview);
- await parsed(await call('explicit fictional approval',base+'/connection-approval',{action:'approve',request_id:pending.request_id,nonce:view.nonce,checked:true,risk_ack_version:'toktok-risk-v2'},{Origin:origin,Cookie:cookie}));
+ await parsed(await call('explicit fictional approval',base+'/connection-approval',{action:'approve',request_id:pending.request_id,nonce:view.nonce,checked:true,risk_ack_version:'toktok-risk-v2',entry_notice_version:'toktok-entry-30d-v1'},{Origin:origin,Cookie:cookie}));
  const approval=await parsed<{operator_grant:string}>(await call('result',base+'/connection-request',undefined,bearer(input.request_secret))),participant=await parsed<{lease_token:string}>(await call('join',base+'/participants',{...input,operator_grant:approval.operator_grant}),201);
  const sent=await parsed<{cursor:string;sequence:number;client_message_id:string}>(await call('post',base+'/messages',{text:'Fictional durable recent buffer',client_message_id:'recent-once'},bearer(participant.lease_token)),201);
  await parsed(await call('cancel grant',base+'/connection-request',undefined,bearer(input.request_secret),'DELETE'));
@@ -24,7 +24,7 @@ it('actual Workers public approval/post survives actor eviction; no restored aut
  expect(page.messages.map(m=>m.cursor)).toContain(sent.cursor);expect(page.messages[0].text).toBe('Fictional durable recent buffer');
  const stored=await runInDurableObject(stub,async(_i,state)=>{const repo=new CloudflareRepository(state.storage);return repo.transaction('public:common-room',async tx=>{const rows=await tx.list(C.recent_messages,{prefix:'m:',limit:500});for(const row of rows)await tx.put(C.recent_messages,row.key,{...row.value,created_at:new Date(Date.now()-3600001).toISOString()});return {count:rows.length,alarm:(await state.storage.getAlarm())!==null};});});expect(stored).toEqual({count:1,alarm:true});
  await evictDurableObject(stub);expect(await runDurableObjectAlarm(stub)).toBe(true);
- const final=await runInDurableObject(stub,async(_i,state)=>({rows:await new CloudflareRepository(state.storage).transaction('public:common-room',tx=>tx.list(C.recent_messages,{limit:1000})),alarm:await state.storage.getAlarm()}));expect(final.rows).toHaveLength(0);expect(final.alarm).toBeNull();
+ const final=await runInDurableObject(stub,async(_i,state)=>({rows:await new CloudflareRepository(state.storage).transaction('public:common-room',tx=>tx.list(C.recent_messages,{limit:1000})),alarm:await state.storage.getAlarm()}));expect(final.rows).toHaveLength(0);expect(final.alarm).not.toBeNull(); // Revoked entry tombstone has its own bounded expiry alarm.
 });
 it('Workers SQL meter records recent buffer write/read/cleanup deltas without CONTROL estimates',async()=>{
  const stub=env.PUBLIC_ROOMS.getByName('cost-contract');const result=await runInDurableObject(stub,async(_i,state)=>{

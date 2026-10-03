@@ -11,11 +11,11 @@ export function mountPublicConnection(root,{effects,slug,requestId,navigate}){
   const html=renderPublicConnection(vm);
   const t=doc.createElement('template');t.innerHTML=html;const next=t.content.querySelector('main');
   if(root.querySelector('main')){if(mainHtml!==next.outerHTML)root.querySelector('main').replaceWith(next);}else root.innerHTML=html;mainHtml=next.outerHTML;
-  for(const b of root.querySelectorAll('main button'))b.disabled=vm.pending;
+  for(const b of root.querySelectorAll('main button'))b.disabled=vm.pending||(b.dataset.x==='review-public-connection'&&!vm.connection?.can_approve);
   if(vm.dialog){
-   dialog=createPublicConnectionDialog({nickname:vm.connection.nickname,revoke:vm.dialog==='revoke',pending:vm.pending,error:vm.error?.code},doc);const current=dialog;doc.body.append(current);
+   dialog=createPublicConnectionDialog({nickname:vm.connection.nickname,connection:vm.connection,revoke:vm.dialog==='revoke',pending:vm.pending,error:vm.error?.code},doc);const current=dialog;doc.body.append(current);
    current.addEventListener('close',()=>{if(dialog===current)controller.close();});
-   current.addEventListener('change',()=>{current.querySelector('[data-x="confirm-public-connection"]').disabled=!current.querySelector('input')?.checked||last.pending;});
+   current.addEventListener('change',()=>{current.querySelector('[data-x="confirm-public-connection"]').disabled=last.pending||(last.dialog!=='revoke'&&(!current.querySelector('input')?.checked||!last.connection?.can_approve));});
    current.addEventListener('click',event=>{const action=event.target.closest('[data-x]')?.dataset.x;if(action==='close-dialog')controller.close();else if(action==='confirm-public-connection')controller.decide(last.dialog==='revoke'?'revoke':'approve',current.querySelector('input')?.checked===true);});
    current.showModal();
   }else if(wasDialog)restoreFocus();

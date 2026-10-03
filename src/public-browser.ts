@@ -65,15 +65,15 @@ export async function handlePublicBrowserWith(request:Request,ports:PublicBrowse
   if(!(await ports.limit(ip)).success)publicLimited(60000);
   if(browser){
    if(action==='connection-approval'){
-    const input=await publicBody(request,ports.policy,['action','request_id','nonce','checked','risk_ack_version']);
+    const input=await publicBody(request,ports.policy,['action','request_id','nonce','checked','risk_ack_version','entry_notice_version']);
     if(!['preview','approve','deny','revoke'].includes(String(input.action))||typeof input.request_id!=='string'||input.request_id.length>100)fail(400,'INVALID_INPUT','연결 요청을 확인해주세요.');
     const cookieName=APPROVAL_COOKIE+'-'+slug;
     const cookies=(request.headers.get('Cookie')??'').split(';').map(v=>v.trim()).filter(v=>v.startsWith(cookieName+'='));
     const endpoint=await ports.room(slug);if(!endpoint.connectionApproval)fail(503,'CONNECTION_UNAVAILABLE','연결 확인이 준비되지 않았습니다.');
     const result=await endpoint.connectionApproval({action:input.action as 'preview'|'approve'|'deny'|'revoke',request_id:input.request_id,
      proof:cookies.length===1?cookies[0].slice(cookieName.length+1):undefined,nonce:typeof input.nonce==='string'?input.nonce:undefined,
-     checked:input.checked===true,risk_ack_version:typeof input.risk_ack_version==='string'?input.risk_ack_version:undefined},await hash(ip),slug);
-    const response=json(result.data,result.status);if(result.cookie)response.headers.set('Set-Cookie',cookieName+'='+result.cookie+'; Secure; HttpOnly; SameSite=Strict; Path=/');
+     entry_notice_version:typeof input.entry_notice_version==='string'?input.entry_notice_version:undefined,checked:input.checked===true,risk_ack_version:typeof input.risk_ack_version==='string'?input.risk_ack_version:undefined},await hash(ip),slug);
+    const response=json(result.data,result.status);if(result.cookie)response.headers.set('Set-Cookie',cookieName+'='+result.cookie+'; Secure; HttpOnly; SameSite=Strict; Path=/; Max-Age=2592000');
     if(result.status===429){const retry=(result.data.error as {retry_after_ms?:number}|undefined)?.retry_after_ms;response.headers.set('Retry-After',String(Math.max(1,Math.ceil((typeof retry==='number'&&Number.isFinite(retry)?retry:5000)/1000))));}return secure(response);
    }
    if(action==='ack-flow'){

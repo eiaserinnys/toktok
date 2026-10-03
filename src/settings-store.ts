@@ -20,7 +20,10 @@ export class SettingsStore {
    await save(this.tx,C.settings,'hmac',{key:Array.from(crypto.getRandomValues(new Uint8Array(32)),b=>b.toString(16).padStart(2,'0')).join('')});
   }else if(marker.version!==1)fail(503,'SETTINGS_INVALID','서버 설정을 확인하지 못했습니다.');
   await this.read();await this.state();
+  if(!await this.tx.get(C.settings,'public_generations'))await this.syncPublicGenerations((await this.read()).settings);
  }
+ async publicGenerations():Promise<Record<string,string>> {const row=await this.tx.get(C.settings,'public_generations');if(!row)fail(503,'SETTINGS_INVALID','공개방 세대를 확인하지 못했습니다.');return row as Record<string,string>;}
+ private async syncPublicGenerations(settings:Settings){const previous=await this.tx.get(C.settings,'public_generations')??{},next:Record<string,string>={};for(const room of settings.public.catalog)if(room.enabled&&settings.deployment.enabled)next[room.slug]=typeof previous[room.slug]==='string'?String(previous[room.slug]):crypto.randomUUID();await this.tx.put(C.settings,'public_generations',next);}
  async read():Promise<SettingsRow>{try{const row=await read<SettingsRow>(this.tx,C.settings,'config');if(!row||row.schema_version!==1||!Number.isSafeInteger(row.revision)||row.revision<1)throw Error();return {...row,settings:validateSettings(row.settings)};}catch{fail(503,'SETTINGS_INVALID','서버 설정을 확인하지 못했습니다.');}}
  async state():Promise<ControlState>{const s=await read<ControlState>(this.tx,C.settings,'state');if(!s||[s.bootstrap_consumed,s.budget_ready,s.lifecycle_ready].some(v=>typeof v!=='boolean')||[s.active_private,s.pending_agents].some(v=>!Number.isSafeInteger(v)||v<0))fail(503,'CONTROL_STATE_INVALID','서버 상태를 확인하지 못했습니다.');return s;}
  stateSave(state:ControlState){return save(this.tx,C.settings,'state',state);}
@@ -32,7 +35,7 @@ export class SettingsStore {
   if(old.settings.deployment.mode!==next.deployment.mode&&(!state.lifecycle_ready||state.active_private!==0))fail(409,'MODE_DRAIN_REQUIRED','방 lifecycle 확인과 활성 비공개방 종료가 필요합니다.');
   const changes:Record<string,unknown>={};
   const visit=(before:unknown,after:unknown,path:string)=>{if(JSON.stringify(before)===JSON.stringify(after))return;if(before&&after&&typeof before==='object'&&typeof after==='object'&&!Array.isArray(before)&&!Array.isArray(after)){for(const key of Object.keys(after))visit((before as Record<string,unknown>)[key],(after as Record<string,unknown>)[key],path?path+'.'+key:key);}else changes[path]=path==='public.catalog'?{count:(after as Settings['public']['catalog']).length,enabled_count:(after as Settings['public']['catalog']).filter(c=>c.enabled).length}:after;};
-  visit(old.settings,next,'');const revision=old.revision+1,row={...old,revision,settings:next,updated_at:now,updated_by:actor};await save(this.tx,C.settings,'config',row);await this.audit(actor,now,'settings.update',revision,changes);
+  visit(old.settings,next,'');const revision=old.revision+1,row={...old,revision,settings:next,updated_at:now,updated_by:actor};await save(this.tx,C.settings,'config',row);await this.syncPublicGenerations(next);await this.audit(actor,now,'settings.update',revision,changes);
   return {...row,effect_summary:{runtime_refresh_max_seconds:10,capacity:'natural_drain_no_eviction',existing_room_snapshot:'unchanged',changed_keys:Object.keys(changes)}};
  }
  async listAudit(limit:number){return (await this.tx.list(C.audit,{limit})).map(r=>r.value);}

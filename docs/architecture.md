@@ -6,7 +6,7 @@
 
 `createHttpApplication`은 인증, 관리자 설정, 공개방, 비공개방과 화면의 HTTP 경로를 처리한다. `ControlCore`, `PublicRoomCore`, `PrivateRoomCore`는 플랫폼과 분리하며 HTTP·저장소·메일·시간·IP 확인을 host port로 주입한다. 인증 HTTP handler는 `ControlHttpPort`만 호출하고 미설정이면 닫힌다.
 
-Cloudflare host는 `CONTROL`의 ControlPlane, `PUBLIC_ROOMS`, `PRIVATE_ROOMS` Durable Object와 Assets를 연결한다. ControlPlane, 공개방과 새 비공개방의 최근 버퍼는 DO SQLite를 사용한다. 최근 기록의 sequence/epoch와 중복 방지 상태를 같은 transaction으로 저장한다. 승인·grant·public lease는 저장하지 않으며 재시작 때 다시 받아야 한다. 기존 IdentityRegistry/Room 상태를 새 namespace로 자동 변환하지 않는다.
+Cloudflare host는 `CONTROL`의 ControlPlane, `PUBLIC_ROOMS`, `PRIVATE_ROOMS` Durable Object와 Assets를 연결한다. ControlPlane, 공개방과 새 비공개방의 최근 버퍼는 DO SQLite를 사용한다. 최근 기록의 sequence/epoch와 중복 방지 상태를 같은 transaction으로 저장한다. 새 공개방 입장권은 최대30일의 방별 authority와 요청/권한/브라우저 proof·nonce 해시만 저장한다. 활성 public lease는 RAM이며 재시작 뒤 같은 유효 입장권으로 빈자리를 확인해 다시 받는다. 기존 짧은 fragment grant는 연장하지 않는다. 기존 IdentityRegistry/Room 상태를 새 namespace로 자동 변환하지 않는다.
 
 Node host는 같은 도메인을 사용하며 설치 시 SQLite 또는 PostgreSQL 하나를 선택한다. 동시에 두 backend를 쓰거나 복제하지 않는다. `RepositoryPort.transaction(scope, callback)`의 비동기 targeted CRUD를 adapter가 구현한다. JSON 검증, 접근량 제한, rollback, 중첩 transaction 거부와 종료 후 접근 차단을 적용한다. transaction 접근량 제한은 전체 DB 크기 제한이 아니다.
 

@@ -7,14 +7,14 @@ import {routeRegistry} from '../public/shared/routes.js';
 import {createFixtureAdapter} from '../public/admin-design/fixture-adapter.js';
 import {validateCoverage} from '../public/admin-design/coverage.js';
 const requestId='fictional-request';
-const payload={request_id:requestId,status:'pending',nickname:'<script>not trusted</script>',expires_at:'2026-10-03T00:05:00Z',nonce:'not-in-vm',operator_grant:'never-in-vm',participant_connected:false};
+const payload={request_id:requestId,status:'pending',nickname:'<script>not trusted</script>',expires_at:'2026-10-03T00:05:00Z',confirmation_expires_at:'2026-10-03T00:05:00Z',entry_expires_at:null,entry_notice_version:'toktok-entry-30d-v1',entry_duration_seconds:2592000,lease_idle_seconds:300,nonce:'not-in-vm',operator_grant:'never-in-vm',participant_connected:false};
 it('approval needs an explicit checked action; nonce/grant never enter renderer state; decline has no checked assertion',async()=>{
- const calls=[],paints=[];const effects={publicConnection:async(slug,body)=>{calls.push({slug,body});return {...payload,status:body.action==='approve'?'approved':body.action==='deny'?'denied':'pending'};}};
+ const calls=[],paints=[];const effects={publicConnection:async(slug,body)=>{calls.push({slug,body});return {...payload,...(body.action==='approve'?{entry_expires_at:'2026-11-02T00:01:00Z'}:{}),status:body.action==='approve'?'approved':body.action==='deny'?'denied':'pending'};}};
  const c=createPublicConnectionController({effects,slug:'common-room',requestId,paint:vm=>paints.push(vm)});await c.load();c.open();await c.decide('approve',false);expect(calls).toHaveLength(1);
  await c.decide('approve',true);expect(calls[1].body).toMatchObject({checked:true,nonce:'not-in-vm',request_id:requestId});
  expect(JSON.stringify(paints)).not.toMatch(/not-in-vm|never-in-vm|operator_grant/);
  const html=renderPublicConnection(c.snapshot());expect(html).toContain('&lt;script&gt;');expect(html).not.toContain('<script>');
- await c.decide('deny');expect(calls.at(-1).body).not.toHaveProperty('checked');c.dispose();
+ c.dispose();const denied=createPublicConnectionController({effects,slug:'common-room',requestId,paint:()=>{}});await denied.load();await denied.decide('deny');expect(calls.at(-1).body).not.toHaveProperty('checked');denied.dispose();
 });
 it('late previews after navigation cannot restore approval controls or perform actions',async()=>{
  let resolve;const paints=[];const c=createPublicConnectionController({effects:{publicConnection:()=>new Promise(r=>{resolve=r;})},slug:'common-room',requestId,paint:vm=>paints.push(vm)});

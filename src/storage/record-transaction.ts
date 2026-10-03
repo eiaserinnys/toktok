@@ -26,8 +26,8 @@ export class TargetedTransaction implements RecordTransaction {
   private check(collection:C,key?:string):void {
     if(!this.active)throw new RepositoryError('TRANSACTION_CLOSED');
     if(!Object.values(C).includes(collection)|| (key!==undefined&&(typeof key!=='string'||key.length<1||key.length>256||key.includes('\0'))))throw new RepositoryError('INVALID_RECORD');
-    const privateCollection=collection===C.private_rooms||collection===C.private_messages,recentCollection=collection===C.recent_buffers||collection===C.recent_messages;
-    if(this.scope==='control'?(privateCollection||recentCollection):this.scope.startsWith('public:')?!recentCollection:!(privateCollection||recentCollection))throw new RepositoryError('SCOPE_DENIED');
+    const privateCollection=collection===C.private_rooms||collection===C.private_messages,recentCollection=collection===C.recent_buffers||collection===C.recent_messages,entryCollection=collection===C.public_entries;
+    if(this.scope==='control'?(privateCollection||recentCollection||entryCollection):this.scope.startsWith('public:')?!(recentCollection||entryCollection):!(privateCollection||recentCollection))throw new RepositoryError('SCOPE_DENIED');
     if(collection===C.private_rooms&&key!==undefined&&key!==this.scope.slice(5))throw new RepositoryError('SCOPE_DENIED');
     if(collection===C.recent_buffers&&key!==undefined&&key!=='buffer')throw new RepositoryError('SCOPE_DENIED');
   }

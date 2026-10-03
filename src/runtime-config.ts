@@ -20,5 +20,5 @@ export class RuntimeSettings {
  invalidate(){this.expires=0;}
 }
 export function publicPolicy(config:RuntimeConfig){return runtimePublicPolicy(config.settings);}
-export function publicCatalog(config:RuntimeConfig){return config.settings.public.catalog.filter(r=>r.enabled).map(({slug,title})=>({slug,title}));}
+export function publicCatalog(config:RuntimeConfig){return config.settings.public.catalog.filter(r=>r.enabled).map(({slug,title})=>({slug,title,...(config.public_generations?.[slug]?{generation:config.public_generations[slug]}:{})}));}
 export function requireRuntime(config:RuntimeConfig){if(!config.settings.deployment.enabled||!config.readiness.budget_ready||!config.readiness.lifecycle_ready)fail(503,'SERVICE_UNAVAILABLE','서비스를 준비하고 있습니다.');}
