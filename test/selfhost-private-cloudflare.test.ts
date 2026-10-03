@@ -18,7 +18,7 @@ it('CF private runtime keeps memory body out of SQLite and persists opted-in his
 it('CF metered targeted reserve and cleanup includes SQLite index row operations',async()=>{const stub=(env as unknown as Env).RECORD_ROOMS.getByName('meter');const measured=await stub.meterProbe();expect(measured.reserve.rowsWritten).toBeGreaterThan(0);expect(measured.cleanup.rowsWritten).toBeGreaterThan(0);console.log(JSON.stringify({phase:'record-sql-meter',...measured}));});
 
 it('CF trusted host inspect binds id on fresh actor after restart',async()=>{
- const id='cf-host-inspect',stub=(env as unknown as Env).PRIVATE_ROOMS.getByName(id),{snapshot}=await privateSnapshot(id,false);await stub.initialize(snapshot);await evictDurableObject(stub);const view=await stub.inspect(id) as {id:string;status:string;initialized:boolean};expect(view).toMatchObject({id,status:'open',initialized:true});console.log(JSON.stringify({phase:'fresh-actor-inspect',initialized:view.initialized,status:view.status}));
+ const id='cf-host-inspect',stub=(env as unknown as Env).PRIVATE_ROOMS.getByName(id),{snapshot}=await privateSnapshot(id,false);await stub.initialize(snapshot);await evictDurableObject(stub);const view=await stub.inspect(id) as unknown as {id:string;status:string;initialized:boolean};expect(view).toMatchObject({id,status:'open',initialized:true});console.log(JSON.stringify({phase:'fresh-actor-inspect',initialized:view.initialized,status:view.status}));
 });
 
 it('CF cold alarm restores exact ID-only bootstrap and partial init never becomes success',async()=>{
