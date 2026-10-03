@@ -21,7 +21,7 @@ Cloudflare와 Node는 `src/application.ts`의 같은 HTTP handler를 사용한�
 
 ## 남은 수용 검증
 
-최종 source의 CF/Node 타입과 변경 범위의 실제 backend 브라우저를 확인했다. 기존 원격 CI의 Node22/selfhost 의존성 누락은 workflow 권한 제한으로 남아 있고, Cloudflare 배포 후 endpoint/HTTP 및 challenge 검증을 이어간다. SMTP/Cloudflare 발신 설정은 인프라 권한과 분리하며 실제 발송 전 preview OFF 등 별도 승인·확인이 필요하다. 이 문서를 배포 완료나 전체 시각 합격으로 해석하지 않는다.
+최종 source의 CF/Node 타입과 변경 범위의 실제 backend 브라우저를 확인했다. 기존 원격 CI의 Node22/selfhost 의존성 누락은 workflow 권한 제한으로 남아 있고, Cloudflare 배포 및 실제 endpoint/HTTP/browser 검증을 완료했다. 발신 인프라 승인과 일부 클라이언트의 기존 edge 정책 차단은 아래 별도 범위로 남는다. SMTP/Cloudflare 발신 설정은 인프라 권한과 분리하며 실제 발송 전 preview OFF 등 별도 승인·확인이 필요하다. 이 문서를 배포 완료나 전체 시각 합격으로 해석하지 않는다.
 
 ## 2026-10-03 공통 경로 추가 관측
 
@@ -108,3 +108,15 @@ C `24479d6`의 읽기 전용 복구 DTO 표시를 통합했다. 실제 Node24/SQ
 C aa2d0ee/71eb70c/e1e6417을 통합했다. 실제 Node24/SQLite 관리자 세션으로 수행한 최초4개는 제목의 역방향 Tab 경계2개와 후속 자산 edge429로 인한 미로드2개로 실패했다. 공통 Tab trap의 비탭 제목 경계를 수정하고, 기존 120/min 한도를 바꾸지 않은 채 정상 창을 61초 기다린 보정은4 PASS다. 1440/390 gallery 이전·다음/Alt·이름·순번·Tab/Escape/초점복귀, HOSTED/admin1440 및 DEMO/invited390 graph·오류 연결·canonical iframe stylesheet1·ready·Tok Sans를 확인했다. API/변경 요청/CSP 위반/storage는0이며 screenshot을 직접 확인했다. [초기·보정 증거](qa/20261003-actual-gallery-browser.json)를 구분하고 이전 성공 인증·방 데이터 검사는 반복하지 않았다.
 
 최종 공유 UI 통합 뒤 generated check와 production dry-run은 exit0이다. Assets104개, Worker243.05KiB/gzip58.37KiB 및 기존 CONTROL/PRIVATE_ROOMS/PUBLIC_ROOMS·120/min 바인딩을 확인했다. 이 결과는 upload·DNS 성공을 뜻하지 않으며 [bundle 기록](qa/20261003-final-bundle.json)에 구분한다.
+
+## Cloudflare 실제 배포와 도메인 확인
+
+PR #6은 `fbf56701804a13d7c8b8b2369ecd01a6cde2c44e`로 main에 정상 병합했다. 최종 branch CI [37093722037](https://github.com/eiaserinnys/toktok/actions/runs/37093722037)은 test/verdict/UI/public-UI/CF typecheck PASS이며 acceptance는 기존 Node22/selfhost tsx 미설치로 assertions 전 FAIL, dry-run SKIPPED다. 권한 우회 없이 동등 로컬 Node24/SQLite/PG/SMTP 및 최종 bundle 근거를 구분했다.
+
+Worker/custom domain `https://toktok.eiaserinnys.me` 배포 exit0. 최초 버전 `1cb889e0-7be3-4f6f-9411-8756912ca99b`, 승인된 주소를 비에코 stdin으로 비공개 bootstrap secret에만 넣은 후 활성 버전은 `4c88c070-4b5e-4297-a98f-19930e32aa68`다. 실제 관리자 승격0·메일0이며 OTP+명시 확인 계약은 유지한다. 주소 값은 배포 문서·원시 증거에 기록하지 않았다.
+
+실제 health/ready/config200 이후 최초 하니스가 소문자 mode를 대문자로 기대해 업무 검증 전에 중단했다. 계약에 맞게 하니스만 보정하고 미도달 범위1 PASS: 실제 private context/grant/create201, 두 참가자201/발언201, secret 없는 권한별 Markdown200, 모바일 메시지2개 관전, owner DELETE204/후속410. 공개방에서도 두 operator grant/참가/발언201과 모바일 관전, lease DELETE204를 확인했다. CSP/pageerror/storage0, cleanup true이며 비공개 확인 방은 삭제했다. 공개 확인 메시지는 예시 표시를 갖는 기존 memory retention 대상이다.
+
+실제 curl 기본 클라이언트는 health200, 원본 admin-design 경로404, 보호 mirror 두 경로401을 확인했다. 추가 Python urllib 기본 signature는 Cloudflare403/1010으로 차단된다. [Cloudflare 1010 문서](https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-1xxx-errors/error-1010/)의 browser signature 경계와 일치하며, 기존 BIC/보안 정책을 변경하지 않았다. 모든 에이전트 클라이언트가 통과한다고 확대하지 않는다. 메일 발신 domain/DNS/binding/preview OFF/실발송은 별도 승인 대기이고 운영 로그인/최초관리자 등록 완료로 보고하지 않는다.
+
+[배포·초기 실패·보정·이미지·제한 증거](qa/20261003-production-deployment.json)를 보존했다. 실제 제품 화면과 모바일 대화 PNG를 직접 확인했으며 README에 동작하는 서비스 링크를 추가했다.
