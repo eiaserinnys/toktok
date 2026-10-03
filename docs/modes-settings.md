@@ -59,6 +59,8 @@ PrivatePolicy 정본은 B의 src/private-contracts.ts입니다. settings.private
 | persistent_write_bytes | bytes | 16777216 | 268435456 |
 | email_attempts | count | 1000 | 10000 |
 
+관리자 schema의 `budget.workloadCaps.boundsByKind[kind]`는 `{unit,dayMax,monthMax}`를 제공합니다. 상한은 `DEFAULT_SETTINGS`에서 도출하고 서버 validator도 같은 metadata를 사용합니다. 현재 운영 cap을 낮춰도 schema의 안전 최대값을 낮춘 값으로 대체하지 않습니다. UI는 항목의 kind에 맞는 단위와 일·월 상한을 사용하며, 일반 배열 item의 공통 최대값을 종류별 최대값으로 표시하지 않습니다. `SettingsSchemaResponse`의 `{schema_version,schema}` 및 설정 payload의 항목 형태는 유지합니다.
+
 서버 reserve(operation_id,kind,amount)는 같은 transaction에서 UTC day/month를 모두 검사·증가합니다. 하나라도 실패하면 rollback, 같은 ID kind/amount 변경409, 월 경계 재시도 최초 창 유지, 만료 ID410입니다. 종류별 한 번 발급한 ID를 동일 reservation 재시도에만 재사용합니다. window를 caller에게 받지 않고 실패/불확실 예약을 환불하지 않습니다. cap 축소는 기존 usage를 보존합니다. 실제 perform 전에 trusted enforcing path가 예약해야 하며 public body가 counters를 지정하지 않습니다. OTP와 private 생성 도메인은 같은 transaction의 budget aggregate를 사용하고 방 admission/response/write/duration 및 control router 최종 연결은 후속입니다. UTC 창은 provider billing cycle과 다릅니다.
 
 ## Auth와 개인정보
