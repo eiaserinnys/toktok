@@ -70,3 +70,12 @@ root/A는 CONTROL HTTP budget factory와 새 ControlPlane namespace, settings re
 4e8ad3c의 자동 CI 37079992297은 test/test:verdict/test:ui PASS 후 top-level typecheck에서 실패했습니다. 격리 selfhost pg/types를 설치하지 않는 기존 CF 타입 검사 범위에 Node 소스가 포함된 원인은 root platform 분리 소유입니다. public fixture의 concrete DO namespace/stub와 Node mock JSON 반환 타입5곳은 owned 파일에서 국소 보정했으며 추가 runtime/전체 검증은 실행하지 않았습니다. old public fixture의 mutation helper는 과거 wrapper 상태를 가정하므로 root 선택 회귀에서 core 접점을 사용해야 합니다. 이 보완으로 기존 통과 gate를 다시 열지 않았습니다.
 
 root가 추가 요청한 publicError budget retry narrow 단위검사는 RED에서17초가1초로 잘린 결함을 확인하고 GREEN1 PASS입니다. generic HttpError.retryAfter 초를 Retry-After와 retry_after_ms로 보존하며 PublicError.retryMs가 있으면 기존 ms 값을 우선합니다. 공용 HttpError 파일은 수정하지 않았습니다. 실제 CONTROL 연결은 root 후속입니다.
+
+
+## 재시작 inspect와 cold-alarm 보완
+
+trusted host inspect(id)와 maintenance(id)는 새 core가 식별자를 명시 결합하며 ID가 없으면 failclosed합니다. 실제 DO eviction 후 inspect selected 1 PASS(44ms)를 확인했습니다. private CF wrapper는 비밀 없는 `toktok_private_room_id` KV 하나만 보존·복원하고 공개 DO에는 저장을 추가하지 않았습니다. ID만 남은 부분 초기화를 방 성공으로 판정하지 않습니다.
+
+cold-alarm 첫 gate는 KV 생성 후 SCHEMA_CONFLICT로 실패했습니다. 승인된 schema 이름 진단에서 생성 전 actor는 빈 목록이었고, mock KV 생성 후 정확한 내부 테이블 `_cf_KV`를 확인했습니다. SQL/table 행 데이터·본문은 출력하지 않았습니다. CF 검사에 이 정확한 이름만 추가하고 Node/PG는 변경하지 않은 보정 selected 1회가 PASS(61ms)입니다. cold eviction alarm 후 body rows0/initialized true, 실패한 초기화는 KV ID만 있고 snapshot rows0/initialized false입니다. 기존 inspect 및 다른 통과 gate는 반복하지 않았습니다.
+
+Node PublicRooms registry는 catalog rename 후 이전 core 제거 경로가 없어 유휴 core가 누적되는 사실을 root에 보고했습니다. 이 인계 시점에는 해당 추가 수정이나 부하 검증을 하지 않았습니다. 다음 통합 판단은 제거된 slug의 diagnostics prune 뒤 lease/pending grant/wait/handler0인 core만 shutdown·제거하는 경계입니다.
