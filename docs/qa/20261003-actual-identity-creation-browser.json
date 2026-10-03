@@ -1,0 +1,240 @@
+{
+  "source_checkpoint": "e8d22be (C 5d6618e3a417fa0e0b139c3b3ae044c30e02b958)",
+  "application_sha256": "9a299942df56aa8407644cea90472cc017d53d866feab6bbb89b248b56e34927",
+  "route_inventory_check": {
+    "result": "1 passed / exit 0",
+    "test": "test/shared-http-route-coverage.test.js",
+    "scope": "server HTML inventories -> shared route/renderer/fixture; unknown route remains null"
+  },
+  "actual_browser_slices": [
+    {
+      "slice": "identity",
+      "scope": "actual localhost HTTP + Node24 + SQLite + shared product; fake sender only; explicit bootstrap API fixture",
+      "coverage": "new actual signed claim and explicit account revoke; previous auth/admin gates not repeated",
+      "source_pin": "e8d22be (C 5d6618e); root HTTP inventory WIP",
+      "cleanup": true,
+      "fake_sender_calls": 1,
+      "external_mail": 0,
+      "cases": [
+        {
+          "name": "1440-actual-claim-account",
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "status": "PASS",
+          "networkMutations": 2,
+          "approved": true,
+          "revoked": true,
+          "dom": {
+            "width": 1440,
+            "docWidth": 1440,
+            "headings": [
+              "내 자리와내 연결.",
+              "내 자리",
+              "연결한 에이전트"
+            ],
+            "dialogs": 0,
+            "storage": [
+              0,
+              0
+            ],
+            "csp": []
+          },
+          "errors": [],
+          "external": [],
+          "shots": [
+            "1440-real-claim-unchecked.png",
+            "1440-real-account-approved.png",
+            "1440-real-account-revoked.png"
+          ]
+        },
+        {
+          "name": "390-actual-claim-account",
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "status": "PASS",
+          "networkMutations": 2,
+          "approved": true,
+          "revoked": true,
+          "dom": {
+            "width": 390,
+            "docWidth": 390,
+            "headings": [
+              "내 자리와내 연결.",
+              "내 자리",
+              "연결한 에이전트"
+            ],
+            "dialogs": 0,
+            "storage": [
+              0,
+              0
+            ],
+            "csp": []
+          },
+          "errors": [],
+          "external": [],
+          "shots": [
+            "390-real-claim-unchecked.png",
+            "390-real-account-approved.png",
+            "390-real-account-revoked.png"
+          ]
+        }
+      ],
+      "artifacts": [
+        {
+          "path": ".local/artifacts/toktok/20261003-node-identity-browser-root/raw.json",
+          "sha256": "9e2baf93eec8ff09f90fccf452148281ea6e88290d5bd05f8ecb6ac3d95f0ef8"
+        },
+        {
+          "path": ".local/artifacts/toktok/20261003-node-identity-browser-root/browser.mjs",
+          "sha256": "dc6b4d9ca4f72111c5508494e974488ac9417b7d8146e8b864205966f388a32e"
+        },
+        {
+          "path": ".local/artifacts/toktok/20261003-node-identity-browser-root/1440-real-claim-unchecked.png",
+          "sha256": "57f7d95e4595f88c12721b89705f3a73e01ade27071fc6c76807f3b4188e1e3c"
+        },
+        {
+          "path": ".local/artifacts/toktok/20261003-node-identity-browser-root/1440-real-account-approved.png",
+          "sha256": "823730a24d61c340ebfdd88b09710f44888d2c90f5fd9afd1b941bd5f194ba33"
+        },
+        {
+          "path": ".local/artifacts/toktok/20261003-node-identity-browser-root/1440-real-account-revoked.png",
+          "sha256": "2b334f1cd1da30372b9419cc25663204dc39331717dcfc859590b3431928fb11"
+        },
+        {
+          "path": ".local/artifacts/toktok/20261003-node-identity-browser-root/390-real-claim-unchecked.png",
+          "sha256": "f119795d2c701511fbcbd03d47d88e4053971e7b3512a391ea2794ab2e22ef77"
+        },
+        {
+          "path": ".local/artifacts/toktok/20261003-node-identity-browser-root/390-real-account-approved.png",
+          "sha256": "73079bf492f487145e9e3563e6557e14369c72993c4b333469076399b65f6634"
+        },
+        {
+          "path": ".local/artifacts/toktok/20261003-node-identity-browser-root/390-real-account-revoked.png",
+          "sha256": "bc7a450ef0ed79a54e24ac52266355a9badf8b8e7b43f36c2e8c733087e1406c"
+        }
+      ]
+    },
+    {
+      "slice": "newroom",
+      "scope": "actual localhost HTTP + Node24 + SQLite + shared product; fake sender only; explicit bootstrap API fixture",
+      "coverage": "new actual anonymous memory creation and invited-member persist opt-in; API setup only; previous HTTP/auth suites not repeated",
+      "source_pin": "e8d22be (C 5d6618e); root HTTP inventory WIP",
+      "cleanup": true,
+      "fake_sender_calls": 2,
+      "external_mail": 0,
+      "cases": [
+        {
+          "name": "1440-actual-newroom-anonymous-memory",
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "status": "PASS",
+          "networkMutations": 3,
+          "created": {
+            "status": 201,
+            "metadataStatus": 200,
+            "retentionMode": "memory",
+            "ownerInDom": false,
+            "posts": [
+              "/api/private/create-context",
+              "/api/private/create-grants",
+              "/api/v1/rooms"
+            ]
+          },
+          "dom": {
+            "width": 1440,
+            "docWidth": 1440,
+            "headings": [
+              "창작 실제 생성 1440",
+              "에이전트 초대 링크",
+              "읽기 전용 링크"
+            ],
+            "dialogs": 0,
+            "storage": [
+              0,
+              0
+            ],
+            "csp": []
+          },
+          "errors": [],
+          "external": [],
+          "shots": [
+            "1440-real-newroom-reviewed.png"
+          ]
+        },
+        {
+          "name": "390-actual-newroom-invited-persist",
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "status": "PASS",
+          "networkMutations": 3,
+          "created": {
+            "status": 201,
+            "metadataStatus": 200,
+            "retentionMode": "persisted",
+            "ownerInDom": false,
+            "posts": [
+              "/api/private/create-context",
+              "/api/private/create-grants",
+              "/api/v1/rooms"
+            ]
+          },
+          "dom": {
+            "width": 390,
+            "docWidth": 390,
+            "headings": [
+              "창작 실제 생성 390",
+              "에이전트 초대 링크",
+              "읽기 전용 링크"
+            ],
+            "dialogs": 0,
+            "storage": [
+              0,
+              0
+            ],
+            "csp": []
+          },
+          "errors": [],
+          "external": [],
+          "shots": [
+            "390-real-newroom-reviewed.png"
+          ]
+        }
+      ],
+      "artifacts": [
+        {
+          "path": ".local/artifacts/toktok/20261003-node-newroom-browser-root/raw.json",
+          "sha256": "b6e76bab2cfea274d5b02758363c50b967f0bb47f7a6fa97efa1937d9ec11ac3"
+        },
+        {
+          "path": ".local/artifacts/toktok/20261003-node-newroom-browser-root/browser.mjs",
+          "sha256": "fc153503b979adcf0d86fd3cb22a0650aa3ab206368cb9cf06e216f8e8eedcfc"
+        },
+        {
+          "path": ".local/artifacts/toktok/20261003-node-newroom-browser-root/1440-real-newroom-reviewed.png",
+          "sha256": "3801f0a320233ea0886b147ff0d121b71b4619a148c27892286c2a52da13405d"
+        },
+        {
+          "path": ".local/artifacts/toktok/20261003-node-newroom-browser-root/390-real-newroom-reviewed.png",
+          "sha256": "eb1bfd628862df3f017113a44d259972b0ee37f73869f1df431f8dcc1eafe3ec"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Loopback Node24 and SQLite with fake sender; not deployed Cloudflare or actual email.",
+    "Bootstrap and invited member setup use actual HTTP as fixture; bootstrap UI is not tested.",
+    "Newroom creates anonymous memory at 1440 and invited persist at 390; this is not a full viewport-role matrix.",
+    "C clipboard denial precondition failure is preserved; owner clipboard denial is not tested here.",
+    "Private epoch observer and invitation/audit UI are still pending.",
+    "Prior successful auth/admin/QA suites were not repeated."
+  ],
+  "visual_review": "Reviewed claim 1440/390, account 390 and creation 1440/390 PNGs. Claim risk checkbox is visible and keyboard-operable. Newroom form and selected persistence render within the viewport. Full-page mobile creation capture includes the skip-link overlay after keyboard focus; no second capture was run."
+}

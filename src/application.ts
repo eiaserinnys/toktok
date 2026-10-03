@@ -33,8 +33,11 @@ export interface ApplicationPorts {
 const roomId='[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}';
 const privateApi=new RegExp(`^/api/v1/rooms/(${roomId})(?:/(participants|messages|wait|close))?$`);
 const privateEntry=new RegExp(`^/r/(${roomId})/[\\w-]{43}$`);
-const htmlRoutes=new Set(['/','/about','/rooms','/guide','/login','/signup','/invite','/verify','/account','/new-room']);
-const recoveryReads=new Set(['/admin','/admin/overview','/admin/public','/admin/private','/admin/budget','/admin/identity','/admin/signup','/admin/deployment','/api/session','/api/admin/settings','/api/admin/settings/schema','/api/admin/budget']);
+export const productHtmlPaths=Object.freeze(['/','/about','/rooms','/guide','/login','/signup','/invite','/verify','/account','/new-room']);
+const recoveryAdminHtmlPaths=Object.freeze(['/admin','/admin/overview','/admin/public','/admin/private','/admin/budget','/admin/identity','/admin/signup','/admin/deployment']);
+export const adminHtmlPaths=Object.freeze([...recoveryAdminHtmlPaths]);
+const htmlRoutes=new Set(productHtmlPaths);
+const recoveryReads=new Set([...recoveryAdminHtmlPaths,'/api/session','/api/admin/settings','/api/admin/settings/schema','/api/admin/budget']);
 const recoveryAllowed=(request:Request)=>{const path=new URL(request.url).pathname;return request.method==='GET'&&recoveryReads.has(path)||request.method==='PUT'&&path==='/api/admin/settings'||request.method==='POST'&&path==='/api/auth/logout';};
 const wantsHtml=(r:Request)=>r.method==='GET'&&new URL(r.url).searchParams.get('format')!=='md'&&(r.headers.get('Accept')??'').includes('text/html');
 
@@ -105,7 +108,7 @@ export function createHttpApplication(ports:ApplicationPorts){
   if(!(await ports.edgeLimit.limit({key:rawIp})).success)throw new HttpError(429,'RATE_LIMITED','요청 한도를 초과했습니다.',60);
   // No Assets fallback can precede this server-side admin gate.
   const review=await designSurface(original,{assets:ports.assets,authorizeAdmin:authorize});if(review)return review.ok?responseBudget(review,original):review;
-  if(path==='/admin'||path.startsWith('/admin/')){const allowed=await authorize(original);if(!allowed.authorized)fail(allowed.status,allowed.status===401?'AUTH_REQUIRED':'ADMIN_REQUIRED','관리자 로그인이 필요합니다.');if(original.method==='GET')return responseBudget(await html(original),original);fail(405,'METHOD_NOT_ALLOWED','읽기 요청만 허용됩니다.');}
+  if(path==='/admin'||path.startsWith('/admin/')){const allowed=await authorize(original);if(!allowed.authorized)fail(allowed.status,allowed.status===401?'AUTH_REQUIRED':'ADMIN_REQUIRED','관리자 로그인이 필요합니다.');if(original.method==='GET'){if(!adminHtmlPaths.includes(path))fail(404,'NOT_FOUND','경로가 없습니다.');return responseBudget(await html(original),original);}fail(405,'METHOD_NOT_ALLOWED','읽기 요청만 허용됩니다.');}
   if(!['GET','HEAD'].includes(original.method)&&original.headers.has('Origin')&&original.headers.get('Origin')!==origin)fail(403,'ORIGIN_DENIED','외부 Origin 변경 요청은 허용되지 않습니다.');
   const config=await settings.get(),api=privateApi.exec(path),entry=privateEntry.exec(path);
   const cleanup=!!api&&(original.method==='DELETE'||api[2]==='close')||original.method==='DELETE'&&/^\/api\/public\/rooms\/[^/]+\/lease$/.test(path);

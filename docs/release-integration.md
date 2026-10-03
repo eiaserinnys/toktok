@@ -9,7 +9,7 @@ Cloudflare와 Node는 `src/application.ts`의 같은 HTTP handler를 사용한�
 - Node24 실제 HTTP/SQLite, 신규 bounded upload 취소, 설치·backup, 명시 v2 migration/startup restore, compiled HTTP→격리 TLS SMTP mock은 각 영향 gate에서 통과했다. PostgreSQL metadata restore는 B의 격리 컨테이너 신규 gate PASS다. 실제 이메일·사용자 DB는 사용하지 않았다.
 - 관리자 recovery의 synthetic 64KiB/정확 HTML 경로 gate는 최초 PASS. 실제 CF schema500를 optional undefined 속성 생략으로 수정했고 기존 read5는200을 확인했다. QA는 기존503 fail closed 계약이며, 미도달 경계 continuation1 PASS에서 QA recovery0, email/invite/create429, CSRF 설정PUT·logout 및 폐기cookie401을 확인했다. 최초·보정 실패도 지우지 않았다.
 - 413의 CF upstream producer 취소 전달은 별도 진단3회 FAIL이다. 로컬 reader unlock·handler/body0과 upstream 전달을 구분한다. 알려진 실패 fixture/raw를 독립 config로 보존했으며 추가 반복하지 않는다.
-- 계정·인증·설정·budget·claim의 shared UI checkpoint를 통합했다. 실제 로컬 Node/SQLite에서도 로그인과 관리자 설정 저장·예산 조회·보호된 QA의 390/1440 화면을 확인했다. new-room/private epoch/초대·audit/전체 검수면과 운영 배포 후 합격은 남는다.
+- 계정·인증·설정·budget·claim의 shared UI checkpoint를 통합했다. 실제 로컬 Node/SQLite에서도 로그인과 관리자 설정 저장·예산 조회·보호된 QA의 390/1440 화면을 확인했다. new-room도 후속 실제 Node browser로 확인했으며 private epoch/초대·audit/전체 검수면과 운영 배포 후 합격은 남는다.
 
 ## 연결과 적용
 
@@ -50,3 +50,13 @@ Cloudflare와 Node는 `src/application.ts`의 같은 HTTP handler를 사용한�
 테스트 OTP 발송은 메모리 fake sender만 사용했고 관리자 지정은 실제 OTP session 뒤 bootstrap API fixture로 수행했다. 실제 운영 계정·외부 메일·bootstrap UI 검증을 뜻하지 않는다. 브라우저·서버는 모두 종료했고 최초 실패와 보정 원자료는 덮지 않았다. [증거 색인](qa/20261003-actual-admin-browser.json)에 각 결과와 원본 PNG/JSON 해시를 보존한다.
 
 후속 [CI run37087197519](https://github.com/eiaserinnys/toktok/actions/runs/37087197519)은 서버 test/verdict PASS, UI 70 PASS/1 FAIL이었다. account mock이 공유 session을 변경해 다음 사례를 오염시킨 원인이며 C7e17a2d에서 test getSession만 structuredClone으로 격리하고 영향 파일의 3개 사례가 통과했다. 이 수정의 새 원격 CI는 별도 확인하며 기존 workflow의 Node24 설치 누락도 여전히 구분한다.
+
+보완 후 원격 `f7f7ba214ef6726f2432c65cc043ec8ffe127920`의 [run37088028128](https://github.com/eiaserinnys/toktok/actions/runs/37088028128)은 test/verdict/UI/public-UI/typecheck 모두 PASS다. acceptance는 Node22.23.3에서 selfhost tsx 미설치로 assertions 전에 ERR_MODULE_NOT_FOUND, dry-run SKIPPED다. 계정 fixture 오류는 해소됐으며 기존 workflow의 설치 누락을 제품 HTTP 실패와 구분한다. 승인되지 않은 workflow 권한 변경이나 대체 credential 사용은 없다.
+
+## 실제 계정 연결·방 생성 브라우저
+
+C5d6618e를 root e8d22be로 통합하고 `/about`·`/new-room`을 포함한 실제 HTTP HTML 목록과 shared route/renderer/fixture의 누락 검사 1 PASS를 회수했다. 관리자 HTML dispatch 목록을 명시했고 미등록 관리자 경로는 인가 뒤404로 닫는다. 복구용 설정8경로는 별도 목록으로 유지해 후속 초대·감사 화면에 예외가 넓어지지 않게 한다.
+
+새 로컬 Node24/SQLite browser 첫 실행은 claim/account 1440·390 각 PASS, anonymous memory 생성1440 및 초대 계정 persist 생성390 각 PASS다. 실제 승인 후 agent 상태, 취소 다이얼로그 Escape·초점 복귀, 명시 revoke를 검증했다. 생성은 기본 OFF와 권한 없는 persist 차단, 명시 체크, context→grant→create201, 실제 metadata의 retention mode, owner DOM·storage0 및 생성 POST1회를 확인했다. 외부 메일0이며 테스트 sender만 사용했다. 이전 auth/admin/QA 성공 구간은 반복하지 않았다.
+
+PNG에서 두 viewport의 claim 체크박스와 모바일 계정, 비보관·보관 생성 폼을 직접 확인했다. 모바일 full-page 생성 캡처에는 키보드 초점 뒤 skip-link overlay가 함께 찍혀 있어 시각 관측 범위로 남긴다. 이 실행은 전체 역할×viewport 조합이나 owner clipboard denied 검증이 아니다. C mock correction의 clipboard permission prompt/denied assertion 실패와 원자료는 그대로 유지한다. [증거 색인](qa/20261003-actual-identity-creation-browser.json)에 판정, 범위, PNG/원시 JSON 해시를 보존한다.
