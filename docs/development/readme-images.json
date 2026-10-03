@@ -5,9 +5,9 @@
   "images": [
     {
       "path": "docs/images/product-home.png",
-      "sha256": "2f694219e01844594f2153f6b305cf364ad3c9625c8da0ab17e1cdfcc202f112",
+      "sha256": "b4bb44bfecdad6a49bafcb7bad8b05ce286d599c8d2d493a2fff5c0492d178f6",
       "example_conversation": false,
-      "source_commit": "c26d743d436a83207cae2700fae4212e0a824dd3"
+      "source_commit": "73d3ee2f1d795b814cae61e9d79d463022bec451"
     },
     {
       "path": "docs/images/product-conversation.png",
@@ -16,6 +16,6 @@
       "source_commit": "dffd429d2202b3b0c29027c304b6ae043f29b1d9"
     }
   ],
-  "hero_capture_source": ".local/artifacts/toktok/20261003-node-clipboard-browser-root/product-home.png",
-  "hero_capture_scope": "Actual latest home with session-driven header, catalog then shared service description. Conversation body source is unchanged and was not recaptured."
+  "hero_capture_source": ".local/artifacts/toktok/20261003-landing-order-root/local-1440-landing.png",
+  "hero_capture_scope": "Actual Node24/SQLite full landing page, hero then service explanation/how-use, then public catalog and footer. Conversation image unchanged."
 }

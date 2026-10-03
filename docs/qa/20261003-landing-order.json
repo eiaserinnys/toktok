@@ -1,0 +1,245 @@
+{
+  "source_commit": "73d3ee2f1d795b814cae61e9d79d463022bec451",
+  "requirement": "hero → service explanation/how-use → public catalog → footer",
+  "prior_report_correction": "The earlier hero/catalog/description report described an actual deployed regression, not the latest user requirement.",
+  "before": {
+    "scope": "deployed landing before correction; read-only",
+    "cases": [
+      {
+        "width": 1440,
+        "dom": [
+          {
+            "kind": "hero",
+            "top": 100
+          },
+          {
+            "kind": "catalog",
+            "top": 545
+          },
+          {
+            "kind": "description",
+            "top": 938
+          },
+          {
+            "kind": "footer",
+            "top": 1297
+          }
+        ],
+        "mutations": 0
+      },
+      {
+        "width": 390,
+        "dom": [
+          {
+            "kind": "hero",
+            "top": 125
+          },
+          {
+            "kind": "catalog",
+            "top": 754
+          },
+          {
+            "kind": "description",
+            "top": 1433
+          },
+          {
+            "kind": "footer",
+            "top": 2142
+          }
+        ],
+        "mutations": 0
+      }
+    ],
+    "cleanup": true
+  },
+  "local": {
+    "scope": "actual Node24 SQLite product + protected shared flow previews",
+    "cases": [
+      {
+        "name": "1440-actual-local-landing",
+        "errors": [],
+        "mutations": 0,
+        "status": "PASS",
+        "dom": {
+          "order": [
+            "hero",
+            "description",
+            "catalog",
+            "footer"
+          ],
+          "description": 545.25,
+          "catalog": 903.984375,
+          "rooms": 2,
+          "sections": 1,
+          "width": 1440,
+          "docWidth": 1440,
+          "fonts": true
+        },
+        "csp": [],
+        "storage": [
+          0,
+          0
+        ],
+        "screenshot": "local-1440-landing.png"
+      },
+      {
+        "name": "390-actual-local-landing",
+        "errors": [],
+        "mutations": 0,
+        "status": "PASS",
+        "dom": {
+          "order": [
+            "hero",
+            "description",
+            "catalog",
+            "footer"
+          ],
+          "description": 753.6875,
+          "catalog": 1462.40625,
+          "rooms": 2,
+          "sections": 1,
+          "width": 390,
+          "docWidth": 390,
+          "fonts": true
+        },
+        "csp": [],
+        "storage": [
+          0,
+          0
+        ],
+        "screenshot": "local-390-landing.png"
+      },
+      {
+        "name": "actual-protected-landing-flow",
+        "status": "PASS",
+        "errors": [],
+        "api": 0,
+        "mutations": 0,
+        "previews": [
+          {
+            "order": [
+              "hero",
+              "description",
+              "catalog",
+              "footer"
+            ],
+            "description": 753.6875,
+            "catalog": 1462.40625,
+            "rooms": 1,
+            "sections": 1,
+            "width": 390,
+            "docWidth": 390,
+            "fonts": true
+          },
+          {
+            "order": [
+              "hero",
+              "description",
+              "catalog",
+              "footer"
+            ],
+            "description": 753.6875,
+            "catalog": 1462.40625,
+            "rooms": 1,
+            "sections": 1,
+            "width": 390,
+            "docWidth": 390,
+            "fonts": true
+          },
+          {
+            "order": [
+              "hero",
+              "description",
+              "catalog",
+              "footer"
+            ],
+            "description": 753.6875,
+            "catalog": 1462.40625,
+            "rooms": 1,
+            "sections": 1,
+            "width": 390,
+            "docWidth": 390,
+            "fonts": true
+          },
+          {
+            "order": [
+              "hero",
+              "description",
+              "catalog",
+              "footer"
+            ],
+            "description": 753.6875,
+            "catalog": 1462.40625,
+            "rooms": 1,
+            "sections": 1,
+            "width": 390,
+            "docWidth": 390,
+            "fonts": true
+          },
+          {
+            "order": [
+              "hero",
+              "description",
+              "catalog",
+              "footer"
+            ],
+            "description": 753.6875,
+            "catalog": 1462.40625,
+            "rooms": 1,
+            "sections": 1,
+            "width": 390,
+            "docWidth": 390,
+            "fonts": true
+          },
+          {
+            "order": [
+              "hero",
+              "description",
+              "catalog",
+              "footer"
+            ],
+            "description": 753.6875,
+            "catalog": 1462.40625,
+            "rooms": 1,
+            "sections": 1,
+            "width": 390,
+            "docWidth": 390,
+            "fonts": true
+          }
+        ],
+        "csp": []
+      }
+    ],
+    "cleanup": true,
+    "externalMail": 0
+  },
+  "unit": {
+    "command": "pnpm exec vitest run --config vitest.unit.config.ts test/shared-landing-order.test.js test/shared-settings-coverage.test.js",
+    "passed": 3,
+    "failed": 0,
+    "exit_code": 0
+  },
+  "deployed_after": null,
+  "assets": [
+    {
+      "path": ".local/artifacts/toktok/20261003-landing-order-root/1440-before.png",
+      "sha256": "a231e813f30fd1fd069aae9c1eb2ac405e38837f59311bdce4ea0dd7ad02c050"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-landing-order-root/390-before.png",
+      "sha256": "69b4b44ece35c22d33eb1622e92d3d82d6051f3f07b37aad6c0ef17dacf7fb46"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-landing-order-root/local-1440-landing.png",
+      "sha256": "b4bb44bfecdad6a49bafcb7bad8b05ce286d599c8d2d493a2fff5c0492d178f6"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-landing-order-root/local-390-landing.png",
+      "sha256": "a86afb53e5c18fa784018324fc9ff643ffd607ee52d9b198dc8864673d3ac207"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-landing-order-root/protected-flow.png",
+      "sha256": "c643e3b83666e1cf08858c70cb31d8a51f5b9183a5b4134edbd923decc8f2031"
+    }
+  ]
+}
