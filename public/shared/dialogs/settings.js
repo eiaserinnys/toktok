@@ -1,3 +1,4 @@
+import {createCommonDialog} from './common-dialog.js';
 import {escapeHtml as E,notice} from '../components/auth-primitives.js';
 
 // Approved 736605b7 product dialog markup, parametrized with actual server
@@ -15,21 +16,9 @@ export function renderSettingsReload({changedCount}={}){
 export function createSettingsDialog(kind,params={},document=globalThis.document){
  const render={'settings-review':renderSettingsReview,'settings-conflict':renderSettingsConflict,'settings-reload':renderSettingsReload,'settings-leave':renderSettingsLeave}[kind];
  if(!render)throw Error('UNKNOWN_DIALOG');
- const dialog=document.createElement('dialog');dialog.className='x-dialog';dialog.setAttribute('aria-labelledby','xDialogTitle');
- dialog.innerHTML=`<button type="button" class="icon-btn x-dialog-close" data-x="close-dialog" aria-label="닫기">×</button>${render(params)}`;
- dialog.querySelector('.x-dialog-close').disabled=!!params.pending;
- dialog.addEventListener('cancel',event=>{if(params.pending)event.preventDefault();});
- dialog.tabIndex=-1;
- dialog.addEventListener('keydown',event=>{
-  if(event.key!=='Tab')return;
-  const controls=[...dialog.querySelectorAll('button,input,select,textarea,a[href],[tabindex]')].filter(x=>!x.disabled&&x.tabIndex>=0&&x.getClientRects().length);
-  const first=controls[0],last=controls.at(-1),active=document.activeElement;
-  if(!first){event.preventDefault();dialog.focus();}
-  else if(event.shiftKey&&(active===first||!dialog.contains(active))){event.preventDefault();last.focus();}
-  else if(!event.shiftKey&&(active===last||!dialog.contains(active))){event.preventDefault();first.focus();}
- });
- return dialog;
+ return createCommonDialog(render(params),params,document);
 }
+
 export function renderSettingsLeave({changedCount}={}){
  return `<span class="eyebrow">A SMALL PAUSE</span><h2 id="xDialogTitle">변경한 설정을<br>두고 나갈까요?</h2><p>${Number.isSafeInteger(changedCount)?changedCount:'확인 필요'}개의 변경사항이 아직 저장되지 않았어요.</p><div class="x-button-row"><button type="button" class="btn primary" data-x="close-dialog">계속 수정하기</button><button type="button" class="btn soft" data-x="discard-leave">변경 버리고 나가기</button></div>`;
 }

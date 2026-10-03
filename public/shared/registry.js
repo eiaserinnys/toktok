@@ -1,3 +1,5 @@
+import {renderAccount} from './screens/account.js';
+import {createAgentRevokeDialog} from './dialogs/identity.js';
 import {renderBudgetUsage} from './components/budget-usage.js';
 import {icon,header,message,person} from './components/common-room.js';
 import {room,terminal,introduction,guide} from './screens/common-room.js';
@@ -24,12 +26,14 @@ export const componentRegistry=Object.freeze({
  'settings-fields':{render:renderSettingsFields,requiredStates:['catalog','empty','max','workload','nested','readonly-off']}
 });
 export const screenRegistry=Object.freeze({
+ account:{render:renderAccount,requiredStates:['default','revoked','empty','anonymous','loading','unavailable','error']},
  room:{render:room},terminal:{render:terminal},introduction:{render:introduction},guide:{render:guide},
  auth:{render:vm=>renderAuth(vm.screen,vm),requiredStates:['login','signup-invite','signup-email','invite-invalid','closed','verify','error','expired','loading','unavailable']},
  lobby:{render:renderLobby,requiredStates:['default','empty','loading','unavailable']},
  settings:{render:renderSettingsScreen,requiredStates:['overview','public','private','budget','identity','signup','deployment','loading','denied','error','conflict','budget-loading','budget-unavailable']}
 });
 export const dialogRegistry=Object.freeze({
+ 'agent-revoke':{render:createAgentRevokeDialog,requiredStates:['default','pending','error']},
  'public-risk':{render:createRiskDialog,requiredStates:['unchecked','checked','pending','error','rate-limited']},
  'settings-review':{render:params=>createSettingsDialog('settings-review',params),requiredStates:['default','pending','error']},
  'settings-conflict':{render:params=>createSettingsDialog('settings-conflict',params),requiredStates:['default','unavailable']},
