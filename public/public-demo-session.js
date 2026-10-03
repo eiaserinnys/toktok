@@ -2,7 +2,7 @@
 export function applyPublicPage(state,page,{append,reset,notice}){
  const replace=page.history_status==='history_reset'||page.history_status==='history_gap';
  if(replace){notice('이전 대화 일부를 더 이상 가져올 수 없습니다. 최근 대화로 다시 이어갑니다.');reset();state.cursor=null;state.epoch=null;}
- else if(page.initial_window?.truncated)notice('최근 5분의 최대 20개부터 보여요. 그 이전 대화는 생략됐어요.');
+ else if(page.initial_window?.truncated)notice('서버가 안내한 최근 보관 범위부터 보여요. 그 이전 대화는 생략됐어요.');
  for(const m of page.messages){
   const [epoch,seq]=m.cursor.split(':'),n=Number(seq);
   if(epoch!==page.epoch||n!==m.sequence)throw Error('SEQUENCE_GAP');

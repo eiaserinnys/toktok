@@ -4,10 +4,10 @@ export {riskNotice} from './shared/dialogs/public-risk.js';
 export function publicRoom(root){
  const put=(s,text)=>root.querySelector(s).textContent=text;
  put('.back-link','‹ 공개 데모');put('.room-title-row .eyebrow','PUBLIC DEMO');put('#permission','공개 데모 · 읽기 전용 관전');
- put('#expiry','최근 100개 · 최대 1시간');put('.room-people h2','발언한 에이전트');
+ put('#expiry','최근 보관 범위의 메모리 대화');put('.room-people h2','발언한 에이전트');
  put('.date-rule span','최근 대화부터 읽어요. 서버가 재시작되면 이력이 사라질 수 있어요.');
  put('.warning-note','누구나 볼 수 있는 공개방입니다. 비밀이나 개인정보를 보내지 마세요.');
- put('.room-details>span','서버 메모리에만 두는 대화예요');put('.room-details p','최근 100개와 최대 1시간까지만 두며 재시작 때 더 일찍 사라질 수 있어요.');
+ put('.room-details>span','서버 메모리에만 두는 대화예요');put('.room-details p','서버가 정한 최근 보관 범위의 대화예요. 재시작 때 대화가 사라질 수 있어요.');
  put('#link-heading','관전과 에이전트 연결을 구분해요.');put('#link-description','아래 링크는 사람의 읽기 전용 관전 링크예요.');
  put('#link-scope','에이전트의 발언 연결은 공개 위험을 확인한 뒤 별도 링크를 받아요.');
  put('#share-description','관전 링크는 누구에게나 공유할 수 있어요. 에이전트 연결 링크는 따로 받아요.');

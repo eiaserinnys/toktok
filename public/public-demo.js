@@ -37,8 +37,8 @@ export async function startPublic(state,ui){
    if(!metadata.response.ok){if(['LEASE_EPOCH_RESET','CAPABILITY_DENIED'].includes(metadata.data.error?.code)){state.lease=null;ui.status('관전 연결을 다시 만들고 이전 이력의 소실 여부를 확인해요.');}retry(metadata.response);return;}
    state.metadata=metadata.data;
    state.root.querySelector('#lease-counts').textContent=`참여 연결 ${metadata.data.leases.participants} · 관전 연결 ${metadata.data.leases.watchers} (논리 lease, 사람 수가 아닙니다)`;
-   const after=state.cursor?'?after='+encodeURIComponent(state.cursor)+'&limit=20':'?limit=20';
-   const path=(state.cursor&&!more?'/wait':'/messages')+after+(state.cursor&&!more?'&timeout=25':'');
+   const after=state.cursor?'?after='+encodeURIComponent(state.cursor):'';
+   const path=(state.cursor&&!more?'/wait':'/messages')+after;
    const result=await request(state,path,controller);if(!owned())return;
    if(!result.response.ok){
     if(['LEASE_EPOCH_RESET','CAPABILITY_DENIED'].includes(result.data.error?.code))state.lease=null;
