@@ -1,5 +1,13 @@
 // Fictional isolated usage; model shape/data derived from A28e12caf. Not a product fallback.
 export const budgetFixture={
+ "recovery": {
+  "bounds": {"minute":10,"day":100,"month":1000},
+  "usage": {"minute":1,"day":7,"month":21},
+  "response_bytes_limit":65536,
+  "next_minute_at":"2026-10-03T12:01:00.000Z",
+  "next_day_at":"2026-10-04T00:00:00.000Z",
+  "next_month_at":"2026-11-01T00:00:00.000Z"
+ },
  "windows": {
   "day": "2026-10-03",
   "month": "2026-10",

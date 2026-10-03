@@ -11,5 +11,10 @@ export function mapBudget(data){
  if(model?.version!=='CF-reference-v1'||model.currency!=='USD'||model.scope!=='cloudflare_reference_not_node_operating_cost'||model.actual_invoice!==false||model.email_pricing!=='planned_one_cent_per_attempt')invalid();
  if(!['micro_usd_per_usd','included_usage','fixed_month_micro_usd','reservation_base_micro_usd'].every(key=>count(model[key]))||model.micro_usd_per_usd===0)invalid();
  if(!['admission_request_micro_usd','response_bytes_per_micro_usd','active_room_second_micro_usd','persistent_write_bytes_per_micro_usd','email_attempt_micro_usd'].every(key=>count(model.rates?.[key])))invalid();
+ if(Object.hasOwn(data,'recovery')){
+  const recovery=data.recovery;
+  if(!['minute','day','month'].every(key=>count(recovery?.bounds?.[key])&&count(recovery?.usage?.[key]))||!count(recovery?.response_bytes_limit)
+   ||!['next_minute_at','next_day_at','next_month_at'].every(key=>typeof recovery?.[key]==='string'))invalid();
+ }
  return structuredClone(data);
 }

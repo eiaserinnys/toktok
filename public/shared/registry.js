@@ -22,7 +22,7 @@ import {renderLobby} from './screens/lobby.js';
 export const componentRegistry=Object.freeze({
  'service-description':{render:renderServiceDescription,requiredStates:['default']},
  'risk-check':{render:renderRiskCheck,requiredStates:['unchecked','checked','disabled']},
- 'budget-usage':{render:renderBudgetUsage,requiredStates:['default','warning','cutoff','loading','unavailable']},
+ 'budget-usage':{render:renderBudgetUsage,requiredStates:['default','warning','cutoff','loading','unavailable','recovery-unavailable']},
  'agent-safety':{render:renderAgentSafety,requiredStates:['service-owned']},
  icon:{render:icon,requiredStates:['default']},
  header:{render:header,requiredStates:['default']},
