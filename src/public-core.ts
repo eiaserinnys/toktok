@@ -78,7 +78,7 @@ export class PublicRoomCore {
    const token=this.epoch+'.'+newToken(),expires=this.clock()+this.policy.grantMs;
    this.grants.set(token,{expires,nextSend:0});rate.admissions.push(this.clock());rate.at=this.clock();
    const data={operator_grant:token,epoch:this.epoch,expires_at:new Date(expires).toISOString(),notice_version:PUBLIC_NOTICE};await this.budget.reserve(operation,'response_bytes',utf8Bytes(JSON.stringify(data)));return {status:201,data,retry_after_ms:undefined as number|undefined};
-  });}catch(error){const response=publicError(error);return {status:response.status,data:await response.json() as PublicGrantResult['data'],retry_after_ms:response.status===429?(error as {retryMs?:number}).retryMs??1000:undefined};}
+  });}catch(error){const response=publicError(error),data=await response.json() as PublicGrantResult['data'];return {status:response.status,data,retry_after_ms:'error' in data?data.error.retry_after_ms:undefined};}
  }
  async fetch(request:Request):Promise<Response> {
   try{return await this.handler(async()=>{const cleanup=request.method==='DELETE'&&new URL(request.url).pathname.endsWith('/lease');const operation=cleanup?undefined:await this.budget.admit();const response=await this.dispatch(request);return operation?this.budget.respond(response,operation):response;});}catch(error){return publicError(error);}

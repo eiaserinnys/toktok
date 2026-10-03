@@ -54,3 +54,8 @@ createServer({origin,handler,repo,close,trustedProxyCidrs?})는 Fetch Request/Re
 trusted `inspect(id?:string)`와 `maintenance(id?:string)`는 서버가 제공한 방 ID로 core를 결합하며 ID 없이는 scope를 만들지 않습니다. CF wrapper는 exact KV `toktok_private_room_id`에 비밀 없는 ID만 저장하고 constructor의 blockConcurrencyWhile에서 복원합니다. initialize는 repository schema 준비 후 기존 ID 일치를 확인·보존하고 실제 core snapshot 초기화 성공 후 alarm을 잡습니다. alarm과 schedule은 복원된 ID를 명시 전달합니다. ID만 존재하는 부분 실패는 성공한 room/slot/body 상태가 아니며 inspect의 실제 snapshot을 확인해야 합니다. 공개 DO에는 이 KV 경로가 없습니다.
 
 CF schema 검사는 문서상 `__cf_kv`, alarm의 `_cf_METADATA`와 로컬 SQLite 런타임 mock KV에서 직접 관측한 `_cf_KV`만 제외합니다. 사용자 테이블이나 임의 내부 prefix는 허용하지 않습니다. Node/PG schema 판단은 별도이며 이 제외 목록을 상속하지 않습니다.
+
+
+## Node 공개 registry 회수 경계
+
+`PublicRooms.has(slug)`는 기존 core 존재 여부만 확인하며 새 방을 만들지 않습니다. 설정 변경과 room 진입에서 비활성 slug를 prune하고 모든 lease/pending grant/handler/wait가0일 때 shutdown·삭제합니다. 활성 기존 방은 자연 drain하며 전체 core100에서는 새 core 생성만429로 거절합니다. 별도 polling/keepalive timer는 없습니다. 운영 catalog10은 root 설정 상한이며 registry100은 rename 중 이전 활성 core까지 합친 코드 불변상한입니다. CF는 같은 Node Map을 사용하지 않으며 catalog 설정 권한과 전역 funded duration 예산으로 비용을 제한해야 합니다.

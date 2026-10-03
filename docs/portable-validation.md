@@ -61,7 +61,7 @@ node24 --import ./selfhost/node_modules/tsx/dist/loader.mjs --test --test-concur
 
 root/A는 CONTROL HTTP budget factory와 새 ControlPlane namespace, settings revision 공급, auth/creator entitlement/global slots, root router/private bindings, Node startup overdue scan/hostClose, QA 전용 security wrapper를 연결해야 합니다. SMTP 실제 provider/template/secret과 숨김TTY 설치 도우미는 미완료입니다. selfhost CLI ready/catalogue 성공만으로 전체 DEMO/HOSTED/OTP/admin 지원 완료라고 보고하지 않습니다.
 
-새 atomic 장부 SQL 비용은 [비용 보완](public-cost-comparison.md)의 대표행 계측만 있으며 실제 A reserve/cleanup·persist rows/storage/alarms·계정baseline이 필요합니다. $34.26/$40/$100은 현재 전체제품 검증 가격/청구 hard cap이 아닙니다. 이전 비용·부하 원시 JSON은 보존했습니다.
+새 atomic 장부 SQL 비용은 [비용 보완](public-cost-comparison.md)에 root 실제 A reserve/cleanup 계측을 반영했습니다. private rows/storage/alarms와 계정baseline은 일부 계획 가정이며 아직 native 전체 측정이 아닙니다. $34.26/$40/$100은 현재 전체제품 검증 가격/청구 hard cap이 아닙니다. 이전 비용·부하 원시 JSON은 보존했습니다.
 
 분석 캐시 정본은 document_id `d35f3b20-efd6-4cf7-b359-2ff1965029b2`입니다. 저장·runtime·body 저장 축의 커버/제외는 [호출 계약](portable-runtime.md)에 열거했습니다. 현재 기반 변경 후 Git 원격 HEAD와 clean 상태는 담당 세션의 최종 인계에 기록하며 main merge/배포는 하지 않습니다.
 
@@ -78,4 +78,7 @@ trusted host inspect(id)와 maintenance(id)는 새 core가 식별자를 명시 �
 
 cold-alarm 첫 gate는 KV 생성 후 SCHEMA_CONFLICT로 실패했습니다. 승인된 schema 이름 진단에서 생성 전 actor는 빈 목록이었고, mock KV 생성 후 정확한 내부 테이블 `_cf_KV`를 확인했습니다. SQL/table 행 데이터·본문은 출력하지 않았습니다. CF 검사에 이 정확한 이름만 추가하고 Node/PG는 변경하지 않은 보정 selected 1회가 PASS(61ms)입니다. cold eviction alarm 후 body rows0/initialized true, 실패한 초기화는 KV ID만 있고 snapshot rows0/initialized false입니다. 기존 inspect 및 다른 통과 gate는 반복하지 않았습니다.
 
-Node PublicRooms registry는 catalog rename 후 이전 core 제거 경로가 없어 유휴 core가 누적되는 사실을 root에 보고했습니다. 이 인계 시점에는 해당 추가 수정이나 부하 검증을 하지 않았습니다. 다음 통합 판단은 제거된 slug의 diagnostics prune 뒤 lease/pending grant/wait/handler0인 core만 shutdown·제거하는 경계입니다.
+Node PublicRooms registry의 rename 누적을 root 승인 범위에서 보정했습니다. configure/room 진입 및 has는 제거된 slug를 diagnostics로 prune하고 participant/watcher/pending grant/handler/wait가 모두0일 때만 shutdown·제거합니다. 전체100 core에서 새 core만429로 거절하며 기존 core는 drain/cleanup을 유지합니다. 별도 polling timer는 없습니다. 신규 targeted1 PASS(2280ms): pending grant 100개 room 유지/101번째429+Retry-After1초/만료 뒤 GC/기존 활성wait abort+leave 회수 및 timer0입니다. 운영 catalog 상한10은 root 정책이며 안전 registry 상한100과 구분합니다. 기존 부하는 반복하지 않았습니다.
+
+
+operator grant의 outer DTO도 publicError가 직렬화한 `error.retry_after_ms`를 재사용합니다. 별도 메서드 gate의 최초 fixture가 B legacy HttpError에 없는 네 번째 생성자 인자를 사용하여 retry가 없었습니다. 실제 A 경계처럼 retryAfter 속성을 부여한 한 보정 실행이1 PASS(31ms)입니다. outer/inner 모두17000ms, status429, pending grant0/handler0을 확인했으며 기존 publicError case는 반복하지 않았습니다.
