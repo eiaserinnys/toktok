@@ -36,7 +36,7 @@ const bool=(label:string,applyTo:ApplyTo='runtime'):SchemaNode=>({type:'boolean'
 const enumeration=(label:string,values:readonly string[],applyTo:ApplyTo='runtime'):SchemaNode=>({type:'enum',label,values,min:null,max:null,unit:'enum',applyTo});
 const object=(label:string,fields:Record<string,SchemaNode>,applyTo:ApplyTo='runtime'):SchemaNode=>({type:'object',label,fields,min:null,max:null,unit:'object',applyTo});
 const list=(label:string,min:number,max:number,items:SchemaNode):Extract<SchemaNode,{type:'array'}>=>({type:'array',label,min,max,items,unit:'items',applyTo:'runtime'});
-const string=(label:string,min:number,max:number,pattern?:string):SchemaNode=>({type:'string',label,min,max,pattern,unit:'characters',applyTo:'runtime'});
+const string=(label:string,min:number,max:number,pattern?:string):SchemaNode=>({type:'string',label,min,max,...(pattern===undefined?{}:{pattern}),unit:'characters',applyTo:'runtime'});
 const publicFields:Record<string,SchemaNode>={};
 for(const [key,value] of Object.entries(DEFAULT_PUBLIC_POLICY)){
  const interval=['operatorIntervalMs','ipIntervalMs','roomWindowMs','admissionWindowMs','ipMemoryMs'].includes(key);
