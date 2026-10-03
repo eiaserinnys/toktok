@@ -1,0 +1,142 @@
+{
+  "price_revision": "toktok-cf-estimate-v1-proposal",
+  "price_checked_at": "2026-10-03",
+  "included_remaining_assumed": 0,
+  "invoice_accounting": false,
+  "production_implemented_here": false,
+  "warning_micro_usd": 40000000,
+  "cutoff_micro_usd": 60000000,
+  "target_micro_usd": 100000000,
+  "fixed_month_once": {
+    "deployment_base": 5000000,
+    "control_duration_linear": 4285440,
+    "do_duration_rounding_headroom": 12500000,
+    "do_request_rounding_headroom": 150000,
+    "initial_ledger_cleanup_admin_unmeasured": 3064560
+  },
+  "new_reservation_base_micro_usd": 14,
+  "weights": {
+    "admission_requests": "3*amount",
+    "response_bytes": "ceil(amount/65536)",
+    "active_room_seconds": "2*amount",
+    "persistent_write_bytes": "ceil(amount/16)",
+    "email_attempts": "10000*amount (unconfirmed provider planning value)"
+  },
+  "examples": {
+    "admission1": 17,
+    "response64KiB": 15,
+    "duration60s": 134,
+    "persist344bytes": 36,
+    "email1": 10014
+  },
+  "small": [
+    {
+      "label": "D",
+      "participant": 2,
+      "watcher": 0,
+      "hours_per_day": 1,
+      "rate_source": "single seeded D/E trial; every measured request conservatively treated as admitted",
+      "requests_per_minute": 14,
+      "planned_admissions": 25200,
+      "funded_seconds_with_one_tail_block_per_day": 109800,
+      "reservations": 52230,
+      "estimated_micro_usd": 26051620,
+      "estimated_usd": 26.05162,
+      "above_quantity_month_admissions": false,
+      "above_cutoff": false
+    },
+    {
+      "label": "D",
+      "participant": 2,
+      "watcher": 0,
+      "hours_per_day": 4,
+      "rate_source": "single seeded D/E trial; every measured request conservatively treated as admitted",
+      "requests_per_minute": 14,
+      "planned_admissions": 100800,
+      "funded_seconds_with_one_tail_block_per_day": 433800,
+      "reservations": 208830,
+      "estimated_micro_usd": 29194420,
+      "estimated_usd": 29.19442,
+      "above_quantity_month_admissions": false,
+      "above_cutoff": false
+    },
+    {
+      "label": "E",
+      "participant": 10,
+      "watcher": 10,
+      "hours_per_day": 1,
+      "rate_source": "single seeded D/E trial; every measured request conservatively treated as admitted",
+      "requests_per_minute": 272,
+      "planned_admissions": 489600,
+      "funded_seconds_with_one_tail_block_per_day": 109800,
+      "reservations": 981030,
+      "estimated_micro_usd": 40912420,
+      "estimated_usd": 40.91242,
+      "above_quantity_month_admissions": false,
+      "above_cutoff": false
+    },
+    {
+      "label": "E",
+      "participant": 10,
+      "watcher": 10,
+      "hours_per_day": 4,
+      "rate_source": "single seeded D/E trial; every measured request conservatively treated as admitted",
+      "requests_per_minute": 272,
+      "planned_admissions": 1958400,
+      "funded_seconds_with_one_tail_block_per_day": 433800,
+      "reservations": 3924030,
+      "estimated_micro_usd": 88637620,
+      "estimated_usd": 88.63762,
+      "above_quantity_month_admissions": true,
+      "above_cutoff": true
+    }
+  ],
+  "quantity_capped_E_4h": {
+    "label": "E capped rate",
+    "participant": 10,
+    "watcher": 10,
+    "hours_per_day": 4,
+    "rate_source": "single seeded D/E trial; every measured request conservatively treated as admitted",
+    "requests_per_minute": 138.88888888888889,
+    "planned_admissions": 1000000,
+    "funded_seconds_with_one_tail_block_per_day": 433800,
+    "reservations": 2007230,
+    "estimated_micro_usd": 57968820,
+    "estimated_usd": 57.96882,
+    "above_quantity_month_admissions": false,
+    "above_cutoff": false
+  },
+  "all_quantity_caps_loose": {
+    "admissions": 1000000,
+    "persist_operations_upper": 48770,
+    "room_blocks": 25000,
+    "reservations": 2075270,
+    "parts_micro_usd": {
+      "fixed": 25000000,
+      "new_reservation_base": 29053780,
+      "admission_weight": 3001500,
+      "response_weight": 1000000,
+      "room_duration_weight": 3000000,
+      "persistent_weight_upper": 1097346,
+      "email_weight": 10000000
+    },
+    "estimated_micro_usd": 72152626,
+    "estimated_usd": 72.152626,
+    "simultaneous_cap_consumption_guaranteed": false,
+    "will_hit_usd_cutoff": true
+  },
+  "strict_all_kinds": true,
+  "replay_extra_micro_usd": 0,
+  "zero_response_reservation_skipped": true,
+  "unmeasured": [
+    "USD ledger write delta",
+    "provider actual/fixed email price",
+    "private row/storage distribution",
+    "static/denied/admin traffic",
+    "real Worker CPU and actor residency"
+  ],
+  "price_sources": [
+    "https://developers.cloudflare.com/workers/platform/pricing/",
+    "https://developers.cloudflare.com/durable-objects/platform/pricing/"
+  ]
+}
