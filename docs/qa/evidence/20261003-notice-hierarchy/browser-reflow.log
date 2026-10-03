@@ -1,0 +1,15 @@
+heavy verification: running in slot 2/2
+NOTICE_BROWSER {"width":390,"passed":["zoom","public-dialog-continuity"],"shots":7,"apiMutations":0,"pageErrors":0}
+PRIVATE_HTTP_EVIDENCE {"case":"notice hierarchy shared surfaces and interaction 390","clock":"DI; no actual five-minute idle elapsed","raw":[],"cleanup":true}
+✔ notice hierarchy shared surfaces and interaction 390 (2777.222616ms)
+NOTICE_BROWSER {"width":1440,"passed":["zoom","public-dialog-continuity"],"shots":7,"apiMutations":0,"pageErrors":0}
+PRIVATE_HTTP_EVIDENCE {"case":"notice hierarchy shared surfaces and interaction 1440","clock":"DI; no actual five-minute idle elapsed","raw":[],"cleanup":true}
+✔ notice hierarchy shared surfaces and interaction 1440 (2713.135783ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6437.082863

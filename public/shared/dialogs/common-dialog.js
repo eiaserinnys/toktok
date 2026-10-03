@@ -2,7 +2,7 @@
 export function trapDialogTab(dialog,event){
  if(event.key!=='Tab')return;
  const document=dialog.ownerDocument;
- const controls=[...dialog.querySelectorAll('button,input,select,textarea,a[href],[tabindex]')].filter(x=>!x.disabled&&x.tabIndex>=0&&x.getClientRects().length);
+ const controls=[...dialog.querySelectorAll('button,input,select,textarea,a[href],summary,[tabindex]')].filter(x=>!x.disabled&&x.tabIndex>=0&&x.getClientRects().length);
  const first=controls[0],last=controls.at(-1),active=document.activeElement;
  if(!first){event.preventDefault();dialog.focus();}
  else if(event.shiftKey&&(active===first||!controls.includes(active))){event.preventDefault();last.focus();}

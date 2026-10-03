@@ -1,0 +1,65 @@
+heavy verification: running in slot 1/2
+NOTICE_CHECK_FAIL {"name":"actual-qa","error":"{\"url\":\"/admin/design/dialogues\",\"body\":\"검수 화면을 불러오는 중이에요.\",\"failedAssets\":[{\"path\":\"/admin/design/_assets/admin-design/notice-fixtures.js\",\"status\":429},{\"path\":\"/admin/design/_assets/admin-design/public-connection-fixtures.js\",\"status\":429},{\"path\":\"/admin/design/_assets/admin-design/common-header-fixtures.js\",\"status\":429},{\"path\":\"/admin/design/_assets/admin-design/private-fixtures.js\",\"status\":429},{\"path\":\"/admin/design/_assets/admin-design/adminlogs-fixtures.js\",\"status\":429},{\"path\":\"/admin/design/_assets/admin-design/newroom-fixtures.js\",\"status\":429},{\"path\":\"/admin/design/_assets/admin-design/claim-fixtures.js\",\"status\":429},{\"path\":\"/admin/design/_assets/admin-design/account-fixtures.js\",\"status\":429},{\"path\":\"/admin/design/_assets/shared/effect-interface.js\",\"status\":429},{\"path\":\"/admin/design/_assets/admin-design/auth-settings-fixtures.js\",\"status\":429},{\"path\":\"/admin/des"}
+PRIVATE_HTTP_EVIDENCE {"case":"notice hierarchy shared surfaces and interaction 390","clock":"DI; no actual five-minute idle elapsed","raw":[],"cleanup":true}
+✖ notice hierarchy shared surfaces and interaction 390 (13146.326156ms)
+NOTICE_CHECK_FAIL {"name":"actual-qa","error":"{\"url\":\"/admin/design/dialogues\",\"body\":\"검수 화면을 불러오는 중이에요.\",\"failedAssets\":[{\"path\":\"/admin/design/_assets/shared/screens/flow-layout.js\",\"status\":429},{\"path\":\"/admin/design/_assets/admin-design/notice-fixtures.js\",\"status\":429},{\"path\":\"/admin/design/_assets/admin-design/public-connection-fixtures.js\",\"status\":429},{\"path\":\"/admin/design/_assets/admin-design/common-header-fixtures.js\",\"status\":429},{\"path\":\"/admin/design/_assets/admin-design/private-fixtures.js\",\"status\":429},{\"path\":\"/admin/design/_assets/admin-design/adminlogs-fixtures.js\",\"status\":429},{\"path\":\"/admin/design/_assets/admin-design/newroom-fixtures.js\",\"status\":429},{\"path\":\"/admin/design/_assets/admin-design/claim-fixtures.js\",\"status\":429},{\"path\":\"/admin/design/_assets/admin-design/account-fixtures.js\",\"status\":429},{\"path\":\"/admin/design/_assets/shared/effect-interface.js\",\"status\":429},{\"path\":\"/admin/design/_asse"}
+PRIVATE_HTTP_EVIDENCE {"case":"notice hierarchy shared surfaces and interaction 1440","clock":"DI; no actual five-minute idle elapsed","raw":[],"cleanup":true}
+✖ notice hierarchy shared surfaces and interaction 1440 (13429.260124ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 27935.224554
+
+✖ failing tests:
+
+test at test/notice-hierarchy-browser.ts:1:700
+✖ notice hierarchy shared surfaces and interaction 390 (13146.326156ms)
+  AssertionError [ERR_ASSERTION]: see per-case evidence
+  + actual - expected
+  
+  + [
+  +   {
+  +     error: '{"url":"/admin/design/dialogues","body":"검수 화면을 불러오는 중이에요.","failedAssets":[{"path":"/admin/design/_assets/admin-design/notice-fixtures.js","status":429},{"path":"/admin/design/_assets/admin-design/public-connection-fixtures.js","status":429},{"path":"/admin/design/_assets/admin-design/common-header-fixtures.js","status":429},{"path":"/admin/design/_assets/admin-design/private-fixtures.js","status":429},{"path":"/admin/design/_assets/admin-design/adminlogs-fixtures.js","status":429},{"path":"/admin/design/_assets/admin-design/newroom-fixtures.js","status":429},{"path":"/admin/design/_assets/admin-design/claim-fixtures.js","status":429},{"path":"/admin/design/_assets/admin-design/account-fixtures.js","status":429},{"path":"/admin/design/_assets/shared/effect-interface.js","status":429},{"path":"/admin/design/_assets/admin-design/auth-settings-fixtures.js","status":429},{"path":"/admin/des',
+  +     name: 'actual-qa'
+  +   }
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (/home/eias/workspace/.projects/toktok--feat-notice-hierarchy-5e7a1c57/test/notice-hierarchy-browser.ts:66:154)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ { name: 'actual-qa', error: '{"url":"/admin/design/dialogues","body":"검수 화면을 불러오는 중이에요.","failedAssets":[{"path":"/admin/design/_assets/admin-design/notice-fixtures.js","status":429},{"path":"/admin/design/_assets/admin-design/public-connection-fixtures.js","status":429},{"path":"/admin/design/_assets/admin-design/common-header-fixtures.js","status":429},{"path":"/admin/design/_assets/admin-design/private-fixtures.js","status":429},{"path":"/admin/design/_assets/admin-design/adminlogs-fixtures.js","status":429},{"path":"/admin/design/_assets/admin-design/newroom-fixtures.js","status":429},{"path":"/admin/design/_assets/admin-design/claim-fixtures.js","status":429},{"path":"/admin/design/_assets/admin-design/account-fixtures.js","status":429},{"path":"/admin/design/_assets/shared/effect-interface.js","status":429},{"path":"/admin/design/_assets/admin-design/auth-settings-fixtures.js","status":429},{"path":"/admin/des' } ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test/notice-hierarchy-browser.ts:1:700
+✖ notice hierarchy shared surfaces and interaction 1440 (13429.260124ms)
+  AssertionError [ERR_ASSERTION]: see per-case evidence
+  + actual - expected
+  
+  + [
+  +   {
+  +     error: '{"url":"/admin/design/dialogues","body":"검수 화면을 불러오는 중이에요.","failedAssets":[{"path":"/admin/design/_assets/shared/screens/flow-layout.js","status":429},{"path":"/admin/design/_assets/admin-design/notice-fixtures.js","status":429},{"path":"/admin/design/_assets/admin-design/public-connection-fixtures.js","status":429},{"path":"/admin/design/_assets/admin-design/common-header-fixtures.js","status":429},{"path":"/admin/design/_assets/admin-design/private-fixtures.js","status":429},{"path":"/admin/design/_assets/admin-design/adminlogs-fixtures.js","status":429},{"path":"/admin/design/_assets/admin-design/newroom-fixtures.js","status":429},{"path":"/admin/design/_assets/admin-design/claim-fixtures.js","status":429},{"path":"/admin/design/_assets/admin-design/account-fixtures.js","status":429},{"path":"/admin/design/_assets/shared/effect-interface.js","status":429},{"path":"/admin/design/_asse',
+  +     name: 'actual-qa'
+  +   }
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (/home/eias/workspace/.projects/toktok--feat-notice-hierarchy-5e7a1c57/test/notice-hierarchy-browser.ts:66:154)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ { name: 'actual-qa', error: '{"url":"/admin/design/dialogues","body":"검수 화면을 불러오는 중이에요.","failedAssets":[{"path":"/admin/design/_assets/shared/screens/flow-layout.js","status":429},{"path":"/admin/design/_assets/admin-design/notice-fixtures.js","status":429},{"path":"/admin/design/_assets/admin-design/public-connection-fixtures.js","status":429},{"path":"/admin/design/_assets/admin-design/common-header-fixtures.js","status":429},{"path":"/admin/design/_assets/admin-design/private-fixtures.js","status":429},{"path":"/admin/design/_assets/admin-design/adminlogs-fixtures.js","status":429},{"path":"/admin/design/_assets/admin-design/newroom-fixtures.js","status":429},{"path":"/admin/design/_assets/admin-design/claim-fixtures.js","status":429},{"path":"/admin/design/_assets/admin-design/account-fixtures.js","status":429},{"path":"/admin/design/_assets/shared/effect-interface.js","status":429},{"path":"/admin/design/_asse' } ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

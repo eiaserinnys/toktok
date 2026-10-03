@@ -1,0 +1,14 @@
+{
+  "width": 1440,
+  "checks": [
+    "actual-public"
+  ],
+  "failures": [],
+  "shots": [
+    "actual-public-chat",
+    "actual-public-connect"
+  ],
+  "pageErrors": 0,
+  "apiMutations": 0,
+  "cleanup": true
+}

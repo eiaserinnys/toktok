@@ -1,14 +1,17 @@
+import {captureDisclosures,restoreDisclosures} from './components/notice-disclosure.js';
 import {createAuthController} from './auth-controller.js';
 import {renderAuth} from './screens/auth.js';
 
 export function mountAuth(root,{effects,navigate,claim,onVerified}){
- let previousKey=null;
+ let previousKey=null,previousNoticeScope=null;
  const paint=vm=>{
   const key=vm.screen+':'+vm.ui.purpose+':'+(vm.ui.challenge?.flow??'');
   const retain=previousKey===key&&vm.status==='ready';
+  const noticeScope=vm.screen+':'+vm.ui.purpose;
+  const saved=previousNoticeScope===noticeScope&&vm.status==='ready'?captureDisclosures(root):null;
   const values=retain?new Map(Array.from(root.querySelectorAll('input[name]')).map(x=>[x.name,x.value])):new Map();
   const active=root.contains(document.activeElement)?{name:document.activeElement.name,action:document.activeElement.dataset.x,start:document.activeElement.selectionStart,end:document.activeElement.selectionEnd}:null;
-  root.innerHTML=renderAuth(vm.screen,vm);previousKey=key;
+  root.innerHTML=renderAuth(vm.screen,vm);previousKey=key;previousNoticeScope=noticeScope;
   for(const input of root.querySelectorAll('input[name]'))if(values.has(input.name))input.value=values.get(input.name);
   root.querySelector('#inviteCodeForm')?.addEventListener('submit',event=>{event.preventDefault();controller.validateInvitation(new FormData(event.currentTarget).get('inviteCode'));});
   root.querySelector('#xAuthForm')?.addEventListener('submit',event=>{event.preventDefault();controller.sendEmail(new FormData(event.currentTarget).get('email'));});
@@ -25,6 +28,7 @@ export function mountAuth(root,{effects,navigate,claim,onVerified}){
    else if(action==='logout')effects.logout().then(()=>navigate('/')).catch(()=>{element.textContent='로그아웃하지 못했어요. 다시 시도해주세요.';});
   });
   if(retain&&active){const target=Array.from(root.querySelectorAll('input,button,a')).find(x=>active.name?x.name===active.name:active.action&&x.dataset.x===active.action);if(target){target.focus({preventScroll:true});if(typeof active.start==='number'&&target.type!=='email')target.setSelectionRange?.(active.start,active.end);}}
+  restoreDisclosures(root,saved);
  };
  const controller=createAuthController({effects,paint,navigate,claim,onVerified});
  return {load:controller.load,enter:controller.enter,dispose:controller.dispose};

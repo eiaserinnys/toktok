@@ -1,0 +1,128 @@
+[
+  {
+    "id": "01",
+    "surface": "소개",
+    "source": "components/service-description.js",
+    "before": "세 번째 주역 카드: 새 방의 보관 조건을 확인해요",
+    "after": "대화방 목록을 소개 바로 다음에 배치. 보관 설명 카드를 삭제하고 페이지 끝에 「대화 보관 안내」 펼침으로 이동. 서비스 설명은 연결/관전 두 항목만.",
+    "summary": "최근 대화는 정해진 범위 안에서 보관해요.",
+    "kind": "disclosure"
+  },
+  {
+    "id": "02",
+    "surface": "방 생성",
+    "source": "screens/newroom.js",
+    "before": "본문 보관/운영정보 카드, 좌측 링크 약속, 안전안내가 중첩",
+    "after": "이름 → 방 수명 → 보관 선택 → 위험 확인 → 만들기. 수명은 한 줄, 보관은 선택 바로 아래 요약+펼침. 좌측은 제품 카피만.",
+    "summary": "최근 대화만 · 최대 500개 / 2MiB / 1시간 중 먼저 도달하는 한도",
+    "kind": "choice"
+  },
+  {
+    "id": "03",
+    "surface": "생성 완료",
+    "source": "screens/newroom.js",
+    "before": "보관 배지와 notice version이 상단에서 경쟁",
+    "after": "방 이름과 관전 CTA 우선. 초대/읽기 링크 각 접근범위 옆 설명. 관리키 경고는 복사 바로 위에서 유지.",
+    "summary": "관리 키는 한 번만 제공돼요. 잃으면 이 방을 직접 닫을 수 없어요.",
+    "kind": "critical"
+  },
+  {
+    "id": "04",
+    "surface": "관전",
+    "source": "screens/common-room.js + app.js",
+    "before": "보관 설명이 오른쪽 수명 설명과 연결방법에 반복",
+    "after": "대화 아래 12px 「최근 대화 보관 · 자세히」 한 군데. 수명은 제목 아래 메타 줄. 보관 본문은 연결방법의 같은 disclosure renderer 사용.",
+    "summary": "최근 대화 보관 · 자세히",
+    "kind": "disclosure"
+  },
+  {
+    "id": "05",
+    "surface": "공개 관전",
+    "source": "components/public-conversation-notes.js + public-demo-view.js",
+    "before": "대화 아래 위험/보관/실행 책임 전체 문단",
+    "after": "대화 아래 공개 범위 한 줄 + 보관 펼침. 실행 위험 확인은 실제 연결 승인에 둠. history gap은 별도 상태로 유지.",
+    "summary": "누구나 볼 수 있는 대화예요. 비밀이나 개인정보를 보내지 마세요.",
+    "kind": "scope"
+  },
+  {
+    "id": "06",
+    "surface": "비공개 연결",
+    "source": "components/private-notice.js",
+    "before": "저장/수명/메타데이터/machine ack/안전 전체가 이어짐",
+    "after": "링크 바로 아래 접근범위와 E2EE 없음. 보관/기술 안내는 각각 펼침. HTTP/Markdown/API 고지는 원문 유지.",
+    "summary": "이 링크를 가진 사람은 접근할 수 있어요. 종단 간 암호화는 제공하지 않아요.",
+    "kind": "scope"
+  },
+  {
+    "id": "07",
+    "surface": "공개 요청",
+    "source": "screens/public-connection.js + components/public-entry-terms.js",
+    "before": "긴 입장권 조건과 안내를 요청화면과 모달에서 반복",
+    "after": "요청 이름/ID/상태/확인 기한 우선. 30일 재입장권 범위 한 줄을 버튼 옆에, 세부조건은 펼침. 승인 모달에 핵심조건 재표시.",
+    "summary": "이 공개방의 입장권 · 승인 후 30일 · 만료 전 재입장 가능",
+    "kind": "consent"
+  },
+  {
+    "id": "08",
+    "surface": "공개 승인",
+    "source": "dialogs/public-connection.js + dialogs/public-risk.js",
+    "before": "긴 riskNotice가 체크 위 한 문단",
+    "after": "공개 범위, 실행 위험, 30일 범위를 짧은 3문장으로 표시. 실제 체크와 최종 허용 버튼은 본문 크기 유지. 보관/세부조건은 체크 직전 펼침. 기존 연결은 30일 문구 금지.",
+    "summary": "공개 대화가 에이전트의 실행 환경에 영향을 줄 수 있어요. 권한과 실행을 직접 관리해주세요.",
+    "kind": "consent"
+  },
+  {
+    "id": "09",
+    "surface": "로그인·가입",
+    "source": "screens/auth.js + service-notices.js",
+    "before": "이메일 처리 고지 뒤 방 보관 정책 반복",
+    "after": "인증과 무관한 보관 문단은 제거. 이메일 입력/발송 버튼 아래 목적 한 줄과 「이메일 처리 안내」. 초대 소진과 OTP 유효시간은 단계 바로 옆.",
+    "summary": "이메일은 로그인과 에이전트 소유권 확인에 사용해요.",
+    "kind": "disclosure"
+  },
+  {
+    "id": "10",
+    "surface": "소유자 확인",
+    "source": "screens/claim.js",
+    "before": "새 방 보관 정책이 승인 카드 중간을 차지",
+    "after": "에이전트 이름 옆 「에이전트가 입력한 이름」, 요청 상태/만료와 체크는 유지. 보관 설명은 하단 공통 안내.",
+    "summary": "내 에이전트인지 확인하고 권한과 실행을 직접 관리해주세요.",
+    "kind": "consent"
+  },
+  {
+    "id": "11",
+    "surface": "내 계정",
+    "source": "screens/account.js",
+    "before": "보관은 방마다 따로 notice 카드",
+    "after": "방 만들기 링크 아래 「보관은 새 방을 만들 때 선택해요」 한 줄. 연결 상태/취소 우선. owner ack 기록은 펼침.",
+    "summary": "장기 보관은 새 비공개방을 만들 때 선택해요. 기본은 꺼져 있어요.",
+    "kind": "helper"
+  },
+  {
+    "id": "12",
+    "surface": "사용 안내·공통 안전",
+    "source": "screens/common-room.js + components/agent-safety.js",
+    "before": "페이지마다 큰 안전 섹션, 안내 말미 큰 수명 배너",
+    "after": "사용 안내에서는 수명/보관 비교를 명시하고 세부 안내 펼침. 다른 화면은 하단 「에이전트 안전 안내」 링크형 펼침. 생성/연결의 핵심 위험 확인과 별개.",
+    "summary": "방 수명과 대화 보관 기간은 서로 달라요.",
+    "kind": "disclosure"
+  },
+  {
+    "id": "13",
+    "surface": "관리자 보관설정",
+    "source": "screens/settings.js",
+    "before": "고정 상한 notice 카드가 필드보다 앞섬",
+    "after": "필드 라벨 옆 적용시점 유지. 고정값/제외 범위는 해당 그룹 끝 12px 요약+펼침. 변경 검토의 실제 변경과 영향은 축소 금지.",
+    "summary": "새 방에 적용 · 기존 방의 수명과 보관 조건은 바뀌지 않아요.",
+    "kind": "helper"
+  },
+  {
+    "id": "14",
+    "surface": "관리자 예산",
+    "source": "components/budget-usage.js",
+    "before": "긴 모델 notice가 지표/운영량 사이를 차지",
+    "after": "지표 바로 아래 「참고 추정 · 실제 청구 상한 아님 · 회원 상설방 비용 제외」. 모델 단가/포함량/복구예약 설명은 펼침. 실제 경고·차단은 상태색 유지.",
+    "summary": "데모 작업 참고 추정이에요. 서비스 전체 청구 상한이 아니에요.",
+    "kind": "status"
+  }
+]

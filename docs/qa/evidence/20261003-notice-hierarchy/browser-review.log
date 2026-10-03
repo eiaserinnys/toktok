@@ -1,0 +1,93 @@
+heavy verification: running in slot 1/2
+NOTICE_CHECK_FAIL {"name":"auth-error-continuity","error":"locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#email')\u001b[22m\n"}
+NOTICE_CHECK_FAIL {"name":"actual-public","error":"public metadata (response body deliberately omitted)\n\n401 !== 200\n"}
+NOTICE_CHECK_FAIL {"name":"actual-qa","error":"locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'public-connection · unchecked', exact: true })\u001b[22m\n"}
+PRIVATE_HTTP_EVIDENCE {"case":"notice hierarchy shared surfaces and interaction 390","clock":"DI; no actual five-minute idle elapsed","raw":[{"step":"public metadata for notice","status":401,"code":"AUTH_REQUIRED"}],"cleanup":true}
+✖ notice hierarchy shared surfaces and interaction 390 (22221.267735ms)
+NOTICE_CHECK_FAIL {"name":"auth-error-continuity","error":"locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#email')\u001b[22m\n"}
+NOTICE_CHECK_FAIL {"name":"actual-public","error":"public metadata (response body deliberately omitted)\n\n401 !== 200\n"}
+NOTICE_CHECK_FAIL {"name":"actual-qa","error":"locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'public-connection · unchecked', exact: true })\u001b[22m\n"}
+PRIVATE_HTTP_EVIDENCE {"case":"notice hierarchy shared surfaces and interaction 1440","clock":"DI; no actual five-minute idle elapsed","raw":[{"step":"public metadata for notice","status":401,"code":"AUTH_REQUIRED"}],"cleanup":true}
+✖ notice hierarchy shared surfaces and interaction 1440 (22535.29317ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 46000.735609
+
+✖ failing tests:
+
+test at test/notice-hierarchy-browser.ts:1:700
+✖ notice hierarchy shared surfaces and interaction 390 (22221.267735ms)
+  AssertionError [ERR_ASSERTION]: see per-case evidence
+  + actual - expected
+  
+  + [
+  +   {
+  +     error: 'locator.fill: Timeout 10000ms exceeded.\n' +
+  +       'Call log:\n' +
+  +       "\x1B[2m  - waiting for locator('#email')\x1B[22m\n",
+  +     name: 'auth-error-continuity'
+  +   },
+  +   {
+  +     error: 'public metadata (response body deliberately omitted)\n\n401 !== 200\n',
+  +     name: 'actual-public'
+  +   },
+  +   {
+  +     error: 'locator.click: Timeout 10000ms exceeded.\n' +
+  +       'Call log:\n' +
+  +       "\x1B[2m  - waiting for getByRole('button', { name: 'public-connection · unchecked', exact: true })\x1B[22m\n",
+  +     name: 'actual-qa'
+  +   }
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (/home/eias/workspace/.projects/toktok--feat-notice-hierarchy-5e7a1c57/test/notice-hierarchy-browser.ts:66:154)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ { name: 'auth-error-continuity', error: "locator.fill: Timeout 10000ms exceeded.\nCall log:\n\x1B[2m  - waiting for locator('#email')\x1B[22m\n" }, { name: 'actual-public', error: 'public metadata (response body deliberately omitted)\n\n401 !== 200\n' }, { name: 'actual-qa', error: "locator.click: Timeout 10000ms exceeded.\nCall log:\n\x1B[2m  - waiting for getByRole('button', { name: 'public-connection · unchecked', exact: true })\x1B[22m\n" } ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test/notice-hierarchy-browser.ts:1:700
+✖ notice hierarchy shared surfaces and interaction 1440 (22535.29317ms)
+  AssertionError [ERR_ASSERTION]: see per-case evidence
+  + actual - expected
+  
+  + [
+  +   {
+  +     error: 'locator.fill: Timeout 10000ms exceeded.\n' +
+  +       'Call log:\n' +
+  +       "\x1B[2m  - waiting for locator('#email')\x1B[22m\n",
+  +     name: 'auth-error-continuity'
+  +   },
+  +   {
+  +     error: 'public metadata (response body deliberately omitted)\n\n401 !== 200\n',
+  +     name: 'actual-public'
+  +   },
+  +   {
+  +     error: 'locator.click: Timeout 10000ms exceeded.\n' +
+  +       'Call log:\n' +
+  +       "\x1B[2m  - waiting for getByRole('button', { name: 'public-connection · unchecked', exact: true })\x1B[22m\n",
+  +     name: 'actual-qa'
+  +   }
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (/home/eias/workspace/.projects/toktok--feat-notice-hierarchy-5e7a1c57/test/notice-hierarchy-browser.ts:66:154)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ { name: 'auth-error-continuity', error: "locator.fill: Timeout 10000ms exceeded.\nCall log:\n\x1B[2m  - waiting for locator('#email')\x1B[22m\n" }, { name: 'actual-public', error: 'public metadata (response body deliberately omitted)\n\n401 !== 200\n' }, { name: 'actual-qa', error: "locator.click: Timeout 10000ms exceeded.\nCall log:\n\x1B[2m  - waiting for getByRole('button', { name: 'public-connection · unchecked', exact: true })\x1B[22m\n" } ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

@@ -1,9 +1,10 @@
+import {captureDisclosures,restoreDisclosures} from './components/notice-disclosure.js';
 import {createClaimController} from './claim-controller.js';
 import {renderClaim} from './screens/claim.js';
 import {mountAuth} from './auth-mount.js';
 export function mountClaim(root,{effects,id,cap,navigate}){
  let auth=null,bearer=cap;
- const controller=createClaimController({id,cap,effects,navigate,paint:vm=>{if(auth)return;const active=root.contains(document.activeElement)?{id:document.activeElement.id,action:document.activeElement.dataset.x}:null,top=window.scrollY;root.innerHTML=renderClaim(vm);if(active){const target=active.id?document.getElementById(active.id):[...root.querySelectorAll('[data-x]')].find(x=>x.dataset.x===active.action);target?.focus({preventScroll:true});}window.scrollTo({top,behavior:'instant'});}});
+ const controller=createClaimController({id,cap,effects,navigate,paint:vm=>{if(auth)return;const saved=captureDisclosures(root),active=root.contains(document.activeElement)?{id:document.activeElement.id,action:document.activeElement.dataset.x}:null,top=window.scrollY;root.innerHTML=renderClaim(vm);if(active){const target=active.id?document.getElementById(active.id):[...root.querySelectorAll('[data-x]')].find(x=>x.dataset.x===active.action);target?.focus({preventScroll:true});}restoreDisclosures(root,saved);window.scrollTo({top,behavior:'instant'});}});
  const click=event=>{if(auth)return;const action=event.target.closest('[data-x]')?.dataset.x;
   if(action==='logout')controller.logout();
   else if(action==='approve-claim')controller.approve();

@@ -1,5 +1,9 @@
 # 관리자 디자인 검수와 코드 일원화 계약
 
+## 2026-10-03 안내 위계 후속
+
+14:36 UTC 사용자 승인한 [인계 원본](../design/notice-hierarchy/HANDOFF.md)을 안내 배치의 최신 기준으로 적용한다. 소개/이름/대화/선택을 먼저 두고 보관·처리·운영 설명은 관련 선택 아래 또는 footer의 12px native details로 둔다. 공개 범위, 실행 위험, 명시 동의, 키 분실과 취소·초안 손실은 14px 이상으로 행동 전에 유지한다. 서버 정책과 고지 버전은 변경하지 않는다. [제품 적용 및 실제 검증](qa/20261003-notice-hierarchy-validation.md)에 기존 증거가 대체되는 범위와 실패 원자료를 구분한다. 아래 역사적 pin은 구조/IA 근거이며 안내 배치는 이번 후속이 우선한다.
+
 상태: 2026-10-02 14:38:20·14:42:11·14:43:19 UTC 사용자 확정 요구를 반영한 구현 계약. 공유 registry, 보호된 관리자 검수 route와 coverage 검사를 단계적으로 통합한다. 구현별 증거와 남은 범위는 [공유 UI 통합 기록](shared-ui-integration.md)을 따른다. 기존 PR #4의 통과를 새 기능 전체 통과로 사용하지 않는다.
 
 최초 재개 시안 검수 기준은 [`design/toktok-ui@63c4eec3bc10b84c0a66d00ee9817f12643ba864`](https://github.com/eiaserinnys/toktok/tree/63c4eec3bc10b84c0a66d00ee9817f12643ba864/design/prototype)의 `design/prototype/`이다. `179b96f`와 중간 `305161`은 이 pin으로 대체한다. 재개 시 해당 pin의 `INTEGRATION.md`, `UI_RULES.md`, tests를 읽고 아래 계약과 대조한다. 이 pin의 390×844·1440×1000 실제 invite/canvas/dialog 및 keyboard/focus/pan/zoom·negative flow 검수는 아직 미완료이며, 이전 `309442a` 증거로 대신하지 않는다. 전달받은 상태는 exact pin CI 없음이며 CI 통과를 주장하지 않는다. 시안에 검수 UI가 있다는 사실은 제품의 서버 관리자 인가나 registry 통합이 완료됐다는 뜻이 아니다.

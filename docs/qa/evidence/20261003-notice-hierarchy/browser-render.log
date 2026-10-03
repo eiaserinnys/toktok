@@ -1,0 +1,111 @@
+heavy verification: running in slot 1/2
+NOTICE_CHECK_FAIL {"name":"zoom","error":"Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ [\n+   'intro',\n+   'newroom-persist',\n+   'private-empty',\n+   'auth-login',\n+   'public-connection-pending'\n+ ]\n- []\n"}
+NOTICE_CHECK_FAIL {"name":"newroom-continuity","error":"page.evaluate: ReferenceError: __name is not defined\n    at eval (eval at evaluate (:311:30), <anonymous>:1:402)\n    at async <anonymous>:337:30"}
+NOTICE_CHECK_FAIL {"name":"public-dialog-continuity","error":"page.evaluate: ReferenceError: __name is not defined\n    at eval (eval at evaluate (:311:30), <anonymous>:1:463)\n    at async <anonymous>:337:30"}
+PRIVATE_HTTP_EVIDENCE {"case":"notice hierarchy shared surfaces and interaction 390","clock":"DI; no actual five-minute idle elapsed","raw":[{"step":"creation context","status":200},{"step":"explicit local creation acknowledgement","status":200},{"step":"private create","status":201},{"step":"private participant","status":201},{"step":"notice local message","status":201},{"step":"notice local cleanup","status":204}],"cleanup":true}
+✖ notice hierarchy shared surfaces and interaction 390 (6977.905776ms)
+NOTICE_CHECK_FAIL {"name":"zoom","error":"Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ [\n+   'newroom-persist'\n+ ]\n- []\n"}
+NOTICE_CHECK_FAIL {"name":"newroom-continuity","error":"page.evaluate: ReferenceError: __name is not defined\n    at eval (eval at evaluate (:311:30), <anonymous>:1:402)\n    at async <anonymous>:337:30"}
+NOTICE_CHECK_FAIL {"name":"public-dialog-continuity","error":"page.evaluate: ReferenceError: __name is not defined\n    at eval (eval at evaluate (:311:30), <anonymous>:1:463)\n    at async <anonymous>:337:30"}
+PRIVATE_HTTP_EVIDENCE {"case":"notice hierarchy shared surfaces and interaction 1440","clock":"DI; no actual five-minute idle elapsed","raw":[{"step":"creation context","status":200},{"step":"explicit local creation acknowledgement","status":200},{"step":"private create","status":201},{"step":"private participant","status":201},{"step":"notice local message","status":201},{"step":"notice local cleanup","status":204}],"cleanup":true}
+✖ notice hierarchy shared surfaces and interaction 1440 (9461.301472ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 17575.63583
+
+✖ failing tests:
+
+test at test/notice-hierarchy-browser.ts:1:700
+✖ notice hierarchy shared surfaces and interaction 390 (6977.905776ms)
+  AssertionError [ERR_ASSERTION]: see per-case evidence
+  + actual - expected
+  
+  + [
+  +   {
+  +     error: 'Expected values to be strictly deep-equal:\n' +
+  +       '+ actual - expected\n' +
+  +       '\n' +
+  +       '+ [\n' +
+  +       "+   'intro',\n" +
+  +       "+   'newroom-persist',\n" +
+  +       "+   'private-empty',\n" +
+  +       "+   'auth-login',\n" +
+  +       "+   'public-connection-pending'\n" +
+  +       '+ ]\n' +
+  +       '- []\n',
+  +     name: 'zoom'
+  +   },
+  +   {
+  +     error: 'page.evaluate: ReferenceError: __name is not defined\n' +
+  +       '    at eval (eval at evaluate (:311:30), <anonymous>:1:402)\n' +
+  +       '    at async <anonymous>:337:30',
+  +     name: 'newroom-continuity'
+  +   },
+  +   {
+  +     error: 'page.evaluate: ReferenceError: __name is not defined\n' +
+  +       '    at eval (eval at evaluate (:311:30), <anonymous>:1:463)\n' +
+  +       '    at async <anonymous>:337:30',
+  +     name: 'public-dialog-continuity'
+  +   }
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (/home/eias/workspace/.projects/toktok--feat-notice-hierarchy-5e7a1c57/test/notice-hierarchy-browser.ts:52:154)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ { name: 'zoom', error: "Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ [\n+   'intro',\n+   'newroom-persist',\n+   'private-empty',\n+   'auth-login',\n+   'public-connection-pending'\n+ ]\n- []\n" }, { name: 'newroom-continuity', error: 'page.evaluate: ReferenceError: __name is not defined\n    at eval (eval at evaluate (:311:30), <anonymous>:1:402)\n    at async <anonymous>:337:30' }, { name: 'public-dialog-continuity', error: 'page.evaluate: ReferenceError: __name is not defined\n    at eval (eval at evaluate (:311:30), <anonymous>:1:463)\n    at async <anonymous>:337:30' } ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test/notice-hierarchy-browser.ts:1:700
+✖ notice hierarchy shared surfaces and interaction 1440 (9461.301472ms)
+  AssertionError [ERR_ASSERTION]: see per-case evidence
+  + actual - expected
+  
+  + [
+  +   {
+  +     error: 'Expected values to be strictly deep-equal:\n' +
+  +       '+ actual - expected\n' +
+  +       '\n' +
+  +       '+ [\n' +
+  +       "+   'newroom-persist'\n" +
+  +       '+ ]\n' +
+  +       '- []\n',
+  +     name: 'zoom'
+  +   },
+  +   {
+  +     error: 'page.evaluate: ReferenceError: __name is not defined\n' +
+  +       '    at eval (eval at evaluate (:311:30), <anonymous>:1:402)\n' +
+  +       '    at async <anonymous>:337:30',
+  +     name: 'newroom-continuity'
+  +   },
+  +   {
+  +     error: 'page.evaluate: ReferenceError: __name is not defined\n' +
+  +       '    at eval (eval at evaluate (:311:30), <anonymous>:1:463)\n' +
+  +       '    at async <anonymous>:337:30',
+  +     name: 'public-dialog-continuity'
+  +   }
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (/home/eias/workspace/.projects/toktok--feat-notice-hierarchy-5e7a1c57/test/notice-hierarchy-browser.ts:52:154)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ { name: 'zoom', error: "Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ [\n+   'newroom-persist'\n+ ]\n- []\n" }, { name: 'newroom-continuity', error: 'page.evaluate: ReferenceError: __name is not defined\n    at eval (eval at evaluate (:311:30), <anonymous>:1:402)\n    at async <anonymous>:337:30' }, { name: 'public-dialog-continuity', error: 'page.evaluate: ReferenceError: __name is not defined\n    at eval (eval at evaluate (:311:30), <anonymous>:1:463)\n    at async <anonymous>:337:30' } ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

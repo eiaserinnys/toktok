@@ -1,3 +1,4 @@
+import {renderNoticeDisclosure} from '../components/notice-disclosure.js';
 import {renderAdminNav} from '../components/admin-nav.js';
 import {renderBudgetUsage} from '../components/budget-usage.js';
 import {escapeHtml as E,notice} from '../components/auth-primitives.js';
@@ -26,7 +27,7 @@ export function renderSettingField(node,value,path,ui={}){
 function fields(node,value,path,model){
  if(node.type==='object')return Object.entries(node.fields).map(([key,field])=>{
   const childPath=path?path+'.'+key:key;
-  if(childPath.endsWith('.policy')&&field.type==='object')return (field.recentBufferBounds?notice('최근 DB 버퍼 · 서버 고정 상한',`최대 ${field.recentBufferBounds.maxMessages}개 · ${field.recentBufferBounds.maxBytes} bytes · ${field.recentBufferBounds.maxAgeMs} ms예요. 실제 설정과 방 TTL이 더 작으면 먼저 적용해요. 장기 보관과 별개이며 백업·PITR 즉시 물리 삭제는 보장하지 않아요.`):'')+renderPolicies(model,{scopes:[path]});
+  if(childPath.endsWith('.policy')&&field.type==='object')return renderPolicies(model,{scopes:[path]})+(field.recentBufferBounds?renderNoticeDisclosure({id:'settings-'+path.replaceAll('.','-')+'-bounds',title:'최근 DB 버퍼 · 서버 고정 상한',body:`최대 ${field.recentBufferBounds.maxMessages}개 · ${field.recentBufferBounds.maxBytes} bytes · ${field.recentBufferBounds.maxAgeMs} ms예요. 실제 설정과 방 TTL이 더 작으면 먼저 적용해요. 장기 보관과 별개이며 백업·PITR 즉시 물리 삭제는 보장하지 않아요.`}):'');
   if(field.type==='object')return `<details class="settings-card"><summary>${E(field.label)} ${metadata(field)}</summary>${fields(field,value?.[key],childPath,model)}</details>`;
   if(childPath==='public.catalog'&&field.type==='array')return renderCatalog(model);
   if(childPath==='budget.workloadCaps'&&field.type==='array')return renderCaps(model);
@@ -40,7 +41,7 @@ export function renderSettingsFields(envelope,section,ui={}){
  if(!node||!value)return notice('설정을 불러올 수 없어요','서버 연결과 관리자 권한을 확인해주세요.','error');
  const model={draft:envelope.settings,schema:envelope.schema,raw:ui.raw||{},errors:ui.fieldErrors||{},rowIds:ui.catalogRowIds||envelope.settings.public?.catalog.map((_,index)=>index+1)||[]};
  if(section==='budget'&&node.fields.targetUsd&&node.fields.workloadCaps)return renderBudget(model);
- return (section==='private'?notice('새 비공개방 수명','비회원 데모 방은 24시간, 서버가 확인한 회원 방은 소유자가 닫을 때까지 유지해요. 회원 방은 데모 예산·방 개수 한도에서 제외하며 생성 속도·동시 처리·참가자·본문 보관 한도는 유지해요. 이전 TTL 값은 호환 기록이며 기존 방 수명은 바뀌지 않아요.'):'')+fields(node,value,section,model);
+ return fields(node,value,section,model)+(section==='private'?renderNoticeDisclosure({id:'settings-private-lifetime',title:'새 방에 적용 · 기존 방의 수명과 보관 조건은 바뀌지 않아요.',body:'비회원 데모 방은 24시간, 서버가 확인한 회원 방은 소유자가 닫을 때까지 유지해요. 회원 방은 데모 예산·방 개수 한도에서 제외하며 생성 속도·동시 처리·참가자·본문 보관 한도는 유지해요. 이전 TTL 값은 호환 기록이며 기존 방 수명은 바뀌지 않아요.'}):'');
 }
 export function renderSettingsScreen(vm){
  const {status,session,resource,section='overview',changes=[],pending=false,error}=vm;

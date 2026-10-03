@@ -1,3 +1,4 @@
+import {captureDisclosures,restoreDisclosures} from './components/notice-disclosure.js';
 import {createAccountController} from './account-controller.js';
 import {renderAccount} from './screens/account.js';
 import {createBootstrapDialog} from './dialogs/bootstrap.js';
@@ -6,8 +7,8 @@ export function mountAccount(root,{effects,navigate}){
  const doc=root.ownerDocument;let dialog=null,overflow=null,lastState,returnId=null;
  function remove(){const old=dialog;dialog=null;if(old){old.close();old.remove();}if(overflow!==null){doc.body.style.overflow=overflow;overflow=null;}}
  const controller=createAccountController({effects,navigate,paint:state=>{
-  lastState=state;const oldKind=dialog?.dataset.kind,action=dialog?.contains(doc.activeElement)?(doc.activeElement.dataset.x||doc.activeElement.id):null,top=doc.defaultView.scrollY;
-  root.innerHTML=renderAccount(state);remove();doc.defaultView.scrollTo({top,behavior:'instant'});
+  const saved=captureDisclosures(root);lastState=state;const oldKind=dialog?.dataset.kind,action=dialog?.contains(doc.activeElement)?(doc.activeElement.dataset.x||doc.activeElement.id):null,top=doc.defaultView.scrollY;
+  root.innerHTML=renderAccount(state);restoreDisclosures(root,saved);remove();doc.defaultView.scrollTo({top,behavior:'instant'});
   if(state.dialog){
    dialog=state.dialog==='admin-bootstrap'?createBootstrapDialog({checked:state.bootstrapChecked,pending:state.pending,error:state.error?.code},doc):createAgentRevokeDialog({agent:state.selected,pending:state.pending,error:state.error?.code},doc);dialog.dataset.kind=state.dialog;
    const current=dialog;doc.body.append(current);overflow=doc.body.style.overflow;doc.body.style.overflow='hidden';

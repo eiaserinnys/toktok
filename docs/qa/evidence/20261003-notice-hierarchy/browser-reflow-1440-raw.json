@@ -1,0 +1,20 @@
+{
+  "width": 1440,
+  "checks": [
+    "zoom",
+    "public-dialog-continuity"
+  ],
+  "failures": [],
+  "shots": [
+    "intro-zoom200",
+    "newroom-persist-zoom200",
+    "private-empty-zoom200",
+    "auth-login-zoom200",
+    "public-connection-pending-zoom200",
+    "settings-budget-zoom200",
+    "public-approval-error-return"
+  ],
+  "pageErrors": 0,
+  "apiMutations": 0,
+  "cleanup": true
+}

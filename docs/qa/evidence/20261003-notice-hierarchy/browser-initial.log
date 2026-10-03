@@ -1,0 +1,34 @@
+heavy verification: running in slot 2/2
+
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+Error [TransformError]: Transform failed with 1 error:
+/home/eias/workspace/.projects/toktok--feat-notice-hierarchy-5e7a1c57/test/notice-hierarchy-browser.ts:46:700: ERROR: Expected "}" but found ")"
+    at failureErrorWithLog (/home/eias/workspace/.projects/toktok--feat-release-integration-c8e59900/selfhost/node_modules/esbuild/lib/main.js:1467:15)
+    at /home/eias/workspace/.projects/toktok--feat-release-integration-c8e59900/selfhost/node_modules/esbuild/lib/main.js:736:50
+    at responseCallbacks.<computed> (/home/eias/workspace/.projects/toktok--feat-release-integration-c8e59900/selfhost/node_modules/esbuild/lib/main.js:603:9)
+    at handleIncomingPacket (/home/eias/workspace/.projects/toktok--feat-release-integration-c8e59900/selfhost/node_modules/esbuild/lib/main.js:658:12)
+    at Socket.readFromStdout (/home/eias/workspace/.projects/toktok--feat-release-integration-c8e59900/selfhost/node_modules/esbuild/lib/main.js:581:7)
+    at Socket.emit (node:events:514:28)
+    at addChunk (node:internal/streams/readable:568:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:519:3)
+    at Readable.push (node:internal/streams/readable:399:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+
+Node.js v24.21.0
+✖ test/notice-hierarchy-browser.ts (398.19002ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 413.155311
+
+✖ failing tests:
+
+test at test/notice-hierarchy-browser.ts:1:1
+✖ test/notice-hierarchy-browser.ts (398.19002ms)
+  'test failed'
