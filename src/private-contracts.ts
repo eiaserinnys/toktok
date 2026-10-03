@@ -1,5 +1,6 @@
 import type {RepositoryPort} from './storage/repository';
 export const PRIVATE_NOTICE='toktok-risk-v1' as const;
+export const MAX_PRIVATE_PURPOSE_CHARACTERS=1000;
 export interface PrivatePolicy {
  memoryMessages:number;memoryRetentionMs:number;textBytes:number;jsonBytes:number;participants:number;
  senderPerMinute:number;roomPerMinute:number;persistedMessages:number;pageSize:number;responseBytes:number;

@@ -82,3 +82,10 @@ Node PublicRooms registry의 rename 누적을 root 승인 범위에서 보정했
 
 
 operator grant의 outer DTO도 publicError가 직렬화한 `error.retry_after_ms`를 재사용합니다. 별도 메서드 gate의 최초 fixture가 B legacy HttpError에 없는 네 번째 생성자 인자를 사용하여 retry가 없었습니다. 실제 A 경계처럼 retryAfter 속성을 부여한 한 보정 실행이1 PASS(31ms)입니다. outer/inner 모두17000ms, status429, pending grant0/handler0을 확인했으며 기존 publicError case는 반복하지 않았습니다.
+
+
+## 생성 purpose와 미초기화 GET 계약
+
+공유 MAX_PRIVATE_PURPOSE_CHARACTERS=1000을 private-contracts 정본에 두고 private-state 생성 snapshot에 사용합니다. 신규 targeted1 PASS(9ms): 빈 문자열/Unicode1000 허용,1001은400 INVALID_SNAPSHOT입니다. 원래 HTTP 생성 계약0..1000을 보존하며 client 미허용 키 거절은 바꾸지 않았습니다.
+
+CF wrapper GET은 읽기 전용 repo.check가 blank인 경우404 ROOM_NOT_FOUND를 반환하고 schema apply/metadata KV/예산 work를 만들지 않습니다. check 오류는 일반 오류 응답으로 남겨 실제 schema conflict를404로 위장하지 않습니다. 신규 selected1 PASS(86ms): unknown GET404/schema tables0/metadata keys0, 새 fixture 기존 방의 warm+cold GET200, unrelated schema conflict500/table보존입니다. 원래 coldalarm/inspect 등 통과 case는 선택하지 않았습니다. 최종 host/typecheck/CONTROL 연결은 root 통합 범위입니다.

@@ -59,3 +59,8 @@ CF schema 검사는 문서상 `__cf_kv`, alarm의 `_cf_METADATA`와 로컬 SQLit
 ## Node 공개 registry 회수 경계
 
 `PublicRooms.has(slug)`는 기존 core 존재 여부만 확인하며 새 방을 만들지 않습니다. 설정 변경과 room 진입에서 비활성 slug를 prune하고 모든 lease/pending grant/handler/wait가0일 때 shutdown·삭제합니다. 활성 기존 방은 자연 drain하며 전체 core100에서는 새 core 생성만429로 거절합니다. 별도 polling/keepalive timer는 없습니다. 운영 catalog10은 root 설정 상한이며 registry100은 rename 중 이전 활성 core까지 합친 코드 불변상한입니다. CF는 같은 Node Map을 사용하지 않으며 catalog 설정 권한과 전역 funded duration 예산으로 비용을 제한해야 합니다.
+
+
+`MAX_PRIVATE_PURPOSE_CHARACTERS=1000`은 private-contracts의 생성 purpose Unicode 문자 수 정본입니다. host/control은 이 상수를 import하여0..1000 HTTP 계약을 유지합니다. private-state도 같은 상한을 검증합니다.
+
+미초기화 CF actor의 GET은 schema check 읽기만으로 blank를 확인하면404 ROOM_NOT_FOUND를 반환합니다. schema apply/ID metadata 생성은 trusted initialize만 수행합니다. corrupt/schema conflict는404로 덮지 않습니다. 이미 초기화한 warm/cold actor의 정상 metadata 접근은 유지합니다.
