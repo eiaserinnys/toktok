@@ -8,7 +8,7 @@ export function demoInstallationProfile():Settings {
  s.public.agentReadCadenceSeconds=5;s.public.browserReadCadenceSeconds=2;
  Object.assign(s.private,{anonymousEnabled:true,activePerIp:2,activeGlobal:2,dailyCreates:20,anonymousDefaultTtlSeconds:1800,anonymousMaxTtlSeconds:3600,persistenceAllowed:true});
  s.identity.emailLimits.month=1000;
- s.budget={...s.budget,targetUsd:100,warningUsd:25,cutoffUsd:40,workloadCaps:[
+ s.budget={...s.budget,targetUsd:100,warningUsd:40,cutoffUsd:60,workloadCaps:[
   {kind:'admission_requests',unit:'count',day:50000,month:1000000},
   {kind:'response_bytes',unit:'bytes',day:1073741824,month:17179869184},
   {kind:'private_creates',unit:'count',day:20,month:500},

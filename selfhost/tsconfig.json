@@ -15,6 +15,9 @@
     "paths": {
       "pg": [
         "./node_modules/@types/pg/index.d.ts"
+      ],
+      "nodemailer": [
+        "./node_modules/@types/nodemailer/index.d.ts"
       ]
     },
     "skipLibCheck": true,
@@ -29,7 +32,8 @@
     "../src/public-http.ts",
     "../test/selfhost*.test.ts",
     "../src/private-core.ts",
-    "../src/private-contracts.ts"
+    "../src/private-contracts.ts",
+    "../test/integration-node-http.test.ts"
   ],
   "exclude": [
     "../test/*cloudflare*.test.ts"

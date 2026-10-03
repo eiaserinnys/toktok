@@ -3,12 +3,12 @@ import type {IdentityOptions} from './email';
 import type {RuntimeConfig} from './control-contracts';
 import type {PrivateRoomInit} from './private-contracts';
 import type {PublicRoomEndpoint} from './public-contracts';
-import {identityRoute} from './identity-http';
+import {identityRoute,sessionInput} from './identity-http';
 import {adminRoute,configResponse,requireAdmin} from './admin-http';
 import {privateCreateRoute,reserveCreation,commitSlot} from './control-create-http';
 import {controlErrorResponse,CreationResultError} from './control-errors';
 import {handlePublicBrowserWith} from './public-browser';
-import {handlePublicRequestWith} from './public-http';
+import {handlePublicRequestWith,cancelUnusedRequestBody} from './public-http';
 import {secureRouteResponse} from './response-security';
 import {designSurface,isPublicAsset,type AssetPort} from './site-assets';
 import {RuntimeSettings,publicPolicy,publicCatalog,requireRuntime} from './runtime-config';
@@ -24,6 +24,7 @@ export interface ApplicationPorts {
  origin:string;assets:AssetPort;control:ControlHttpPort;
  edgeLimit:IdentityEnv['IP_RATE_LIMIT'];trustedIP:(request:Request)=>string;
  publicRoom:(slug:string,config:RuntimeConfig)=>Promise<PublicRoomEndpoint>;
+ publicRoomExists?:(slug:string,config:RuntimeConfig)=>Promise<boolean>;
  privateRoom:(id:string)=>PrivateEndpoint;
  identity?:Pick<IdentityEnv,'EMAIL'|'EMAIL_FROM'>;
  auth?:Pick<IdentityOptions,'sendEmail'|'now'>;
@@ -32,7 +33,7 @@ export interface ApplicationPorts {
 const roomId='[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}';
 const privateApi=new RegExp(`^/api/v1/rooms/(${roomId})(?:/(participants|messages|wait|close))?$`);
 const privateEntry=new RegExp(`^/r/(${roomId})/[\\w-]{43}$`);
-const htmlRoutes=new Set(['/','/about','/rooms','/guide','/login','/signup','/invite','/verify','/account']);
+const htmlRoutes=new Set(['/','/about','/rooms','/guide','/login','/signup','/invite','/verify','/account','/new-room']);
 const wantsHtml=(r:Request)=>r.method==='GET'&&new URL(r.url).searchParams.get('format')!=='md'&&(r.headers.get('Accept')??'').includes('text/html');
 
 /** One HTTP application for CF and Node. Ports contain platform IO only. */
@@ -49,7 +50,7 @@ export function createHttpApplication(ports:ApplicationPorts){
   return new Response((await asset.text()).replace('<body',`<body data-error="${code}"`),{status:failure.status,headers:asset.headers});
  }
  async function authorize(request:Request){
-  try{await requireAdmin(request,env);return {authorized:true} as const;}
+  try{await sessionInput(request,env);await budget.reserve(budget.newOperationId(),'admission_requests',1);await requireAdmin(request,env);return {authorized:true} as const;}
   catch(error){if(error instanceof HttpError&&(error.status===401||error.status===403))return {authorized:false,status:error.status} as const;throw error;}
  }
  async function responseBudget(response:Response){
@@ -76,13 +77,14 @@ export function createHttpApplication(ports:ApplicationPorts){
    const c=await settings.get();return json({status:c.readiness.budget_ready&&c.readiness.lifecycle_ready?'ready':'unavailable'},c.readiness.budget_ready&&c.readiness.lifecycle_ready?200:503);
   }
   if(!ports.ready())fail(503,'SERVICE_UNAVAILABLE','서버가 준비되지 않았습니다.');
-  // No Assets fallback can precede this server-side admin gate.
-  const review=await designSurface(original,{assets:ports.assets,authorizeAdmin:authorize});if(review)return review;
+  // Only explicitly public paths may bypass the cheap request gate.
   if(['GET','HEAD'].includes(original.method)&&isPublicAsset(path))return ports.assets.fetch(original);
   if(original.method==='GET'&&(htmlRoutes.has(path)||/^\/claim\/[^/]+\/[\w-]{43}$/.test(path)))return html(original);
-  if(path==='/admin'||path.startsWith('/admin/')){await requireAdmin(original,env);if(original.method==='GET')return html(original);fail(405,'METHOD_NOT_ALLOWED','읽기 요청만 허용됩니다.');}
   const rawIp=ports.trustedIP(original);
   if(!(await ports.edgeLimit.limit({key:rawIp})).success)throw new HttpError(429,'RATE_LIMITED','요청 한도를 초과했습니다.',60);
+  // No Assets fallback can precede this server-side admin gate.
+  const review=await designSurface(original,{assets:ports.assets,authorizeAdmin:authorize});if(review)return review.ok?responseBudget(review):review;
+  if(path==='/admin'||path.startsWith('/admin/')){const allowed=await authorize(original);if(!allowed.authorized)fail(allowed.status,allowed.status===401?'AUTH_REQUIRED':'ADMIN_REQUIRED','관리자 로그인이 필요합니다.');if(original.method==='GET')return responseBudget(await html(original));fail(405,'METHOD_NOT_ALLOWED','읽기 요청만 허용됩니다.');}
   if(!['GET','HEAD'].includes(original.method)&&original.headers.has('Origin')&&original.headers.get('Origin')!==origin)fail(403,'ORIGIN_DENIED','외부 Origin 변경 요청은 허용되지 않습니다.');
   const config=await settings.get(),api=privateApi.exec(path),entry=privateEntry.exec(path);
   const cleanup=!!api&&(original.method==='DELETE'||api[2]==='close')||original.method==='DELETE'&&/^\/api\/public\/rooms\/[^/]+\/lease$/.test(path);
@@ -118,7 +120,9 @@ export function createHttpApplication(ports:ApplicationPorts){
   }
   if(path.startsWith('/public/')||path.startsWith('/api/public/rooms')){
    const policy=publicPolicy(config),catalog=publicCatalog(config);
-   const publicRequest=(r:Request)=>handlePublicRequestWith(r,{origin,catalog:()=>catalog,policy:()=>policy,room:slug=>({fetch:async q=>(await ports.publicRoom(slug,config)).fetch(q)}),existingRoom:()=>true,trustedIpHash:()=>hash(rawIp)});
+   const requestedSlug=/^\/api\/public\/rooms\/([a-z0-9-]+)(?:\/|$)/.exec(path)?.[1];
+   const existing=requestedSlug&&ports.publicRoomExists?await ports.publicRoomExists(requestedSlug,config):true;
+   const publicRequest=(r:Request)=>handlePublicRequestWith(r,{origin,catalog:()=>catalog,policy:()=>policy,room:slug=>({fetch:async q=>(await ports.publicRoom(slug,config)).fetch(q)}),existingRoom:slug=>existing&&slug===requestedSlug,trustedIpHash:()=>hash(rawIp)});
    response=await handlePublicBrowserWith(request,{origin,assets:ports.assets,catalog,policy,trustedIP:()=>rawIp,limit:async()=>({success:true}),room:slug=>ports.publicRoom(slug,config),dispatch:publicRequest});
    if(response)return metered?responseBudget(response):response;
   }
@@ -126,11 +130,11 @@ export function createHttpApplication(ports:ApplicationPorts){
  }
  return {
   async fetch(request:Request):Promise<Response>{
-   if(handlers>=256)return secureRouteResponse(request,controlErrorResponse(new HttpError(429,'RATE_LIMITED','서버 처리 한도를 초과했습니다.',1)));
+   if(handlers>=256){cancelUnusedRequestBody(request);return secureRouteResponse(request,controlErrorResponse(new HttpError(429,'RATE_LIMITED','서버 처리 한도를 초과했습니다.',1)));}
    handlers++;
    try{return secureRouteResponse(request,await route(request));}
    catch(error){return secureRouteResponse(request,controlErrorResponse(error));}
-   finally{handlers--;}
+   finally{cancelUnusedRequestBody(request);handlers--;}
   },settings,diagnostics:()=>({handlers,bodies})
  };
 }

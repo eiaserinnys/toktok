@@ -13,6 +13,9 @@ services:
       TOKTOK_SQLITE_FILE: /data/toktok.sqlite
       TOKTOK_DSN_FILE: ${TOKTOK_DSN_FILE:-}
       TOKTOK_PG_SCHEMA: ${TOKTOK_PG_SCHEMA:-toktok}
+      TOKTOK_SMTP_CONFIG_FILE: ${TOKTOK_SMTP_CONFIG_FILE:-}
+      ADMIN_BOOTSTRAP_EMAIL: ${ADMIN_BOOTSTRAP_EMAIL:-}
+      TOKTOK_TRUSTED_PROXY_CIDRS: ${TOKTOK_TRUSTED_PROXY_CIDRS:-}
       PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:-https://toktok.example.invalid}
       PORT: "8080"
     volumes: ["data:/data"]

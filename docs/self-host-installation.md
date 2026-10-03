@@ -1,34 +1,94 @@
-# Selfhost 기반 설치와 검증
+# 자체 설치
 
-현재는 단일 Node24 runtime/storage 기반입니다. 공개 catalogue, SQLite/Postgres repository, HTTP bridge와 private mock 계약은 확인했지만 root control/auth/admin/router와 실제 SMTP 연결은 미완료입니다. 운영에 사용 가능한 전체 제품 완료로 해석하지 마세요.
+톡톡은 Cloudflare 없이 Node.js 24에서 실행할 수 있습니다. 저장소는 SQLite 또는 기존 PostgreSQL 중 하나만 선택합니다. 같은 서버에서 여러 DB를 동시에 연결하거나 동기화하지 않습니다.
 
-## 실행 선택
+## SQLite로 시작
 
-Node24.21.0과 해당 공식 bookworm-slim digest를 selfhost/Dockerfile에 고정했습니다. 호스트 Node22는 바꾸지 않았습니다. SQLite는 node:sqlite DatabaseSync/backup을 사용하며 호스트에 별도 SQLite/PG 서비스를 요구하지 않습니다. Postgres는 WITH_POSTGRES=true 이미지에서만 optional pg8.16.3을 설치·동적 초기화합니다. selfhost/package.json과 lock은 top-level 의존성에서 격리합니다.
-
-설치 시 backend 하나만 선택하며 시작 후 product settings로 전환하지 않습니다. 기본 compose SQLite volume은 /data이고 nonroot node 사용, flock -n -F가 동일 volume의 두 번째 앱을 거절합니다. PG는 schema별 session owner lock으로 같은 DB/schema의 두 번째 앱을 거절합니다. replica/dual-write/NFS/DB pubsub body 공유는 지원하지 않습니다. D1은 사용자 답 대기입니다.
-
-## 명시 작업
-
-아래는 installer 사용 형식이며 이번 검증은 격리 mock volume/DB만 사용했습니다. check는 준비 상태를 조사하고 apply는 식별된 빈 DB/schema에만 초기 marker를 만듭니다. start는 apply를 자동 수행하지 않습니다. DROP/TRUNCATE/reset/down migration은 없습니다.
+Docker Compose와 Git이 필요합니다. `selfhost/Dockerfile`은 Node24.21.0 공식 이미지 digest를 고정합니다. SQLite는 Node의 내장 `node:sqlite`를 사용하므로 별도 DB 서버가 필요하지 않습니다.
 
 ```sh
-docker compose -f selfhost/compose.yaml build
-docker compose -f selfhost/compose.yaml run --rm app check
-docker compose -f selfhost/compose.yaml run --rm app apply
-docker compose -f selfhost/compose.yaml up app
+cd selfhost
+cp env.sample .env
+# PUBLIC_ORIGIN을 사용자가 접속할 HTTPS origin으로 설정합니다.
+docker compose build
+docker compose run --rm app check
+# check가 빈 DB로 확인되었을 때만 실행합니다.
+docker compose run --rm app apply
+docker compose up -d
 ```
 
-PUBLIC_ORIGIN은 실제 HTTPS origin으로 운영자가 명시해야 합니다. DSN은 argv에 넣지 말고 환경변수 또는 TOKTOK_DSN_FILE의0600 secret file로 전달합니다. PG 선택 시 TOKTOK_PG_SCHEMA와 read-only secret mount를 로컬 compose override에서 제공합니다. DSN/email/OTP/body를 compose 출력이나 로그에 넣지 마세요. 프로그램은 고정 오류 code만 출력합니다. 역할/DB 계정을 자동 생성하지 않습니다.
+`data` 볼륨의 `/data/toktok.sqlite`에 설정·인증·방 metadata와 저장을 선택한 비공개방 본문을 보관합니다. 공개방과 비저장 비공개방의 본문은 DB에 기록하지 않습니다. `.env`와 비공개 설정 파일은 커밋하지 마세요.
 
-## 백업·업데이트
+컨테이너는 nonroot `node` 사용자로 실행합니다. SQLite 볼륨에는 한 앱 instance만 연결할 수 있습니다. 같은 파일의 두 번째 앱은 owner lock을 얻지 못하면 시작하지 않습니다. SQLite 파일과 WAL·owner 파일은 같은 로컬 파일시스템에 두며 NFS나 여러 replica에 공유하지 않습니다.
 
-SQLite backup 명령은 node:sqlite backup API로 일관 snapshot을 만듭니다. 살아 있는 WAL DB 파일 하나만 복사하지 않습니다. local volume의 sidecar/owner file도 같은 filesystem에 두세요. 예를 들어 TOKTOK_BACKUP_FILE을 명시하여 app backup을 실행하며 설치 fixture에서는 먼저 serving을 정상 종료하고 backup/integrity_check를 확인했습니다. backup 파일과 DSN/SMTP secret은 별도 보호가 필요합니다.
+외부 HTTPS reverse proxy가 없다면 기본 포트는 `127.0.0.1:8080`에서만 열립니다. HTTPS 종료와 공개 주소를 운영 환경에 맞게 구성하세요. 프록시의 실제 CIDR을 `TOKTOK_TRUSTED_PROXY_CIDRS`에 명시한 경우에만 전달 IP를 신뢰합니다. 외부 클라이언트가 보낸 Cloudflare/IP 헤더 자체는 신뢰하지 않습니다.
 
-PG의 consistent backup/restore는 사용자 운영 절차입니다. 자동 pg_dump/restore나 사용자 DB 변경을 수행하지 않았습니다. 업데이트 전에 backup과 migration marker/version/checksum 호환성을 확인하고 검증된 backup+이전 app으로 rollback합니다. 자동 destructive rollback은 제공하지 않습니다. body memory는 어떤 backup에도 덤프하지 않습니다.
+## 기존 PostgreSQL 연결
 
-## 현재 미연결
+SQLite 대신 `TOKTOK_BACKEND=postgres`, `TOKTOK_WITH_POSTGRES=true`, `TOKTOK_PG_SCHEMA=toktok`을 설정합니다. 선택한 이미지에만 PostgreSQL driver가 설치되며 SQLite 파일은 열지 않습니다. PostgreSQL은 독립적인 앱 하나가 DB/schema owner lock을 소유합니다. 여러 앱의 memory 방을 DB pubsub로 공유하는 구성은 지원하지 않습니다.
 
-root 공통 router/ControlPlane 설정·예산·auth/admin bootstrap, startup overdue private scan, SMTP 실제 transport/template/secret 설정과 숨김 TTY 설치 UX는 후속입니다. /ready의 현재 foundation 성공은 그 제품 기능 완료를 뜻하지 않습니다. 실제 이메일/사용자 DB/계정/운영 config/Cloudflare 배포는0건입니다.
+DSN을 명령행 인자로 전달하지 마세요. 로컬 TTY에서 다음 스크립트로 입력을 숨긴 비공개 파일을 준비할 수 있습니다. 이 스크립트는 DB에 접속하지 않습니다.
 
-공식 참고: [Node24 SQLite](https://nodejs.org/docs/latest-v24.x/api/sqlite.html), [SQLite WAL](https://www.sqlite.org/wal.html), [consistent backup](https://www.sqlite.org/backup.html), [PG locking](https://www.postgresql.org/docs/current/explicit-locking.html), [node-postgres transaction client](https://node-postgres.com/features/transactions).
+```sh
+./scripts/prepare-postgres-secret ./secrets/postgres-dsn
+```
+
+로컬 Compose override에서 이 파일을 읽기 전용으로 mount하고 `TOKTOK_DSN_FILE=/run/secrets/postgres-dsn`으로 지정합니다. 파일은 컨테이너의 node 사용자만 읽을 수 있도록 소유권과 `0600` 권한을 설정하세요. 대상 DB/schema의 사용 권한은 운영자가 직접 준비합니다. 앱은 DB 사용자나 비밀번호를 자동 생성하지 않습니다.
+
+`check`는 schema marker와 충돌 여부를 확인합니다. `apply`는 빈 대상 schema만 초기화하며, 기존 다른 테이블이나 알 수 없는 schema version/checksum을 덮어쓰지 않습니다. 기존 데이터가 있는 경우 자동 reset이나 이주를 실행하지 마세요. DSN을 `docker compose config` 출력이나 로그에 노출하지 않도록 파일 mount를 사용하세요.
+
+## 이메일 OTP와 최초 관리자
+
+기본 상태에서는 메일 전송기를 연결하지 않습니다. 익명 기능을 사용하면서 메일 설정을 나중에 할 수 있습니다. 이메일 가입·로그인을 사용하려면 `TOKTOK_SMTP_CONFIG_FILE`이 가리키는 `0600` JSON 파일을 읽기 전용으로 mount합니다.
+
+```json
+{
+  "host": "smtp.example.invalid",
+  "port": 587,
+  "secure": false,
+  "from": "login@example.invalid",
+  "user": "REPLACE_IN_PRIVATE_FILE",
+  "password": "REPLACE_IN_PRIVATE_FILE"
+}
+```
+
+이 예시는 실제 자격증명이 아닙니다. `secure: false`에서도 STARTTLS가 필수이며 인증서 검증을 끌 수 없습니다. 포트465 등 처음부터 TLS를 사용하는 서버는 `secure: true`를 지정합니다. IP로 접속한다면 인증서 이름을 `servername`으로 지정할 수 있습니다. 앱은 시작할 때 시험 메일을 보내지 않습니다. 실제 요청에서만 공유 OTP template을 사용하며, 전송 결과가 불확실해도 자동 재발송하지 않습니다. SMTP 원문 오류·수신자·OTP를 로그에 기록하지 않습니다.
+
+최초 관리자 이메일은 비공개 배포 환경의 `ADMIN_BOOTSTRAP_EMAIL`로 지정합니다. 주소를 리포·공개 문서·스크린샷에 남기지 마세요. 지정된 사람이 OTP 로그인한 뒤 명시적 확인과 CSRF 검증을 거쳐 한 번만 관리자가 됩니다. 환경변수만으로 계정을 만들거나 관리자 역할을 자동 부여하지 않습니다.
+
+Cloudflare native email binding과 자체 설치 SMTP는 전송 adapter만 다릅니다. 설정·초대·OTP·계정 권한·월 예산 예약은 같은 core에서 검증합니다. SMTP 제공자의 보관·가격·발송 도메인 설정은 별도 운영 정책이며 Cloudflare의 보관 안내를 자체 SMTP에 그대로 적용하지 않습니다.
+
+## 준비 상태와 종료
+
+`/health`는 프로세스 생존, `/ready`는 저장소 소유권과 앱 연결 상태를 반환합니다. 비밀은 포함하지 않습니다. PostgreSQL owner 연결을 잃으면 준비 상태를 닫고 자동으로 다른 주인과 경쟁하지 않습니다.
+
+SIGTERM/SIGINT 또는 `docker compose stop`은 신규 작업을 닫고 대기 요청과 timer를 회수합니다. 앱 종료 유예시간을 임의로0으로 줄이지 마세요. `/ready`가 성공해도 실제 SMTP delivery나 외부 DNS·HTTPS 구성을 검증한 것은 아닙니다.
+
+## 업데이트·백업·복원
+
+업데이트 전 서비스를 정상 종료하고 백업을 만드세요. SQLite backup은 `node:sqlite`의 일관 snapshot API를 사용합니다. 살아 있는 WAL 데이터베이스의 파일 하나만 복사하지 마세요.
+
+```sh
+docker compose stop app
+docker compose run --rm -e TOKTOK_BACKUP_FILE=/data/toktok-backup.sqlite app backup
+```
+
+백업에는 저장을 선택한 대화와 인증 metadata가 포함될 수 있으므로 비공개로 보호합니다. memory 본문은 백업에 덤프하지 않습니다. PostgreSQL은 운영자의 consistent backup/restore 절차를 사용합니다.
+
+새 버전의 schema marker/version/checksum 호환성을 확인한 뒤 업데이트합니다. 자동 destructive migration·DROP·TRUNCATE·down migration은 제공하지 않습니다. 롤백은 이전 앱 버전과 검증된 백업으로 운영자가 명시적으로 수행하며, 다른 서비스의 DB를 덮어쓰지 않습니다.
+
+## Node 직접 실행
+
+Node24.21.0, npm과 `flock`을 준비합니다. PostgreSQL을 사용하지 않는다면 optional driver를 설치할 필요가 없습니다.
+
+```sh
+cd selfhost
+npm ci --omit=optional
+npm run build
+# 필요한 비공개 환경변수와 파일을 준비한 뒤 명시적으로 실행합니다.
+./scripts/selfhost-setup check
+./scripts/selfhost-setup apply
+./scripts/entrypoint.sh start
+```
+
+구현·포트 구조는 [portable runtime 계약](portable-runtime.md), 개발 검증 기록은 [별도 검증 문서](portable-validation.md)에 있습니다.

@@ -13,9 +13,10 @@ import {publicPolicy,publicCatalog} from '../runtime-config';
 import {PUBLIC_POLICY} from '../public-contracts';
 import {socketAddress} from '../request-context';
 import {fileAssets} from './static';
-import type {RegistryInput,ControlHttpPort} from '../identity-types';
+import type {RegistryInput,ControlHttpPort,IdentityEnv} from '../identity-types';
+import type {RuntimeConfig} from '../control-contracts';
 
-export interface ApplicationOptions {origin:string;repo:RepositoryPort;budget?:PrivateBudgetPort;hostClose?:()=>void|Promise<void>;router?:(request:Request)=>Promise<Response|null>;assets?:string;trustedProxyCidrs?:readonly string[];bootstrapEmail?:string;profile?:Settings;auth?:Pick<IdentityOptions,'sendEmail'|'now'>;}
+export interface ApplicationOptions {origin:string;repo:RepositoryPort;budget?:PrivateBudgetPort;hostClose?:()=>void|Promise<void>;router?:(request:Request)=>Promise<Response|null>;assets?:string;trustedProxyCidrs?:readonly string[];bootstrapEmail?:string;profile?:Settings;email?:Pick<IdentityEnv,'EMAIL'|'EMAIL_FROM'>;auth?:Pick<IdentityOptions,'sendEmail'|'now'>;}
 /** Single-process room affinity, one selected repository, same HTTP/domain as Cloudflare. */
 export function createApplication(options:ApplicationOptions){
  let stopping=false,maintenanceTimer:ReturnType<typeof setTimeout>|undefined,scheduleRevision=0;
@@ -26,10 +27,12 @@ export function createApplication(options:ApplicationOptions){
  const rooms=new PublicRooms(options.origin,[],{...PUBLIC_POLICY},budget);
  const privateRooms=new PrivateRooms({origin:options.origin,repo:options.repo,budget,clock:options.auth?.now});
  let applied=0;
+ const configure=(config:RuntimeConfig)=>{if(config.revision>applied){rooms.configure(config.revision,publicPolicy(config),publicCatalog(config));applied=config.revision;}};
  const buckets=new Map<string,{count:number;until:number}>();
  const edgeLimit={async limit({key}:{key:string}){const now=Date.now();let entry=buckets.get(key);if(!entry||entry.until<=now){if(buckets.size>=4096){for(const[k,v]of buckets)if(v.until<=now)buckets.delete(k);if(buckets.size>=4096)return {success:false};}entry={count:0,until:now+60000};buckets.set(key,entry);}entry.count++;return {success:entry.count<=120};}};
- const app=createHttpApplication({origin:options.origin,assets:options.assets?fileAssets(options.assets):{fetch:async()=>new Response(null,{status:404})},control,edgeLimit,trustedIP:socketAddress,auth:options.auth,
-  publicRoom:async(slug,config)=>{if(config.revision>applied){rooms.configure(config.revision,publicPolicy(config),publicCatalog(config));applied=config.revision;}return rooms.room(slug);},
+ const app=createHttpApplication({origin:options.origin,assets:options.assets?fileAssets(options.assets):{fetch:async()=>new Response(null,{status:404})},control,edgeLimit,trustedIP:socketAddress,auth:options.auth,identity:options.email,
+  publicRoom:async(slug,config)=>{configure(config);return rooms.room(slug);},
+  publicRoomExists:async(slug,config)=>{configure(config);return rooms.has(slug);},
   privateRoom:id=>({initialize:s=>privateRooms.initialize(s),fetch:async r=>(await privateRooms.fetch(r))!,inspect:()=>privateRooms.room(id).inspect(id)}),
   ready:()=>!stopping&&options.repo.ready()});
  const runtime=createServer({origin:options.origin,repo:options.repo,trustedProxyCidrs:options.trustedProxyCidrs,
