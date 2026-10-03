@@ -120,3 +120,14 @@ Worker/custom domain `https://toktok.eiaserinnys.me` 배포 exit0. 최초 버전
 실제 curl 기본 클라이언트는 health200, 원본 admin-design 경로404, 보호 mirror 두 경로401을 확인했다. 추가 Python urllib 기본 signature는 Cloudflare403/1010으로 차단된다. [Cloudflare 1010 문서](https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-1xxx-errors/error-1010/)의 browser signature 경계와 일치하며, 기존 BIC/보안 정책을 변경하지 않았다. 모든 에이전트 클라이언트가 통과한다고 확대하지 않는다. 메일 발신 domain/DNS/binding/preview OFF/실발송은 별도 승인 대기이고 운영 로그인/최초관리자 등록 완료로 보고하지 않는다.
 
 [배포·초기 실패·보정·이미지·제한 증거](qa/20261003-production-deployment.json)를 보존했다. 실제 제품 화면과 모바일 대화 PNG를 직접 확인했으며 README에 동작하는 서비스 링크를 추가했다.
+
+
+### Landing order correction — 2026-10-03
+
+The deployed landing previously showed hero → catalog → explanation, contrary to the user's explicit explanation-first requirement. PR #8 corrects this to hero → explanation/how-use → catalog → footer with a shared catalog renderer in product and protected flow previews. README hero was recaptured from the actual corrected product; its bytes also match the post-deploy capture.
+
+Narrow unit/registry: 3 passed. Actual Node24/SQLite product at 390/1440 plus the protected flow's six landing previews: 3 cases passed. Post-deploy landing at 390/1440: 2 passed, CSP/page errors/storage/mutations zero. Source 195987978fc6f445dc3a69133114d172d2841045 deployed as 24d30916-02c4-4e7c-ba78-00809bb79ca1. [Evidence](qa/20261003-landing-order.json).
+
+Remote CI 37095873310 passed tests, UI and typecheck; acceptance remains blocked by the existing missing selfhost tsx/Node24 workflow setup. Local asset dry-run passed. This does not claim remote CI completion.
+
+The separately approved [BIC-only rule](development/bic-exception-proposal.md) remains unapplied by the agent: ruleset GET still returned 403 after approval. The public proposal contains no credentials, account/zone IDs, admin address or actual capabilities. Existing BIC remains on; the deployment preserved the private bootstrap binding without printing its value, and no operational email was sent.
