@@ -4,7 +4,7 @@ import {createSettingsModel} from './settings-model.js';
 // fallback here; all live reads and writes still require the server admin gate.
 export function createSettingsController({effects,paint}){
  let model=null,session=null,alive=true,nextAction=null,reviewed=null;
- let state={status:'loading',resource:null,session:null,changes:[],dialog:null,conflict:null,pending:false,error:null,raw:{},fieldErrors:{}};
+ let state={status:'loading',resource:null,session:null,changes:[],dialog:null,conflict:null,pending:false,error:null,raw:{},fieldErrors:{},budget:{status:'loading',value:null,error:null}};
  const show=()=>{if(!alive)return;if(model){state.resource=model.snapshot();state.changes=model.review().changes;state.catalogRowIds=model.catalogRowIds();}paint(structuredClone(state));};
  const failure=error=>({code:error.code||error.message||'UNAVAILABLE',status:error.status??null,retryAfter:error.retryAfter??null});
  const edit=action=>{if(!model||state.pending)return;try{action();state.error=null;}catch(error){state.error=failure(error);}show();};
@@ -17,6 +17,13 @@ export function createSettingsController({effects,paint}){
     const resource=await effects.getAdminSettings();if(!alive)return;
     model=createSettingsModel(resource);state.status='ready';state.session=session;state.dialog=null;
    }catch(error){model=null;state.status='unavailable';state.resource=null;state.error=failure(error);}
+   show();
+  },
+  async loadBudget(){
+   if(!model||session?.authenticated!==true||session.role!=='admin')return;
+   state.budget={status:'loading',value:null,error:null};show();
+   try{const value=await effects.getBudget();if(!alive)return;state.budget={status:'ready',value,error:null};}
+   catch(error){if(!alive)return;state.budget={status:'unavailable',value:null,error:failure(error)};}
    show();
   },
   set(path,value,raw){if(!model||state.pending||state.dialog==='settings-review')return;try{model.set(path,value);delete state.raw[path];delete state.fieldErrors[path];state.error=null;}catch(error){state.raw[path]=String(raw??value);state.fieldErrors[path]='입력 형식과 허용 범위를 확인해주세요.';state.error=failure(error);}show();},

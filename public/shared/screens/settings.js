@@ -1,3 +1,4 @@
+import {renderBudgetUsage} from '../components/budget-usage.js';
 import {escapeHtml as E,notice} from '../components/auth-primitives.js';
 import {renderProductHeader} from '../components/header.js';
 import {renderCatalog,renderCaps,renderBudget,renderPolicies} from '../components/schema-patterns.js';
@@ -51,6 +52,6 @@ export function renderSettingsScreen(vm){
  if(section==='overview'){
   const s=resource.settings;
   content=`<div class="admin-page-head"><span class="eyebrow">A CALM PLACE TO KEEP THINGS RUNNING</span><h1>공간의 약속을<br>살펴봐요.</h1></div><div class="admin-summary"><div><span>운영 방식</span><strong>${E(s.deployment?.mode)}</strong><small>${s.deployment?.enabled?'활성화':'비활성화'}</small></div><div><span>공개방</span><strong>${s.public?.catalog?.filter(row=>row.enabled).length??'확인 필요'}<small>개 활성</small></strong><small>전체 ${s.public?.catalog?.length??'확인 필요'}개</small></div><div><span>예산 목표</span><strong><small>US$</small>${E(s.budget?.targetUsd)}</strong><small>청구 상한을 보장하지 않는 모델이에요.</small></div></div>`;
- }else content=`<div class="admin-page-head"><h1>${E(resource.schema.fields[section]?.label||'설정')}</h1><p>각 항목의 단위, 허용 범위와 적용 시점을 확인해주세요.</p></div>${renderSettingsFields(resource,section,vm)}`;
+ }else content=`<div class="admin-page-head"><h1>${E(resource.schema.fields[section]?.label||'설정')}</h1><p>각 항목의 단위, 허용 범위와 적용 시점을 확인해주세요.</p></div>${section==='budget'?renderBudgetUsage(vm.budget):''}${renderSettingsFields(resource,section,vm)}`;
  return `${header}<main id="content" class="admin-shell">${nav}<section class="admin-content schema-workbench">${content}<div class="save-feedback" role="status">${error?E(error.code):'변경사항을 검토한 뒤 저장해요.'}</div><div class="admin-savebar"><div><strong>${invalid?'입력값을 확인해주세요.':changes.length?'변경 '+changes.length+'개':'저장 전 변경사항이 없어요.'}</strong><span>설정 버전 <b>${E(resource.revision)}</b></span></div><div><button type="button" class="btn soft" data-x="cancel-settings" ${pending||!dirty?'disabled':''}>취소</button><button type="button" class="btn primary" data-x="review-settings" ${pending||!changes.length||invalid?'disabled':''}>변경 검토</button></div></div></section></main>`;
 }

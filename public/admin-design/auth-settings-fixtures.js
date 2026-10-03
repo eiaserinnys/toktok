@@ -1,3 +1,4 @@
+import {budgetFixture} from './budget-fixtures.js';
 import {settingsFixture} from './settings-fixtures.js';
 const clone=value=>structuredClone(value),s=settingsFixture.settings;
 export const anonymousFixture={authenticated:false,role:'anonymous',entitlements:{can_create_private:false,can_persist_private:false},owner_ack:null};
@@ -13,6 +14,7 @@ const catalogMax=clone(settingsFixture);catalogMax.settings.public.catalog=Array
 const change={path:'budget.warningUsd',label:'경고',before:'50',after:'12',applyTo:'runtime'};
 export const authSettingsFixtures={
  components:[
+  ...['default','warning','cutoff','loading','unavailable'].map(state=>({componentId:'budget-usage',state,args:[{status:['loading','unavailable'].includes(state)?state:'ready',value:state==='loading'||state==='unavailable'?null:{...budgetFixture,estimate:{...budgetFixture.estimate,warning_reached:state==='warning'||state==='cutoff',cutoff_exceeded:state==='cutoff'}}}]})),
   {componentId:'agent-safety',state:'service-owned',args:[]},
   ...[['anonymous',anonymousFixture],['member',member],['admin',adminFixture]].map(([state,Session])=>({componentId:'product-header',state,args:[{status:'ready',Session,Config:configFixture}]})),
   ...['loading','unavailable'].map(status=>({componentId:'product-header',state:status,args:[{status}]})),
@@ -40,8 +42,9 @@ export const authSettingsFixtures={
    ['loading','auth-login','/login',auth('login',{},null,'loading')],
    ['unavailable','auth-login','/login',auth('login',{},null,'unavailable')]
   ].map(([state,routeId,path,vm])=>({fixtureId:'auth-'+state,title:'인증 · '+state,screenId:'auth',state,routeId,path,audiences:['guest'],args:[vm]})),
-  ...['overview',...Object.keys(settingsFixture.schema.fields)].map(section=>({fixtureId:'settings-'+section,title:'설정 · '+(settingsFixture.schema.fields[section]?.label||'한눈에 보기'),screenId:'settings',state:section,routeId:'admin-settings',path:'/admin/'+section,audiences:['admin'],args:[{status:'ready',session:adminFixture,resource:settingsFixture,section}]})),
+  ...['overview',...Object.keys(settingsFixture.schema.fields)].map(section=>({fixtureId:'settings-'+section,title:'설정 · '+(settingsFixture.schema.fields[section]?.label||'한눈에 보기'),screenId:'settings',state:section,routeId:'admin-settings',path:'/admin/'+section,audiences:['admin'],args:[{status:'ready',session:adminFixture,resource:settingsFixture,section,budget:section==='budget'?{status:'ready',value:budgetFixture}:undefined}]})),
   ...['default','empty','loading','unavailable'].map(state=>({fixtureId:'rooms-'+state,title:'대화방 · '+state,screenId:'lobby',state,routeId:'rooms',path:'/rooms',args:[{status:['loading','unavailable'].includes(state)?state:'ready',Session:member,Config:{...configFixture,catalog:state==='empty'?[]:configFixture.catalog}}]})),
+  ...['loading','unavailable'].map(status=>({fixtureId:'budget-'+status,title:'예산 사용량 · '+status,screenId:'settings',state:'budget-'+status,routeId:'admin-settings',path:'/admin/budget',audiences:['admin'],args:[{status:'ready',session:adminFixture,resource:settingsFixture,section:'budget',budget:{status,value:null,error:status==='unavailable'?{code:'ADMIN_REQUIRED'}:null}}]})),
   ...['loading','denied','error','conflict'].map(state=>({fixtureId:'settings-'+state,title:'설정 · '+state,screenId:'settings',state,routeId:'admin-settings',path:'/admin/public',audiences:['admin'],args:[{status:state==='loading'?'loading':state==='denied'?'unavailable':'ready',session:state==='denied'?member:adminFixture,resource:state==='loading'||state==='denied'?null:settingsFixture,section:'public',changes:[change],error:{code:state==='conflict'?'REVISION_CONFLICT':state==='denied'?'ADMIN_REQUIRED':'가상 오류'}}]}))
  ],
  transitions:[
@@ -54,6 +57,7 @@ export const authSettingsFixtures={
   {transitionId:'auth-cancel',from:'auth-verify',to:'intro'},
   {transitionId:'auth-success',from:'auth-verify',to:'rooms-default'},
   {transitionId:'rooms-catalog-open',from:'rooms-default',to:'public-empty'},
+  {transitionId:'budget-unavailable',from:'settings-budget',to:'budget-unavailable'},
   {transitionId:'settings-conflict',from:'settings-public',to:'settings-conflict'},
   {transitionId:'settings-denied',from:'settings-overview',to:'settings-denied'},
   {transitionId:'settings-back',from:'settings-overview',to:'intro'}
