@@ -57,3 +57,7 @@
 최종 읽기 검토에서 새 idle cache가 초기화 promise와 schedule 사이의 core를 회수할 수 있음을 발견했다. SQLite transaction 진입을 의도적으로 대기시킨 상태에서 다른 65개 가상 빈 상설방을 초기화하는 신규 검사 RED1FAIL → active operation pin 보완 GREEN1PASS. idle cache는63개/timer0, 초기화 및 복원 성공이다. 변경된 Node runtime의 두 클라이언트 대화·shutdown 및 actual host acceptance 선택2PASS, Node 타입 exit0이다. Node bundle 첫 명령은 ELF 실행 파일을 node로 호출한 명령 오류이며, 실행 파일을 직접 호출한 보정 bundle exit0다. CF 제품 소스에는 이 보완으로 추가 변경이 없다.
 
 [두 번째 CI](https://github.com/eiaserinnys/toktok/actions/runs/37125854078)는 test/verdict/UI/public-UI/typecheck 다섯 단계 SUCCESS, acceptance에서 `selfhost/node_modules/tsx/dist/loader.mjs` 미설치로 FAILURE다(Node22 환경). 같은 acceptance는 로컬 설치된 Node24/SQLite 실제 HTTP에서 위 선택2 중 하나로 통과했다. 기존 workflow 권한 문제를 우회하거나 CI 설정을 고치지 않았다. 전체 CI 녹색이라고 보고하지 않는다.
+
+## 공개 대기 fixture의 시간 경합
+
+[세 번째 CI](https://github.com/eiaserinnys/toktok/actions/runs/37126173240)는 application24/auth30/control22/storage10 PASS 뒤 public8PASS/4FAIL이었다. 중복 wait 검사가 `after` 없이 초기 조회를 시작해 다음 batch 경계에서 응답할 수 있는데, 항상 아직 대기 중이라고 가정했다. 이 경우 두 번째 요청은 중복409 대신 조회 간격429이며, assertion 실패가 abort를 건너뛰어 후속 세 reset의 actor eviction도 실패했다. 제품 public 소스/정책 변경 없이 현재 epoch:0 cursor를 명시하고 활성 대기 확인 및 finally 취소를 추가했다. 최초 실패와 후속 세 영향 case만 선택해 **4PASS/8SKIP**를 확인했다. 처음 CI 실패 결과는 그대로 유지한다.

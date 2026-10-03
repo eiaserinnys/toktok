@@ -106,5 +106,13 @@
   {
     "file": "node-build-correction.log",
     "sha256": "ba82bf717f9fa1f15b596ecc9ed1760841462c3b4991895584537be341547233"
+  },
+  {
+    "file": "ci-public-initial.json",
+    "sha256": "c4a0487df6a86e2b855811c4d0eef0bc28d7291f2777a6c1b5ee0511ccff6247"
+  },
+  {
+    "file": "public-wait-correction.log",
+    "sha256": "f13081f64f62c0032b6a3f072d0c6d52913638cc13258afd823993f782582bad"
   }
 ]
