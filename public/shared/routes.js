@@ -1,5 +1,15 @@
 // One route inventory is used by product navigation and the QA graph.
 export const routeRegistry=Object.freeze([
+ {routeId:'claim',screenId:'claim',nestedScreens:['auth'],match:/^\/claim\/([a-f0-9-]{36})\/([\w-]{43})$/,params:['id','cap'],transitions:[
+  {transitionId:'claim-approved',event:'approve-confirm',kind:'success',to:'claim'},
+  {transitionId:'claim-denied',event:'approve-confirm',kind:'error',to:'claim'},
+  {transitionId:'claim-expired',event:'server-expiry',kind:'time',to:'claim'},
+  {transitionId:'claim-email',event:'login-open',kind:'success',to:'claim'},
+  {transitionId:'claim-otp',event:'email-submit',kind:'success',to:'claim'},
+  {transitionId:'claim-session-verified',event:'otp-submit',kind:'success',to:'claim'},
+  {transitionId:'claim-otp-denied',event:'otp-submit',kind:'error',to:'claim'},
+  {transitionId:'claim-logout',event:'logout',kind:'success',to:'rooms'},
+  {transitionId:'claim-back',event:'cancel',kind:'back',to:'rooms'}]},
  {routeId:'account',screenId:'account',match:/^\/account$/,params:[],transitions:[
   {transitionId:'agent-revoked',event:'revoke-confirm',kind:'success',to:'account'},
   {transitionId:'agent-revoke-denied',event:'revoke-confirm',kind:'error',to:'account'},

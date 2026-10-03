@@ -1,7 +1,7 @@
 import {createAuthController} from './auth-controller.js';
 import {renderAuth} from './screens/auth.js';
 
-export function mountAuth(root,{effects,navigate}){
+export function mountAuth(root,{effects,navigate,claim,onVerified}){
  let previousKey=null;
  const paint=vm=>{
   const key=vm.screen+':'+vm.ui.purpose+':'+(vm.ui.challenge?.flow??'');
@@ -26,6 +26,6 @@ export function mountAuth(root,{effects,navigate}){
   });
   if(retain&&active){const target=Array.from(root.querySelectorAll('input,button,a')).find(x=>active.name?x.name===active.name:active.action&&x.dataset.x===active.action);if(target){target.focus({preventScroll:true});if(typeof active.start==='number'&&target.type!=='email')target.setSelectionRange?.(active.start,active.end);}}
  };
- const controller=createAuthController({effects,paint,navigate});
+ const controller=createAuthController({effects,paint,navigate,claim,onVerified});
  return {load:controller.load,enter:controller.enter,dispose:controller.dispose};
 }

@@ -44,11 +44,12 @@ function settingsEffects(schema,path='',out={}){
 }
 export function createLiveAdapter({fetch:fetchHTTP=globalThis.fetch}={}){
  let csrf=null;
- async function request(path,{method='GET',body,sessionMutation=false}={}){
+ async function request(path,{method='GET',body,sessionMutation=false,capability}={}){
   if(sessionMutation&&!csrf)throw new EffectError('SESSION_REQUIRED',401);
   const headers={Accept:'application/json'};
   if(body!==undefined)headers['Content-Type']='application/json';
   if(sessionMutation)headers['X-CSRF-Token']=csrf;
+  if(capability!==undefined)headers.Authorization='Bearer '+capability;
   const response=await fetchHTTP(path,{method,credentials:'same-origin',cache:'no-store',headers,
    ...(body===undefined?{}:{body:JSON.stringify(body)})});
   let data;try{data=await response.json();}catch{throw new EffectError('INVALID_RESPONSE',response.status);}
@@ -75,6 +76,8 @@ export function createLiveAdapter({fetch:fetchHTTP=globalThis.fetch}={}){
    if(!Number.isSafeInteger(data.revision)||!data.settings||!schema.schema)invalid('ADMIN_SETTINGS');
    return {revision:data.revision,settings:data.settings,schema:schema.schema,effects:settingsEffects(schema.schema)};
   },
+  getClaim:async(id,cap)=>mapAgent((await request('/api/claims/'+encodeURIComponent(id),{capability:cap})).agent),
+  approveClaim:async(id,cap)=>mapAgent((await request('/api/claims/'+encodeURIComponent(id)+'/approve',{method:'POST',sessionMutation:true,capability:cap,body:{risk_ack_version:'toktok-risk-v1'}})).agent),
   revokeAgent:async id=>mapAgent((await request('/api/agents/'+encodeURIComponent(id)+'/revoke',{method:'POST',sessionMutation:true,body:{}})).agent),
   getBudget:async()=>mapBudget(await request('/api/admin/budget')),
   getInvitations:()=>request('/api/admin/invitations'),

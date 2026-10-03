@@ -1,0 +1,60 @@
+/* Existing Common room grant composition, design d6f0e975. */
+.grant-layout{display:grid;grid-template-columns:1fr 560px;gap:70px;max-width:1120px;margin:10px auto 35px}
+.grant-layout aside{padding-top:28px}
+.grant-layout h1{font-size:54px;margin:24px 0}
+.grant-layout aside>p{color:#5f6d56}
+.grant-agent{display:flex;align-items:center;gap:14px;margin-top:44px;padding-top:26px;border-top:1px solid var(--line);max-width:300px}
+.grant-agent>.avatar{width:52px;height:52px;font-size:21px}
+.grant-agent b{display:block;font-size:18px}
+.grant-agent small{font-size:12px;color:#5f6d56}
+.grant-card{background:var(--white);border:1px solid var(--line);border-radius:22px;padding:32px}
+.grant-card h2{font-size:24px;margin:13px 0 20px}
+.risk-list{padding:0;list-style:none;counter-reset:risk}
+.risk-list li{position:relative;padding-left:32px;margin:22px 0;counter-increment:risk}
+.risk-list li:before{content:counter(risk,decimal-leading-zero);position:absolute;left:0;top:2px;font-family:Arial;font-size:12px;color:#79816b}
+.risk-list b{font-size:14px}
+.risk-list p{font-size:14px;color:#5f6d56;margin-top:5px}
+.grant-divider{height:1px;background:var(--line);margin:30px 0}
+.grant-scope{font-size:14px;margin:16px 0 28px}
+.grant-scope>div{display:flex;justify-content:space-between;gap:24px;margin:14px 0}
+.grant-scope dt{color:#5f6d56}
+.grant-scope dd{margin:0;text-align:right;font-weight:600;max-width:250px}
+.grant-card>.btn{margin:5px 0}
+.grant-card>.fineprint{font-size:12px;text-align:center;margin-top:17px}
+.grant-success{max-width:710px;margin:30px auto;padding:48px;text-align:center}
+.success-mark{width:66px;height:66px;display:grid;place-items:center;border-radius:50%;background:var(--lime);margin:0 auto 28px}
+.success-mark .icon{width:30px;height:30px}
+.grant-success h1{font-size:45px;margin:20px 0}
+.grant-success .x-notice{text-align:left}
+.grant-success .x-button-row{justify-content:center}
+@media(max-width:1000px){
+.grant-layout,.new-room-layout{gap:35px;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)}
+.grant-layout h1{font-size:43px}
+}
+@media(max-width:700px){
+.grant-layout{display:block;margin:0 auto}
+.grant-layout aside{padding:2px 0 27px}
+.grant-layout h1{font-size:38px;line-height:1.35;margin:20px 0}
+.grant-layout h1 br:nth-of-type(2){display:none}
+.grant-layout aside>p{font-size:15px}
+.grant-agent{margin-top:25px;padding-top:21px;max-width:none}
+.grant-agent>.avatar{width:43px;height:43px;font-size:17px}
+.grant-agent b{font-size:16px}
+.grant-card{padding:26px 22px;border-radius:18px}
+.grant-card h2{font-size:23px}
+.risk-list li{padding-left:25px;margin:20px 0}
+.risk-list b{font-size:14px}
+.risk-list p{font-size:13px}
+.grant-scope{font-size:13px}
+.grant-scope>div{gap:15px}
+.grant-scope dt{white-space:nowrap}
+.grant-scope dd{max-width:190px}
+.grant-card>.fineprint{font-size:12px}
+.grant-success{margin:10px 0 20px;padding:30px 23px}
+.grant-success h1{font-size:34px;line-height:1.4}
+.grant-success>.p{font-size:15px}
+.success-mark{width:55px;height:55px}
+.grant-success .x-button-row{flex-direction:column}
+}
+.grant-account-row{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;padding:15px 0;border-bottom:1px solid var(--line);font-size:13px}
+.grant-account-row small{grid-column:2;font-size:12px;color:#5f6d56}
