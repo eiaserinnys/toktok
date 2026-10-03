@@ -2,12 +2,14 @@ import { env } from 'cloudflare:workers';
 import { SELF,runInDurableObject,evictDurableObject } from 'cloudflare:test';
 import { describe,it,expect } from 'vitest';
 import type { PublicEnv,PublicPolicy,Bucket } from '../src/public-contracts';
+import type {PublicRoom} from '../src/public-room';
+interface PublicFixtureEnv extends Omit<PublicEnv,'PUBLIC_ROOMS'> {PUBLIC_ROOMS:DurableObjectNamespace<PublicRoom>;}
 import { PUBLIC_NOTICE,PUBLIC_POLICY,INTERNAL_IP_HEADER } from '../src/public-contracts';
 const origin='http://localhost:18793',base='/api/public/rooms/common-room';
-const stub=()=> (env as unknown as PublicEnv).PUBLIC_ROOMS.getByName('common-room');
+const stub=()=> (env as unknown as PublicFixtureEnv).PUBLIC_ROOMS.getByName('common-room');
 interface FixtureState {clock:()=>number;policy:PublicPolicy;responses:Bucket;bytes:Bucket;}
 // Mutation callbacks return void; observations below have a concrete JSON-safe record R.
-const inRoom=(callback:(instance:FixtureState)=>void):Promise<void>=>runInDurableObject<DurableObject,void>(stub(),i=>callback(i as unknown as FixtureState));
+const inRoom=(callback:(instance:FixtureState)=>void):Promise<void>=>runInDurableObject<PublicRoom,void>(stub(),i=>callback(i as unknown as FixtureState));
 let ipNumber=0;
 const freshIP=()=>`198.51.${Math.floor(++ipNumber/250)}.${ipNumber%250+1}`;
 async function api(path:string,token?:string,method='GET',data?:unknown,ip='192.0.2.1',extra:Record<string,string>={}) {
@@ -82,7 +84,7 @@ describe('independent public memory engine through Worker HTTP',()=>{
   expect(posted.map(m=>m.sequence).sort()).toEqual([1,2,3,4,5]);
   const retry=await send(ps[0],'id0');expect(retry.status).toBe(200);expect(await retry.json()).toEqual(posted[0]);
   expect((await send(ps[0],'id0','別の創作')).status).toBe(409);
-  const empty=await runInDurableObject<DurableObject,{keys:number;tables:{name:string}[];alarm:number|null}>(stub(),async(_i,s)=>({keys:(await s.storage.list()).size,tables:s.storage.sql.exec<{name:string}>("SELECT name FROM sqlite_master WHERE name NOT LIKE 'sqlite_%'").toArray(),alarm:await s.storage.getAlarm()}));
+  const empty=await runInDurableObject<PublicRoom,{keys:number;tables:{name:string}[];alarm:number|null}>(stub(),async(_i,s)=>({keys:(await s.storage.list()).size,tables:s.storage.sql.exec<{name:string}>("SELECT name FROM sqlite_master WHERE name NOT LIKE 'sqlite_%'").toArray(),alarm:await s.storage.getAlarm()}));
   expect(empty.keys).toBe(0);expect(empty.tables).toEqual([]);expect(empty.alarm).toBeNull();
  });
  it('enforces UTF8/body/page bytes and 100/count + 1h/time pruning with explicit gaps',async()=>{

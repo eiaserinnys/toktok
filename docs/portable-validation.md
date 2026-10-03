@@ -64,3 +64,9 @@ root/A는 CONTROL HTTP budget factory와 새 ControlPlane namespace, settings re
 새 atomic 장부 SQL 비용은 [비용 보완](public-cost-comparison.md)의 대표행 계측만 있으며 실제 A reserve/cleanup·persist rows/storage/alarms·계정baseline이 필요합니다. $34.26/$40/$100은 현재 전체제품 검증 가격/청구 hard cap이 아닙니다. 이전 비용·부하 원시 JSON은 보존했습니다.
 
 분석 캐시 정본은 document_id `d35f3b20-efd6-4cf7-b359-2ff1965029b2`입니다. 저장·runtime·body 저장 축의 커버/제외는 [호출 계약](portable-runtime.md)에 열거했습니다. 현재 기반 변경 후 Git 원격 HEAD와 clean 상태는 담당 세션의 최종 인계에 기록하며 main merge/배포는 하지 않습니다.
+
+## 통합 전 narrow 후속
+
+4e8ad3c의 자동 CI 37079992297은 test/test:verdict/test:ui PASS 후 top-level typecheck에서 실패했습니다. 격리 selfhost pg/types를 설치하지 않는 기존 CF 타입 검사 범위에 Node 소스가 포함된 원인은 root platform 분리 소유입니다. public fixture의 concrete DO namespace/stub와 Node mock JSON 반환 타입5곳은 owned 파일에서 국소 보정했으며 추가 runtime/전체 검증은 실행하지 않았습니다. old public fixture의 mutation helper는 과거 wrapper 상태를 가정하므로 root 선택 회귀에서 core 접점을 사용해야 합니다. 이 보완으로 기존 통과 gate를 다시 열지 않았습니다.
+
+root가 추가 요청한 publicError budget retry narrow 단위검사는 RED에서17초가1초로 잘린 결함을 확인하고 GREEN1 PASS입니다. generic HttpError.retryAfter 초를 Retry-After와 retry_after_ms로 보존하며 PublicError.retryMs가 있으면 기존 ms 값을 우선합니다. 공용 HttpError 파일은 수정하지 않았습니다. 실제 CONTROL 연결은 root 후속입니다.

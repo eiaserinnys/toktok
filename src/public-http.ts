@@ -8,9 +8,10 @@ export class PublicError extends HttpError {
 export function publicLimited(ms=1000):never {throw new PublicError(429,'RATE_LIMITED','공개방 요청 한도를 초과했습니다.',Math.max(1,Math.ceil(ms)));}
 export function publicError(error:unknown):Response {
  const e=error instanceof HttpError?error:new HttpError(500,'INTERNAL_ERROR','요청을 처리하지 못했습니다.');
- const retry=e instanceof PublicError?e.retryMs:undefined;
+ const seconds='retryAfter' in e&&typeof e.retryAfter==='number'&&Number.isFinite(e.retryAfter)&&e.retryAfter>0?e.retryAfter:undefined;
+ const retry=e instanceof PublicError&&e.retryMs!==undefined?e.retryMs:seconds===undefined?undefined:Math.ceil(seconds*1000);
  const response=json({error:{code:e.code,message:e.message,...(retry!==undefined?{retry_after_ms:retry}:{})}},e.status);
- if(e.status===429)response.headers.set('Retry-After',String(Math.ceil((retry??1000)/1000)));return response;
+ if(e.status===429||retry!==undefined)response.headers.set('Retry-After',String(Math.ceil((retry??1000)/1000)));return response;
 }
 export async function publicBody(request:Request,p:Readonly<Pick<PublicPolicy,'jsonBytes'|'bodyMs'>>,allowed:string[]):Promise<Record<string,unknown>> {
  if(request.headers.get('Content-Type')?.split(';')[0].trim()!=='application/json')bad();
