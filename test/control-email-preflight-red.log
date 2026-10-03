@@ -1,0 +1,53 @@
+heavy verification: running in slot 1/2
+
+ RUN  v4.1.0 /home/eias/workspace/.projects/toktok--feat-claim-foundation-0ac9c22f
+
+stdout | test/control-email-preflight.test.ts > allowed and suppressed addresses receive the same estimated cutoff denial before eligibility writes
+EMAIL_PREFLIGHT_EVIDENCE [{"step":"config","status":200},{"step":"start","status":200},{"step":"start","status":200},{"step":"email-reserve","status":429,"code":"ESTIMATED_BUDGET_EXCEEDED","retry_after":2678400},{"step":"email-reserve","status":200},{"step":"estimate preflight state before assertion","status":200,"state":{"estimate":990000,"quantity":0,"codes":0,"requests":1}}]
+
+stdout | test/control-email-preflight.test.ts > quantity preflight denial is also identical and makes no email reservations
+EMAIL_PREFLIGHT_EVIDENCE [{"step":"config","status":200},{"step":"start","status":200},{"step":"start","status":200},{"step":"email-reserve","status":429,"code":"EMAIL_RATE_LIMITED","retry_after":2678400},{"step":"email-reserve","status":429,"code":"EMAIL_RATE_LIMITED","retry_after":2678400},{"step":"quantity preflight state before assertion","status":200,"state":{"estimate":0,"quantity":10000,"codes":0,"requests":0}}]
+
+stdout | test/control-email-preflight.test.ts > successful preflight only charges and creates OTP for the eligible path while suppressed receipt stays generic
+EMAIL_PREFLIGHT_EVIDENCE [{"step":"config","status":200},{"step":"start","status":200},{"step":"email-reserve","status":200},{"step":"start","status":200},{"step":"email-reserve","status":200},{"step":"eligible versus suppressed storage before assertion","status":200,"state":{"estimate":10014,"quantity":1,"codes":1,"requests":2}}]
+
+ ❯ test/control-email-preflight.test.ts (3 tests | 1 failed) 110ms
+   × allowed and suppressed addresses receive the same estimated cutoff denial before eligibility writes 46ms
+   ✓ quantity preflight denial is also identical and makes no email reservations 31ms
+   ✓ successful preflight only charges and creates OTP for the eligible path while suppressed receipt stays generic 32ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/control-email-preflight.test.ts > allowed and suppressed addresses receive the same estimated cutoff denial before eligibility writes
+AssertionError: expected [ [ 429, …(2) ], …(1) ] to deeply equal [ [ 429, …(2) ], [ 429, …(2) ] ]
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[33m@@ -3,10 +3,10 @@[39m
+[2m      429,[22m
+[2m      "ESTIMATED_BUDGET_EXCEEDED",[22m
+[2m      2678400,[22m
+[2m    ],[22m
+[2m    [[22m
+[32m-     429,[39m
+[32m-     "ESTIMATED_BUDGET_EXCEEDED",[39m
+[32m-     2678400,[39m
+[31m+     200,[39m
+[31m+     undefined,[39m
+[31m+     undefined,[39m
+[2m    ],[22m
+[2m  ][22m
+
+ ❯ test/control-email-preflight.test.ts:26:58
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  10:08:42
+   Duration  1.22s (transform 325ms, setup 0ms, import 513ms, tests 110ms, environment 0ms)
+
+JSON report written to /home/eias/workspace/.projects/toktok--feat-claim-foundation-0ac9c22f/test/control-email-preflight-red.json

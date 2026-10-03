@@ -1,0 +1,15 @@
+heavy verification: running in slot 1/2
+
+ RUN  v4.1.0 /home/eias/workspace/.projects/toktok--feat-release-integration-c8e59900
+
+stdout | test/application-recovery.test.ts > recovery continuation checks QA failure, excluded sensitive routes and CSRF PUT logout only
+APPLICATION_HTTP_EVIDENCE [{"step":"initialize recovery fixture","status":200,"retry_after":null},{"step":"continuation baseline before assertions","status":200,"retry_after":null,"state":{"minute":0,"day":0,"month":0,"ops":0}},{"step":"continuation QA exact failure","status":503,"code":"ADMIN_AUTH_UNAVAILABLE","retry_after":null},{"step":"continuation QA recovery delta before assertions","status":200,"retry_after":null,"state":{"day_delta":0,"op_delta":0}},{"step":"continuation excluded sensitive route","status":429,"code":"BUDGET_EXCEEDED","retry_after":"80438"},{"step":"continuation excluded sensitive route","status":429,"code":"BUDGET_EXCEEDED","retry_after":"80438"},{"step":"continuation excluded sensitive route","status":429,"code":"BUDGET_EXCEEDED","retry_after":"80438"},{"step":"continuation excluded sensitive route","status":429,"code":"BUDGET_EXCEEDED","retry_after":"80438"},{"step":"continuation excluded routes state before assertions","status":200,"retry_after":null,"state":{"minute":0,"day":0,"month":0,"ops":0,"mail_calls":0}},{"step":"continuation CSRF settings PUT","status":200,"retry_after":null},{"step":"continuation PUT single reservation before assertions","status":200,"retry_after":null,"state":{"minute":1,"day":1,"month":1,"ops":1}},{"step":"continuation logout","status":200,"retry_after":null},{"step":"continuation revoked session denied","status":401,"code":"SESSION_REQUIRED","retry_after":null},{"step":"continuation final state before assertions","status":200,"retry_after":null,"state":{"minute":2,"day":2,"month":2,"ops":2,"mail_calls":0}}]
+
+ ✓ test/application-recovery.test.ts (3 tests | 2 skipped) 185ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 2 skipped (3)
+   Start at  10:39:21
+   Duration  1.53s (transform 383ms, setup 0ms, import 670ms, tests 185ms, environment 0ms)
+
+JSON report written to /home/eias/workspace/.projects/toktok--feat-release-integration-c8e59900/test/application-recovery-continuation.json

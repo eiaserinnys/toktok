@@ -1,78 +1,71 @@
-# toktok 구현 결정
+# toktok 아키텍처
 
-2026-10-02. 제품 요구사항은 [제품 설계 v1](product-v1.md)이 정본입니다. 이 문서는 담당자가 확정한 구현 계약이며 시각 디자인을 정하지 않습니다.
+제품 정책은 [제품 계약](product-v1.md), 외부 요청 형식은 [OpenAPI](openapi.json), 설치 절차는 [Cloudflare 배포](deployment.md)와 [자체 설치](self-host-installation.md)를 따른다. 이 문서는 현재 공통 구조와 데이터 수명을 설명한다. 과거 체크포인트의 검증 결과는 개발·검수 문서에 보존하며 현재 동작의 근거로 대신하지 않는다.
 
-## 구성
+## 공통 도메인과 실행 환경
 
-TypeScript Cloudflare Worker 한 개와 SQLite Durable Object 클래스 Room 한 개로 시작합니다. 각 방은 무작위 room_id에 대응하는 객체 한 개를 씁니다. HTTP 라우팅, 입력 크기 제한, 생성자 인증과 응답 보안 헤더는 Worker에 둡니다. 방 권한, 참여자, 메시지 순서, 중복 방지, 대기와 삭제는 Room이 소유합니다. 프론트 정적 파일은 최종 디자인 수신 후 Worker Assets에 연결합니다. 현재 브라우저 경로는 디자인 대기 상태임을 알리는 단순 텍스트 응답까지만 제공합니다.
+`createHttpApplication`은 인증, 관리자 설정, 공개방, 비공개방과 화면의 HTTP 경로를 처리한다. `ControlCore`, `PublicRoomCore`, `PrivateRoomCore`는 플랫폼과 분리하며 HTTP·저장소·메일·시간·IP 확인을 host port로 주입한다. 인증 HTTP handler는 `ControlHttpPort`만 호출하고 미설정이면 닫힌다.
 
-별도 VM, Redis, D1, KV, R2, LLM SDK는 추가하지 않습니다. 작은 팀의 승인된 생성자 명부는 Worker secret 설정으로 충분하므로 creator identity를 검증하는 별도 어댑터 뒤에 둡니다. 나중에 인증 수단을 바꿔도 Room은 creator_id만 받습니다.
+Cloudflare host는 `CONTROL`의 ControlPlane, `PUBLIC_ROOMS`, `PRIVATE_ROOMS` Durable Object와 Assets를 연결한다. ControlPlane과 저장 선택 비공개방은 DO SQLite를 사용한다. 공개방 대화 본문은 RAM에만 둔다. 기존 IdentityRegistry/Room 상태를 새 namespace로 자동 변환하지 않는다.
 
-## 인증과 링크
+Node host는 같은 도메인을 사용하며 설치 시 SQLite 또는 PostgreSQL 하나를 선택한다. 동시에 두 backend를 쓰거나 복제하지 않는다. `RepositoryPort.transaction(scope, callback)`의 비동기 targeted CRUD를 adapter가 구현한다. JSON 검증, 접근량 제한, rollback, 중첩 transaction 거부와 종료 후 접근 차단을 적용한다. transaction 접근량 제한은 전체 DB 크기 제한이 아니다.
 
-- creator 인증의 초기 어댑터는 Bearer API credential의 SHA-256 지문을 승인 명부와 대조합니다. CREATOR_CREDENTIALS_JSON은 creator_id, token_sha256, enabled를 가진 배열입니다. 비어 있거나 설정이 잘못되면 방 생성은 503 CREATOR_AUTH_UNCONFIGURED입니다. 잘못된 credential은 401입니다. 공개 가입이나 production 기본 키는 없습니다. 실제 발급 및 사람 확인 경로는 사용자 결정 후 활성화합니다. 개발 테스트 키는 로컬 fixture에만 사용합니다.
-- room_id는 crypto.randomUUID()로 생성합니다. 초대 토큰, 읽기 전용 토큰, 소유자 토큰과 참여자 토큰은 서로 다른 crypto.getRandomValues 32바이트의 base64url 값입니다. 저장소에는 토큰 원문 대신 SHA-256만 둡니다.
-- 초대 URL은 /r/{room_id}/{invite_token}, 관전 URL은 /r/{room_id}/{read_token}입니다. GET만으로 참여자를 생성하지 않습니다. 각 API에서는 토큰을 Authorization: Bearer 헤더로 전달합니다. 일반 API 주소에 비밀을 포함하지 않습니다.
-- invite는 읽기와 join, read는 읽기만, participant는 읽기와 본인 발신, owner는 읽기와 관리 권한입니다. owner 토큰은 생성 응답에서만 별도로 전달하며 방 안내와 공유 링크에 포함하지 않습니다. 참여자 sender는 서버가 등록 결과에서 결정하므로 다른 sender를 주장할 수 없습니다.
-- 닉네임은 자칭 표시 이름입니다. 모델 인증, 사람 인증 배지, 읽음 표시는 만들지 않습니다. 같은 닉네임도 sender_id로 구분합니다.
+Node 시작은 명시적인 schema 확인 후 저장 비공개방 metadata를 페이지 단위로 순회한다. `restoreRoom`이 retention·삭제 작업과 타이머를 복원한 뒤 ready와 listen을 연다. Node v1→v2 index 변경은 운영자의 `migrate` 명령으로만 수행한다. Cloudflare schema와 Node migration은 별개다.
 
-## HTTP 계약
+## 계정·초대·권한
 
-외부 origin은 PUBLIC_ORIGIN 설정의 HTTPS 주소입니다. 요청 Host를 신뢰하여 안내 링크를 만들지 않습니다. 로컬 실행에서는 localhost origin만 사용합니다. 모든 시간은 UTC RFC3339이며 모든 오류는 JSON {error:{code,message}}입니다. 상세 OpenAPI는 구현과 함께 작성합니다.
+가입 정책, 모드와 권한의 정본은 DB settings와 account/session 데이터다. 환경 allowlist나 클라이언트 role flag로 권한을 부여하지 않는다. DEMO 초대 가입은 코드 선검증 → 이메일 OTP → 가입 완료 순서이며, 코드 상태와 보유 browser session을 재검사하고 성공 transaction에서 원자 소비한다. 일반 발송 응답은 이메일 존재 여부를 노출하지 않는다.
 
-| 경로 | 권한과 입력 | 결과 |
-| :--- | :--- | :--- |
-| POST /api/rooms | creator, {purpose, ttl_seconds?} | 201 room, invite_url, read_url, owner_token |
-| GET /r/{id}/{cap} | invite 또는 read | text/markdown 안내 또는 디자인 대기 text/plain |
-| GET /api/rooms/{id} | 방 capability | room 메타데이터와 허용 권한 |
-| POST /api/rooms/{id}/participants | invite, {nickname} | 201 sender와 participant_token |
-| POST /api/rooms/{id}/messages | participant, {text,client_message_id,reply_to?} | 201 저장된 메시지, 재전송은 200 같은 메시지 |
-| GET /api/rooms/{id}/messages?after=0&limit=100 | 읽기 권한 | {messages,cursor,has_more,room_status} |
-| GET /api/rooms/{id}/wait?after=0&limit=100&timeout=25 | 읽기 권한 | 위와 같음, 빈 timeout은 동일 cursor |
-| POST /api/rooms/{id}/close | owner | 상태 closed, 200 |
-| DELETE /api/rooms/{id} | owner | 삭제 완료 뒤 204 |
+로그인 session을 사용하는 브라우저 변경 요청은 정확한 Origin과 해당 session의 CSRF를 요구한다. 초기 인증은 flow cookie·nonce·OTP 결합을, 로그인 없는 생성·공개방 입장은 각 context/grant·고지 확인 경계를 적용한다. 최초 관리자 후보는 비공개 환경 설정으로만 지정하고 OTP 로그인·명시 확인·CSRF를 거쳐 최초 한 번 bootstrap한다. 환경 설정만으로 무인 승격하지 않는다. 관리자 화면과 검수 자원은 서버의 실제 DB admin 역할 확인을 통과해야 한다.
 
-메시지는 {sequence,sender:{id,nickname},text,client_message_id,reply_to,created_at}입니다. reply_to는 같은 방에 이미 존재하는 sequence입니다. cursor는 0부터 시작하는 정수이며 응답에 실제 포함된 마지막 sequence까지만 전진합니다. 미래 cursor는 400입니다. 빈 페이지는 요청 cursor를 그대로 돌려줍니다. limit 기본 100, 최대 100입니다.
+Agent 등록은 pending credential과 별도 claim 링크를 발급한다. 사람이 로그인한 뒤 위험 안내를 확인하고 명시 승인해야 owner가 정해진다. 로그인 자체는 agent 승인이 아니다. 소유자는 자기 agent를 폐기할 수 있다. 유효한 기존 session의 추가 claim에는 새 메일이 필요하지 않다. 계정·agent 권한과 방별 capability는 서로 다른 경계다.
 
-client_message_id는 참여자 안에서 유일한 1~128자의 문자열입니다. 같은 참여자와 ID에 같은 text/reply_to를 재전송하면 원래 메시지를 반환하고, 다른 내용이면 409 IDEMPOTENCY_CONFLICT입니다. 저장과 sequence 배정 및 중복 판정은 같은 SQLite 동기 트랜잭션 안에서 수행합니다. 201은 저장 수락을 뜻하며 읽음이나 답변을 뜻하지 않습니다.
+## 생성과 저장 수명
 
-## 방 상태와 삭제
+생성 context와 grant는 현재 설정 revision, 서버가 확인한 account entitlement, creator 권한 및 익명 생성 제한에 묶인다. 생성 예약 → 방 초기화 → slot 확정 순서로 진행한다. 예약 뒤 상태 확인이 필요하면 `CREATE_PENDING`, 생성됐지만 첫 비밀값 응답을 복구할 수 없으면 `CREATE_RESULT_NOT_RECOVERABLE`을 `409`와 `room_id`로 반환한다. 다른 요청 ID로 자동 재생성하면 안 된다.
 
-open에서 owner가 close하면 closed가 됩니다. closed에서는 새 입장과 발신이 410 ROOM_CLOSED입니다. 기존 읽기 권한은 만료 전까지 이력을 조회합니다. wait는 아직 읽지 않은 메시지를 먼저 반환하고 더 없으면 즉시 410 ROOM_CLOSED로 종료합니다. UI는 메타데이터의 closed를 표시할 수 있습니다.
+| 방 종류 | 대화 본문 | 생성·참여 조건 |
+| --- | --- | --- |
+| public | bounded RAM | 공개 catalog와 입장·고지·lease 정책 |
+| anonymous private | bounded RAM | 활성화된 익명 생성 정책, 명시 확인과 서버 grant |
+| authenticated private | 기본 RAM, 새 방에서만 persist opt-in | DB entitlement·visibility·creator 권한 및 생성 확인 |
 
-ttl_seconds 기본 86400, 허용 60~604800입니다. expires_at은 생성 시 한 번 정해지며 연장하지 않습니다. 매 요청과 wait 응답 직전에 현재 시각을 대조합니다. 만료시각 이후에는 대기 중 요청을 포함하여 내용을 반환하지 않고 410 ROOM_GONE으로 응답합니다.
+DEMO 초대+OTP 가입 계정도 저장 선택을 할 수 있다. `defaultPersist`는 두 모드 모두 OFF이며 기존 memory 방을 persist로 바꾸지 않는다. 저장 선택 시 retention, 참여자 고지, 생성자 확인과 정책 revision을 snapshot으로 고정한다. retention은 방 TTL을 넘지 못한다.
 
-alarm은 expires_at에 저장소 전체 deleteAll을 수행합니다. owner delete도 같은 삭제 함수를 사용하여 메시지, 참여자, 토큰 지문, 목적, 메타데이터와 alarm을 함께 지웁니다. 삭제된 객체에 다시 접근해도 데이터나 테이블을 생성하지 않습니다. 구문상 유효한 ID인데 저장소가 비어 있으면 410 ROOM_GONE으로 통일합니다. 없는 방과 지워진 방을 구분하기 위해 영구 tombstone을 남기지 않습니다. 잘못된 경로는 404입니다.
+TTL과 한도는 현재 설정을 따르며 새 방의 snapshot에 적용한다. `demoInstallationProfile`의 빈 DB 초기값은 익명 기본 30분/최대 1시간, 계정 기본 24시간/최대 7일이다. 이 초기 프로필, 비활성 `DEFAULT_SETTINGS`, 운영자가 저장한 설정을 구분한다. 디자인의 30일 예시는 운영 retention 값이 아니다.
 
-물리 삭제 목표는 만료 즉시이며 정상 운영에서 최대 15분 지연을 점검 기준으로 둡니다. Cloudflare alarm은 지연과 제한된 재시도가 가능하므로 플랫폼 장애 중의 절대 최대 지연을 보장할 수 없습니다. 이 한계는 제품 설명에 숨기지 않습니다. 만료 후 첫 접근도 전체 삭제를 수행하여 alarm 지연을 보완하며, 접근 차단은 alarm 성공 여부와 무관합니다. 플랫폼 백업과 재해복구 사본의 소거 시점은 애플리케이션이 보장하지 않습니다. 별도 전역 삭제 스케줄러나 영구 방 목록은 MVP에 추가하지 않습니다.
+## 비공개방 HTTP
 
-## 대기와 재연결
+공통 prefix는 `/api/v1/rooms`다. 상세 body와 응답은 OpenAPI 및 방 안내를 사용한다.
 
-wait의 timeout 기본과 상한은 25초, 최솟값은 0입니다. 기존 메시지가 있으면 즉시 응답합니다. 없으면 메모리에 resolver를 등록하며, 검사와 등록 사이에서 메시지를 놓치지 않게 합니다. 발신 시 모든 대기자를 깨워 각자의 cursor에서 다시 조회합니다. deadline은 요청 timeout과 방 만료 중 이른 시각입니다. close, delete, expiry에서도 대기자를 깨웁니다. AbortSignal과 finally로 타이머와 resolver를 정리합니다.
+| 경로 | 권한과 동작 |
+| --- | --- |
+| `POST /api/v1/rooms` | context/grant와 생성 권한으로 새 방 생성 |
+| `GET /r/{id}/{cap}` | invite/read로 HTML 또는 Markdown 안내; GET으로 가입하지 않음 |
+| `GET /api/v1/rooms/{id}` | 방 capability로 metadata·허용 권한 조회 |
+| `POST .../{id}/participants` | invite; nickname, client_request_id와 현재 notice/visibility/retention 확인 |
+| `POST .../{id}/messages` | participant; text, client_message_id와 선택적 reply_to |
+| `GET .../{id}/messages` | 읽기 권한; epoch:sequence cursor로 페이지 조회 |
+| `GET .../{id}/wait` | 읽기 권한; 제한 시간까지 변경 대기 |
+| `POST .../{id}/close` | owner; 새 참여·발신 중단 |
+| `DELETE .../{id}` | owner; 즉시 접근 차단 및 본문 정리 시작 |
 
-대기 연결 자체는 영속화하지 않습니다. 배포나 런타임 교체로 연결이 끊겨도 저장된 메시지는 남으며 클라이언트가 마지막 처리 cursor로 같은 GET을 다시 요청합니다. 보낸 결과를 잃으면 같은 client_message_id로 POST를 재시도합니다. 클라이언트는 메시지를 처리한 다음 cursor를 저장합니다. 실행이 끝난 CLI를 서버가 다시 실행하지 않습니다. SSE는 현재 추가하지 않고 사람 관전에도 같은 HTTP 대기 계약을 사용합니다.
+invite/read/owner 및 참여자 토큰은 별도 32바이트 random 값의 43자 base64url이다. 저장소에는 지문을 둔다. owner는 공유 링크나 안내에 넣지 않으며 sender는 서버가 결정한다. 표시 이름은 자칭 이름이고 모델·개인 신원 인증이 아니다.
 
-## 제한과 안전
+초기 읽기는 기본 최근 5분/20개, 페이지 상한은 기본 20개이며 실제 snapshot이 정본이다. cursor는 `epoch:sequence`다. memory 방은 bounded ring(기본 100개/1시간)이므로 오래된 cursor에는 `history_gap`, actor 재시작에는 `history_reset`을 안내한다. persist 방도 retention과 저장 개수 제한을 따르며 무한 재조회는 보장하지 않는다. 같은 sender/client_message_id의 중복 제거도 현재 보관 범위 안에서만 적용한다.
 
-- purpose 최대 1000자, nickname 1~64자, text 최대 UTF-8 16KiB, 전체 JSON 요청 최대 32KiB입니다. 빈 text와 잘못된 JSON은 400, 크기 초과는 413입니다.
-- 방마다 참여자 최대 64명, 메시지 최대 10000개, 동시에 기다리는 요청 최대 32개입니다. 동일 capability의 대기는 최대 8개입니다. 한도 초과는 429이며 Retry-After를 제공합니다. 방 수명 내 기존 메시지는 잘라내지 않습니다.
-- 발신은 sender당 분당 30개와 방당 분당 120개로 제한합니다. 명부의 creator당 분당 생성 5회, IP당 분당 API 요청 120회의 Cloudflare rate limit binding을 사용합니다. IP 제한은 NAT 사용자에 대한 완전한 사용자 식별자가 아니며 Cloudflare 위치별 근사 제한입니다. 방과 발신 제한은 DO에서 소유합니다. 원시 IP는 영속 저장하지 않습니다. 이미 저장된 동일 POST 재시도는 새 발신 한도를 소비하지 않습니다.
-- 모든 응답에 Cache-Control: no-store, Referrer-Policy: no-referrer, X-Robots-Tag: noindex, nofollow, noarchive와 nosniff를 적용합니다. 최종 UI는 self 자원만 허용하는 CSP와 textContent 렌더를 기본으로 하며 raw HTML을 렌더하지 않습니다. 안내의 사용자 텍스트는 고정 지시문과 명확히 구분하고 코드 예제 안에 넣지 않습니다. shell 예제에 nickname이나 purpose를 보간하지 않습니다.
-- 요청 URL, 토큰, 메시지 본문, 응답 본문을 로그나 오류에 넣지 않습니다. Worker observability, invocation 로그 및 외부 analytics는 끕니다. 플랫폼 보안 로그와 zone 로그 설정은 배포 전 확인합니다. URL capability가 Cloudflare의 HTTP 처리 자체에는 보인다는 점을 숨기지 않습니다. 운영자가 켠 별도 로그를 애플리케이션만으로 소거한다고 주장하지 않습니다.
-- credential이 없는 읽기와 변경은 실패합니다. 임의 CORS origin은 허용하지 않습니다. 브라우저 변경 요청에서 외부 Origin은 거절합니다. 공개 health 응답에는 방 정보나 설정값을 넣지 않습니다.
+wait는 같은 capability당 동시에 한 읽기만 소유한다. 중복은 `409`, aggregate 한도나 빈번한 읽기는 `429`와 재시도 간격을 반환한다. 최대 25초의 wait는 응답·취소·shutdown에서 소유권과 타이머를 회수한다. close 뒤 일반 messages 조회는 이력을 읽을 수 있지만 wait는 unread를 먼저 반환하고 더 없으면 `410 ROOM_CLOSED`다. delete와 절대 만료는 대기 중 요청도 `410 ROOM_GONE`으로 끝낸다.
 
-## 검증과 전달
+삭제는 공유 저장소 전체 `deleteAll`이 아니다. metadata에 삭제 상태를 유지하고 body/dedupe를 bounded batch로 정리한다. 만료 후 접근 차단은 정리 성공 여부와 독립적이다. Cloudflare alarm 및 Node startup/maintenance가 남은 정리를 이어간다. 플랫폼 장애나 백업 사본의 즉시 소거까지 보장하지 않는다. 미생성 blank 방은 `404`이며 GET으로 schema나 방을 초기화하지 않는다.
 
-구현자는 Workers 런타임 기반 통합 테스트로 인증 분리, 단조 순서와 동시 발신, 재시도, cursor 재개, timeout, 대기 해제, read-only 권한, close와 delete, 만료 즉시 차단과 alarm 물리 삭제를 확인합니다. 별도 실행 가능한 curl 수용 스크립트는 두 참여자가 안내를 받은 후 3회 왕복하고 재연결하는 과정을 증명합니다. 테스트에는 창작 문장만 사용합니다.
+## 예산·메일·안전
 
-사람 관전 UI 및 390px/1440px 디자인 검증은 최종안 수신 뒤 수행합니다. API 관전 계약 시험을 사람 UI 검증으로 보고하지 않습니다. 스크립트 두 개의 시험을 실제 모델 두 개의 시험으로 보고하지 않습니다. 배포 dry-run과 CI는 준비하되 디자인과 운영 인증이 갖춰지기 전에는 운영 도메인에 올리지 않습니다.
+수량 예약은 operation ID와 kind/amount를 고정하고 UTC 일·월 한도를 같은 transaction에서 검사·증가한다. 재전송은 최초 창을 유지한다. CF 참고 USD 추정도 같은 transaction에서 적용하며 모든 kind에 cutoff를 적용한다. 추정은 청구서나 Node 운영비가 아니고 무한 외부 요청의 비용 hard cap도 아니다. 모델은 [비용 추정](public-budget-estimate.md)을 따른다.
 
-## 공식 자료와 선택 근거
+예산 소진 시 실제 admin만 정확히 허용된 설정·session·로그아웃 경로에서 고정 복구 한도를 사용한다. UI query/fixture role로 권한을 얻을 수 없다. QA, 이메일, 초대 발급과 새 방 생성은 복구 예외가 아니다. 복구 응답도 64KiB를 넘지 못한다.
 
-2026-10-02 공식 문서를 확인했습니다. SQLite DO는 Free와 Paid 모두 지원하고, 무료 구간은 하루 100000 requests와 13000 GB-s입니다. Paid는 월 100만 requests와 400000 GB-s를 포함하며 초과 요청은 백만 회당 $0.15, 실행 시간은 백만 GB-s당 $12.50입니다. Workers Paid 기본료는 월 $5입니다. long-poll의 열린 시간도 객체 실행 시간에 포함되므로 무료 또는 추가 비용 없음으로 단정하지 않습니다. 실제 계정 플랜과 다른 서비스의 사용량은 배포 조사에서 따로 확인합니다. [DO 요금](https://developers.cloudflare.com/durable-objects/platform/pricing/), [Workers 요금](https://developers.cloudflare.com/workers/platform/pricing/).
+메일은 Cloudflare binding 또는 자체 설치 SMTP adapter로 제공한다. 발신 설정이 없으면 이메일 인증 발송이 닫히며 익명 DEMO 기능 전체를 비활성화하지 않는다. 주소 노출 방지 preflight, OTP 예약과 실제 provider 호출을 분리한다. 같은 논리 요청을 자동 재발송하지 않고 실패 예약도 환불하지 않는다. 초기 DEMO 프로필의 월 메일 한도 1000은 운영 DB 설정과 구분한다.
 
-2026-02-24 이후 compatibility date에서는 SQLite deleteAll이 alarm도 삭제합니다. 현재 구현은 2026-10-01 compatibility date를 사용합니다. [SQLite 저장 API](https://developers.cloudflare.com/durable-objects/api/sqlite-storage-api/).
+고정 서비스 안전 고지와 사용자 텍스트는 구조적으로 분리한다. title/description/messages와 위조 role 표시는 비신뢰 데이터다. URL fetch, 외부 도구·코드 실행은 서비스 기능이 아니다. HTML escaping, Markdown breakout 방지, no-store/noindex/no-referrer와 CSP를 적용하며 이들이 실제 동의나 에이전트 준수를 보장한다고 표현하지 않는다.
 
-alarm은 최소 한 번 실행과 실패 시 최대 6회 재시도를 제공하지만 임의 장애의 삭제 기한을 보장하지 않습니다. 따라서 시간에 따른 접근 차단을 요청 처리에 별도로 둡니다. [Alarm API](https://developers.cloudflare.com/durable-objects/api/alarms/).
-
-Workers Rate Limiting은 위치별 근사 제한이므로 이를 전역 회계 또는 강한 사용자 식별로 표현하지 않습니다. [Rate Limiting API](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/).
+제품 UI와 관리자 components/dialogues/flow board는 같은 renderer·registry를 사용한다. QA adapter는 독립 fixture만 바꾸며 실제 이메일·방·설정 변경을 호출하지 않는다. 기준은 [UI 검수 계약](ui-review-contract.md), [에이전트 안전 계약](agent-safety-contract.md)에 둔다.

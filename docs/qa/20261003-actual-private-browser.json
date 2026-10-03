@@ -1,0 +1,213 @@
+{
+  "root_checkpoint": "7fba8e2",
+  "source_checkpoint": "0168fc034c494c7b61b31b070abaac017617e9ce",
+  "results": [
+    {
+      "path": ".local/artifacts/toktok/20261003-node-private-browser-root/raw.json",
+      "sha256": "19213f590761cd38758d201be1e09d057fd6fa2346ecd17a8b8ce5d581d36137",
+      "result": {
+        "scope": "actual localhost HTTP + Node24 + SQLite + private shared observer; anonymous setup through actual HTTP",
+        "pin": "C 0168fc034c494c7b61b31b070abaac017617e9ce on root ff86af3",
+        "coverage": "new actual private observer live messages, pause/resume/close and memory epoch reset after same-database Node restart; prior creation UI not repeated",
+        "cleanup": true,
+        "cases": [
+          {
+            "name": "1440-actual-private-live-close",
+            "viewport": {
+              "width": 1440,
+              "height": 1000
+            },
+            "status": "FAIL",
+            "error": "Expected values to be strictly equal:\n\n400 !== 200\n",
+            "networkMutations": 0,
+            "errors": [],
+            "external": []
+          },
+          {
+            "name": "390-actual-private-memory-restart",
+            "viewport": {
+              "width": 390,
+              "height": 844
+            },
+            "status": "FAIL",
+            "error": "Expected values to be strictly equal:\n\n400 !== 200\n",
+            "networkMutations": 0,
+            "errors": [],
+            "external": []
+          }
+        ]
+      }
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-private-browser-root/correction-launch.json",
+      "sha256": "5da44743b42c9c0a616836ec8e5d07c467cbcfabc8d915345c42fd9f4982be14",
+      "result": {
+        "status": "NOTRUN",
+        "reason": "SyntaxError in diagnostic assertion: data parameter redeclared as const",
+        "browser_started": false,
+        "product_assertions": 0,
+        "correction_actual_runs": 0
+      }
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-private-browser-root/correction-raw.json",
+      "sha256": "0b1e53ab19021ec1978e6e56e3db185bb6a8123c3519d6c36692fe4c36407758",
+      "result": {
+        "scope": "actual localhost HTTP + Node24 + SQLite + private shared observer; anonymous setup through actual HTTP",
+        "pin": "C 0168fc034c494c7b61b31b070abaac017617e9ce on root ff86af3",
+        "coverage": "new actual private observer live messages, pause/resume/close and memory epoch reset after same-database Node restart; prior creation UI not repeated",
+        "cleanup": true,
+        "cases": [
+          {
+            "name": "1440-actual-private-live-close",
+            "viewport": {
+              "width": 1440,
+              "height": 1000
+            },
+            "status": "PASS",
+            "networkMutations": 0,
+            "observed": {
+              "messages": 2,
+              "waitsAfterClose": 0,
+              "readOnly": true
+            },
+            "dom": {
+              "width": 1440,
+              "docWidth": 1440,
+              "headings": [
+                "창작 관전 연결",
+                "이 링크는 읽기 전용이에요.",
+                "발언한 사람"
+              ],
+              "dialogs": 0,
+              "storage": [
+                0,
+                0
+              ],
+              "csp": []
+            },
+            "errors": [],
+            "external": [],
+            "shots": [
+              "1440-real-private-closed-history-correction.png"
+            ]
+          },
+          {
+            "name": "390-actual-private-memory-restart",
+            "viewport": {
+              "width": 390,
+              "height": 844
+            },
+            "status": "FAIL",
+            "error": "locator.waitFor: Error: strict mode violation: getByText('이전 대화 일부를 더 이상 가져올 수 없습니다. 최근 보관 범위로 다시 이어갑니다.', { exact: true }) resolved to 2 elements:\n    1) <span>이전 대화 일부를 더 이상 가져올 수 없습니다. 최근 보관 범위로 다시 이어갑니다.</span> aka locator('#feed').getByText('이전 대화 일부를 더 이상 가져올 수 없습니다. 최근 보관 범위로 다시 이어갑니다')\n    2) <span role=\"status\" id=\"watch-status\">이전 대화 일부를 더 이상 가져올 수 없습니다. 최근 보관 범위로 다시 이어갑니다.</span> aka locator('#watch-status')\n\nCall log:\n\u001b[2m  - waiting for getByText('이전 대화 일부를 더 이상 가져올 수 없습니다. 최근 보관 범위로 다시 이어갑니다.', { exact: true }) to be visible\u001b[22m\n",
+            "networkMutations": 0,
+            "dom": {
+              "width": 390,
+              "docWidth": 390,
+              "headings": [
+                "창작 기록 초기화",
+                "자리는 준비됐어요",
+                "이 링크는 읽기 전용이에요.",
+                "발언한 사람"
+              ],
+              "dialogs": 0,
+              "storage": [
+                0,
+                0
+              ],
+              "csp": []
+            },
+            "errors": [],
+            "external": []
+          }
+        ]
+      }
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-private-browser-root/continuation-raw.json",
+      "sha256": "9800bde2062bbfcd3cec0450e243935e359bf4fbcee000a51f4edd050ea9725f",
+      "result": {
+        "cases": [
+          {
+            "name": "390-actual-private-memory-restart-unreached-tail",
+            "viewport": {
+              "width": 390,
+              "height": 844
+            },
+            "status": "PASS",
+            "networkMutations": 0,
+            "observed": {
+              "epochChanged": true,
+              "oldMessageRemoved": true,
+              "newMessageVisible": true,
+              "readOnly": true,
+              "waitsAfterLeaving": 0
+            },
+            "dom": {
+              "width": 390,
+              "docWidth": 390,
+              "headings": [
+                "가볍게, 톡.생각은 함께.",
+                "공개 데모"
+              ],
+              "dialogs": 0,
+              "storage": [
+                0,
+                0
+              ],
+              "csp": []
+            },
+            "errors": [],
+            "external": [],
+            "shots": [
+              "390-real-private-history-reset-continuation.png"
+            ]
+          }
+        ],
+        "cleanup": true,
+        "externalMail": 0
+      }
+    }
+  ],
+  "artifacts": [
+    {
+      "path": ".local/artifacts/toktok/20261003-node-private-browser-root/browser.mjs",
+      "sha256": "458c6a6a17dc44ec918ec8866ac02cda629d3a219541fc5686c86bbad8cbb4eb"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-private-browser-root/browser-correction.mjs",
+      "sha256": "92cf7412c5a2176cb3bf1223683ea12589e626aff4af09d0661e5f8d2897041d"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-private-browser-root/1440-real-private-closed-history-correction.png",
+      "sha256": "018801ff771ae3621fb954c71c84f8f8c4647676540e079946938ad0ad6bbed4"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-private-browser-root/browser-continuation.mjs",
+      "sha256": "d300493375d89be07f2f4539e5ae785791d87a9282bb3458fc76bd65e979c451"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-private-browser-root/390-real-private-history-reset-continuation.png",
+      "sha256": "c1b750f9c1338a0410cb54c565e9f915c1e6d0963ef01bdea9b75ad131dc0d06"
+    }
+  ],
+  "interpretation": [
+    "Initial API fixture omitted the required creation acknowledgement version and stopped before product UI assertions.",
+    "The correction launcher initially had a duplicate local identifier; browser never started. It is separately recorded as NOTRUN.",
+    "Actual correction: desktop read/pause/resume and close with retained two messages PASS; browser mutations0 and server waits0.",
+    "Mobile same-SQLite restart observed 503 retries then messages200 and reset notice in two DOM locations. A strict single-element locator failed; subsequent epoch comparison, new message receipt and leave cleanup assertions were not reached.",
+    "No product source changed to satisfy these harness failures; no further runtime attempt was run.",
+    "The desktop PNG still shows the legacy static room header, contrary to the accepted session-aware IA. This is assigned to C for the shared-header follow-up; private data-path PASS is not full visual acceptance.",
+    "CF upstream cancellation remains a separate unresolved diagnostic; this loopback Node browser gate does not settle it.",
+    "Subsequent authorized continuation on C common-header integration: mobile epoch changed, previous DOM removed, new message displayed, departure active waits0, read-only mutations0. PASS with exact feed reset-notice selector; previous desktop case not repeated.",
+    "Prior stopped/unreached statements above describe the earlier run only. Common-header actual validation is recorded separately."
+  ],
+  "continuation_execution": {
+    "actual_source_commit": "0966e79",
+    "header_source": "fc95a57793c24c1c915012f2dcfe005c99765a93",
+    "command_scope": "mobile previously-unreached epoch/new-message/leave tail only",
+    "runner_session": 2396,
+    "exit_code": 0,
+    "raw_metadata_note": "The prewritten launcher pin/coverage strings still say prepared/not executed: a relative-path metadata preparation command failed before the runner invoked the existing absolute script. The raw file is preserved unchanged. The actual executed code was root0966e79; its cases and cleanup record the completed PASS."
+  }
+}

@@ -1,0 +1,27 @@
+/* Approved d6f0e975 review chrome; actual product dialog styles stay canonical. */
+.dialog-review-shell{max-width:900px;width:calc(100vw - 28px);max-height:calc(100dvh - 28px);padding:0;border:0;background:transparent;box-shadow:none;overflow:auto}
+.dialog-review-heading{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:16px 22px;background:#edf1df;border:1px solid #cad4b8;border-radius:18px;margin:0 68px 18px;color:#304b2c}
+.dialog-review-heading>div{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.dialog-review-heading .eyebrow{font-size:12px;letter-spacing:.1em}
+.dialog-review-heading h2{font-size:18px!important;line-height:1.4!important;margin:0!important}
+.review-dialog-count{font-size:13px;font-family:Arial,sans-serif}
+.dialog-review-heading .icon-btn{position:static;min-width:44px;min-height:44px}
+.dialog-review-stage{display:grid;grid-template-columns:52px minmax(0,570px) 52px;gap:16px;align-items:center;justify-content:center}
+.dialog-review-stage>dialog{position:relative;grid-column:2;grid-row:1}
+.dialog-review-step{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-width:52px;min-height:76px;padding:10px 5px;border-radius:18px;background:#e5f38f;border:1px solid #b7c873;color:#304b2c;font-size:24px}
+.dialog-review-step span{font-size:12px}
+.dialog-review-step:disabled{background:#e7eadd;color:#77836a;opacity:.6;cursor:default}
+.dialog-review-hint{text-align:center;font-size:12px!important;color:#fffef9;margin:18px 0 0!important;text-shadow:0 1px 4px #173525}
+@media(max-width:700px){
+.dialog-review-shell{width:calc(100vw - 16px);max-height:calc(100dvh - 16px)}
+.dialog-review-heading{margin:0 0 12px;padding:12px 14px;border-radius:14px}
+.dialog-review-heading>div{gap:8px 12px}
+.dialog-review-heading .eyebrow{width:100%}
+.dialog-review-stage{grid-template-columns:1fr 1fr;gap:10px 14px}
+.dialog-review-stage>.dialog-review-step{grid-row:1;min-height:44px;flex-direction:row;padding:8px 15px;width:fit-content}
+.dialog-review-stage>.dialog-review-step:first-child{grid-column:1;margin-left:7px}
+.dialog-review-stage>.dialog-review-step:last-child{grid-column:2;justify-self:end;margin-right:7px}
+.dialog-review-stage>dialog{grid-column:1/-1;grid-row:2}
+.dialog-review-step{min-width:44px;min-height:72px;border-radius:13px}
+.dialog-review-hint{font-size:12px!important;margin-top:10px!important}
+}

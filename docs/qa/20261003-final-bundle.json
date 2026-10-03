@@ -1,0 +1,10 @@
+{
+  "source_commit": "64ca57e",
+  "generated_check_exit": 0,
+  "dry_run_exit": 0,
+  "assets": 104,
+  "worker_kib": 243.05,
+  "gzip_kib": 58.37,
+  "deployed": false,
+  "log_sha256": "54f256540225a140fd1c5bf25e959760334b987803724f74cfc256d6ff15d031"
+}

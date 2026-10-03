@@ -1,0 +1,280 @@
+{
+  "source_commit": "64ca57e",
+  "runtime": "Actual localhost Node24 SQLite admin session + protected QA; fake sender only for setup",
+  "initial": {
+    "passed": 0,
+    "failed": 4,
+    "causes": [
+      "non-tabbable title Shift+Tab left gallery shell",
+      "subsequent protected modules hit unchanged 120/min edge limit before flow judgment"
+    ]
+  },
+  "correction": {
+    "passed": 4,
+    "failed": 0,
+    "edge_limit_changed": false,
+    "normal_window_wait_ms": 61000,
+    "cases": [
+      {
+        "name": "1440-actual-protected-dialog-gallery",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "status": "PASS",
+        "gallery": {
+          "items": 22,
+          "firstPreviousDisabled": true,
+          "lastNextDisabled": true,
+          "nameAndIndex": true,
+          "altArrows": true,
+          "tabContained": true,
+          "escapeFocus": true
+        },
+        "dom": {
+          "width": 1440,
+          "docWidth": 1440,
+          "headings": [],
+          "dialogs": 0,
+          "storage": [
+            0,
+            0
+          ],
+          "csp": []
+        },
+        "networkMutations": 0,
+        "errors": [],
+        "http": [],
+        "external": [],
+        "shots": [
+          "1440-actual-dialog-gallery.png"
+        ]
+      },
+      {
+        "name": "390-actual-protected-dialog-gallery",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "status": "PASS",
+        "gallery": {
+          "items": 22,
+          "firstPreviousDisabled": true,
+          "lastNextDisabled": true,
+          "nameAndIndex": true,
+          "altArrows": true,
+          "tabContained": true,
+          "escapeFocus": true
+        },
+        "dom": {
+          "width": 390,
+          "docWidth": 390,
+          "headings": [],
+          "dialogs": 0,
+          "storage": [
+            0,
+            0
+          ],
+          "csp": []
+        },
+        "networkMutations": 0,
+        "errors": [],
+        "http": [],
+        "external": [],
+        "shots": [
+          "390-actual-dialog-gallery.png"
+        ]
+      },
+      {
+        "name": "1440-actual-HOSTED-admin-flow",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "status": "PASS",
+        "flow": {
+          "mode": "HOSTED",
+          "journey": "admin",
+          "nodes": 44,
+          "edges": 26,
+          "negative": 9,
+          "previewCount": 44,
+          "fonts": true,
+          "canonicalStyleLinks": true,
+          "configModes": [
+            "HOSTED",
+            "HOSTED",
+            "HOSTED",
+            "HOSTED",
+            "HOSTED",
+            "HOSTED",
+            "HOSTED",
+            "HOSTED",
+            "HOSTED",
+            "HOSTED",
+            "HOSTED",
+            "HOSTED",
+            "HOSTED",
+            "HOSTED",
+            "HOSTED",
+            "HOSTED",
+            "HOSTED",
+            "HOSTED",
+            "HOSTED",
+            "HOSTED",
+            "HOSTED",
+            "HOSTED",
+            "HOSTED",
+            "HOSTED",
+            "HOSTED",
+            "HOSTED",
+            "HOSTED",
+            "HOSTED",
+            "HOSTED",
+            "HOSTED",
+            "HOSTED"
+          ]
+        },
+        "dom": {
+          "width": 1440,
+          "docWidth": 1440,
+          "headings": [],
+          "dialogs": 0,
+          "storage": [
+            0,
+            0
+          ],
+          "csp": []
+        },
+        "networkMutations": 0,
+        "errors": [],
+        "http": [],
+        "external": [],
+        "shots": [
+          "1440-actual-HOSTED-admin-flow.png"
+        ]
+      },
+      {
+        "name": "390-actual-DEMO-invited-flow",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "status": "PASS",
+        "flow": {
+          "mode": "DEMO",
+          "journey": "invited",
+          "nodes": 47,
+          "edges": 31,
+          "negative": 9,
+          "previewCount": 47,
+          "fonts": true,
+          "canonicalStyleLinks": true,
+          "configModes": [
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO",
+            "DEMO"
+          ]
+        },
+        "dom": {
+          "width": 390,
+          "docWidth": 390,
+          "headings": [],
+          "dialogs": 0,
+          "storage": [
+            0,
+            0
+          ],
+          "csp": []
+        },
+        "networkMutations": 0,
+        "errors": [],
+        "http": [],
+        "external": [],
+        "shots": [
+          "390-actual-DEMO-invited-flow.png"
+        ]
+      }
+    ]
+  },
+  "cleanup": true,
+  "external_mail": 0,
+  "artifacts": [
+    {
+      "path": ".local/artifacts/toktok/20261003-node-gallery-browser-root/1440-actual-HOSTED-admin-flow.png",
+      "sha256": "46437e0172ac6d2c193c342db3c3136d1c4448309dde1c33019287ad3a2be7da"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-gallery-browser-root/1440-actual-dialog-gallery.png",
+      "sha256": "ce5856efcd546f2a03aad8645e06ddc7b3f917ce4a161693f599f9e564b3550a"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-gallery-browser-root/390-actual-DEMO-invited-flow.png",
+      "sha256": "2c43325e3ce2e0eaf9f69f127a0484e7bdefe2ca9c5106c30d79d24b0f230a01"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-gallery-browser-root/390-actual-dialog-gallery.png",
+      "sha256": "d428cbe9ed96bea268f14d3bdf0d81b3ccffb5e934edead66ebfcdae2a627e28"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-gallery-browser-root/browser.mjs",
+      "sha256": "5f2cbd5bd70e77dd003d06de62d34102e9727140d34cb241d305f3e1ad93dd7e"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-gallery-browser-root/correction-raw.json",
+      "sha256": "48cdd69041a5978d72dfd382dc9e9f50b5babb5441d3e0c3731abefa00416faf"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-gallery-browser-root/correction.mjs",
+      "sha256": "1b63fac0bec6808f62979c5099dbffb9ef2e1446d0b82ef2776a1cdb689da7ed"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-gallery-browser-root/raw.json",
+      "sha256": "79ad208a2a8b00fe5830c06b419a2575580f4e931a9f89536234c93ff54bf373"
+    }
+  ]
+}

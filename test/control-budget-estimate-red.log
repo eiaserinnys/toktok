@@ -1,0 +1,113 @@
+heavy verification: running in slot 2/2
+
+ RUN  v4.1.0 /home/eias/workspace/.projects/toktok--feat-claim-foundation-0ac9c22f
+
+stdout | test/control-budget-estimate.test.ts > estimated costs for all six kinds reserve day and month with immutable source settings
+CONTROL_ESTIMATE_EVIDENCE [{"step":"config","status":200},{"step":"budget-reserve","status":200},{"step":"budget-reserve","status":200},{"step":"budget-reserve","status":200},{"step":"budget-reserve","status":200},{"step":"budget-reserve","status":200},{"step":"budget-reserve","status":200},{"step":"all kinds estimate before assertions","status":200,"state":{"quantityDay":2,"quantityMonth":2,"estimateDay":0,"estimateMonth":0}}]
+
+stdout | test/control-budget-estimate.test.ts > estimated cutoff has exactly one concurrent winner and rejects without partial quantity or estimate writes
+CONTROL_ESTIMATE_EVIDENCE [{"step":"config","status":200},{"step":"budget-reserve","status":200},{"step":"budget-reserve","status":200},{"step":"budget-reserve","status":200},{"step":"estimate race before assertions","status":200,"state":{"quantityDay":3,"quantityMonth":3,"estimateDay":0,"estimateMonth":999983}}]
+
+stdout | test/control-budget-estimate.test.ts > replay retains the initial UTC day and month with zero added estimate, conflicts and expired IDs remain closed
+CONTROL_ESTIMATE_EVIDENCE [{"step":"config","status":200},{"step":"budget-reserve","status":200},{"step":"budget-reserve","status":200}]
+
+stdout | test/control-budget-estimate.test.ts > quantity rejection rolls back estimated totals and a tightened cutoff applies to response byte reservations
+CONTROL_ESTIMATE_EVIDENCE [{"step":"config","status":200},{"step":"budget-reserve","status":429,"code":"BUDGET_EXCEEDED","retry_after":86400},{"step":"budget-reserve","status":200}]
+
+stdout | test/control-budget-estimate.test.ts > budget HTTP requires actual admin role and exposes model assumptions without public config usage
+CONTROL_ESTIMATE_EVIDENCE [{"step":"config","status":200},{"step":"admin budget HTTP","status":401,"code":"SESSION_REQUIRED"},{"step":"admin budget HTTP","status":404,"code":"NOT_FOUND"}]
+
+ ❯ test/control-budget-estimate.test.ts (5 tests | 5 failed) 194ms
+   × estimated costs for all six kinds reserve day and month with immutable source settings 72ms
+   × estimated cutoff has exactly one concurrent winner and rejects without partial quantity or estimate writes 40ms
+   × replay retains the initial UTC day and month with zero added estimate, conflicts and expired IDs remain closed 26ms
+   × quantity rejection rolls back estimated totals and a tightened cutoff applies to response byte reservations 37ms
+   × budget HTTP requires actual admin role and exposes model assumptions without public config usage 18ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/control-budget-estimate.test.ts > estimated costs for all six kinds reserve day and month with immutable source settings
+AssertionError: expected +0 to be 20100 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 20100[39m
+[31m+ 0[39m
+
+ ❯ test/control-budget-estimate.test.ts:27:184
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  test/control-budget-estimate.test.ts > estimated cutoff has exactly one concurrent winner and rejects without partial quantity or estimate writes
+AssertionError: expected [ 200, 200, 200 ] to deeply equal [ 200, 429, 429 ]
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  [[22m
+[2m    200,[22m
+[32m-   429,[39m
+[32m-   429,[39m
+[31m+   200,[39m
+[31m+   200,[39m
+[2m  ][22m
+
+ ❯ test/control-budget-estimate.test.ts:33:149
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  test/control-budget-estimate.test.ts > replay retains the initial UTC day and month with zero added estimate, conflicts and expired IDs remain closed
+RepositoryError: INVALID_JSON
+ ❯ validate src/storage/record-transaction.ts:13:146
+     11|     if(v===null||typeof v==='string'||typeof v==='boolean')return;
+     12|     if(typeof v==='number'&&Number.isFinite(v))return;
+     13|     if(typeof v!=='object'||seen.has(v)||(!Array.isArray(v)&&Object.ge…
+       |                                                                                                                                                  ^
+     14|     seen.add(v);for(const d of Object.values(Object.getOwnPropertyDesc…
+     15|   }
+ ❯ validate src/storage/record-transaction.ts:14:143
+ ❯ json src/storage/record-transaction.ts:16:3
+ ❯ cloneResult src/storage/record-transaction.ts:18:86
+ ❯ executeTransaction src/storage/record-transaction.ts:60:14
+ ❯ src/storage/cloudflare.ts:33:67
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  test/control-budget-estimate.test.ts > quantity rejection rolls back estimated totals and a tightened cutoff applies to response byte reservations
+AssertionError: expected undefined to be 'ESTIMATED_BUDGET_EXCEEDED' // Object.is equality
+
+[32m- Expected:[39m
+"ESTIMATED_BUDGET_EXCEEDED"
+
+[31m+ Received:[39m
+undefined
+
+ ❯ test/control-budget-estimate.test.ts:44:153
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  test/control-budget-estimate.test.ts > budget HTTP requires actual admin role and exposes model assumptions without public config usage
+AssertionError: expected 404 to be 403 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 403[39m
+[31m+ 404[39m
+
+ ❯ test/control-budget-estimate.test.ts:49:92
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed (5)
+   Start at  09:56:57
+   Duration  1.49s (transform 321ms, setup 0ms, import 566ms, tests 194ms, environment 1ms)
+
+JSON report written to /home/eias/workspace/.projects/toktok--feat-claim-foundation-0ac9c22f/test/control-budget-estimate-red.json

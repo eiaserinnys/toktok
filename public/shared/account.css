@@ -1,0 +1,74 @@
+/* Existing Common room account composition from design d6f0e975. */
+.x-panel{background:var(--white);border:1px solid var(--line);border-radius:20px;padding:32px}
+.x-panel h2{font-size:25px;line-height:1.4}
+.x-panel>p{color:#5f6d56;font-size:16px;margin-top:12px}
+.panel-label{display:flex;justify-content:space-between;align-items:center;font-size:14px;color:#5f6d56;margin-bottom:24px}
+.x-page-top{display:flex;justify-content:space-between;align-items:center;margin:15px 0 36px;gap:30px}
+.x-page-top h1{margin:20px 0}
+.x-page-top p{font-size:16px;color:#5f6d56}
+.account-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.account-grid h2{overflow-wrap:anywhere}
+.account-stat{display:flex;align-items:center;gap:25px;padding:32px 0}
+.account-stat>b{font-family:Arial;font-size:64px;font-weight:400;letter-spacing:-4px}
+.account-stat>b small{font-size:28px;color:#75806b;letter-spacing:0}
+.account-stat>span{font-size:14px}
+.account-stat>span small{font-size:12px;color:#5f6d56}
+.account-room{background:#e8eccf;padding:40px}
+.account-room h2{font-size:34px;margin-top:28px}
+.account-room>.btn{margin:28px 0;background:#fffef9}
+.line-summary{display:flex;justify-content:space-between;border-top:1px solid #ced5b6;padding:22px 0;font-size:13px;gap:15px}
+.public-side .x-panel{background:#e8eccf;border:0;padding:28px}
+.x-panel.compact{padding:28px}
+@media(max-width:1000px){
+.public-side .x-panel{padding:22px}
+}
+@media(max-width:700px){
+.x-panel{padding:25px 24px;border-radius:18px}
+.x-page-top{display:block;margin:15px 0 25px}
+.x-page-top h1{font-size:43px}
+.x-page-top>.btn{margin-top:26px}
+.account-grid{grid-template-columns:1fr;gap:18px}
+.account-grid h2{font-size:23px}
+.account-room{padding:28px}
+.account-room h2{font-size:32px}
+.account-stat{padding:20px 0}
+.line-summary{flex-wrap:wrap}
+.public-side .x-panel{padding:26px}
+.x-panel.compact{padding:26px}
+}
+.account-entry{position:relative;flex-shrink:0}
+.header .account-popover{position:absolute;right:0;top:calc(100% + 12px);height:auto;display:flex;flex-direction:column;align-items:stretch;gap:0;z-index:70;width:245px;background:var(--white);padding:12px;border:1px solid #d4dcc7;border-radius:17px;box-shadow:0 16px 42px #17312420}
+.header .account-popover[hidden]{display:none}
+.account-popover>span{font-size:12px;color:#5f6d56;padding:12px 12px 17px;overflow-wrap:anywhere;border-bottom:1px solid var(--line);margin-bottom:6px}
+.header .account-popover a,.header .account-popover button{display:flex;align-items:center;padding:12px;min-height:46px;font-size:14px;color:var(--ink);border-radius:10px;text-align:left}
+.header .account-popover a:hover,.header .account-popover button:hover{background:#e8eccf}
+.header .account-popover a:after{display:none}
+.x-header .account-popover nav{display:block}
+@media(max-width:700px){
+.header .account-popover{right:0;max-width:calc(100vw - 44px)}
+}
+.component-catalog>.x-panel:last-child{grid-column:1/-1}
+@media(max-width:700px){
+.component-catalog>.x-panel:last-child{grid-column:auto}
+.component-catalog .x-panel{padding:25px 21px}
+}
+.account-entry{display:flex;align-items:center;gap:20px}
+@media(max-width:700px){
+.x-header>.account-entry{grid-row:1;grid-column:2;gap:12px}
+.x-header .account-popover{top:calc(100% + 4px)}
+}
+.owned-room-list{margin-top:25px}
+.owned-room-list article{display:flex;align-items:center;gap:15px;background:#fffef9;border:1px solid #d1d9bd;border-radius:14px;padding:19px;margin-bottom:12px}
+.owned-room-list article>div{flex:1;min-width:0}
+.owned-room-list strong{font-size:15px;overflow-wrap:anywhere;line-height:1.7}
+.owned-room-list p{font-size:12px;color:#5f6d56;line-height:1.8;margin-top:7px}
+.owned-room-list .btn{white-space:nowrap;font-size:16px;min-height:44px}
+.account-room .admin-empty{margin-top:25px}
+.grant-account-row{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;padding:15px 0;border-bottom:1px solid var(--line);font-size:13px}
+.grant-account-row small{grid-column:2;font-size:12px;color:#5f6d56}
+.account-grid .text-button[data-x=logout]{display:block;margin-top:25px}
+@media(max-width:700px){
+.owned-room-list article{padding:17px;flex-wrap:wrap}
+.owned-room-list article>div{flex-basis:100%}
+.owned-room-list .btn{margin-left:auto}
+}

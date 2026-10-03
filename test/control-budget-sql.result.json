@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-03",
+  "fixture": "test/budget-cost-worker.ts",
+  "verdict": "1 passed, exit 0",
+  "source": "Captured TOKTOK_CONTROL_SQL_COST stdout from the first local workerd run; the Vitest JSON artifact separately contains the test verdict.",
+  "initialization": {"rowsRead": 16, "rowsWritten": 8},
+  "firstAdmission": {"rowsRead": 17, "rowsWritten": 8},
+  "responseReservation": {"rowsRead": 19, "rowsWritten": 8},
+  "replay": {"rowsRead": 20, "rowsWritten": 0},
+  "wrapperSchedule": {"rowsRead": 19, "rowsWritten": 0},
+  "cleanup": {"rowsRead": 24, "rowsWritten": 4},
+  "steadyAdmission": {"rowsRead": 21, "rowsWritten": 6},
+  "caveats": [
+    "Local workerd SQL cursor counters, not a production invoice",
+    "setAlarm/deleteAlarm writes are outside these SQL counters",
+    "Cleanup includes two operation records and their expiry entries",
+    "No user messages, account data, SQL binding values or credentials captured"
+  ]
+}

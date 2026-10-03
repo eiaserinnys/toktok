@@ -1,0 +1,51 @@
+name: Runtime and shared UI
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  cloudflare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NODE_ENV: development
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.21.0
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check:generated
+      - run: pnpm typecheck
+      - run: pnpm test:unit
+      - run: pnpm test
+      - run: pnpm test:public-ui
+      - run: pnpm dry-run
+  node:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.21.0
+          cache: npm
+          cache-dependency-path: selfhost/package-lock.json
+      - run: pnpm install --frozen-lockfile
+      - run: npm ci --prefix selfhost
+      - run: npm run check --prefix selfhost
+      - run: npm run build --prefix selfhost
+      - run: npm test --prefix selfhost
+      - run: pnpm acceptance
+      - run: npm run test:smtp-http --prefix selfhost
+      - run: npm run test:postgres --prefix selfhost

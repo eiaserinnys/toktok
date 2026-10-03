@@ -1,13 +1,14 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "toktok", "main": "src/index.ts", "compatibility_date": "2026-10-01",
+  "name": "toktok", "main": "src/index.ts", "compatibility_date": "2026-10-01", "compatibility_flags": ["enable_request_signal", "nodejs_als"],
   "assets": {"directory":"./public", "binding":"ASSETS", "run_worker_first":true, "html_handling":"none", "not_found_handling":"none"},
+  "limits": {"cpu_ms": 10},
   "workers_dev": false, "preview_urls": false,
   "observability": {"enabled": false, "logs": {"enabled": false, "invocation_logs": false}, "traces": {"enabled": false}},
   "routes": [{"pattern": "toktok.eiaserinnys.me", "custom_domain": true}],
-  "vars": {"PUBLIC_ORIGIN": "https://toktok.eiaserinnys.me", "CREATOR_CREDENTIALS_JSON": "[]"},
-  "durable_objects": {"bindings": [{"name": "ROOMS", "class_name": "Room"}]},
-  "migrations": [{"tag": "v1", "new_sqlite_classes": ["Room"]}],
+  "vars": {"PUBLIC_ORIGIN": "https://toktok.eiaserinnys.me"},
+  "durable_objects": {"bindings": [{"name": "ROOMS", "class_name": "Room"}, {"name": "PUBLIC_ROOMS", "class_name": "PublicRoom"}, {"name":"CONTROL","class_name":"ControlPlane"}, {"name":"PRIVATE_ROOMS","class_name":"PrivateRoom"}]},
+  "migrations": [{"tag": "v1", "new_sqlite_classes": ["Room"]}, {"tag":"public-v1", "new_sqlite_classes":["PublicRoom"]}, {"tag":"control-private-v1","new_sqlite_classes":["ControlPlane","PrivateRoom"]}],
   "ratelimits": [
     {"name": "IP_RATE_LIMIT", "namespace_id": "1001", "simple": {"limit": 120, "period": 60}},
     {"name": "CREATOR_RATE_LIMIT", "namespace_id": "1002", "simple": {"limit": 5, "period": 60}}

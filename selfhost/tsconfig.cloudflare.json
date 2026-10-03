@@ -1,0 +1,1 @@
+{"extends":"../tsconfig.json","include":["../src/public-room.ts","../src/private-room.ts","../src/storage/cloudflare.ts","../test/selfhost-worker.ts","../test/selfhost-cloudflare.test.ts","../test/selfhost-private-cloudflare.test.ts"],"exclude":[]}

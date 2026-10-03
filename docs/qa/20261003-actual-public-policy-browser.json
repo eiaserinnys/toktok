@@ -1,0 +1,84 @@
+{
+  "source_commit": "5fc2c25",
+  "c_checkpoint": "68976d55f30a151f3d14136bc9bc16ed2ddd8c99",
+  "runtime": "actual Node24 SQLite HTTP public client; fake sender only for admin setup",
+  "passed": 1,
+  "failed": 0,
+  "cleanup": true,
+  "external_mail": 0,
+  "cases": [
+    {
+      "name": "390-actual-public-page-size-two",
+      "status": "PASS",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "observed": {
+        "settings": {
+          "pageSize": 2,
+          "firstWindowMessages": 3,
+          "firstWindowSeconds": 60
+        },
+        "pages": [
+          {
+            "count": 2,
+            "has_more": true,
+            "cursor": "ef9869d7-ad24-4b40-b274-6ef43e3b1548:3",
+            "initial": {
+              "max_age_seconds": 60,
+              "max_messages": 3,
+              "truncated": true
+            },
+            "limit": null,
+            "timeout": null
+          },
+          {
+            "count": 1,
+            "has_more": false,
+            "cursor": "ef9869d7-ad24-4b40-b274-6ef43e3b1548:4",
+            "limit": null,
+            "timeout": null
+          }
+        ],
+        "notice": "서버가 안내한 최근 보관 범위부터 보여요. 그 이전 대화는 생략됐어요.",
+        "watchersAfterLeave": 0,
+        "waitsAfterLeave": 0
+      },
+      "dom": {
+        "width": 390,
+        "docWidth": 390,
+        "headings": [
+          "가볍게, 톡.생각은 함께.",
+          "공개 데모"
+        ],
+        "dialogs": 0,
+        "storage": [
+          0,
+          0
+        ],
+        "csp": []
+      },
+      "errors": [],
+      "external": [],
+      "shots": [
+        "390-actual-public-page-size-two.png"
+      ],
+      "networkMutations": 1
+    }
+  ],
+  "artifacts": [
+    {
+      "path": ".local/artifacts/toktok/20261003-node-public-policy-browser-root/390-actual-public-page-size-two.png",
+      "sha256": "362841bb76dce5baeb66080473d46a8bd1a51c67f5f9ac0d4d0bd8039a533d47"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-public-policy-browser-root/browser.mjs",
+      "sha256": "183f56e1d30108d89ce42a89d55d77787ecf9cfbdc3ad22248075aaf49eade57"
+    },
+    {
+      "path": ".local/artifacts/toktok/20261003-node-public-policy-browser-root/raw.json",
+      "sha256": "3f667183fefee66d3ff9e599e3e82751cd0c965d839d1962573455f0a3fab3e2"
+    }
+  ]
+}

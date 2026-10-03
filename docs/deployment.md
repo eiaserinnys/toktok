@@ -1,40 +1,43 @@
-# Cloudflare 배포 준비
+# Cloudflare 설치·운영
 
-이번 관전 통합 PR은 Assets dry-run까지만 수행합니다. 실제 배포, DNS 변경, 운영 credential 발급과 계정 설정 변경은 하지 않습니다. design/toktok-ui@a78acce0의 선정 Common room만 운영 정적 파일로 옮겼으며 7방향 스튜디오를 병합하지 않습니다.
+Cloudflare 배포는 Durable Objects의 SQLite backend를 사용합니다. D1·PostgreSQL·외부 SQLite를 함께 연결하지 않습니다. 자체 설치는 [SQLite/PostgreSQL 설치 안내](self-host-installation.md)를 봅니다.
 
-## 인증 정본과 현재 경계
+## 구성과 배포
 
-담당자의 읽기 조사에서 기존 Vault `shared/cloudflare-eiaserinnys-me`의 `account_id`와 `token`을 인증 정본으로 확인했습니다. 실제 배포 때 이 경로를 재사용합니다. 값은 파일·명령 출력·채팅·커밋에 기록하지 않습니다. 별도 Cloudflare 계정, 새 토큰, 권한 확대 또는 유료 플랜을 만들지 않습니다. 현재 toktok Worker와 hostname은 아직 없습니다.
+`wrangler.jsonc`의 Worker entry는 `src/index.ts`입니다. 정적 Assets도 Worker를 먼저 거치며, API·Markdown·HTML의 권한과 응답 형식을 공통 HTTP handler가 결정합니다. `CONTROL`, `PRIVATE_ROOMS`, `PUBLIC_ROOMS`는 각각 관리자·인증·예산, 비공개방, 메모리 공개방의 namespace입니다. 과거 `Room` export는 migration 이력 보존용이며 새 방을 생성하는 경로가 아닙니다. 기존 namespace의 데이터를 자동 변환하거나 삭제하지 않습니다.
 
-운영 creator 인증의 발급 및 사용자 확인 경로는 사용자 결정 대기입니다. 지금의 CREATOR_CREDENTIALS_JSON은 빈 명부 `[]`로 생성이 503 CREATOR_AUTH_UNCONFIGURED입니다. 로컬 시험에서만 창작 fixture를 사용합니다. 활성화 시 빈 vars 선언을 제거하고 같은 이름의 Worker secret에 승인된 creator_id/token_sha256/enabled 명부를 주입해야 합니다. 운영 credential 원문이나 명부를 vars, README, CI, 공개 안내에 넣지 않습니다. secret 활성화 뒤 재배포가 빈 명부로 덮어쓰지 않도록 배포 설정을 함께 확인해야 합니다.
-
-## 구성
-
-Worker 이름은 toktok, custom domain은 toktok.eiaserinnys.me 하나입니다. workers_dev와 preview_urls는 false이며 observability/logs/invocation_logs/traces는 모두 비활성입니다. PUBLIC_ORIGIN은 요청 Host와 무관한 설정입니다. 방마다 SQLite Room DO 한 개를 사용하고 v1 migration에서 new_sqlite_classes로 등록합니다. VM, Redis, D1, KV, R2나 LLM SDK는 없습니다.
-
-IP_RATE_LIMIT은 IP당 120회/60초, CREATOR_RATE_LIMIT은 creator당 5회/60초입니다. 로컬 HTTP에는 Cloudflare 주입 IP가 없으므로 curl 시험에서는 IP 제한을 적용하지 않습니다. 운영에서는 edge가 CF-Connecting-IP를 넣습니다. namespace 1001/1002는 배포 전에 기존 계정의 다른 binding과 공유되지 않는지 확인해야 합니다. Cloudflare 위치별 근사 제한이며 전역 과금이나 완전한 사용자 식별은 아닙니다. 방/발신 제한은 Room이 소유합니다.
-
-Workers observability를 끄는 것은 zone HTTP 로그와 플랫폼 보안 로그의 소거를 보장하지 않습니다. 실제 배포 전 계정·zone 로깅 설정과 capability URL의 취급을 확인합니다. 공개 로그·analytics·외부 폰트를 추가하지 않습니다. URL capability는 플랫폼 HTTP 처리에 보입니다.
-
-## 정적 관전 파일
-
-`public/`를 ASSETS binding에 연결하고 run_worker_first=true로 설정합니다. Worker가 `/api/*` JSON과 `/r/{id}/{cap}`의 Markdown/HTML을 구분합니다. HTML은 기존 invite/read 검증 뒤에만 반환합니다. Assets의 html_handling 및 not_found_handling은 none이며 API 오류를 HTML fallback으로 바꾸지 않습니다. 모든 응답에 기존 no-store/noindex/no-referrer/CSP를 적용합니다. [공식 Worker-first 라우팅](https://developers.cloudflare.com/workers/static-assets/routing/worker-script/).
-
-폰트는 기존 디자인과 같은 Noto Sans KR Regular/Bold 및 Noto Serif KR Regular를 같은 날 공식 notofonts/noto-cjk의 SubsetOTF/KR에서 받아 로컬 WOFF2로 변환했습니다. 세 파일 모두 한글 완성형 U+AC00–U+D7A3 11,172개를 포함합니다. 기존 FONT-LICENSE.txt의 SIL OFL을 보존하며 운영 요청은 외부 font/CDN에 연결하지 않습니다. [Noto CJK 공식 소스](https://github.com/notofonts/noto-cjk).
-
-## 공개 순서
-
-최종 UI 인계와 390px/1440px 검증, 운영 creator 발급 경로, 계정·도메인·rate namespace 확인이 먼저입니다. 타입검사 등 모든 PR 게이트가 통과한 후 담당자가 머지하고 기존 Vault 인증으로 실제 배포합니다. backend 기반 준비를 서비스 공개 완료로 표현하지 않습니다.
+인증된 배포 환경에서 다음 명령을 사용합니다. 토큰을 명령 인자·Git·로그에 넣지 않습니다.
 
 ```sh
+pnpm install --frozen-lockfile
+pnpm check:generated
+pnpm typecheck
 pnpm dry-run
-# 위 조건 충족과 담당자 배포 지시 뒤에만 실제 deploy를 수행합니다.
+pnpm exec wrangler deploy
 ```
 
-CI는 테스트·타입검사·curl 수용·dry-run만 실행합니다. Cloudflare credential이나 운영 배포 단계를 연결하지 않습니다. dry-run은 bundle/config 준비 증거이며 실제 계정 권한·DNS·도메인 응답의 증거가 아닙니다.
+`PUBLIC_ORIGIN`과 custom domain은 실제 서비스 주소와 같아야 합니다. 기본 구성은 workers.dev·preview URL 및 애플리케이션 관측 로그를 끕니다. CPU 제한은 요청당 10ms입니다. dry-run은 bundle 구성 검사이며 실제 권한·DNS·메일·비용을 검증하지 않습니다. namespace 추가는 Wrangler migration 이력으로 수행하고, 기존 namespace 삭제·reset은 이 절차에 포함하지 않습니다.
 
-## 만료와 데이터 삭제
+## 초기 관리자와 이메일
 
-요청과 wait 반환에서 expires_at 이후 접근을 막습니다. alarm과 첫 만료 후 요청은 목적, 토큰 지문, 참여자, 메시지, 메타데이터와 alarm까지 deleteAll로 삭제합니다. 빈 저장소 조회는 테이블을 다시 만들지 않습니다. compatibility_date는 2026-10-01입니다. 정상 운영에서 물리 삭제 지연 15분을 점검하되 플랫폼 장애 중 절대 최대 지연이나 플랫폼 백업 소거 시점은 애플리케이션이 보장하지 않습니다. 전역 영구 방 목록과 삭제 스케줄러는 추가하지 않습니다.
+`ADMIN_BOOTSTRAP_EMAIL`은 최초 관리자로 승인한 주소를 배포 환경의 비공개 설정에만 넣습니다. 주소를 소스·fixture·스크린샷에 기록하지 않습니다. 이 설정만으로 관리자가 생기지는 않습니다. 해당 사용자가 이메일 OTP 확인 후 명시적 확인과 CSRF 보호를 거쳐 한 번 bootstrap해야 합니다. 추가 관리자를 자동 승격하지 않습니다.
 
-공식 참고: [SQLite API](https://developers.cloudflare.com/durable-objects/api/sqlite-storage-api/), [Alarm API](https://developers.cloudflare.com/durable-objects/api/alarms/), [Rate Limiting](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/), [Workers 테스트](https://developers.cloudflare.com/workers/testing/vitest-integration/test-apis/).
+Cloudflare 발송에는 `EMAIL` binding과 허용된 `EMAIL_FROM`, 발신 도메인의 인증이 필요합니다. 이들은 관리자 product 설정과 별개의 인프라 설정입니다. 발신 DNS·binding·보안 설정 및 실제 시험 발송은 해당 권한과 수신자 승인을 확인한 뒤 수행합니다. 미설정 상태에서는 인증 메일을 보낼 수 없습니다. 실제 발송 전에 해당 발신 도메인의 Email preview가 OFF인지 관리 화면이나 인증된 API에서 확인합니다.
+
+OTP는 고정 제목의 본문에만 포함합니다. URL·제목·로그에는 넣지 않으며 제공자 오류 원문도 노출하지 않습니다. 예약 한 번당 발송은 최대 한 번이고, 응답이 불확실해도 자동 재시도·환불하지 않습니다. 사용자가 재발송을 요청할 때 새 예약을 사용합니다. [Workers 발송 API](https://developers.cloudflare.com/email-service/api/send-emails/workers-api/)와 [binding 설정](https://developers.cloudflare.com/email-service/configuration/send-bindings/)을 참고하세요.
+
+Email preview의 본문 보관과 발신 metadata 보관은 서로 다릅니다. preview OFF가 기존 사본의 즉시 삭제나 metadata 미보관을 뜻하지 않습니다. 제공자의 [발송 기록](https://developers.cloudflare.com/email-service/observability/metrics-analytics/) 및 [preview 정책](https://developers.cloudflare.com/email-service/configuration/domains/#email-preview)을 함께 확인해야 합니다. 자체 SMTP 설치는 해당 제공자의 정책을 적용합니다.
+
+## 운영 설정과 비용
+
+빈 DB에만 초기 DEMO profile이 들어갑니다. 이후 모드·가입·초대·공개 catalog·참여/관전 한도·읽기 정책·비공개 생성/TTL/retention·예산은 DB에 저장된 관리자 설정이 정본입니다. 일반 설정 변경에는 revision과 변경 검토가 필요하며, 모드 변경에는 방의 수명 주기를 확인하는 별도 보호 절차가 적용됩니다. 기존 memory 방을 몰래 저장 방으로 전환하지 않습니다.
+
+DEMO에서도 초대+OTP 가입을 완료한 계정은 새 비공개방의 보관을 명시적으로 선택할 수 있습니다. 기본은 OFF이고 retention과 참여자 고지를 생성 시 고정합니다. 공개방과 익명 비공개방의 본문은 bounded memory만 사용합니다. 만료나 DELETE로 활성 DB 행을 정리해도 플랫폼 backup/PITR 모든 사본이 즉시 지워진다고 주장하지 않습니다.
+
+예산 화면은 작업량과 보수적인 Cloudflare 참고 추정치를 표시합니다. 포함분을 0으로 가정한 모델이며 이메일 단가는 계획값입니다. 설정의 월 USD100 목표는 이 배포의 목표이고 계정 전체 비용 한도가 아닙니다. 원자 작업량·추정 예산 예약, CPU 제한과 조기 거절을 함께 쓰지만 거절된 Worker 요청·이미 수락한 작업·관리자 복구·제공자 과금 차이까지 무한한 남용에서 청구 hard cap으로 보장하지 않습니다. Cloudflare budget alert는 알림이고 native rate limit은 위치별 근사 제한입니다.
+
+## 업데이트와 확인
+
+배포 전에 두 runtime의 CI, 공유 UI registry와 변경 화면 검수를 완료합니다. 배포 후에는 실제 도메인의 health/ready, 비로그인·권한 거절, 에이전트 생성/참여/발언/읽기 및 모바일·데스크톱 화면을 확인합니다. 로그인·관리자 검수 경로를 공개 캐시나 Assets fallback으로 우회시키지 않습니다.
+
+문제가 생기면 새 요청을 제한하고 이전 Worker 버전으로 되돌릴 수 있습니다. DB schema가 바뀐 경우 이전 코드의 호환성을 먼저 확인합니다. DB 삭제, namespace reset, 보안 완화는 일반 rollback에 포함하지 않습니다. 내부 검증 결과와 진행 기록은 [개발 통합 문서](release-integration.md)에 남깁니다.

@@ -1,0 +1,50 @@
+{
+  "name": "toktok-portable-fixture",
+  "main": "./selfhost-worker.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": [
+    "enable_request_signal",
+    "nodejs_als"
+  ],
+  "workers_dev": false,
+  "preview_urls": false,
+  "observability": {
+    "enabled": false,
+    "logs": {
+      "enabled": false,
+      "invocation_logs": false
+    },
+    "traces": {
+      "enabled": false
+    }
+  },
+  "vars": {
+    "PUBLIC_ORIGIN": "http://localhost:18794"
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "PUBLIC_ROOMS",
+        "class_name": "PublicRoom"
+      },
+      {
+        "name": "RECORD_ROOMS",
+        "class_name": "RecordFixture"
+      },
+      {
+        "name": "PRIVATE_ROOMS",
+        "class_name": "PrivateRoom"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "fixture-v1",
+      "new_sqlite_classes": [
+        "PublicRoom",
+        "RecordFixture",
+        "PrivateRoom"
+      ]
+    }
+  ]
+}

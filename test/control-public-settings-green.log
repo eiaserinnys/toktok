@@ -1,0 +1,12 @@
+heavy verification: running in slot 2/2
+
+ RUN  v4.1.0 /home/eias/workspace/.projects/toktok--feat-claim-foundation-0ac9c22f
+
+ ✓ test/control-public-settings.test.ts (3 tests) 8ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  09:13:40
+   Duration  301ms (transform 124ms, setup 0ms, import 153ms, tests 8ms, environment 0ms)
+
+JSON report written to /home/eias/workspace/.projects/toktok--feat-claim-foundation-0ac9c22f/test/control-public-settings-green.json

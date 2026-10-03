@@ -25,6 +25,7 @@ jobs:
       - run: pnpm test
       - run: pnpm test:verdict
       - run: pnpm test:ui
+      - run: pnpm test:public-ui
       - run: pnpm typecheck
       - run: pnpm acceptance
       - run: pnpm dry-run

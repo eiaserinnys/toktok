@@ -1,9 +1,15 @@
 import type { Room } from './room';
-export interface Env {
+import type {PublicEnv} from './public-contracts';
+import type { IdentityRegistry } from './identity-registry';
+export interface Env extends PublicEnv {
   ASSETS: Fetcher;
   ROOMS: DurableObjectNamespace<Room>;
-  PUBLIC_ORIGIN: string;
   CREATOR_CREDENTIALS_JSON: string;
+  IDENTITIES: DurableObjectNamespace<IdentityRegistry>;
+  SIGNUP_POLICY_JSON: string;
+  EMAIL_LIMITS_JSON:string;
+  EMAIL?:SendEmail;
+  EMAIL_FROM?:string;
   IP_RATE_LIMIT: RateLimit;
   CREATOR_RATE_LIMIT: RateLimit;
 }

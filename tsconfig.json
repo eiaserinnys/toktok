@@ -1,4 +1,37 @@
 {
-  "compilerOptions": {"target":"ES2022", "lib":["ES2022"], "module":"ESNext", "moduleResolution":"Bundler", "types":["@cloudflare/workers-types", "@cloudflare/vitest-pool-workers/types", "node"], "strict":true, "skipLibCheck":true, "noEmit":true},
-  "include":["src/**/*.ts", "test/**/*.ts", "vitest.config.ts"]
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": [
+      "ES2022"
+    ],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": [
+      "@cloudflare/workers-types",
+      "@cloudflare/vitest-pool-workers/types",
+      "node"
+    ],
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": [
+    "src/*.ts",
+    "src/storage/cloudflare.ts",
+    "src/storage/record-transaction.ts",
+    "src/storage/schema.ts",
+    "src/storage/repository.ts",
+    "test/application*.ts",
+    "test/control-*.ts",
+    "test/otp.test.ts",
+    "test/claims.test.ts",
+    "test/public-*.ts",
+    "test/integration-security.test.ts",
+    "test/selfhost-worker.ts",
+    "test/selfhost-*cloudflare.test.ts",
+    "test/budget-cost*.ts",
+    "test/admin-design-route.test.ts",
+    "test/acceptance-guard.test.ts",
+    "vitest*.config.ts"
+  ]
 }

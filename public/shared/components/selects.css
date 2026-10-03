@@ -1,0 +1,20 @@
+/* Shared select styles pinned at 63c4eec3. */
+.tok-select{position:relative;width:100%;min-width:0}
+.tok-select select[hidden]{display:none!important}
+.tok-select-button{width:100%;min-height:49px;padding:13px 14px;border:1px solid #c9d1bc;border-radius:12px;background:#f8f9f2;color:var(--ink);display:flex;justify-content:space-between;align-items:center;gap:15px;text-align:left;font-size:14px;line-height:1.5}
+.tok-select-button span{overflow-wrap:anywhere;flex:1}
+.tok-select-button svg{width:17px;height:17px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.5;transition:transform .2s}
+.tok-select-button[aria-expanded=true]{border-color:#55743b;background:#f0f4e1;box-shadow:0 0 0 3px #b8cd812d}
+.tok-select-button[aria-expanded=true] svg{transform:rotate(180deg)}
+.tok-select-button:disabled{opacity:1!important;color:#717966;background:#efeee7;cursor:not-allowed}
+.tok-select-menu{position:fixed;z-index:2000;overflow-y:auto;overscroll-behavior:contain;background:#fffef9;border:1px solid #cbd7b6;border-radius:15px;padding:7px;box-shadow:0 16px 40px #17312426;font-family:Tok Sans,Arial,sans-serif;scrollbar-width:thin}
+.tok-select-menu[hidden]{display:none}
+.tok-select-option{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:13px 14px;border-radius:9px;min-height:46px;font-size:14px;line-height:1.5;cursor:pointer;color:var(--ink)}
+.tok-select-option[aria-selected=true]{font-weight:700;background:#e5edc7}
+.tok-select-option.is-active{outline:2px solid #6e8a43;outline-offset:-2px;background:#eff3e3}
+.tok-select-option:hover{background:#edf0df}
+.tok-select-option[aria-disabled=true]{opacity:.45;cursor:not-allowed}
+@media(max-width:700px){.tok-select-button{font-size:16px}
+.tok-select-menu{border-radius:14px}
+.tok-select-option{font-size:15px;min-height:49px}
+}

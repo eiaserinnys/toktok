@@ -1,0 +1,20 @@
+// Numeric-only proposal fixture, never imported by a production budget/domain module.
+import {readFile,writeFile} from 'node:fs/promises';
+const profile=JSON.parse(await readFile(new URL('./public-load.cost.profile.json',import.meta.url),'utf8'));
+const fixed={deployment_base:5000000,control_duration_linear:4285440,do_duration_rounding_headroom:12500000,do_request_rounding_headroom:150000,initial_ledger_cleanup_admin_unmeasured:3064560};
+const fixedMicro=Object.values(fixed).reduce((a,b)=>a+b,0);
+function reservation(kind,amount){if(!Number.isSafeInteger(amount)||amount<=0)throw Error('INVALID_AMOUNT');let weighted;
+ switch(kind){case 'admission_requests':weighted=3*amount;break;case 'response_bytes':weighted=Math.ceil(amount/65536);break;case 'active_room_seconds':weighted=2*amount;break;case 'persistent_write_bytes':weighted=Math.ceil(amount/16);break;case 'email_attempts':weighted=10000*amount;break;default:throw Error('INVALID_KIND');}
+ return 14+weighted;
+}
+function small(label,participant,watcher,requestsPerMinute,hours,admissions){
+ const N=admissions??Math.ceil(requestsPerMinute*60*hours*30),S=3600*hours*30+60*30,F=S/60,O=2*N+F;
+ const micro=fixedMicro+14*O+3*N+N+2*S;
+ return {label,participant,watcher,hours_per_day:hours,rate_source:'single seeded D/E trial; every measured request conservatively treated as admitted',requests_per_minute:requestsPerMinute,planned_admissions:N,funded_seconds_with_one_tail_block_per_day:S,reservations:O,estimated_micro_usd:micro,estimated_usd:micro/1e6,above_quantity_month_admissions:N>profile.caps.admissions_month,above_cutoff:micro>60000000};
+}
+const caps=profile.caps,N=caps.admissions_month,P=Math.floor(caps.persist_bytes_month/profile.minimum_stored_message_bytes),F=Math.floor(caps.room_seconds_month/60),O=2*N+P+F+caps.private_creates_month+caps.email_month;
+// Sum of per-operation ceil(bytes/16) <= ceil(totalBytes/16)+numberOfOperations.
+const fullParts={fixed:fixedMicro,new_reservation_base:14*O,admission_weight:3*(N+caps.private_creates_month),response_weight:N,room_duration_weight:2*caps.room_seconds_month,persistent_weight_upper:Math.ceil(caps.persist_bytes_month/16)+P,email_weight:10000*caps.email_month};
+const allMicro=Object.values(fullParts).reduce((a,b)=>a+b,0);
+const result={price_revision:'toktok-cf-estimate-v1-proposal',price_checked_at:'2026-10-03',included_remaining_assumed:0,invoice_accounting:false,production_implemented_here:false,warning_micro_usd:40000000,cutoff_micro_usd:60000000,target_micro_usd:100000000,fixed_month_once:fixed,new_reservation_base_micro_usd:14,weights:{admission_requests:'3*amount',response_bytes:'ceil(amount/65536)',active_room_seconds:'2*amount',persistent_write_bytes:'ceil(amount/16)',email_attempts:'10000*amount (unconfirmed provider planning value)'},examples:{admission1:reservation('admission_requests',1),response64KiB:reservation('response_bytes',65536),duration60s:reservation('active_room_seconds',60),persist344bytes:reservation('persistent_write_bytes',344),email1:reservation('email_attempts',1)},small:[small('D',2,0,14,1),small('D',2,0,14,4),small('E',10,10,272,1),small('E',10,10,272,4)],quantity_capped_E_4h:small('E capped rate',10,10,caps.admissions_month/(60*4*30),4,caps.admissions_month),all_quantity_caps_loose:{admissions:N,persist_operations_upper:P,room_blocks:F,reservations:O,parts_micro_usd:fullParts,estimated_micro_usd:allMicro,estimated_usd:allMicro/1e6,simultaneous_cap_consumption_guaranteed:false,will_hit_usd_cutoff:true},strict_all_kinds:true,replay_extra_micro_usd:0,zero_response_reservation_skipped:true,unmeasured:['USD ledger write delta','provider actual/fixed email price','private row/storage distribution','static/denied/admin traffic','real Worker CPU and actor residency'],price_sources:profile.price_sources};
+const output=process.argv.find(a=>a.startsWith('--output='))?.slice(9)??'test/public-load.budget-estimate.json';await writeFile(output,JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify({output,small:result.small.map(s=>({label:s.label,hours:s.hours_per_day,usd:s.estimated_usd,admissions:s.planned_admissions})),all_caps_usd:allMicro/1e6}));

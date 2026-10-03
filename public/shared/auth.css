@@ -1,0 +1,178 @@
+/* Exact Common room auth/header rules selected from design 3e804519. */
+.x-main{padding-top:34px;padding-bottom:54px}
+.x-wrap{max-width:1280px;margin:auto;padding-left:46px;padding-right:46px}
+.x-main h1 em{font-family:Tok Serif,serif;font-weight:450;font-style:italic}
+.x-main p{line-height:1.75}
+.x-main .eyebrow,.admin-shell .eyebrow{font-size:12px}
+.x-header .team-button{min-height:46px}
+.x-header nav a{font-size:14px}
+.x-back{display:inline-flex;align-items:center;min-height:44px;font-size:14px;color:#5f6d56;margin-bottom:24px}
+.x-tag{display:inline-flex;align-items:center;white-space:nowrap;font-size:12px;line-height:1.4;font-weight:650;padding:6px 10px;background:#e8eccf;color:#385032;border-radius:8px}
+.x-tag.peach{background:#f2e1d5;color:#724735}
+.x-tag.muted{background:#edece6;color:#62685c}
+.x-help{font-size:12px;color:#5f6d56;line-height:1.75}
+.x-main .btn,.admin-shell .btn{font-size:14px;min-height:48px}
+.x-main button:disabled,.admin-shell button:disabled,.x-dialog button:disabled{cursor:not-allowed;transform:none;box-shadow:none;opacity:.48}
+.x-main input,.x-main select,.admin-shell input,.admin-shell select,.x-dialog input{font:inherit;min-width:0}
+.x-main select,.admin-shell select{border:1px solid #cfd4c7;border-radius:12px;padding:12px;background:#fffef9;color:var(--ink);font-size:16px;min-height:48px}
+.x-main input:focus-visible,.x-main select:focus-visible,.admin-shell input:focus-visible,.admin-shell select:focus-visible,.x-dialog input:focus-visible{outline:3px solid #648728;outline-offset:3px}
+.x-button-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.x-notice{display:flex;gap:14px;background:#eceee0;border:1px solid #dce2cd;border-radius:14px;padding:18px 20px;margin:24px 0}
+.x-notice .notice-symbol{display:grid;place-items:center;background:#dce7b0;font-family:Arial;font-size:14px;font-weight:700;border-radius:50%;width:25px;height:25px;flex-shrink:0}
+.x-notice strong{font-size:14px;font-weight:700;display:block;margin-bottom:4px}
+.x-notice p{font-size:14px;color:#53614d;line-height:1.7}
+.x-notice.peach{background:#f3e8dd;border-color:#e9d9c8}
+.x-notice.peach .notice-symbol{background:#e7d1ba}
+.x-notice.error{background:#f5e5e0;border-color:#e9c8bd;color:#833b2b}
+.auth-layout{display:grid;grid-template-columns:1fr 1fr;max-width:1060px;margin:12px auto 28px;border:1px solid var(--line);border-radius:26px;overflow:hidden;background:var(--white);min-height:630px}
+.auth-aside{padding:44px 40px 24px;background:#e8eccf;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:flex-start}
+.auth-aside h1{font-size:39px;line-height:1.35;margin:28px 0 18px}
+.auth-aside p{font-size:16px;color:#53614d}
+.auth-aside img{width:calc(100% + 80px);max-width:none;margin:12px -40px -42px;mix-blend-mode:multiply;margin-top:auto}
+.auth-aside-footer{position:relative;font-family:Tok Serif,serif;font-size:17px;font-style:italic;align-self:center;margin:20px 0 6px}
+.auth-card{padding:36px 46px 34px;min-width:0}
+.auth-card>.x-back{margin:-8px 0 20px}
+.auth-card>.x-tag{float:right;margin-top:2px}
+.auth-card>h2{font-size:35px;line-height:1.35;margin:18px 0 15px}
+.auth-card>p{font-size:16px;color:#5f6d56;overflow-wrap:anywhere}
+.auth-card form{margin:30px 0 18px}
+.x-field{display:flex;flex-direction:column;gap:10px;font-size:14px;font-weight:650;margin-bottom:24px;line-height:1.5}
+.x-field input{background:#f8f8f1;border:1px solid #cfd4c7;border-radius:12px;padding:15px 16px;min-height:54px;font-size:16px;width:100%;color:var(--ink);font-weight:400}
+.x-field input::placeholder{color:#7d8477}
+.x-field small{font-size:12px;font-weight:400;color:#5f6d56;line-height:1.7}
+.auth-card .auth-foot{font-size:14px;text-align:center;margin:22px 0}
+.auth-foot a{font-weight:650;text-decoration:underline;text-underline-offset:4px;margin-left:8px}
+.auth-policy{font-size:12px!important;line-height:1.75;color:#5f6d56;padding-top:20px;border-top:1px solid var(--line);margin-top:25px}
+.auth-card .x-notice{padding:14px 15px}
+.auth-card .x-notice p{font-size:12px}
+.auth-card .x-notice strong{font-size:13px}
+.otp-input{font-family:Arial,sans-serif!important;font-size:28px!important;font-weight:600!important;letter-spacing:.4em;padding-left:24px!important}
+.auth-card #xVerifyForm>.x-help{display:block;margin-top:-14px;margin-bottom:22px}
+.resend-button{min-height:44px;font-size:14px;text-decoration:underline;text-underline-offset:5px;width:100%;margin-bottom:16px}
+.auth-card>.fineprint{text-align:center;font-size:12px}
+.field-error{color:#983c26;font-size:14px;line-height:1.7;padding:12px 14px;border-radius:10px;background:#f5e4dd;margin:12px 0 20px}
+.x-field input[aria-invalid=true]{border:2px solid #983c26;background:#fff9f6}
+.invitation-ticket{background:#f4eadf;border:1px dashed #c8b5a2;padding:22px;border-radius:14px;margin:26px 0}
+.invitation-ticket>span{font-family:Arial;font-size:10px;letter-spacing:.12em}
+.invitation-ticket>strong{display:block;font-size:20px;margin:12px 0 16px}
+.invitation-ticket dl{padding:15px 0;border-top:1px solid #ddcbb9;border-bottom:1px solid #ddcbb9;font-size:13px;margin:0 0 15px}
+.invitation-ticket dl div{display:flex;justify-content:space-between;gap:12px;margin:6px 0}
+.invitation-ticket dd{margin:0;font-weight:600}
+.invitation-ticket small{font-size:12px;display:block}
+.invitation-ticket code{font-size:12px;display:block;overflow-wrap:anywhere;margin-top:6px;color:#73533d}
+.public-room-card .x-tag{background:#ffffff77}
+.public-room-grid+.x-help{display:block;margin:18px 0 30px}
+.public-side>.x-help{margin-top:18px}
+.grant-success .x-notice{text-align:left}
+.grant-success .x-button-row{justify-content:center}
+.storage-option .x-tag{font-size:12px;line-height:1.4}
+.room-create-form .x-notice{margin:22px 0}
+.created-room-card .x-notice{text-align:left}
+.created-room-card .x-button-row{justify-content:center}
+.admin-nav>.x-help{text-decoration:underline;display:inline-flex;align-items:center;min-height:44px}
+.compact .x-help{font-size:12px;line-height:1.75}
+.save-feedback.field-error{color:#983c26}
+:is(.x-dialog,.dialog-review-product)>.x-button-row{margin-top:28px}
+.x-dialog .x-notice{padding:16px}
+.x-dialog .x-notice p{font-size:13px}
+@media(max-width:1000px){
+.auth-card{padding:32px}
+.auth-aside{padding:35px 30px 22px}
+.auth-aside h1{font-size:34px}
+.auth-aside img{width:calc(100% + 60px);margin-left:-30px;margin-right:-30px}
+.x-wrap{padding-left:34px;padding-right:34px}
+}
+@media(max-width:700px){
+.x-wrap{padding-left:22px;padding-right:22px}
+.x-main{padding-top:20px;padding-bottom:28px}
+.x-header{height:80px;margin:0 22px;gap:12px}
+.x-header nav{display:flex;gap:16px}
+.x-header nav a{font-size:12px}
+.x-header nav a.active:after{bottom:-28px}
+.x-header .brand{font-size:27px}
+.x-header .brand-glyph{width:24px;gap:2px}
+.x-header .brand-glyph i{width:11px;height:19px}
+.x-header .team-button{padding:8px 10px;font-size:12px;gap:6px;min-height:44px}
+.x-header .team-avatar{display:none}
+.x-notice{padding:17px 16px;gap:10px;margin:22px 0}
+.x-notice p{font-size:13px}
+.x-notice strong{font-size:14px}
+.auth-layout{display:flex;flex-direction:column;margin:2px -1px 12px;border-radius:20px;min-height:0}
+.auth-aside{padding:24px 25px 25px;min-height:0;display:block}
+.auth-aside h1{font-size:24px;line-height:1.4;margin:15px 0 0;max-width:290px;word-break:keep-all;text-wrap:balance}
+.auth-aside h1 br{display:block}
+.auth-aside>.eyebrow{font-size:10px;max-width:220px}
+.auth-aside p,.auth-aside img,.auth-aside-footer{display:none}
+.auth-card{padding:25px 24px 27px}
+.auth-card>.x-back{margin:-6px 0 17px}
+.auth-card>h2{font-size:30px;margin:16px 0}
+.auth-card>p{font-size:15px}
+.auth-card form{margin-top:25px}
+.auth-card .auth-foot{font-size:12px}
+.auth-card .auth-foot a{margin-left:5px}
+.x-field{font-size:14px;margin-bottom:23px}
+.x-field input{padding:14px;min-height:53px}
+.x-field small{font-size:12px}
+.otp-input{font-size:27px!important;padding-left:18px!important;letter-spacing:.32em}
+.invitation-ticket{padding:20px 18px}
+.invitation-ticket>strong{font-size:19px}
+.invitation-ticket dl{font-size:12px}
+.invitation-ticket code{font-size:12px}
+.public-room-grid+.x-help{margin:16px 0 25px}
+.public-side>.x-help{font-size:12px}
+.grant-success .x-button-row{flex-direction:column}
+.storage-option .x-tag{font-size:12px;padding:4px 6px}
+.created-room-card .x-button-row{flex-direction:column}
+.home-policy>div>.x-tag{margin-top:1px}
+.admin-header-label .x-tag{display:none}
+.admin-nav>.x-back,.admin-nav>.eyebrow,.admin-nav>h2,.admin-role,.admin-nav>.x-help{display:none}
+:is(.x-dialog,.dialog-review-product)>.x-button-row{flex-direction:column}
+.x-dialog .x-notice{padding:15px 13px}
+.x-dialog .x-notice p{font-size:12px}
+.x-main .empty-room{padding:40px 8px}
+.x-main .empty-room h2{font-size:24px}
+.x-main .empty-room p{font-size:14px}
+.x-main .empty-room .btn{margin-top:24px}
+}
+@media(prefers-reduced-motion:reduce){
+.x-main *,.admin-shell *,.x-dialog *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+@media(max-width:380px){
+.x-header nav a:first-child{display:none}
+}
+.account-entry{position:relative;flex-shrink:0}
+.header .account-popover{position:absolute;right:0;top:calc(100% + 12px);height:auto;display:flex;flex-direction:column;align-items:stretch;gap:0;z-index:70;width:245px;background:var(--white);padding:12px;border:1px solid #d4dcc7;border-radius:17px;box-shadow:0 16px 42px #17312420}
+.header .account-popover[hidden]{display:none}
+.account-popover>span{font-size:12px;color:#5f6d56;padding:12px 12px 17px;overflow-wrap:anywhere;border-bottom:1px solid var(--line);margin-bottom:6px}
+.header .account-popover a,.header .account-popover button{display:flex;align-items:center;padding:12px;min-height:46px;font-size:14px;color:var(--ink);border-radius:10px;text-align:left}
+.header .account-popover a:hover,.header .account-popover button:hover{background:#e8eccf}
+.header .account-popover a:after{display:none}
+.signup-steps{display:flex;list-style:none;padding:0;gap:13px;font-size:12px;color:#65715b;margin:25px 0}
+.signup-steps li[aria-current]{color:var(--green);font-weight:700}
+.auth-card #inviteCodeForm>.x-help{margin:-13px 0 23px}
+.auth-aside h1{word-break:keep-all}
+.x-header .account-popover nav{display:block}
+@media(max-width:700px){
+.header .account-popover{right:0;max-width:calc(100vw - 44px)}
+.signup-steps{font-size:11px;gap:10px}
+.auth-aside h1{max-width:none}
+}
+.flow-picker .x-notice{margin-top:10px}
+.flow-picker .x-notice p{font-size:13px}
+.account-entry{display:flex;align-items:center;gap:20px}
+.signup-entry{display:inline-flex;align-items:center;min-height:44px;font-size:13px;font-weight:600;white-space:nowrap}
+.signup-entry:hover{text-decoration:underline;text-underline-offset:5px}
+@media(max-width:700px){
+.x-header{display:grid;grid-template-columns:1fr auto;grid-template-rows:60px 46px;gap:0 15px;height:auto;min-height:125px;padding-top:10px}
+.x-header>.brand{grid-row:1;grid-column:1}
+.x-header>.account-entry{grid-row:1;grid-column:2;gap:12px}
+.header.x-header>nav{display:flex;grid-row:2;grid-column:1/-1;align-items:center;justify-content:flex-start;gap:28px;align-self:stretch}
+.x-header>nav a{font-size:13px;min-height:44px;display:flex;align-items:center}
+.x-header>nav a.active:after{bottom:-1px;left:0;width:100%}
+.x-header .signup-entry{font-size:12px}
+.x-header .account-popover{top:calc(100% + 4px)}
+.x-header>nav a:first-child{display:flex}
+}
+@media(max-width:700px){
+.dialog-review-product .x-button-row{display:flex;flex-direction:column}
+}

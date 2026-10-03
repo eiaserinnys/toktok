@@ -1,0 +1,11 @@
+{
+ "$schema":"../node_modules/wrangler/config-schema.json",
+ "name":"toktok-application-fixture","main":"application-worker.ts",
+ "compatibility_date":"2026-10-01","compatibility_flags":["nodejs_als","enable_request_signal"],
+ "workers_dev":false,"preview_urls":false,
+ "observability":{"enabled":false,"logs":{"enabled":false,"invocation_logs":false},"traces":{"enabled":false}},
+ "assets":{"directory":"../public","binding":"ASSETS","run_worker_first":true,"html_handling":"none","not_found_handling":"none"},
+ "vars":{"PUBLIC_ORIGIN":"http://localhost:8787","ADMIN_BOOTSTRAP_EMAIL":"admin@fixture.example"},
+ "durable_objects":{"bindings":[{"name":"CONTROL","class_name":"ControlPlane"},{"name":"PRIVATE_ROOMS","class_name":"PrivateRoom"},{"name":"PUBLIC_ROOMS","class_name":"PublicRoom"}]},
+ "migrations":[{"tag":"application-fixture-v1","new_sqlite_classes":["ControlPlane","PrivateRoom","PublicRoom"]}]
+}
