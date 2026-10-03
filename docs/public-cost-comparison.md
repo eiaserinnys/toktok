@@ -1,6 +1,6 @@
 # 공개방 비용과 전달 지연 비교
 
-작은 데모와 최대 부하, 방 분할을 구분하는 로컬 관측/계산입니다. 생산 `PUBLIC_POLICY`의 2초 batch, participant cap 100, 30초 발언, strict 5/초, 20개/64KiB/cursor는 바꾸지 않았습니다. 운영 cadence와 방 수는 root 결정 대기입니다. 기존 $5 계정 기본료를 제외한 추가비용을 먼저 제시하며 가격 상한이나 생산 성능을 보장하지 않습니다.
+작은 데모와 최대 부하, 방 분할을 구분하는 로컬 관측/계산입니다. 생산 `PUBLIC_POLICY`의 2초 batch, participant cap 100, 30초 발언, strict 5/초, 20개/64KiB/cursor는 바꾸지 않았습니다. A~E 관측은 과거 실험을 보존하며, 최신 root 후보 quota와 실제 원자 장부 비용은 문서 마지막 절을 따릅니다. 운영 승인과 비용 상한 증명은 별도입니다. 기존 $5 계정 기본료를 제외한 추가비용을 먼저 제시하며 가격 상한이나 생산 성능을 보장하지 않습니다.
 
 ## 60초 관측
 
@@ -92,7 +92,7 @@ D/E는 정상 leave 후 timer/wait/handler 0을 한 번 확인한 다음 DO를 �
 
 방 수가 적으면 활성 duration 비용이 작습니다. 주제방 분할은 방내 발언량/전달량과 무관한 대화 노출을 줄이는 context UX 차이가 있지만 가격 최소화와 같은 목적은 아닙니다. 10~20명 방이 가득 차면 다음 방을 안내하는 것은 제안이며 자동 방 확장/운영 cap 변경은 구현하지 않았습니다.
 
-## 최신 DEMO 초기 quota와 월 $100 계획
+## 과거 DEMO proxy 계획: $34.26은 대체된 모델
 
 사용자 14:26:36 확정으로 이전 DEMO all-body-nostore는 폐기합니다. DEMO=작은 익명 공개방+제한 익명 private 생성이며 public/anonymous private는 계속 memory only입니다. admin invite key로 초대+OTP 가입을 완료한 계정은 DEMO에서도 새 private room의 persist opt-in(default OFF)을 허용합니다. HOSTED=OTP 가입, 새 private room 생성 시 persist 선택 default OFF/retention 고지입니다. 서버는 mode 단독이 아닌 DB account entitlement+visibility+유효 creator 권한으로 검증하며 기존 memory room→persist는 불가하고 생성 시 retention/participant notice를 유지합니다. 모든 운영 옵션의 정본은 관리자 UI+DB revision이고 코드 catalog/count는 최초 seed이며 안전 상한은 유지합니다. 이 문서의 새 quota는 **root에 권고하는 초기 계산값**이고 제품 구현이나 운영 변경 승인이 아닙니다.
 
@@ -143,7 +143,7 @@ baseline JSON은 `worker_requests`, `worker_cpu_ms`, `do_requests`, `do_gb_s` �
 
 [23개 상세 비용 rows](../test/public-load.cost.json)에 각 항목의 usage/추가요금, 포함분/baseline, 1h/4h/24h와 idle tail, 대표 payload가 있습니다. 2..10participant/0..10watcher의 혼합점은 E의 역할별 read-rate를 유지한 모델이며 실측 D/E와 구분했습니다. 실제 CPU/사용량/room 배치를 확정한 뒤 다시 계산해야 합니다.
 
-## Portable 원자 장부 행 계측 보완
+## 과거 대표 adapter 행 계측: 실제 A 경로가 아닌 proxy
 
 2026-10-03 승인된 CF SQLite fixture에서 native cursor.rowsRead/rowsWritten을 합산했습니다. 초기 schema apply는 제외하고 transaction의 marker 확인을 포함합니다. 대표 reservation(장부1개+receipt1개)은 읽기6/쓰기4, receipt cleanup은 읽기8/쓰기1이었습니다. 인덱스 행 동작도 runtime 계수에 포함되며 SQL/secret/body를 출력하지 않았습니다. **이것은 A SettingsStore 전체 예약 경로의 실측이 아닙니다.** persisted body/metadata/guard/alarm, 설정조회와 실제 dedupe cleanup을 따로 계측해야 합니다.
 
@@ -157,3 +157,106 @@ node test/selfhost-sql-cost.mjs --reserve-cleanup-pairs=4420800 --baseline-reads
 ```
 
 core의 admission/response/write는 서로 다른 operation ID이며 0bytes 예약은 건너뜁니다. active_room_seconds는 instance별 request-driven60초 선예약으로 원자 장부에 추가 호출합니다. 실제 CONTROL factory/가격 revision/영속 private quota와 row 계측 이후 root가 전체 $100 목표와 early cutoff를 다시 결정해야 합니다. 무한 Worker 거절 트래픽은 앱 예약으로 청구 hard cap을 보장할 수 없습니다.
+
+
+## 실제 ControlCore 원자 장부 반영: 최신 후보 profile
+
+2026-10-03 root가 실제 `ControlCore`와 CF Repository를 격리 실행하여 받은 native cursor 합계를 반영합니다. B는 root artifact `20261003-control-budget-cost.json`의 1 PASS 요약과 integration `test/budget-cost-worker.ts`의 계측 경로를 읽었습니다. **artifact 자체에는 행 계수 payload가 없으며 아래 숫자는 root가 전달한 실행 관측입니다.** 비용 산식을 위한 새 runtime/부하/메일/사용자 DB/운영 변경은 하지 않았습니다. 앞의 $34.26/대표 adapter $5 장부 계획은 최신 권고로 사용하지 않습니다. A~E의 seeded 단일 관측과 B/C 199/200 결과는 그대로 보존합니다.
+
+| 실제 native SQL 구간 | rowsRead | rowsWritten |
+| :-- | --: | --: |
+| 첫 admission 예약 | 17 | 8 |
+| 첫 response 예약 | 19 | 8 |
+| steady admission 예약 | 21 | 6 |
+| 두 예약의 expiry cleanup | 24 | 4 |
+| wrapper maintain | 19 | 0 |
+
+보통 정상 요청의 admission+response 예약은 steady 12 written rows, 나중 cleanup은4 rows로 **16 SQL written rows/request**입니다. `setAlarm`은 이 SQL 계수 밖이며 공식 가격상 호출마다1 written row를 추가합니다. wrapper 유지, 설정조회, room metadata/body/dedupe/삭제·alarm, email/OTP도 공짜가 아닙니다. 이 native 한 사례가 모든 도메인·경합·실패·월 데이터 크기의 최대 비용을 증명하지 않습니다.
+
+### 후보 설치 seed와 관계
+
+아래는 root 재산출 후보이며 승인된 운영값 변경이 아닙니다. 코드 안전 상한을 낮추는 최초 seed이고 이후 정본은 관리자 설정 DB revision입니다. 서버 batch2초는 유지하며 agent5초/watcher2초는 B처럼 **응답 뒤 client delay**입니다.
+
+| 후보 항목 | 값 |
+| :-- | :-- |
+| 공개방 | 2방, 각 participant10/watch10 |
+| private 생성/동시 | global active2 / IP active2 / IP 시간3 / 일20 / 월500 |
+| anonymous private TTL | 기본30분, 최대1시간 |
+| 가입 계정 private TTL | 기본24시간, 최대7일, persist default OFF |
+| admission_requests | 월1,000,000 / 일50,000 |
+| response_bytes | 월16GiB / 일1GiB |
+| active_room_seconds | 월1,500,000 / 일60,000 |
+| persistent_write_bytes | 월16MiB / 일1MiB |
+| 이메일 | 월1,000 / 일100 |
+
+DEMO에서도 초대+OTP 가입 완료 계정의 새 private만 entitlement/creator 권한 검증 후 persist opt-in을 허용합니다. public/anonymous private는 memory only, 기존 memory→persist 불가입니다. 30일은 계산 기간이며 production retention 결정이 아닙니다. TTL은 계속 활성/예산 사용을 보장하는 시간과 다릅니다.
+
+- 공개2방×하루4시간×30일은864,000 room-seconds입니다. private500개를 각각30분 활성화하면900,000을 더해 **1,764,000>월1,500,000**입니다. 60초 block의 미사용 여유와 처리 꼬리는 이 관계에 추가됩니다. 이 profile은 모든 개별 cap의 동시 소진 보장이 아니라 working-set cutoff입니다.
+- authenticated private2방을24시간 계속 쓰면 월5,184,000 room-seconds입니다. 최대7일 TTL이어도 전역 funding 예산이 먼저 소진되면 새 read/send/wait는 닫힙니다.
+- admission1M건에 response16GiB를 고르게 나누면 평균17,179.87bytes/응답입니다. 매번64KiB라면262,144회에서 byte cap이 먼저 닫힙니다. API별 quota를 독립 성능 보장처럼 표현하지 않습니다.
+- IP당2개는 같은 NAT가 private global2개를 모두 쓸 수 있는 안전 기본값입니다. 다중 IP anonymous Sybil 완전 방지는 아닙니다.
+
+### 재현 산식과 가정
+
+[profile 계산기](../test/selfhost-profile-cost.mjs)는 [저장 JSON](../test/public-load.cost.profile.json)에 native 계수, 후보 cap, 계획 가정, 항목별 사용량과 baseline 차이를 보존합니다. 본문/secret/IP/account 데이터는 없습니다. 기존 부하를 반복하지 않고 순수 산식만 실행합니다.
+
+`N=min(month admissions,30×day admissions)=1,000,000`입니다. persistent bytes는 본문만이 아니라 core가 저장하는 직렬화 메시지와 dedupe key를 함께 예약합니다. 가장 작은 ASCII 저장 메시지 형태는344bytes로 계산하여 `P<=floor(16MiB/344)=48,770`건을 느슨한 계산 상한으로 둡니다. 실제 nickname/text/sequence/escaping이 늘면 허용 건수는 줄어듭니다. metadata·별도 dedupe row·삭제는 bytes quota 자체에 모두 포함된다고 주장하지 않고 SQL 비용 항목으로 따로 계획합니다.
+
+60초 room funding은 `F=1,500,000/60=25,000`회입니다. 모든 요청을 두 번 예약하는 가정에 persist write/P, funding/F, 생성500, 이메일1,000을 더해 총 예약 `O=2N+P+F+500+1000=2,075,270`회로 둡니다. 고유 reservation마다 expiry cleanup1회, normal request마다 config1회, private maintenance는2방×30일×24시간×분당1회=86,400회라는 **계획 가정**입니다. config cache/cleanup batch는 비용을 줄일 수 있고 재시작·오류·auth 추가 작업은 비용을 늘릴 수 있습니다.
+
+root wrapper의 alarm도 core.maintain 뒤 schedule에서 다시 maintain하므로 cleanup 후19 read를 더 계획합니다. alarm 재설정/삭제에는 회당1 written row 여유를 추가하되 이는 native SQL 외 별도 가정입니다. SQL 읽기는 `O×(21 reserve+12 cleanup+19 wrapper+19 cleanup-wrapper)+30N config+100N private-read`입니다. 쓰기는 `O×(6 reserve+2 cleanup+1 setAlarm+1 cleanup-alarm여유)+N private-alarm+N config-alarm+10P body/dedupe/metadata/향후삭제+32,128 join+2,000 init/close+186 첫 day/month counter`로 계획합니다. native 실제 계수인 표와 그 밖의 config30/private-read100/post10/유지 alarm 수 가정은 구분합니다. 전체 auth/metadata/retention row 최대치는 미계측이므로 이 합계를 strict invoice upper bound라고 쓰지 않습니다.
+
+| 월 사용량 항목 | 계산값 |
+| :-- | --: |
+| Worker requests | 1,000,000 |
+| Worker CPU | 10,000,000ms: 요청당10ms 가정 |
+| DO requests | 6,236,940: room/config/reserve/cleanup/maintenance 포함 |
+| DO duration | 523,776GB-s: room funding1.5M초+Control24h×30일, actor128MB |
+| SQLite read / written rows | 277,344,170 / 23,274,714 |
+| SQLite live storage | 0.1GB-month: metadata/body/장부 계획값 |
+
+Control의24시간 활성은 보수적인 계획 가정이며 hibernation 실측이 아닙니다. room funding도 실제 청구 duration과 동일한 계측이 아닙니다. Node registry는 제거된 유휴 room을 회수하고 전체100 core에서 새 생성을 제한합니다. CF는 별도 catalog 권한과 전역 funded duration 예산으로 제한하며 Node Map 상한을 CF actor 수 보장으로 바꾸지 않습니다. 비예약 cleanup·거절 응답·이미 수락한 작업의 회수 및 private KV bootstrap 비용에는 별도 headroom을 둡니다.
+
+### 공식 단가와 baseline별 추가비용
+
+[Workers 가격](https://developers.cloudflare.com/workers/platform/pricing/)과 [DO/SQLite 가격](https://developers.cloudflare.com/durable-objects/platform/pricing/)을 2026-10-03 확인했습니다. Workers 포함 요청10M/CPU30Mms 뒤 $0.30/M요청/$0.02/Mms, DO 포함 요청1M/duration400kGB-s 뒤 $0.15/M/$12.50/MGB-s입니다. DO compute 초과량은 청구 단위 올림을 적용합니다. SQLite는 읽기25B/쓰기50M/5GB-month 포함 뒤 $0.001/M읽기/$1/M쓰기/$0.20/GB-month입니다.
+
+| 비용 항목 | 포함분 정확히 소진 경계의 추가금 |
+| :-- | --: |
+| Worker requests / CPU | $0.30 / $0.20 |
+| DO requests / duration | $1.05 / $12.50 |
+| SQLite reads / writes / storage | $0.277344 / $23.274714 / $0.02 |
+| 기존 계정 기본료 제외한 추가금 | **$37.62** |
+| deployment 기본료 배정5 + email 계획10 + 미계측 auth/metadata/회수 여유10 | **$25.00 계획 배정** |
+| 전체 계획 합계 / $100까지 모델 차액 | **$62.62 / $37.38** |
+
+이메일$10과 미계측$10은 견적/검증된 최대가격이 아닌 planning reserve입니다. 제공자·고정요금·retry·저장량에 따라 부족할 수 있습니다. 기존 계정의 $5를 추가금에서는 빼고 deployment 전체 목표에는 배정했으며, 계정 다른 서비스 비용을 toktok 비용으로 합산하지 않았습니다.
+
+| 계정 baseline 가정 | 기존 $5 제외 추가금 | 위 $25를 더한 계획 합계 |
+| :-- | --: | --: |
+| 포함분 전부 남음 | $13.40 | $38.40 |
+| 각 포함분 정확히 소진 | $37.62 | $62.62 |
+| DO 요청1.1M/duration500kGB-s: 기존 첫 청구단위 여유 | $24.97 | $49.97 |
+
+계정 baseline은 조회하지 않았고 잔여 포함분을 보장하지 않습니다. `cost(base+toktok)-cost(base)`를 사용하므로 이미 초과 청구 단위에 여유가 있으면 추가 duration 비용은0일 수 있습니다. 소진하면 매번$12.50이 추가된다는 일반화는 틀립니다.
+
+root integration WT에 현재 `limits.cpu_ms:10` 후보가 들어간 것을 소스 읽기로 확인했습니다. 운영 배포/실제 CPU10ms 소비 성공을 증명한 것은 아닙니다. 같은 N에서 CPU50ms 민감도는 정확소진 경계 전체계획$63.42이며, paid 기본30,000ms를 모두 소비한다는 극단 모델은 CPU항목만$600입니다. 따라서 CPU cap의 실제 적용·짧은 정상 처리 성공을 통합에서 확인해야 합니다. Node selfhost 호스트비용은 별도 cost profile이며 CF 달러단가를 자동 대입하지 않습니다.
+
+### early cutoff 제안과 보장하지 못하는 비용
+
+제안은 **deployment 전체 모델 warning$40 / 신규 expensive work cutoff$60**입니다. 기본료/email/미계측 회수 여유$25를 먼저 배정하고, 이미 수락한 최대25초 wait와 cleanup/거절에 $100까지 최소$40의 모델 headroom을 남기는 방향입니다. 후보 quota의 모두 소진 모델$62.62은 이 cutoff보다 높으므로 일부 작업이 먼저 닫힐 수 있습니다. 이 값은 root 결정 입력이며 관리자/DB settings/운영값을 변경하지 않았습니다.
+
+현재 `budgetDecision`은 kind별 일/월 수량의 원자 cap을 판정합니다. **USD warning/cutoff 표시만으로 실제 가격 원자 예약이 집행되는 것은 아닙니다.** 가격 revision/baseline/이미 수락한 allowance와 후속 cleanup 비용을 금액으로 매핑하는 root 결정이 필요합니다. 정상 admission 자체는 expensive work 전에 원자 선예약하고, duration은 RAM funded_until의60초 block, response는 최종 실제bytes, persist는 DB body 쓰기 전 예약합니다. 유한 grant의 재시작 재사용/중복 소진은 금지하며 admission/response/write ID를 서로 분리합니다.
+
+거절도 Worker 호출비용을 냅니다. accepted admission cap1M이 있어도 30일100거절req/sec는 Worker requests 비용만$77.76, CPU0.1ms 가정$0.5184를 더합니다. 위 $62.62 계획과 합치면 requests만으로$100을 넘으며 추가 Control/SQL 호출은 별도입니다. [native Workers rate limit](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/)은 per-location eventual이므로 전역 정확 회계가 아니며 [budget alerts](https://developers.cloudflare.com/billing/manage/budget-alerts/)도 정보 알림으로 사용량을 멈추지 않습니다. 알림 도착 시각의 근거 없는 정밀 약속은 하지 않습니다.
+
+edge pre-Worker 봉쇄는 현재 root403/Free 제약 때문에 별도 검증이 필요합니다. 앱 cap은 무한 Worker 호출의 청구를 차단하지 못하므로 월$100은 deployment 목표이며 hard cap 보장이 아닙니다. 새 구매/보안/Cloudflare 변경/edge 부하를 하지 않았습니다.
+
+```sh
+# 새 부하 없이 최신 actual ControlCore 계수와 계획 가정 재계산
+node test/selfhost-profile-cost.mjs --cpu-ms=10
+# SQL 포함분까지 포함한 실제 baseline 차이; 비밀없는 숫자 JSON만 입력
+node test/selfhost-profile-cost.mjs --cpu-ms=10 --baseline=baseline.json
+```
+
+baseline은 `worker_requests, worker_cpu_ms, do_requests, do_gb_s, sql_reads, sql_writes, sql_gb_month`의 비음수 숫자입니다. 계정 credential/SQL/본문을 넣지 않습니다. 설치 seed/운영 cutoff/메일가격/실제 CPU·persist row계측은 root 후속 입력이며 문서 저장을 기능 완료나 $100 목표 달성으로 보고하지 않습니다.
