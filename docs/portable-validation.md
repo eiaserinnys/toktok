@@ -98,3 +98,10 @@ public/private core fetch finally에서 아직 미소비이고 unlocked인 reque
 새 six-denial gate 최초는 include에 새 파일이 없어0 tests였으며 PASS가 아닙니다. include만 추가한 허용 하니스 보정1회가1 PASS(167ms)입니다. 실제 CF stub private read→join/read→send/invite→send/participant→close/read→close 및 public watcher→send 모두403, fixture 관측 bodyUsed true/locked false, private handler0/bodyInflight0/public handler0입니다. 그 selected 출력에 request-stream 경고는 없었습니다. 운영 전체 경고 부재나 모든 transport cancellation 성공을 보장하지 않습니다. 독립 읽기 전용 delta 검수 PASS이며 기존 통과 case/부하/전체검증은 반복하지 않았습니다.
 
 관련 공식 근거는 [workerd #918](https://github.com/cloudflare/workerd/issues/918)와 [Miniflare proxy](https://github.com/cloudflare/workers-sdk/blob/main/packages/miniflare/src/workers/core/proxy.worker.ts)입니다. core에 도달하지 않는 root HTTP의 초기 거절은 root가 별도 회수합니다. upstream cancel 실패는 제품 응답/handler를 무한 대기시키지 않으며 해당 미확인 transport를 성공으로 쓰지 않습니다.
+
+
+## 닫힌 wait와 소유자 삭제 정리
+
+새 Node SQLite lifecycle selected gate 첫 실행 1 PASS(224ms)입니다. 닫힌 방의 wait는 읽지 않은 메시지를 먼저200으로 전달하고 빈 wait만410 ROOM_CLOSED로 끝냅니다. 대기 중 close도410으로 깨우며 GET messages의 닫힌 이력200은 유지합니다. pending wait 최종0입니다.
+
+소유자 DELETE는204 뒤 접근410이며 만료 전에도 저장 본문과 dedupe를 한 번에 메시지100개씩 정리합니다. mock201개가100/100/1로 제거되고 잔여 작업은1초 후 maintenance, 최종 body/dedupe0 및 다음 정리없음을 확인했습니다. 이 수치는 active DB 행 제거이며 backup/PITR 모든 사본의 즉시 물리삭제 증거가 아닙니다. 기존 통과 gate와 부하는 반복하지 않았습니다.
