@@ -1,4 +1,5 @@
 import {componentRegistry,dialogRegistry,screenRegistry,renderScreen} from '../shared/registry.js';
+import {mountDialogueGallery} from './dialogue-gallery.js';
 import {routeRegistry} from '../shared/routes.js';
 import {renderFlowBoard} from '../shared/screens/flow-board.js';
 import {createFixtureAdapter} from './fixture-adapter.js';
@@ -11,7 +12,7 @@ import {createSelects,renderSelect} from '../shared/components/selects.js';
 export function mountDesignReview(root,view='flows'){
  const adapter=createFixtureAdapter(),fixtures=adapter.catalog();
  const input={components:componentRegistry,dialogs:dialogRegistry,screens:screenRegistry,routes:routeRegistry,fixtures};
- const graph=buildGraph(input);
+ let graph=buildGraph(input);
  if(view==='components'){
   for(const fixture of fixtures.components){
    const section=document.createElement('section'),heading=document.createElement('h2');
@@ -25,18 +26,7 @@ export function mountDesignReview(root,view='flows'){
   return {adapter,graph,dispose:()=>selects.dispose()};
  }
  if(view==='dialogues'){
-  for(const fixture of fixtures.dialogs){
-   const button=document.createElement('button');button.className='btn soft';button.textContent=fixture.dialogId+' · '+fixture.state;
-   button.addEventListener('click',()=>{
-    const dialog=dialogRegistry[fixture.dialogId].render(...fixture.args);root.append(dialog);
-    dialog.addEventListener('close',()=>{dialog.remove();button.focus();},{once:true});
-    dialog.querySelector('.close-dialog')?.addEventListener('click',()=>dialog.close());
-    dialog.querySelector('form')?.addEventListener('submit',event=>{event.preventDefault();});
-    dialog.addEventListener('click',event=>{if(event.target.closest('[data-x=close-dialog]'))dialog.close();});
-    dialog.showModal();
-   });root.append(button);
-  }
-  return {adapter,graph};
+  const gallery=mountDialogueGallery(root,fixtures.dialogs);return {adapter,graph,...gallery};
  }
  const state={boardMode:'DEMO',boardRole:'all',boardReferences:true,boardZoom:.35,boardExpanded:false};
  const selects=createSelects(root.ownerDocument),previewContexts=new Map();
@@ -80,7 +70,7 @@ export function mountDesignReview(root,view='flows'){
   const canvas=board.querySelector('#flowCanvas');canvas.style.setProperty('width',layout.width+'px');canvas.style.setProperty('height',layout.height+'px');
   for(const layer of layout.layers){const label=board.querySelector(`[data-depth="${layer.depth}"]`);label.style.setProperty('left',layer.x+'px');label.style.setProperty('top','42px');}
   zoom(state.boardZoom,false);mountPreviews();
-  board.querySelector('#boardMode').addEventListener('change',event=>{state.boardMode=event.target.value;redraw();});
+  board.querySelector('#boardMode').addEventListener('change',event=>{state.boardMode=event.target.value;graph=buildGraph({...input,fixtures:adapter.catalog(state.boardMode)});previewContexts.clear();redraw();});
   board.querySelector('#boardRole').addEventListener('change',event=>{state.boardRole=event.target.value;redraw();});
   selects.enhance(board);
   const viewport=board.querySelector('#flowViewport');let drag=null;

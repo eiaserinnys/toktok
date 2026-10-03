@@ -55,6 +55,17 @@ export function createFixtureAdapter(seed={}){
   invoke,
   navigate:async(path)=>{history.splice(index+1);history.push(path);index++;},
   currentRoute:()=>history[index],back:()=>{if(index)index--;},forward:()=>{if(index<history.length-1)index++;},
-  catalog:()=>clone(fixtureCatalog)
+  catalog:(mode='DEMO')=>{
+   if(!['DEMO','HOSTED'].includes(mode))throw Error('FIXTURE_MODE_INVALID');
+   const catalog=clone(fixtureCatalog),journey={guest:'anonymous',member:'invited',admin:'admin'};
+   for(const fixture of catalog.screens){
+    fixture.mode=mode;if(fixture.audiences)fixture.audiences=fixture.audiences.map(role=>journey[role]??role);
+    for(const vm of fixture.args??[]){if(!vm||typeof vm!=='object')continue;
+     if(vm.Config)vm.Config.mode=mode;
+     if(vm.resource?.settings?.deployment)vm.resource.settings.deployment.mode=mode.toLowerCase();
+    }
+   }
+   return catalog;
+  }
  });
 }
