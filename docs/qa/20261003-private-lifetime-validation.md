@@ -47,3 +47,7 @@
 브라우저: `test/private-lifetime-browser.ts`, `test/private-lifetime-qa-browser.ts`. 설치된 Playwright를 `TOKTOK_PLAYWRIGHT_MODULE`(기본 `@playwright/test`), 출력 폴더를 `TOKTOK_BROWSER_OUTPUT`로 지정하고 Node24+tsx로 `--test --test-concurrency=1` 실행한다. 환경별 절대 경로·자격증명을 저장하지 않는다. 모든 heavy 실행은 workspace shared runner를 거쳤다.
 
 운영 반영/PR/CI 결과는 배포 후 아래에 별도로 남긴다. 로컬 fixture 승인·생성을 실제 사용자 동의나 운영 관리자 성공으로 확대하지 않는다.
+
+## PR18 CI 영향 보정
+
+[최초 CI](https://github.com/eiaserinnys/toktok/actions/runs/37125675220)는 application 22PASS/2FAIL에서 멈췄다. 두 실패는 일반 admin recovery 검사에서 생성 확인 없는 private POST도 일괄 예산429를 기대한 것이다. 새 생성은 실제 자격 확인 후 예산 범주를 결정하므로 이 요청은 403 OPERATOR_ACK_REQUIRED가 정본이다. 확인 없는 생성은 여전히 거절하고 recovery 사용량도 증가하지 않는다. source 변경 없이 해당 두 기대값만 고쳐 선택2PASS/1SKIP로 확인했다. synthetic recovery 성공 case는 재실행하지 않았다. 초기 CI 실패를 환경 문제나 성공으로 바꾸어 보고하지 않는다.

@@ -82,5 +82,9 @@
   {
     "file": "ui-unit.log",
     "sha256": "7b13b4838d8e26e374d98fd983a18ee4bf5e7c8077ec756e4b0df9ca6525fd43"
+  },
+  {
+    "file": "recovery-correction.log",
+    "sha256": "8e6186d50977d11f97e1d2bdced004096e7fcf20d6ba94a7b94fb1c06850441f"
   }
 ]
