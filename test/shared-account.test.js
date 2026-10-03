@@ -12,7 +12,7 @@ it('uses own server agents without exposing email/owner/token fields or inventin
  let state;const c=createAccountController({effects:{getConfig:async()=>config,getSession:async()=>({...session,agents:undefined})},paint:v=>state=v});await c.load();expect(state.status).toBe('unavailable');expect(renderAccount(state)).not.toContain('연결한 에이전트가 없어요');
 });
 it('requires explicit revoke confirmation and sends a single actual mutation while pending',async()=>{
- let state,finish;const calls=[];const c=createAccountController({effects:{getConfig:async()=>config,getSession:async()=>session,revokeAgent:id=>{calls.push(id);return new Promise(r=>finish=r);}},paint:v=>state=v});
+ let state,finish;const calls=[];const c=createAccountController({effects:{getConfig:async()=>config,getSession:async()=>structuredClone(session),revokeAgent:id=>{calls.push(id);return new Promise(r=>finish=r);}},paint:v=>state=v});
  await c.load();c.requestRevoke(agent.id);expect(state.dialog).toBe('agent-revoke');expect(calls).toEqual([]);c.closeDialog();expect(calls).toEqual([]);
  c.requestRevoke(agent.id);const pending=c.confirmRevoke();await c.confirmRevoke();expect(calls).toEqual([agent.id]);finish({...agent,status:'revoked'});await pending;expect(state.Session.agents[0].status).toBe('revoked');expect(state.dialog).toBe(null);
 });
@@ -20,5 +20,5 @@ it('binds revocation to the actual session CSRF and preserves server denial with
  const requests=[];const adapter=createLiveAdapter({fetch:async(path,init)=>{requests.push({path,init});return path==='/api/session'?Response.json({...session,csrf_token:'fictional-csrf'}):Response.json({error:{code:'ADMISSION_DENIED'}},{status:403});}});
  await adapter.getSession();await expect(adapter.revokeAgent(agent.id)).rejects.toMatchObject({code:'ADMISSION_DENIED',status:403});
  expect(requests[1].init.headers['X-CSRF-Token']).toBe('fictional-csrf');expect(requests[1].init.credentials).toBe('same-origin');expect(requests[1].init.body).toBe('{}');
- let state;const c=createAccountController({effects:{getConfig:async()=>config,getSession:async()=>session,revokeAgent:adapter.revokeAgent},paint:v=>state=v});await c.load();c.requestRevoke(agent.id);await c.confirmRevoke();expect(state.Session.agents[0].status).toBe('approved');expect(state.dialog).toBe('agent-revoke');expect(state.error.code).toBe('ADMISSION_DENIED');
+ let state;const c=createAccountController({effects:{getConfig:async()=>config,getSession:async()=>structuredClone(session),revokeAgent:adapter.revokeAgent},paint:v=>state=v});await c.load();c.requestRevoke(agent.id);await c.confirmRevoke();expect(state.Session.agents[0].status).toBe('approved');expect(state.dialog).toBe('agent-revoke');expect(state.error.code).toBe('ADMISSION_DENIED');
 });

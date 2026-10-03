@@ -3,6 +3,7 @@ import {routeRegistry} from '../shared/routes.js';
 import {renderFlowBoard} from '../shared/screens/flow-board.js';
 import {createFixtureAdapter} from './fixture-adapter.js';
 import {buildGraph} from './coverage.js';
+import {waitPreviewReady} from './preview-ready.js';
 import {createSelects,renderSelect} from '../shared/components/selects.js';
 
 // This controller is only served under the server-authorized QA asset prefix.
@@ -55,9 +56,12 @@ export function mountDesignReview(root,view='flows'){
    const button=Array.from(board.querySelectorAll('.flow-node')).find(e=>e.dataset.node===node.id);
    button.style.setProperty('left',node.x+'px');button.style.setProperty('top',node.y+'px');
    const frame=button.querySelector('iframe'),doc=frame.contentDocument;
-   const style=doc.createElement('link');style.rel='stylesheet';style.href='/styles.css';doc.head.append(style);
-   for(const path of ['auth.css','account.css','claim.css','settings.css','components/schema-patterns.css','components/selects.css']){const css=doc.createElement('link');css.rel='stylesheet';css.href='/admin/design/_assets/shared/'+path;doc.head.append(css);}
+   let style=doc.querySelector('link[data-product-styles]');
+   if(!style){style=doc.createElement('link');style.rel='stylesheet';style.href='/styles.css';style.dataset.productStyles='true';}
+   frame.dataset.previewReady='false';delete frame.dataset.previewError;
+   const ready=waitPreviewReady(doc,style);if(!style.isConnected)doc.head.append(style);
    doc.body.innerHTML=renderScreen(node.screenId,...(node.args??[]));
+   ready.then(()=>{frame.dataset.previewReady='true';},error=>{frame.dataset.previewError=error.message;});
    // Every preview has independent history/state and no network effect port.
    let memory=previewContexts.get(node.id);if(!memory){memory=createFixtureAdapter();previewContexts.set(node.id,memory);}
    doc.addEventListener('click',event=>{const link=event.target.closest('a');if(link){event.preventDefault();memory.navigate(new URL(link.href,location.origin).pathname);}});
