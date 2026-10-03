@@ -1,4 +1,5 @@
 import {effectNames} from '../shared/effect-interface.js';
+import {authSettingsFixtures} from './auth-settings-fixtures.js';
 // Never import this module from a product router or live effect adapter.
 const clone=value=>structuredClone(value);
 const fixtureCatalog={
@@ -33,6 +34,7 @@ const fixtureCatalog={
   {transitionId:'private-back',from:'private-empty',to:'intro'}
  ]
 };
+for(const key of ['components','dialogs','screens','transitions'])fixtureCatalog[key].push(...authSettingsFixtures[key]);
 export function createFixtureAdapter(seed={}){
  const session=clone(seed.session??{authenticated:false,role:'anonymous',entitlements:{can_create_private:false,can_persist_private:false},owner_ack:null});
  const responses=clone(seed.responses??{}),history=['/'];let index=0;

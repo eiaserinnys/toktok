@@ -8,10 +8,19 @@ it('projects server identity without secrets, query roles or account-derived ent
  expect(mapSession(member).entitlements.can_persist_private).toBe(false);
  expect(()=>mapSession({...anonymous,role:'admin'})).toThrow('INVALID_SESSION');
 });
+it('preserves pending/lost room identifiers and Retry-After without retrying creation',async()=>{
+ for(const code of ['CREATE_PENDING','CREATE_RESULT_NOT_RECOVERABLE']){
+  let calls=0;const adapter=createLiveAdapter({fetch:async()=>{calls++;return Response.json({error:{code,message:'가상 생성 응답'},room_id:'00000000-0000-4000-8000-000000000001'},{status:409,headers:{'Retry-After':'2'}});}});
+  await expect(adapter.createRoom({purpose:'가상 방',client_request_id:'same-request',persist:false})).rejects.toMatchObject({code,status:409,retryAfter:'2',room_id:'00000000-0000-4000-8000-000000000001'});
+  expect(calls).toBe(1);
+ }
+});
 it('maps server limits and catalog without a count/default/30-day fallback',()=>{
  const priv={anonymousDefaultTtlSeconds:3600,anonymousMaxTtlSeconds:86400,authenticatedDefaultTtlSeconds:86400,authenticatedMaxTtlSeconds:604800,defaultRetentionSeconds:86400,maxRetentionSeconds:604800,defaultPersist:false,anonymousEnabled:false};
- const projection=mapConfig({revision:4,mode:'demo',enabled:false,signup:'invite',public:{catalog:[],firstWindowSeconds:70,pageSize:3,agentReadCadenceSeconds:11,browserReadCadenceSeconds:4},private:priv});
+ const projection=mapConfig({revision:4,mode:'demo',enabled:false,signup:'invite',public:{catalog:[],firstWindowSeconds:70,firstWindowMessages:20,pageSize:3,agentReadCadenceSeconds:11,browserReadCadenceSeconds:4},private:priv});
  expect(projection.catalog).toEqual([]);expect(projection.limits.private).toEqual(priv);expect(projection.limits.public.pageSize).toBe(3);
+ expect(projection.limits.public.firstWindowMessages).toBe(20);
+ expect(()=>mapConfig({revision:4,mode:'demo',enabled:false,signup:'invite',public:{catalog:[],firstWindowSeconds:70,pageSize:3,agentReadCadenceSeconds:11,browserReadCadenceSeconds:4},private:priv})).toThrow('INVALID_CONFIG');
  expect(()=>mapConfig({revision:4,mode:'demo'})).toThrow('INVALID_CONFIG');
 });
 it('maps invitation/start/send/complete field names explicitly and keeps same-origin cookies',async()=>{

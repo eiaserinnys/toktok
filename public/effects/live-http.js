@@ -1,6 +1,6 @@
 // Product-only HTTP adapter. No fixture import, storage, synthetic identity or retry loop.
 export class EffectError extends Error {
- constructor(code,status=null,retryAfter=null){super(code);this.code=code;this.status=status;this.retryAfter=retryAfter;}
+ constructor(code,status=null,retryAfter=null,room_id){super(code);this.code=code;this.status=status;this.retryAfter=retryAfter;if(typeof room_id==='string')this.room_id=room_id;}
 }
 const invalid=kind=>{throw new EffectError('INVALID_'+kind);};
 export function mapSession(data){
@@ -16,7 +16,7 @@ export function mapConfig(data){
  if(!Number.isSafeInteger(data?.revision)||!['demo','hosted'].includes(data.mode)||typeof data.enabled!=='boolean'
   ||!['closed','invite','open'].includes(data.signup)||!Array.isArray(data.public?.catalog)||!data.private)invalid('CONFIG');
  const limits={public:{},private:{}};
- for(const key of ['firstWindowSeconds','pageSize','agentReadCadenceSeconds','browserReadCadenceSeconds']){
+ for(const key of ['firstWindowSeconds','firstWindowMessages','pageSize','agentReadCadenceSeconds','browserReadCadenceSeconds']){
   if(!Number.isFinite(data.public[key]))invalid('CONFIG');limits.public[key]=data.public[key];
  }
  for(const key of ['anonymousDefaultTtlSeconds','anonymousMaxTtlSeconds','authenticatedDefaultTtlSeconds','authenticatedMaxTtlSeconds','defaultRetentionSeconds','maxRetentionSeconds']){
@@ -46,7 +46,7 @@ export function createLiveAdapter({fetch:fetchHTTP=globalThis.fetch}={}){
   const response=await fetchHTTP(path,{method,credentials:'same-origin',cache:'no-store',headers,
    ...(body===undefined?{}:{body:JSON.stringify(body)})});
   let data;try{data=await response.json();}catch{throw new EffectError('INVALID_RESPONSE',response.status);}
-  if(!response.ok)throw new EffectError(data.error?.code??'HTTP_ERROR',response.status,response.headers.get('Retry-After'));
+  if(!response.ok)throw new EffectError(data.error?.code??'HTTP_ERROR',response.status,response.headers.get('Retry-After'),data.room_id);
   return data;
  }
  return Object.freeze({

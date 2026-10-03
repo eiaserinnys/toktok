@@ -7,6 +7,8 @@ export function validateCoverage({components,dialogs,screens,routes,fixtures}){
   if(!fixtures.dialogs.some(f=>f.dialogId===id&&f.state===state))errors.push(`dialog:${id}:${state}`);
  for(const f of fixtures.dialogs)if(!dialogs[f.dialogId]?.requiredStates.includes(f.state))errors.push(`dialog-entry:${f.dialogId}:${f.state}`);
  const ids=new Set();
+ for(const [id,entry] of Object.entries(screens))for(const state of entry.requiredStates??[])
+  if(!fixtures.screens.some(f=>f.screenId===id&&f.state===state))errors.push(`screen-state:${id}:${state}`);
  for(const f of fixtures.screens){
   if(ids.has(f.fixtureId))errors.push(`duplicate:${f.fixtureId}`);ids.add(f.fixtureId);
   if(!screens[f.screenId])errors.push(`screen:${f.screenId}`);

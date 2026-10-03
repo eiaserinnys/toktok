@@ -29,8 +29,9 @@ export function mountDesignReview(root,view='flows'){
    button.addEventListener('click',()=>{
     const dialog=dialogRegistry[fixture.dialogId].render(...fixture.args);root.append(dialog);
     dialog.addEventListener('close',()=>{dialog.remove();button.focus();},{once:true});
-    dialog.querySelector('.close-dialog').addEventListener('click',()=>dialog.close());
-    dialog.querySelector('form').addEventListener('submit',event=>{event.preventDefault();});
+    dialog.querySelector('.close-dialog')?.addEventListener('click',()=>dialog.close());
+    dialog.querySelector('form')?.addEventListener('submit',event=>{event.preventDefault();});
+    dialog.addEventListener('click',event=>{if(event.target.closest('[data-x=close-dialog]'))dialog.close();});
     dialog.showModal();
    });root.append(button);
   }
@@ -55,7 +56,8 @@ export function mountDesignReview(root,view='flows'){
    button.style.setProperty('left',node.x+'px');button.style.setProperty('top',node.y+'px');
    const frame=button.querySelector('iframe'),doc=frame.contentDocument;
    const style=doc.createElement('link');style.rel='stylesheet';style.href='/styles.css';doc.head.append(style);
-   doc.body.innerHTML=renderScreen(node.screenId);
+   for(const path of ['auth.css','settings.css','components/schema-patterns.css','components/selects.css']){const css=doc.createElement('link');css.rel='stylesheet';css.href='/admin/design/_assets/shared/'+path;doc.head.append(css);}
+   doc.body.innerHTML=renderScreen(node.screenId,...(node.args??[]));
    // Every preview has independent history/state and no network effect port.
    let memory=previewContexts.get(node.id);if(!memory){memory=createFixtureAdapter();previewContexts.set(node.id,memory);}
    doc.addEventListener('click',event=>{const link=event.target.closest('a');if(link){event.preventDefault();memory.navigate(new URL(link.href,location.origin).pathname);}});
