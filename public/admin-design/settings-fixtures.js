@@ -1,5 +1,4 @@
-// Isolated fictional QA data derived from A schema/defaults at f943df88.
-// This is neither a live server projection nor a product fallback.
+// Fictional QA data; schema labels reflect the private lifetime policy. No live values or identities.
 export const settingsFixture={
  "revision": 27,
  "settings": {
@@ -600,7 +599,7 @@ export const settingsFixture={
      },
      "activePerIp": {
       "type": "integer",
-      "label": "IP별 활성 방",
+      "label": "데모 IP별 활성 방",
       "min": 1,
       "max": 3,
       "unit": "count",
@@ -608,7 +607,7 @@ export const settingsFixture={
      },
      "activeGlobal": {
       "type": "integer",
-      "label": "전체 활성 방",
+      "label": "데모 전체 활성 방",
       "min": 1,
       "max": 10,
       "unit": "count",
@@ -616,7 +615,7 @@ export const settingsFixture={
      },
      "dailyCreates": {
       "type": "integer",
-      "label": "일 생성",
+      "label": "데모 일 생성",
       "min": 1,
       "max": 100,
       "unit": "count",
@@ -624,35 +623,39 @@ export const settingsFixture={
      },
      "anonymousDefaultTtlSeconds": {
       "type": "integer",
-      "label": "익명 기본 수명",
+      "label": "이전 익명 기본 수명 · 새 방에는 적용 안 함",
       "min": 60,
       "max": 86400,
       "unit": "seconds",
-      "applyTo": "new_room"
+      "applyTo": "new_room",
+      "readOnly": true
      },
      "anonymousMaxTtlSeconds": {
       "type": "integer",
-      "label": "익명 최대 수명",
+      "label": "이전 익명 최대 수명 · 새 방에는 적용 안 함",
       "min": 60,
       "max": 86400,
       "unit": "seconds",
-      "applyTo": "new_room"
+      "applyTo": "new_room",
+      "readOnly": true
      },
      "authenticatedDefaultTtlSeconds": {
       "type": "integer",
-      "label": "계정 기본 수명",
+      "label": "이전 계정 기본 수명 · 새 방에는 적용 안 함",
       "min": 60,
       "max": 604800,
       "unit": "seconds",
-      "applyTo": "new_room"
+      "applyTo": "new_room",
+      "readOnly": true
      },
      "authenticatedMaxTtlSeconds": {
       "type": "integer",
-      "label": "계정 최대 수명",
+      "label": "이전 계정 최대 수명 · 새 방에는 적용 안 함",
       "min": 60,
       "max": 604800,
       "unit": "seconds",
-      "applyTo": "new_room"
+      "applyTo": "new_room",
+      "readOnly": true
      },
      "persistenceAllowed": {
       "type": "boolean",

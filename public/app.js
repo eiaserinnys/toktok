@@ -3,7 +3,7 @@ import {mountPublicConnection} from './shared/public-connection-mount.js';
 import {mountCommonHeader} from './shared/common-header-mount.js';
 import {icon,room,terminal,introduction,guide,message,person,empty} from './view.js';
 import {applyPage,privateReadPath,readDelay,ownsResponse,retryDelay,cancel} from './session.js';
-import {privateNotice} from './shared/components/private-notice.js';
+import {privateNotice,privateLifetime} from './shared/components/private-notice.js';
 import {createPublicState,startPublic,bindPublic,leavePublic} from './public-demo.js';
 import {catalog} from './public-demo-view.js';
 import {consumeFragment} from './public-demo-session.js';
@@ -30,13 +30,15 @@ function clock(state){
  if(state.mode==='public')return;
  clearTimeout(state.expiryTimer);
  if(state.gone||!state.metadata||active!==state)return;
+ if(state.metadata.room.expires_at===null&&state.metadata.room.lifetime==='member_permanent'){const time=$('#expiry');time.removeAttribute('datetime');time.textContent=state.metadata.room.status==='closed'?'소유자가 종료한 방':'소유자가 닫을 때까지';return;}
  const expires=new Date(state.metadata.room.expires_at),left=expires.getTime()-Date.now();
  const time=$('#expiry');time.dateTime=expires.toISOString();time.textContent=`${expires.toLocaleString('ko-KR')} 만료${left>0?` · ${Math.ceil(left/60000)}분 남음`:''}`;
  // The server decides expiry. Even a paused reader must lose expired content after ROOM_GONE.
  state.expiryTimer=setTimeout(()=>{if(left<=60000)probeExpiry(state);else clock(state);},Math.max(1,Math.min(left,60000)));
 }
 function metadata(state,data){
- const notice=privateNotice(data.room);
+ const notice=privateNotice(data.room),lifetime=privateLifetime(data.room);
+ $('#lifetime-title').textContent=lifetime.title;$('#lifetime-description').textContent=lifetime.body;
  state.metadata=data;
  if(data.room.status==='closed')data.permissions.join=false;
  $('#room-title').textContent=data.room.purpose||'작은 대화방';

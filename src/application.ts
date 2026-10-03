@@ -1,3 +1,4 @@
+import {memberPrivate} from './private-lifetime';
 import type {ControlHttpPort,IdentityEnv} from './identity-types';
 import type {IdentityOptions} from './email';
 import type {RuntimeConfig} from './control-contracts';
@@ -48,7 +49,9 @@ export function createHttpApplication(ports:ApplicationPorts){
  const env:IdentityEnv={PUBLIC_ORIGIN:origin,IP_RATE_LIMIT:ports.edgeLimit,controlPort:ports.control,...ports.identity};
  let handlers=0,bodies=0;
  const recovery=new WeakMap<Request,number>();
+ const memberPrivateRequests=new WeakSet<Request>();
  async function reserveHttp(request:Request,kind:'admission_requests'|'response_bytes',amount:number){
+  if(memberPrivateRequests.has(request))return;
   if(!recovery.has(request)){
    try{await budget.reserve(budget.newOperationId(),kind,amount);return;}
    catch(error){
@@ -116,7 +119,8 @@ export function createHttpApplication(ports:ApplicationPorts){
   if(!controlPath&&!cleanup)requireRuntime(config);
   const publicRoomRequest=/^\/api\/public\/rooms\/[^/]+(?:\/(?:participants|watchers|messages|wait|lease|guide|connection-requests|connection-request))?$/.test(path);
   // Room cores account for their own admission, duration, response and body writes.
-  const metered=!(api||entry||publicRoomRequest)||wantsHtml(original)&&!!entry;
+  const creating=original.method==='GET'&&path==='/api/private/create-options'||original.method==='POST'&&['/api/v1/rooms','/api/private/create-context','/api/private/create-grants'].includes(path);
+  const metered=!(api||entry||publicRoomRequest||creating);
   if(metered)await reserveHttp(original,'admission_requests',1);
   const options:IdentityOptions={...ports.auth,trustedIP:()=>rawIp};
   let request=original,response:Response|undefined|null;
@@ -124,12 +128,13 @@ export function createHttpApplication(ports:ApplicationPorts){
   if(path==='/api/config'&&request.method==='GET')response=await configResponse(env);
   response??=await identityRoute(request,env,options);
   response??=await adminRoute(request,env,ports.auth?.now?.());
-  response??=await privateCreateRoute(request,env,options);
-  if(response){if(path==='/api/admin/settings'&&request.method==='PUT'&&response.ok)settings.invalidate();return metered?responseBudget(response,original):response;}
+  response??=await privateCreateRoute(request,env,options,exempt=>{if(exempt)memberPrivateRequests.add(original);});
+  if(response){if(path==='/api/admin/settings'&&request.method==='PUT'&&response.ok)settings.invalidate();return metered||creating?responseBudget(response,original):response;}
   if(path==='/api/v1/rooms'&&request.method==='POST'){
    const invite=newToken(),read=newToken(),owner=newToken();
    const [invite_hash,read_hash,owner_hash]=await Promise.all([hash(invite),hash(read),hash(owner)]);
    const reservation=await reserveCreation(request,env,options,{invite_hash,read_hash,owner_hash});
+   if(memberPrivate(reservation.snapshot))memberPrivateRequests.add(original);
    let room:object;
    try{room=await ports.privateRoom(reservation.room_id).initialize(reservation.snapshot);await commitSlot(env,reservation.room_id,'initialized',ports.auth?.now?.());}
    catch{throw new CreationResultError('CREATE_PENDING','생성 상태를 확인 중입니다. 같은 요청 식별자로 확인하세요.',reservation.room_id);}
@@ -139,7 +144,7 @@ export function createHttpApplication(ports:ApplicationPorts){
   if(api||entry){
    const id=(api??entry)![1],room=ports.privateRoom(id);response=await room.fetch(request);
    if(cleanup&&response.ok){const proof=await room.inspect(id) as {status:string};if(['closed','deleted','expired'].includes(proof.status))await commitSlot(env,id,'closed',ports.auth?.now?.());}
-   if(entry&&wantsHtml(request)){if(!response.ok)return html(request,response);await response.body?.cancel();return responseBudget(await html(request),original);}
+   if(entry&&wantsHtml(request)){if(!response.ok)return html(request,response);await response.body?.cancel();const state=await room.inspect(id) as {demo_budget_exempt?:boolean};if(state.demo_budget_exempt===true)memberPrivateRequests.add(original);return responseBudget(await html(request),original);}
    return response;
   }
   if(path.startsWith('/public/')||path.startsWith('/api/public/rooms')){

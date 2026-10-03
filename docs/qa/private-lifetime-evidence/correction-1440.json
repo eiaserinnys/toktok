@@ -1,0 +1,16 @@
+{
+  "width": 1440,
+  "checks": [
+    "anonymous lifetime and consent visible",
+    "actual context grant create201, null expiry, secret absent",
+    "actual private snapshot, latest message, no false expiry"
+  ],
+  "shots": [
+    "anonymous-24h",
+    "member-permanent",
+    "created-permanent",
+    "permanent-conversation"
+  ],
+  "errors": 0,
+  "cleanup": true
+}

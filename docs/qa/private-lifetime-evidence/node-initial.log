@@ -1,0 +1,83 @@
+heavy verification: running in slot 1/2
+PRIVATE_HTTP_EVIDENCE {"case":"member private HTTP is permanent and demo-budget exempt only after DB ownership; demo counts, CSRF and technical rate remain","clock":"DI; no actual five-minute idle elapsed","raw":[{"step":"creation context","status":200},{"step":"explicit local creation acknowledgement","status":200},{"step":"private create","status":201},{"step":"creation context","status":200},{"step":"explicit local creation acknowledgement","status":200},{"step":"anonymous demo count stays limited","status":429,"code":"CREATE_RATE_LIMITED"},{"step":"private creation options","status":200},{"step":"creation context","status":200},{"step":"explicit local creation acknowledgement","status":200},{"step":"private create","status":201},{"step":"creation context","status":200},{"step":"explicit local creation acknowledgement","status":200},{"step":"private create","status":201}],"cleanup":true}
+✖ member private HTTP is permanent and demo-budget exempt only after DB ownership; demo counts, CSRF and technical rate remain (361.081449ms)
+PRIVATE_HTTP_EVIDENCE {"case":"HOSTED member and approved owned agent use permanent policy; unverified, unentitled and caller lifecycle fields cannot exempt","clock":"DI; no actual five-minute idle elapsed","raw":[{"step":"unadmitted options","status":403,"code":"ADMISSION_DENIED"},{"step":"unadmitted options","status":403,"code":"ADMISSION_DENIED"},{"step":"creation context","status":200},{"step":"explicit local creation acknowledgement","status":200},{"step":"caller lifecycle rejected","status":400,"code":"INVALID_INPUT"},{"step":"finite TTL cannot silently become permanent","status":422,"code":"ROOM_LIFETIME_FIXED"},{"step":"private create","status":201},{"step":"private participant","status":201},{"step":"long retention write","status":201},{"step":"long history beyond one-day room policy","status":200},{"step":"approved agent creation","status":409,"code":"CREATE_RESULT_NOT_RECOVERABLE"}],"cleanup":true}
+✖ HOSTED member and approved owned agent use permanent policy; unverified, unentitled and caller lifecycle fields cannot exempt (130.09901ms)
+PRIVATE_LIFETIME_EVIDENCE {"existing_snapshot_unchanged":true,"old_expiry":410,"old_budget_metered":true,"anonymous_null_expiry_denied":true}
+PRIVATE_HTTP_EVIDENCE {"case":"existing snapshots keep finite expiry and demo budget; invalid permanent snapshots fail closed","clock":"DI; no actual five-minute idle elapsed","raw":[],"cleanup":true}
+✔ existing snapshots keep finite expiry and demo budget; invalid permanent snapshots fail closed (11.718ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 1
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1371.585985
+
+✖ failing tests:
+
+test at test/selfhost-private-lifetime.test.ts:1:1232
+✖ member private HTTP is permanent and demo-budget exempt only after DB ownership; demo counts, CSRF and technical rate remain (361.081449ms)
+  AssertionError [ERR_ASSERTION]: member creation cannot spend demo quantity or USD
+  + actual - expected
+  ... Skipped lines
+  
+    {
+      estimate: {
+        cutoff_exceeded: false,
+  +     day_micro_usd: 445,
+  +     month_micro_usd: 25000445,
+  -     day_micro_usd: 340,
+  -     month_micro_usd: 25000340,
+        warning_reached: false
+      },
+      usage: [
+        {
+          day: {
+  ...
+            limit: 1073741824,
+  +         reserved: 6212
+  -         reserved: 2488
+          },
+          kind: 'response_bytes',
+          month: {
+            limit: 17179869184,
+  +         reserved: 6212
+  -         reserved: 2488
+          },
+          unit: 'bytes'
+        },
+        {
+          day: {
+  
+      at TestContext.<anonymous> (/home/eias/workspace/.projects/toktok--feat-private-lifetime-ca176c2f/test/selfhost-private-lifetime.test.ts:24:203)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { usage: [ [Object], [Object], [Object], [Object], [Object], [Object] ], estimate: { day_micro_usd: 445, month_micro_usd: 25000445, warning_reached: false, cutoff_exceeded: false } },
+    expected: { usage: [ [Object], [Object], [Object], [Object], [Object], [Object] ], estimate: { day_micro_usd: 340, month_micro_usd: 25000340, warning_reached: false, cutoff_exceeded: false } },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test/selfhost-private-lifetime.test.ts:1:6189
+✖ HOSTED member and approved owned agent use permanent policy; unverified, unentitled and caller lifecycle fields cannot exempt (130.09901ms)
+  AssertionError [ERR_ASSERTION]: agent (response body deliberately omitted)
+  
+  409 !== 201
+  
+      at status (/home/eias/workspace/.projects/toktok--feat-private-lifetime-ca176c2f/test/private-http-fixture.ts:25:74)
+      at TestContext.<anonymous> (/home/eias/workspace/.projects/toktok--feat-private-lifetime-ca176c2f/test/selfhost-private-lifetime.test.ts:59:236)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 409,
+    expected: 201,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

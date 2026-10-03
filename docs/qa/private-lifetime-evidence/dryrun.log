@@ -1,0 +1,20 @@
+heavy verification: running in slot 1/2
+
+ ⛅️ wrangler 4.146.0
+────────────────────
+✨ Read 118 files from the assets directory /home/eias/workspace/.projects/toktok--feat-private-lifetime-ca176c2f/public
+Total Upload: 305.24 KiB / gzip: 72.69 KiB
+Your Worker has access to the following bindings:
+Binding                                                                                  Resource                  
+env.ROOMS (Room)                                                                         Durable Object            
+env.PUBLIC_ROOMS (PublicRoom)                                                            Durable Object            
+env.CONTROL (ControlPlane)                                                               Durable Object            
+env.PRIVATE_ROOMS (PrivateRoom)                                                          Durable Object            
+env.EMAIL (unrestricted - senders: login@notify.toktok.eiaserinnys.me)                   Send Email                
+env.IP_RATE_LIMIT (120 requests/60s)                                                     Rate Limit                
+env.CREATOR_RATE_LIMIT (5 requests/60s)                                                  Rate Limit                
+env.ASSETS                                                                               Assets                    
+env.PUBLIC_ORIGIN ("https://toktok.eiaserinnys.me")                                      Environment Variable      
+env.EMAIL_FROM ("login@notify.toktok.eiaserinnys.me")                                    Environment Variable      
+
+--dry-run: exiting now.

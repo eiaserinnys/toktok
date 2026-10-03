@@ -1,0 +1,15 @@
+heavy verification: running in slot 1/2
+PRIVATE_LIFETIME_QA {"width":390,"apiCalls":0,"pageErrors":0,"pass":true,"cleanup":false}
+PRIVATE_HTTP_EVIDENCE {"case":"actual protected shared private lifetime flow 390","clock":"DI; no actual five-minute idle elapsed","raw":[],"cleanup":true}
+✔ actual protected shared private lifetime flow 390 (11693.433021ms)
+PRIVATE_LIFETIME_QA {"width":1440,"apiCalls":0,"pageErrors":0,"pass":true,"cleanup":false}
+PRIVATE_HTTP_EVIDENCE {"case":"actual protected shared private lifetime flow 1440","clock":"DI; no actual five-minute idle elapsed","raw":[],"cleanup":true}
+✔ actual protected shared private lifetime flow 1440 (9649.613261ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 22157.372925

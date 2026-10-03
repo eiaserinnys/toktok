@@ -1,0 +1,10 @@
+heavy verification: running in slot 1/2
+
+ RUN  v4.1.0 /home/eias/workspace/.projects/toktok--feat-private-lifetime-ca176c2f
+
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  21:51:18
+   Duration  2.19s (transform 711ms, setup 0ms, import 1.10s, tests 141ms, environment 0ms)
+

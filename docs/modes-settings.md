@@ -23,7 +23,7 @@ schema_version=1, revision 정수, updated_at/by와 metadata label/unit/min/max/
 | signup | policy=invite |
 | public.catalog | common-room/함께 이야기, workshop/작업 이야기, quiet-corner/조용한 이야기; 길이0..10, 고유 URLsafe slug, title64자 |
 | private cap | anonymousEnabled=false, createPerIpHour3, activePerIp3, activeGlobal10, dailyCreates100 |
-| private TTL | anonymousDefaultTtlSeconds3600/anonymousMaxTtlSeconds86400, authenticatedDefaultTtlSeconds86400/authenticatedMaxTtlSeconds604800 |
+| 과거 private TTL 호환 기록 (새 방에 미적용) | anonymousDefaultTtlSeconds3600/anonymousMaxTtlSeconds86400, authenticatedDefaultTtlSeconds86400/authenticatedMaxTtlSeconds604800 |
 | private persistence | persistenceAllowed=false, defaultPersist=false, defaultRetentionSeconds86400/maxRetentionSeconds604800 |
 | identity | email2/h3/day120초, IP30/h100/day, 월10000; OTP600초/5오입력, flow600초, session43200초, invitation604800초/최대2592000초 |
 | budget | targetUsd100/warningUsd50/cutoffUsd70, calendar UTC, typed caps 아래 표; trusted budget/lifecycle readiness=false |
@@ -42,9 +42,9 @@ runtime rate/cap/catalog 변경은 최종 policy revision 갱신 최대10초부�
 
 ## Private snapshot
 
-인증 private TTL 기본24h/최대7d와 anonymous 기본1h/최대24h를 별도 schema로 구분합니다. persist retention 기본24h/최대7d이면서 retention<=room TTL입니다(초과422). 최근 버퍼와 기존 v1 memory room은 장기 보관 retention 필드를 사용하지 않습니다. 30days UI 시나리오는 production 허용 옵션이 아닙니다.
+새 비회원 DEMO private는 24h, 회원 private는 소유자 종료까지 상설입니다. 회원 가입·생성 자격과 소유권을 서버에서 확인하며 DEMO 초대 가입/HOSTED 등록에 동일하게 적용합니다. 회원 방은 데모 예산·방 개수 quota에서 제외하지만 IP 시간당 생성 속도와 방 기술 한도는 유지합니다. 이전 TTL 설정은 읽기 전용 호환 기록이며 기존 방 snapshot은 불변입니다. persist retention은 별도 기본24h/최대7d 설정을 유지합니다. 최근 버퍼와 기존 v1 memory room은 장기 보관 retention 필드를 사용하지 않습니다. 30days UI 시나리오는 production 허용 옵션이 아닙니다.
 
-추가 장기 보관 선택은 private+인증된 creator+DB account entitlement+owner risk ack+현재 persistenceAllowed를 함께 검사합니다. 최근 DB 버퍼는 공개·익명에도 적용하며 이 opt-in과 별개입니다. 미소비 invite/client entitlement는 근거가 아닙니다. mode/TTL/retention/저장/participant notice는 새 room snapshot이고 기존 memory→persist API는 없습니다. context/grant/생성 slot 도메인은 구현했지만 실제 Room initialize/저장/삭제 연결은 root/B 후속입니다.
+추가 장기 보관 선택은 private+인증된 creator+DB account entitlement+owner risk ack+현재 persistenceAllowed를 함께 검사합니다. 최근 DB 버퍼는 공개·익명에도 적용하며 이 opt-in과 별개입니다. 미소비 invite/client entitlement는 근거가 아닙니다. mode/TTL/retention/저장/participant notice는 새 room snapshot이고 기존 memory→persist API는 없습니다. 생성 전용 options/context/grant와 실제 Room initialize/저장/삭제는 공통 application에 연결됩니다.
 
 PrivatePolicy 정본은 B의 src/private-contracts.ts입니다. settings.private.policy에 새 방 snapshot으로 저장합니다. handler 기본64/상한160, bodyInflight 기본8/상한16, wait 기본32를 사용하고 waits<=handlers/bodyInflight<=handlers를 검사합니다. responseBytes는65536 고정, readCadence는2000..10000ms이며 waitMs를 넘지 않습니다. 임의 client policy나 기존 memory snapshot 변경으로 한도를 넓히지 않습니다.
 
@@ -63,7 +63,7 @@ PrivatePolicy 정본은 B의 src/private-contracts.ts입니다. settings.private
 
 서버 reserve(operation_id,kind,amount)는 같은 transaction에서 UTC day/month를 모두 검사·증가합니다. 하나라도 실패하면 rollback, 같은 ID kind/amount 변경409, 월 경계 재시도 최초 창 유지, 만료 ID410입니다. 종류별 한 번 발급한 ID를 동일 reservation 재시도에만 재사용합니다. window를 caller에게 받지 않고 실패/불확실 예약을 환불하지 않습니다. cap 축소는 기존 usage를 보존합니다. 실제 perform 전에 trusted enforcing path가 예약해야 하며 public body가 counters를 지정하지 않습니다. OTP와 private 생성 도메인은 같은 transaction의 budget aggregate를 사용하고 방 admission/response/write/duration 및 control router 최종 연결은 후속입니다. UTC 창은 provider billing cycle과 다릅니다.
 
-추정 비용 모델 `CF-reference-v1`은 UTC월마다 고정 25,000,000 microUSD와 각 신규 reservation의 기본 14 microUSD를 더합니다. kind별 추가 비용은 admission amount×3, response ceil(bytes/65536), active room seconds×2, persistent write ceil(bytes/16), email attempts×10000 microUSD이며 private create의 추가 비용은 0입니다. 일 합계는 해당 일의 변동 예약분이고 월 합계에는 고정 비용을 포함합니다. replay의 추가 추정 비용은 0이고 실패·불확실 예약을 환불하지 않습니다. quantity와 estimate 일·월 합계는 같은 원자 transaction이며 response도 cutoff 판정에서 제외하지 않습니다.
+추정 비용 모델 `CF-reference-v1`은 UTC월마다 고정 25,000,000 microUSD와 각 신규 reservation의 기본 14 microUSD를 더합니다. kind별 추가 비용은 admission amount×3, response ceil(bytes/65536), active room seconds×2, persistent write ceil(bytes/16), email attempts×10000 microUSD이며 private create의 추가 비용은 0입니다. 일 합계는 해당 일의 변동 예약분이고 월 합계에는 고정 비용을 포함합니다. replay의 추가 추정 비용은 0이고 실패·불확실 예약을 환불하지 않습니다. 예산 적용 대상의 quantity와 estimate 일·월 합계는 같은 원자 transaction이며 response도 cutoff 판정에서 제외하지 않습니다. 새 회원 비공개방은 이 데모 장부 집계와 차단에서 제외하며 실제 비용이 0이라는 뜻은 아닙니다.
 
 관리자 예산 DTO는 UTC 창, 종류별 실제 예약량과 DB 한도, 추정 일·월 microUSD, warning/cutoff 상태, 현재 target/warning/cutoff USD와 모델 가정을 제공합니다. 월 projected estimate가 cutoff×1000000을 초과하면429/월말 Retry-After이며 정확히 같은 값은 허용합니다. 이 보수적인 Cloudflare 참고 모델은 included usage 0/이메일 시도 1cent 계획 가정이고 actual invoice 또는 Node 서버 운영비가 아닙니다. 설정 저장값·기존 usage는 새 모델이나 threshold 축소로 초기화하지 않습니다. 공개 config에는 배포 usage를 노출하지 않습니다.
 

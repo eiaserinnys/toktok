@@ -1,0 +1,31 @@
+heavy verification: running in slot 1/2
+PRIVATE_HTTP_EVIDENCE {"case":"actual local private lifetime UI 390","clock":"DI; no actual five-minute idle elapsed","raw":[],"cleanup":true}
+✖ actual local private lifetime UI 390 (1202.568282ms)
+PRIVATE_HTTP_EVIDENCE {"case":"actual local private lifetime UI 1440","clock":"DI; no actual five-minute idle elapsed","raw":[],"cleanup":true}
+✖ actual local private lifetime UI 1440 (905.903311ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3030.489917
+
+✖ failing tests:
+
+test at test/selfhost-private-lifetime-browser.test.ts:1:612
+✖ actual local private lifetime UI 390 (1202.568282ms)
+  browserContext.addCookies: Protocol error (Storage.setCookies): Invalid cookie fields
+      at TestContext.<anonymous> (/home/eias/workspace/.projects/toktok--feat-private-lifetime-ca176c2f/test/selfhost-private-lifetime-browser.test.ts:14:48) {
+    name: 'Error',
+    log: []
+  }
+
+test at test/selfhost-private-lifetime-browser.test.ts:1:612
+✖ actual local private lifetime UI 1440 (905.903311ms)
+  browserContext.addCookies: Protocol error (Storage.setCookies): Invalid cookie fields
+      at TestContext.<anonymous> (/home/eias/workspace/.projects/toktok--feat-private-lifetime-ca176c2f/test/selfhost-private-lifetime-browser.test.ts:14:48) {
+    name: 'Error',
+    log: []
+  }

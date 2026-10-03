@@ -1,0 +1,15 @@
+heavy verification: running in slot 1/2
+PRIVATE_LIFETIME_BROWSER {"width":390,"checks":["anonymous lifetime and consent visible","actual context grant create201, null expiry, secret absent","actual private snapshot, latest message, no false expiry"],"errors":0}
+PRIVATE_HTTP_EVIDENCE {"case":"actual local private lifetime UI 390","clock":"DI; no actual five-minute idle elapsed","raw":[{"step":"private participant","status":201},{"step":"browser fixture message","status":201},{"step":"local browser room cleanup","status":204}],"cleanup":true}
+✔ actual local private lifetime UI 390 (2772.993459ms)
+PRIVATE_LIFETIME_BROWSER {"width":1440,"checks":["anonymous lifetime and consent visible","actual context grant create201, null expiry, secret absent","actual private snapshot, latest message, no false expiry"],"errors":0}
+PRIVATE_HTTP_EVIDENCE {"case":"actual local private lifetime UI 1440","clock":"DI; no actual five-minute idle elapsed","raw":[{"step":"private participant","status":201},{"step":"browser fixture message","status":201},{"step":"local browser room cleanup","status":204}],"cleanup":true}
+✔ actual local private lifetime UI 1440 (2690.315075ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6492.925582

@@ -12,6 +12,7 @@ export const routeRegistry=Object.freeze([
   {transitionId:'admin-audit-unavailable',event:'audit-read',kind:'error',to:'admin-audit'},
   {transitionId:'admin-audit-back',event:'settings-link',kind:'back',to:'admin-settings'}]},
  {routeId:'new-room',screenId:'newroom',match:/^\/new-room$/,params:[],transitions:[
+  {transitionId:'private-anonymous-created',event:'anonymous-create-submit',kind:'success',to:'new-room'},
   {transitionId:'private-created',event:'create-submit',kind:'success',to:'new-room'},
   {transitionId:'private-pending',event:'create-submit',kind:'error',to:'new-room'},
   {transitionId:'private-result-lost',event:'create-retry',kind:'error',to:'new-room'},

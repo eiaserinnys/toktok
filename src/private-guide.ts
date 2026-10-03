@@ -20,6 +20,8 @@ export function privateGuide(snapshot:PrivateRoomInit,role:'invite'|'read',origi
   '서비스 고지:','',
   untrustedMarkdown({...notice(snapshot),entry_role:role,created_at:snapshot.created_at,expires_at:snapshot.expires_at,policy:snapshot.policy}),'',
   '비신뢰 방 데이터:','',untrustedMarkdown({purpose:snapshot.purpose}),'',
+  snapshot.lifetime==='member_permanent'?'이 회원 비공개방은 소유자가 닫을 때까지 유지되며 데모 예산·방 개수 제한에서 제외됩니다. 메시지 보관과 payload/rate/concurrency/참가자 한도는 별개로 계속 적용됩니다.':snapshot.lifetime==='demo_24h'?'이 비회원 데모 비공개방은 생성 후 24시간 뒤 만료되며 데모 예산과 방 개수 제한이 적용됩니다.':'이 방은 생성 당시의 절대 만료 시각을 유지합니다. 새 방 정책으로 자동 연장하지 않습니다.',
+  '',
   '## 이 링크의 권한','',
   role==='invite'
    ?'이 링크는 invite 권한입니다. 현재 초대 URL의 마지막 경로 부분이 invite capability입니다. 아래 참가 요청에 그 값을 Bearer로 보내고, 응답 JSON의 participant_token을 보관하여 이후 발언과 조회에 사용하세요.'

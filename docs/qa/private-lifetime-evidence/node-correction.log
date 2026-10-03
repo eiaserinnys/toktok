@@ -1,0 +1,35 @@
+heavy verification: running in slot 1/2
+PRIVATE_HTTP_EVIDENCE {"case":"member private HTTP is permanent and demo-budget exempt only after DB ownership; demo counts, CSRF and technical rate remain","clock":"DI; no actual five-minute idle elapsed","raw":[{"step":"creation context","status":200},{"step":"explicit local creation acknowledgement","status":200},{"step":"private create","status":201},{"step":"creation context","status":200},{"step":"explicit local creation acknowledgement","status":200},{"step":"anonymous demo count stays limited","status":429,"code":"CREATE_RATE_LIMITED"},{"step":"private creation options","status":200},{"step":"creation context","status":200},{"step":"explicit local creation acknowledgement","status":200},{"step":"private create","status":201},{"step":"creation context","status":200},{"step":"explicit local creation acknowledgement","status":200},{"step":"private create","status":201},{"step":"creation context","status":200},{"step":"explicit local creation acknowledgement","status":200},{"step":"member create still obeys IP request rate","status":429,"code":"CREATE_RATE_LIMITED"},{"step":"member options under exhausted budget","status":200},{"step":"CSRF required under exhaustion","status":403,"code":"CSRF_DENIED"},{"step":"anonymous options still metered","status":429,"code":"BUDGET_EXCEEDED"},{"step":"creation context","status":200},{"step":"explicit local creation acknowledgement","status":200},{"step":"private create","status":201},{"step":"private participant","status":201},{"step":"member private write under exhausted budget","status":201},{"step":"wrong room capability remains forbidden","status":403,"code":"CAPABILITY_DENIED"},{"step":"member private read under exhausted budget","status":200},{"step":"nonprivate request remains metered","status":429,"code":"BUDGET_EXCEEDED"},{"step":"nonprivate request remains metered","status":403,"code":"ADMIN_REQUIRED"}],"cleanup":true}
+✖ member private HTTP is permanent and demo-budget exempt only after DB ownership; demo counts, CSRF and technical rate remain (498.367755ms)
+PRIVATE_LIFETIME_EVIDENCE {"mode":"HOSTED","account_and_agent_verified":true,"caller_lifetime_denied":400,"revoked_agent_denied":403,"retention_seconds":604800,"empty_room_timer":null}
+PRIVATE_HTTP_EVIDENCE {"case":"HOSTED member and approved owned agent use permanent policy; unverified, unentitled and caller lifecycle fields cannot exempt","clock":"DI; no actual five-minute idle elapsed","raw":[{"step":"unadmitted options","status":403,"code":"ADMISSION_DENIED"},{"step":"unadmitted options","status":403,"code":"ADMISSION_DENIED"},{"step":"creation context","status":200},{"step":"explicit local creation acknowledgement","status":200},{"step":"caller lifecycle rejected","status":400,"code":"INVALID_INPUT"},{"step":"finite TTL cannot silently become permanent","status":422,"code":"ROOM_LIFETIME_FIXED"},{"step":"private create","status":201},{"step":"private participant","status":201},{"step":"long retention write","status":201},{"step":"long history beyond one-day room policy","status":200},{"step":"approved agent creation","status":201},{"step":"revoked agent no exemption","status":403,"code":"AGENT_NOT_APPROVED"},{"step":"long history retention expires independently","status":200},{"step":"long room cleanup","status":204},{"step":"agent room cleanup","status":204}],"cleanup":true}
+✔ HOSTED member and approved owned agent use permanent policy; unverified, unentitled and caller lifecycle fields cannot exempt (153.264387ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 1
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1180.207626
+
+✖ failing tests:
+
+test at test/selfhost-private-lifetime.test.ts:1:1232
+✖ member private HTTP is permanent and demo-budget exempt only after DB ownership; demo counts, CSRF and technical rate remain (498.367755ms)
+  AssertionError [ERR_ASSERTION]: no broad exemption (response body deliberately omitted)
+  
+  403 !== 429
+  
+      at status (/home/eias/workspace/.projects/toktok--feat-private-lifetime-ca176c2f/test/private-http-fixture.ts:25:74)
+      at TestContext.<anonymous> (/home/eias/workspace/.projects/toktok--feat-private-lifetime-ca176c2f/test/selfhost-private-lifetime.test.ts:36:196)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 403,
+    expected: 429,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

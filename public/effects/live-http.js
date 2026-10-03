@@ -30,6 +30,8 @@ export function mapConfig(data){
   if(!Number.isFinite(data.private[key]))invalid('CONFIG');limits.private[key]=data.private[key];
  }
  if(data.private.defaultPersist!==false||typeof data.private.anonymousEnabled!=='boolean')invalid('CONFIG');
+ const lifetime=data.private.lifetime;if(lifetime?.version!=='member-permanent-v1'||lifetime.anonymous_seconds!==86400||lifetime.member!=='owner_close'||lifetime.member_demo_budget_exempt!==true)invalid('CONFIG');
+ limits.private.lifetime={version:lifetime.version,anonymous_seconds:lifetime.anonymous_seconds,member:lifetime.member,member_demo_budget_exempt:true};
  limits.private.defaultPersist=false;limits.private.anonymousEnabled=data.private.anonymousEnabled;
  const catalog=data.public.catalog.map(room=>{
   if(typeof room.slug!=='string'||typeof room.title!=='string'||room.enabled!==true)invalid('CONFIG');
@@ -59,6 +61,12 @@ export function createLiveAdapter({fetch:fetchHTTP=globalThis.fetch}={}){
  }
  return Object.freeze({
   publicConnection:(slug,body)=>{if(!/^[a-z0-9-]+$/.test(slug))invalid('ROOM');return request('/api/public/rooms/'+slug+'/connection-approval',{method:'POST',body});},
+  getCreationOptions:async()=>{
+   const own=++sessionGeneration;csrf=null;const data=await request('/api/private/create-options'),Session=mapSession(data.session),Config=mapConfig(data.config);
+   if(Session.authenticated&&typeof data.session.csrf_token!=='string')invalid('SESSION');
+   if(own===sessionGeneration)csrf=Session.authenticated?data.session.csrf_token:null;
+   return {Session,Config};
+  },
   getConfig:async()=>mapConfig(await request('/api/config')),
   getSession:async()=>{
    const own=++sessionGeneration;csrf=null;const data=await request('/api/session');

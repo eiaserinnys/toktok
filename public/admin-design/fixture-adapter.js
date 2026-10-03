@@ -64,6 +64,7 @@ export function createFixtureAdapter(seed={}){
  return Object.freeze({
   ...Object.fromEntries(effectNames.map(name=>[name,(...args)=>invoke(name,...args)])),
   getSession:async()=>clone(session),
+  getCreationOptions:async()=>({Session:clone(session),Config:await invoke('getConfig')}),
   invoke,
   navigate:async(path)=>{history.splice(index+1);history.push(path);index++;},
   currentRoute:()=>history[index],back:()=>{if(index)index--;},forward:()=>{if(index<history.length-1)index++;},

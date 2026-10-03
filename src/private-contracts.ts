@@ -13,7 +13,7 @@ export const PRIVATE_POLICY:Readonly<PrivatePolicy>=Object.freeze({memoryMessage
 export interface PrivateCreatorAck {kind:'anonymous_declaration'|'account_confirmation'|'agent_owner_confirmation';version:PrivateNoticeVersion;confirmed_at:number;owner_account_id:string|null;}
 /** Trusted server-only initializer. A validates DB account entitlement and current creator authority. */
 export interface PrivateRoomInit {
- id:string;creator_id:string;created_at:number;expires_at:number;purpose:string;invite_hash:string;read_hash:string;owner_hash:string;
+ id:string;creator_id:string;created_at:number;expires_at:number|null;lifetime?:'demo_24h'|'member_permanent';purpose:string;invite_hash:string;read_hash:string;owner_hash:string;
  settings_revision:number;mode:'DEMO'|'HOSTED';visibility:'private';persist:boolean;retention_seconds:number|null;
  notice_version:PrivateNoticeVersion;creator_ack:PrivateCreatorAck;policy:PrivatePolicy;
 }
