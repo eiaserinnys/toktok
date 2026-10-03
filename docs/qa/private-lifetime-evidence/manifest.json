@@ -86,5 +86,25 @@
   {
     "file": "recovery-correction.log",
     "sha256": "8e6186d50977d11f97e1d2bdced004096e7fcf20d6ba94a7b94fb1c06850441f"
+  },
+  {
+    "file": "cache-red.log",
+    "sha256": "bfc72b0162487c6717c75b182850b4794aed3b761b71059f33afa3729b4796ec"
+  },
+  {
+    "file": "cache-green.log",
+    "sha256": "b9ae85cf6dc2fcb078f75969f54bcad00339eab56c6324e901d781bc975b32b6"
+  },
+  {
+    "file": "node-cache-http.log",
+    "sha256": "f20b9f0c6d9ace6c0baa3414f7461a672c740f1e3e078695274f9845a235d35a"
+  },
+  {
+    "file": "node-final.log",
+    "sha256": "9ecd1d83eadae75d1252cb5077d4f3efb1a66fbb5144ca6a8825625fb7d99189"
+  },
+  {
+    "file": "node-build-correction.log",
+    "sha256": "ba82bf717f9fa1f15b596ecc9ed1760841462c3b4991895584537be341547233"
   }
 ]

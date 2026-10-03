@@ -1,0 +1,30 @@
+heavy verification: running in slot 1/2
+PRIVATE_HTTP_EVIDENCE {"case":"idle core cache preserves in-flight initialization and bounds retained empty permanent cores","clock":"DI; no actual five-minute idle elapsed","raw":[],"cleanup":true}
+✖ idle core cache preserves in-flight initialization and bounds retained empty permanent cores (116.280724ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 575.185577
+
+✖ failing tests:
+
+test at test/selfhost-private-lifetime.test.ts:1:11460
+✖ idle core cache preserves in-flight initialization and bounds retained empty permanent cores (116.280724ms)
+  AssertionError [ERR_ASSERTION]: initialization must survive idle-cache pressure
+  
+  false !== true
+  
+      at TestContext.<anonymous> (/home/eias/workspace/.projects/toktok--feat-private-lifetime-ca176c2f/test/selfhost-private-lifetime.test.ts:85:19)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -51,3 +51,9 @@
 ## PR18 CI 영향 보정
 
 [최초 CI](https://github.com/eiaserinnys/toktok/actions/runs/37125675220)는 application 22PASS/2FAIL에서 멈췄다. 두 실패는 일반 admin recovery 검사에서 생성 확인 없는 private POST도 일괄 예산429를 기대한 것이다. 새 생성은 실제 자격 확인 후 예산 범주를 결정하므로 이 요청은 403 OPERATOR_ACK_REQUIRED가 정본이다. 확인 없는 생성은 여전히 거절하고 recovery 사용량도 증가하지 않는다. source 변경 없이 해당 두 기대값만 고쳐 선택2PASS/1SKIP로 확인했다. synthetic recovery 성공 case는 재실행하지 않았다. 초기 CI 실패를 환경 문제나 성공으로 바꾸어 보고하지 않는다.
+
+## Node idle cache 동시성 보완
+
+최종 읽기 검토에서 새 idle cache가 초기화 promise와 schedule 사이의 core를 회수할 수 있음을 발견했다. SQLite transaction 진입을 의도적으로 대기시킨 상태에서 다른 65개 가상 빈 상설방을 초기화하는 신규 검사 RED1FAIL → active operation pin 보완 GREEN1PASS. idle cache는63개/timer0, 초기화 및 복원 성공이다. 변경된 Node runtime의 두 클라이언트 대화·shutdown 및 actual host acceptance 선택2PASS, Node 타입 exit0이다. Node bundle 첫 명령은 ELF 실행 파일을 node로 호출한 명령 오류이며, 실행 파일을 직접 호출한 보정 bundle exit0다. CF 제품 소스에는 이 보완으로 추가 변경이 없다.
+
+[두 번째 CI](https://github.com/eiaserinnys/toktok/actions/runs/37125854078)는 test/verdict/UI/public-UI/typecheck 다섯 단계 SUCCESS, acceptance에서 `selfhost/node_modules/tsx/dist/loader.mjs` 미설치로 FAILURE다(Node22 환경). 같은 acceptance는 로컬 설치된 Node24/SQLite 실제 HTTP에서 위 선택2 중 하나로 통과했다. 기존 workflow 권한 문제를 우회하거나 CI 설정을 고치지 않았다. 전체 CI 녹색이라고 보고하지 않는다.

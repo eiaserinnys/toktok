@@ -73,3 +73,16 @@ test('existing snapshots keep finite expiry and demo budget; invalid permanent s
  f.advance(120001);const r=await core.fetch(new Request(f.origin+'/api/v1/rooms/'+snapshot.id,{headers:{Authorization:'Bearer '+tokens.read}}));assert.equal(r.status,410);await r.arrayBuffer();
  console.log('PRIVATE_LIFETIME_EVIDENCE '+JSON.stringify({existing_snapshot_unchanged:true,old_expiry:410,old_budget_metered:true,anonymous_null_expiry_denied:true}));
 });
+
+test('idle core cache preserves in-flight initialization and bounds retained empty permanent cores',async t=>{
+ const f=await fixture(t);let release!:()=>void,started!:()=>void;
+ const held=new Promise<void>(r=>release=r),entered=new Promise<void>(r=>started=r);let once=true;
+ const {PrivateRooms}=await import('../src/runtime/private-rooms');
+ const rooms=new PrivateRooms({origin:f.origin,clock:()=>f.now,budget:TEST_BUDGET,repo:{ready:()=>f.repo.ready(),close:async()=>{},async transaction(scope,fn){if(scope==='room:held-member'&&once){once=false;started();await held;}return f.repo.transaction(scope,fn);}}});t.after(()=>{release();rooms.shutdown();});
+ const sample=await privateSnapshot('held-member',true,f.now);sample.snapshot.expires_at=null;sample.snapshot.lifetime='member_permanent';sample.snapshot.persist=false;sample.snapshot.retention_seconds=null;
+ const pending=rooms.initialize(sample.snapshot).then(()=>true,()=>false);await entered;
+ for(let n=0;n<65;n++)await rooms.initialize({...sample.snapshot,id:'empty-member-'+n});
+ release();assert.equal(await pending,true,'initialization must survive idle-cache pressure');assert(rooms.diagnostics().rooms<=64);assert.equal(rooms.diagnostics().timers,0);
+ const result=await rooms.fetch(new Request(f.origin+'/api/v1/rooms/held-member',{headers:{Authorization:'Bearer '+sample.tokens.read}}));assert.equal(result?.status,200);await result?.arrayBuffer();
+ console.log('PRIVATE_LIFETIME_CACHE '+JSON.stringify({in_flight_preserved:true,idle_cached:rooms.diagnostics().rooms,timers:rooms.diagnostics().timers}));
+});

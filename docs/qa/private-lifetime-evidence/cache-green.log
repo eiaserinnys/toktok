@@ -1,0 +1,12 @@
+heavy verification: running in slot 1/2
+PRIVATE_LIFETIME_CACHE {"in_flight_preserved":true,"idle_cached":63,"timers":0}
+PRIVATE_HTTP_EVIDENCE {"case":"idle core cache preserves in-flight initialization and bounds retained empty permanent cores","clock":"DI; no actual five-minute idle elapsed","raw":[],"cleanup":true}
+✔ idle core cache preserves in-flight initialization and bounds retained empty permanent cores (128.035783ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 637.84427

@@ -1,0 +1,12 @@
+heavy verification: running in slot 1/2
+✔ single SQLite host bootstraps by OTP, guards QA, and creates recent-buffer/private rooms via HTTP (273.199113ms)
+{"phase":"private-node-http","clients":2,"cursor_pages":3,"shutdown_ms":3008,"waits":0,"handlers":0,"timers":0}
+✔ Node private HTTP two clients exchange three cursor pages and graceful stop recovers wait (3128.003817ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4268.453739
