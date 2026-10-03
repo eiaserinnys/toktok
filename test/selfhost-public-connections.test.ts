@@ -7,19 +7,20 @@ import {handlePublicBrowserWith} from '../src/public-browser';
 import {handlePublicRequestWith} from '../src/public-http';
 import {hash,newToken} from '../src/http';
 import {TEST_BUDGET} from './selfhost-budget';
+const catalog=PUBLIC_CATALOG.map(r=>({...r,generation:'11111111-1111-4111-8111-111111111111'}));
 const origin='https://example.test',base='/api/public/rooms/common-room';
 function fixture(repo:import('../src/storage/repository').RepositoryPort){
  let now=Date.now();const rooms=new Map<string,PublicRoomCore>();
- const room=(slug:string)=>{let r=rooms.get(slug);if(!r){r=new PublicRoomCore({repo,origin,catalog:()=>PUBLIC_CATALOG,policy:()=>({...PUBLIC_POLICY}),clock:()=>now,budget:TEST_BUDGET});rooms.set(slug,r);}return r;};
+ const room=(slug:string)=>{let r=rooms.get(slug);if(!r){r=new PublicRoomCore({repo,origin,catalog:()=>catalog,policy:()=>({...PUBLIC_POLICY}),clock:()=>now,budget:TEST_BUDGET});rooms.set(slug,r);}return r;};
  async function call(path:string,method='GET',body?:object,headers:Record<string,string>={}){
   const request=new Request(origin+path,{method,headers:{...(body?{'Content-Type':'application/json'}:{}),...headers},...(body?{body:JSON.stringify(body)}:{})});
-  const response=await handlePublicBrowserWith(request,{origin,catalog:PUBLIC_CATALOG,policy:{...PUBLIC_POLICY},assets:{fetch:async()=>new Response('<html><head></head><body><div id="app"></div></body></html>',{headers:{'Content-Type':'text/html'}})},trustedIP:()=> '192.0.2.1',limit:async()=>({success:true}),room:async slug=>room(slug),dispatch:r=>handlePublicRequestWith(r,{origin,catalog:()=>PUBLIC_CATALOG,policy:()=>({...PUBLIC_POLICY}),room, trustedIpHash:()=>hash('192.0.2.1')})});
+  const response=await handlePublicBrowserWith(request,{origin,catalog,policy:{...PUBLIC_POLICY},assets:{fetch:async()=>new Response('<html><head></head><body><div id="app"></div></body></html>',{headers:{'Content-Type':'text/html'}})},trustedIP:()=> '192.0.2.1',limit:async()=>({success:true}),room:async slug=>room(slug),dispatch:r=>handlePublicRequestWith(r,{origin,catalog:()=>catalog,policy:()=>({...PUBLIC_POLICY}),room, trustedIpHash:()=>hash('192.0.2.1')})});
   assert(response);const text=await response.text();let data:Record<string,string>;try{data=JSON.parse(text);}catch{data={text};}return {status:response.status,data,headers:response.headers};
  }
  const newRequest=()=>({request_secret:newToken(),client_request_id:crypto.randomUUID(),nickname:'Dot <untrusted>',notice_version:PUBLIC_NOTICE,visibility:'public',retention_mode:'recent_buffer'});
  const auth=(secret:string)=>({Authorization:'Bearer '+secret});
  async function preview(id:string){const r=await call(base+'/connection-approval','POST',{action:'preview',request_id:id},{Origin:origin});assert.equal(r.status,200);return {nonce:r.data.nonce,cookie:r.headers.get('Set-Cookie')!.split(';')[0]};}
- const decide=(id:string,p:{nonce:string;cookie:string},action='approve',extra:object={})=>call(base+'/connection-approval','POST',{action,request_id:id,nonce:p.nonce,checked:true,risk_ack_version:PUBLIC_NOTICE,...extra},{Origin:origin,Cookie:p.cookie});
+ const decide=(id:string,p:{nonce:string;cookie:string},action='approve',extra:object={})=>call(base+'/connection-approval','POST',{action,request_id:id,nonce:p.nonce,checked:true,risk_ack_version:PUBLIC_NOTICE,entry_notice_version:'toktok-entry-30d-v1',...extra},{Origin:origin,Cookie:p.cookie});
  return {call,newRequest,auth,preview,decide,room,advance:(ms:number)=>{now+=ms;},stop:()=>rooms.forEach(r=>r.shutdown())};
 }
 test('bare URL discovers a complete guide; agent retrieves approval and joins/posts; human revocation closes only that lease',async(t)=>{
@@ -40,10 +41,10 @@ test('bare URL discovers a complete guide; agent retrieves approval and joins/po
   assert.equal((await f.call(base+'/messages','POST',{text:'not accepted',client_message_id:'two'},f.auth(joined.data.lease_token))).status,403);
  }finally{f.stop();}
 });
-test('human approval verifies Origin, signed proof, nonce, request, room, explicit acknowledgement; denial cannot become approval',async(t)=>{
+test('human approval verifies Origin, issued proof, nonce, request, room, explicit acknowledgement; denial cannot become approval',async(t)=>{
  const f=fixture(publicTestRepo(t));try{
   const a=f.newRequest(),r=await f.call(base+'/connection-requests','POST',a),p=await f.preview(r.data.request_id);
-  const body={action:'approve',request_id:r.data.request_id,nonce:p.nonce,checked:true,risk_ack_version:PUBLIC_NOTICE};
+  const body={action:'approve',request_id:r.data.request_id,nonce:p.nonce,checked:true,risk_ack_version:PUBLIC_NOTICE,entry_notice_version:'toktok-entry-30d-v1'};
   assert.equal((await f.call(base+'/connection-approval','POST',body,{Cookie:p.cookie})).status,403);
   assert.equal((await f.call(base+'/connection-approval','POST',body,{Origin:'https://elsewhere.test',Cookie:p.cookie})).status,403);
   assert.equal((await f.call(base+'/connection-approval','POST',body,{Origin:origin,Cookie:p.cookie+'tampered'})).status,403);

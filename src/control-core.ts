@@ -58,7 +58,7 @@ export class ControlDomain {
   const settings=(await this.settings.read()).settings,now=this.now;
   if(action==='config')return this.settings.projection();
   // Trusted host transport only. Never dispatch this action from a public route.
-  if(action==='get-runtime-config'){const row=await this.settings.read();return {settings:row.settings,revision:row.revision,readiness:await this.settings.state()};}
+  if(action==='get-runtime-config'){const row=await this.settings.read();return {settings:row.settings,revision:row.revision,readiness:await this.settings.state(),public_generations:await this.settings.publicGenerations()};}
   if(action==='invitation-validate')return this.invitations.validate(input.token_hash!,input.invitation_validation_hash!,input.browser_hash!,now);
   if(action==='admin-recovery-reserve'){
    if(typeof input.mutation!=='boolean')bad();await this.admin(input,input.mutation);

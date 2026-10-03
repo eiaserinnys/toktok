@@ -15,7 +15,7 @@ export interface SettingsSchemaResponse {schema_version:number;schema:SchemaNode
 export interface AdminRecoveryReservation {response_bytes_limit:65536;}
 export type AdminBudgetResponse=Awaited<ReturnType<SettingsStore['budget']>>;
 /** Trusted host projection. Never publish as GET /api/config. */
-export interface RuntimeConfig {settings:Settings;revision:number;readiness:ControlState;}
+export interface RuntimeConfig {public_generations?:Record<string,string>;settings:Settings;revision:number;readiness:ControlState;}
 export interface InvitationView {id:string;expires_at:string;status:'active'|'used'|'revoked'|'expired';}
 export interface InvitationCreated extends InvitationView {code:string;}
 export interface CreationContextResponse {nonce:string;expires_at:string;notice_version:'toktok-risk-v2';authenticated:boolean;can_persist_private:boolean;}

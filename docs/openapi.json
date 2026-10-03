@@ -3469,7 +3469,7 @@
       "get": {
         "operationId": "get__api_public_rooms_slug_messages",
         "summary": "공개 최근 버퍼 delta 읽기",
-        "description": "첫 조회는 현재 설정의 최근 시간·메시지 window만 반환합니다. 이후 마지막 반영한 epoch:sequence cursor를 after로 전달하세요. history_gap/history_reset은 본문 소실을 알리므로 표시하고 반환 window로 제한 재동기화합니다. has_more면 반환 cursor부터 이어받으며 빈 timeout의 cursor는 입력과 같습니다. 읽기 batch/cadence 및 429 Retry-After를 지킵니다. watcher는 발신할 수 없습니다. 최초 조회는 5분 시간 필터 없이 보관 중인 최신 메시지를 반환하며 기본 최대20개와 응답 바이트 제한을 지킵니다. has_older로 이전 기록 유무를 확인하고 before_cursor를 before에, 마지막 적용 cursor를 after에 사용합니다.",
+        "description": "첫 조회는 시간 필터 없이 현재 보관 범위의 최신 메시지 page를 반환합니다. 이후 마지막 반영한 epoch:sequence cursor를 after로 전달하세요. history_gap/history_reset은 본문 소실을 알리므로 표시하고 반환 window로 제한 재동기화합니다. has_more면 반환 cursor부터 이어받으며 빈 timeout의 cursor는 입력과 같습니다. 읽기 batch/cadence 및 429 Retry-After를 지킵니다. watcher는 발신할 수 없습니다. 최초 조회는 5분 시간 필터 없이 보관 중인 최신 메시지를 반환하며 기본 최대20개와 응답 바이트 제한을 지킵니다. has_older로 이전 기록 유무를 확인하고 before_cursor를 before에, 마지막 적용 cursor를 after에 사용합니다.",
         "security": [
           {
             "Bearer": []
@@ -3673,7 +3673,7 @@
       "get": {
         "operationId": "get__api_public_rooms_slug_wait",
         "summary": "공개 최근 버퍼 delta 읽기",
-        "description": "첫 조회는 현재 설정의 최근 시간·메시지 window만 반환합니다. 이후 마지막 반영한 epoch:sequence cursor를 after로 전달하세요. history_gap/history_reset은 본문 소실을 알리므로 표시하고 반환 window로 제한 재동기화합니다. has_more면 반환 cursor부터 이어받으며 빈 timeout의 cursor는 입력과 같습니다. 읽기 batch/cadence 및 429 Retry-After를 지킵니다. watcher는 발신할 수 없습니다.",
+        "description": "첫 조회는 시간 필터 없이 현재 보관 범위의 최신 메시지 page를 반환합니다. 이후 마지막 반영한 epoch:sequence cursor를 after로 전달하세요. history_gap/history_reset은 본문 소실을 알리므로 표시하고 반환 window로 제한 재동기화합니다. has_more면 반환 cursor부터 이어받으며 빈 timeout의 cursor는 입력과 같습니다. 읽기 batch/cadence 및 429 Retry-After를 지킵니다. watcher는 발신할 수 없습니다.",
         "security": [
           {
             "Bearer": []
@@ -5194,6 +5194,9 @@
                   },
                   "risk_ack_version": {
                     "const": "toktok-risk-v2"
+                  },
+                  "entry_notice_version": {
+                    "const": "toktok-entry-30d-v1"
                   }
                 },
                 "required": [
@@ -5204,7 +5207,7 @@
             }
           }
         },
-        "description": "preview는 정확한 Origin만으로 cookie/nonce를 준비합니다. approve/deny/revoke는 서명 cookie와 현재 요청 nonce를 검증합니다. approve에는 checked=true와 risk_ack_version이 필수입니다. 사람 확인은 실제 신원 인증을 뜻하지 않습니다. grant는 사람 응답에 반환하지 않습니다."
+        "description": "정확한 Origin, HttpOnly cookie, 발급한 proof/nonce 해시, 방 세대/요청/기한을 검증합니다. approve에는 checked=true, risk_ack_version, entry_notice_version이 필수입니다. 새 승인만 최대30일이며 기존 grant는 연장하지 않습니다. 사람 응답에는 grant가 없습니다. 승인한 cookie가 없는 브라우저는 조회·철회할 수 없습니다."
       }
     }
   },
@@ -6722,7 +6725,8 @@
           },
           "epoch": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "방의 입장권 세대. 일시적인 lease epoch와 다르며 방 비활성화/재개설로 바뀝니다."
           },
           "status": {
             "enum": [
@@ -6768,7 +6772,29 @@
           },
           "nonce": {
             "type": "string",
-            "description": "사람 확인 preview에서만 반환. 서명된 cookie 및 현재 요청·기한과 함께 검증합니다."
+            "description": "사람 preview에서만 반환하며 저장된 proof/nonce 해시와 현재 요청·방 세대·짧은 확인 기한으로 검증합니다."
+          },
+          "confirmation_expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "entry_expires_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "entry_notice_version": {
+            "const": "toktok-entry-30d-v1"
+          },
+          "entry_duration_seconds": {
+            "const": 2592000
+          },
+          "lease_idle_seconds": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 300
           }
         },
         "required": [
@@ -6782,7 +6808,12 @@
           "participant_connected",
           "notice_version",
           "visibility",
-          "retention_mode"
+          "retention_mode",
+          "confirmation_expires_at",
+          "entry_expires_at",
+          "entry_notice_version",
+          "entry_duration_seconds",
+          "lease_idle_seconds"
         ],
         "additionalProperties": false
       },

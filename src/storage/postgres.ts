@@ -74,7 +74,7 @@ export class PostgresRepository implements RepositoryPort,NodePrivateMaintenance
   }
   async listPublicRoomIds(options:PrivateRoomIdOptions){
     if(nesting.getStore())throw new RepositoryError('NESTED_TRANSACTION');validateRoomIdPage(options);if(!this.ready())throw new RepositoryError('REPOSITORY_UNAVAILABLE');
-    return this.connected(async c=>{const rows=(await c.query(`SELECT substring(scope from 8) AS id FROM ${identifier(this.schema)}.tok_records WHERE collection='recent_buffers' AND scope COLLATE "C">$1 AND scope COLLATE "C"<'public;' AND key='buffer' AND (value_json::jsonb->>'count')::bigint>0 ORDER BY scope COLLATE "C" LIMIT $2`,['public:'+(options.after??''),options.limit])).rows;return roomIdPage(rows.map(r=>String(r.id)),options.limit);});
+    return this.connected(async c=>{const rows=(await c.query(`SELECT DISTINCT substring(scope from 8) COLLATE "C" AS id FROM ${identifier(this.schema)}.tok_records WHERE ((collection='recent_buffers' AND key='buffer') OR (collection='public_entries' AND key='meta')) AND scope COLLATE "C">$1 AND scope COLLATE "C"<'public;' AND (value_json::jsonb->>'count')::bigint>0 ORDER BY id LIMIT $2`,['public:'+(options.after??''),options.limit])).rows;return roomIdPage(rows.map(r=>String(r.id)),options.limit);});
   }
   async close(){this.closed=true;this.available=false;if(this.owner){this.owner.release(true);this.owner=undefined;}await this.pool.end();}
 }

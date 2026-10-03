@@ -72,7 +72,7 @@ export class SQLiteRepository implements RepositoryPort,NodePrivateMaintenance {
   }
   async listPublicRoomIds(options:PrivateRoomIdOptions){
     if(nesting.getStore())throw new RepositoryError('NESTED_TRANSACTION');validateRoomIdPage(options);
-    const operation=this.tail.then(()=>{if(!this.ready())throw new RepositoryError('REPOSITORY_UNAVAILABLE');const ids=this.db.prepare("SELECT substr(scope,8) AS id FROM tok_records WHERE collection='recent_buffers' AND scope>? AND scope<'public;' AND key='buffer' AND json_extract(value_json,'$.count')>0 ORDER BY scope LIMIT ?").all('public:'+(options.after??''),options.limit).map(r=>String(r.id));return roomIdPage(ids,options.limit);});this.tail=operation.then(()=>{},()=>{});return operation;
+    const operation=this.tail.then(()=>{if(!this.ready())throw new RepositoryError('REPOSITORY_UNAVAILABLE');const ids=this.db.prepare("SELECT DISTINCT substr(scope,8) AS id FROM tok_records WHERE ((collection='recent_buffers' AND key='buffer') OR (collection='public_entries' AND key='meta')) AND scope>? AND scope<'public;' AND json_extract(value_json,'$.count')>0 ORDER BY id LIMIT ?").all('public:'+(options.after??''),options.limit).map(r=>String(r.id));return roomIdPage(ids,options.limit);});this.tail=operation.then(()=>{},()=>{});return operation;
   }
   async backupTo(path:string):Promise<void>{await this.tail;if(!this.ready())throw new RepositoryError('REPOSITORY_UNAVAILABLE');await backup(this.db,path);}
   async close(){this.closed=true;await this.tail;this.db.close();}
