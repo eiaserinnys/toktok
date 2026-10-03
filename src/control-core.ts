@@ -120,6 +120,7 @@ export class ControlDomain {
   if(action==='create-grant')return creation.grant(input);
   if(action==='create-reserve')return creation.reserve(input);
   if(action==='create-commit')return creation.commit(input);
+  if(action==='create-options')return creation.options(input);
   if(action==='create-pending')return creation.pending();
   fail(404,'NOT_FOUND','경로가 없습니다.');
  }

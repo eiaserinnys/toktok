@@ -16,7 +16,7 @@ it('preserves pending/lost room identifiers and Retry-After without retrying cre
  }
 });
 it('maps server limits and catalog without a count/default/30-day fallback',()=>{
- const priv={anonymousDefaultTtlSeconds:3600,anonymousMaxTtlSeconds:86400,authenticatedDefaultTtlSeconds:86400,authenticatedMaxTtlSeconds:604800,defaultRetentionSeconds:86400,maxRetentionSeconds:604800,defaultPersist:false,anonymousEnabled:false};
+ const priv={lifetime:{version:'member-permanent-v1',anonymous_seconds:86400,member:'owner_close',member_demo_budget_exempt:true},anonymousDefaultTtlSeconds:3600,anonymousMaxTtlSeconds:86400,authenticatedDefaultTtlSeconds:86400,authenticatedMaxTtlSeconds:604800,defaultRetentionSeconds:86400,maxRetentionSeconds:604800,defaultPersist:false,anonymousEnabled:false};
  const projection=mapConfig({revision:4,mode:'demo',enabled:false,signup:'invite',public:{catalog:[],firstWindowSeconds:70,firstWindowMessages:20,pageSize:3,agentReadCadenceSeconds:11,browserReadCadenceSeconds:4},private:priv});
  expect(projection.catalog).toEqual([]);expect(projection.limits.private).toEqual(priv);expect(projection.limits.public.pageSize).toBe(3);
  expect(projection.limits.public.firstWindowMessages).toBe(20);

@@ -22,7 +22,7 @@ it('common application enforces creator, exact Origin, session and admin boundar
  expect((await call('client role denied','/api/admin/settings?role=admin')).status).toBe(401);
  // Same real reservation and actor; only quota rows are controlled fixture data.
  const baseline=await create();const initializeBytes=new TextEncoder().encode(JSON.stringify({service:baseline.service,room:baseline.room})).length;
- const grant=await anonymousGrant(),request={purpose:'창작 방 <script>비신뢰</script>',ttl_seconds:60,creation_grant:grant,client_request_id:crypto.randomUUID()};
+ const grant=await anonymousGrant(),request={purpose:'창작 방 <script>비신뢰</script>',creation_grant:grant,client_request_id:crypto.randomUUID()};
  await records(async tx=>{const row=(await tx.get(C.settings,'config'))!;const s=row.settings as unknown as {budget:{workloadCaps:{kind:string;day:number;month:number}[]}};const bound=s.budget.workloadCaps.find(c=>c.kind==='response_bytes')!;await save(tx,C.budgets,'usage:response_bytes:d:'+new Date().toISOString().slice(0,10),{used:bound.day-initializeBytes});});
  const lost=await parsed<{error:{code:string};room_id:string}>(await call('initialized result budget failure','/api/v1/rooms',request),409);expect(lost.error.code).toBe('CREATE_RESULT_NOT_RECOVERABLE');roomIds.add(lost.room_id);
  const replay=await parsed<{error:{code:string};room_id:string}>(await call('lost result replay','/api/v1/rooms',request),409);expect(replay.error.code).toBe('CREATE_RESULT_NOT_RECOVERABLE');expect(replay.room_id===lost.room_id).toBe(true);
@@ -113,8 +113,8 @@ it('configured email month cap allows existing OTP completion, two explicit clai
   expect((await call('explicit claim '+n,'/api/claims/'+a.agent.id+'/approve',{risk_ack_version:PRIVATE_NOTICE},{...member.headers,...bearer(claim)})).status).toBe(200);agents.push({agent_token:a.agent_token,id:a.agent.id});
  }
  const context=await call('member create context','/api/private/create-context',{},member.headers);const c=await parsed<{nonce:string}>(context);const grant=await parsed<{creation_grant:string}>(await call('member create confirmation','/api/private/create-grants',{nonce:c.nonce,risk_ack:true,risk_ack_version:PRIVATE_NOTICE},{...member.headers,Cookie:member.cookie+'; '+takeCookie(context,'__Host-toktok_create')}));
- const humanRoom=asRoom(await parsed<Room>(await call('session room create','/api/v1/rooms',{purpose:'세션 창작',ttl_seconds:60,creation_grant:grant.creation_grant,client_request_id:crypto.randomUUID()},member.headers),201));
- const machineRoom=asRoom(await parsed<Room>(await call('approved agent room create','/api/v1/rooms',{purpose:'agent 창작',ttl_seconds:60,client_request_id:crypto.randomUUID()},bearer(agents[0].agent_token)),201));
+ const humanRoom=asRoom(await parsed<Room>(await call('session room create','/api/v1/rooms',{purpose:'세션 창작',creation_grant:grant.creation_grant,client_request_id:crypto.randomUUID()},member.headers),201));
+ const machineRoom=asRoom(await parsed<Room>(await call('approved agent room create','/api/v1/rooms',{purpose:'agent 창작',client_request_id:crypto.randomUUID()},bearer(agents[0].agent_token)),201));
  for(const room of [humanRoom,machineRoom]){const p=await join(room,'창작 참여');await parsed(await send(room,p,'cap-does-not-stop-messages'),201);expect((await readPage(room,room.read)).messages).toHaveLength(1);}
  const callsAfter=await parsed<{calls:number}>(await SELF.fetch(origin+'/__application/metrics'));expect(callsAfter.calls).toBe(callsBefore.calls);
  raw.push({step:'existing session claim/create additional mail zero',status:200,retry_after:null});

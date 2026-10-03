@@ -40,7 +40,7 @@ export function renderSettingsFields(envelope,section,ui={}){
  if(!node||!value)return notice('설정을 불러올 수 없어요','서버 연결과 관리자 권한을 확인해주세요.','error');
  const model={draft:envelope.settings,schema:envelope.schema,raw:ui.raw||{},errors:ui.fieldErrors||{},rowIds:ui.catalogRowIds||envelope.settings.public?.catalog.map((_,index)=>index+1)||[]};
  if(section==='budget'&&node.fields.targetUsd&&node.fields.workloadCaps)return renderBudget(model);
- return fields(node,value,section,model);
+ return (section==='private'?notice('새 비공개방 수명','비회원 데모 방은 24시간, 서버가 확인한 회원 방은 소유자가 닫을 때까지 유지해요. 회원 방은 데모 예산·방 개수 한도에서 제외하며 생성 속도·동시 처리·참가자·본문 보관 한도는 유지해요. 이전 TTL 값은 호환 기록이며 기존 방 수명은 바뀌지 않아요.'):'')+fields(node,value,section,model);
 }
 export function renderSettingsScreen(vm){
  const {status,session,resource,section='overview',changes=[],pending=false,error}=vm;

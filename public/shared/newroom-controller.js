@@ -8,16 +8,16 @@ export function createRoomController({effects,paint,newRequestId=()=>crypto.rand
   if(!state.Config.enabled||(s.authenticated?!s.entitlements.can_create_private:!p.anonymousEnabled))return 'ADMISSION_DENIED';
   if(!state.purpose.trim()||Array.from(state.purpose).length>1000)return 'PURPOSE_INVALID';
   if(!state.checked)return 'RISK_ACK_REQUIRED';
-  const max=s.authenticated?p.authenticatedMaxTtlSeconds:p.anonymousMaxTtlSeconds;
-  if(!Number.isSafeInteger(state.ttl_seconds)||state.ttl_seconds<1||state.ttl_seconds>max)return 'TTL_INVALID';
+  if(p.lifetime?.version!=='member-permanent-v1')return 'LIFETIME_UNAVAILABLE';
+  if(s.authenticated?state.ttl_seconds!==null:state.ttl_seconds!==p.lifetime.anonymous_seconds)return 'TTL_INVALID';
   if(state.persist&&(!s.authenticated||!s.entitlements.can_persist_private))return 'PERSIST_DENIED';
   if(state.persist&&(!Number.isSafeInteger(state.retention_seconds)||state.retention_seconds<1||state.retention_seconds>p.maxRetentionSeconds))return 'RETENTION_INVALID';
-  if(state.persist&&state.retention_seconds>state.ttl_seconds)return 'RETENTION_EXCEEDS_TTL';
+  if(state.persist&&state.ttl_seconds!==null&&state.retention_seconds>state.ttl_seconds)return 'RETENTION_EXCEEDS_TTL';
  }
  return {
   async load(){const own=++generation;state.status='loading';show();
-   try{const [Config,Session]=await Promise.all([effects.getConfig(),effects.getSession()]);if(!alive||own!==generation)return;
-    const p=Config.limits.private;state={...state,status:'ready',Config,Session,ttl_seconds:Session.authenticated?p.authenticatedDefaultTtlSeconds:p.anonymousDefaultTtlSeconds,retention_seconds:p.defaultRetentionSeconds,persist:false,checked:false,error:null};
+   try{const {Config,Session}=await effects.getCreationOptions();if(!alive||own!==generation)return;
+    const p=Config.limits.private;state={...state,status:'ready',Config,Session,ttl_seconds:Session.authenticated?null:p.lifetime?.anonymous_seconds,retention_seconds:p.defaultRetentionSeconds,persist:false,checked:false,error:null};
    }catch(error){if(!alive||own!==generation)return;state={...state,status:'unavailable',Config:null,Session:null,error:failure(error)};}show();
   },
   set(key,value){if(state.pending||state.locked||state.status!=='ready'||!['purpose','persist','checked','ttl_seconds','retention_seconds'].includes(key))return;
@@ -33,13 +33,13 @@ export function createRoomController({effects,paint,newRequestId=()=>crypto.rand
      if(state.persist&&!context.can_persist_private)throw Error('PERSIST_DENIED');
      const grant=await effects.creationGrant({nonce:context.nonce,risk_ack:true});if(!alive||own!==generation)return;
      if(typeof grant.creation_grant!=='string'||grant.notice_version!=='toktok-risk-v2'||typeof grant.expires_at!=='string')throw Error('INVALID_CREATION_GRANT');
-     request={purpose:state.purpose,ttl_seconds:state.ttl_seconds,persist:state.persist,client_request_id:newRequestId(),creation_grant:grant.creation_grant,...(state.persist?{retention_seconds:state.retention_seconds}:{})};state.locked=true;
+     request={purpose:state.purpose,...(state.ttl_seconds===null?{}:{ttl_seconds:state.ttl_seconds}),persist:state.persist,client_request_id:newRequestId(),creation_grant:grant.creation_grant,...(state.persist?{retention_seconds:state.retention_seconds}:{})};state.locked=true;
     }
     const result=await effects.createRoom(structuredClone(request));if(!alive||own!==generation)return;
-    const room=result.room;if(!room||typeof room.id!=='string'||typeof room.purpose!=='string'||typeof room.expires_at!=='string'||room.visibility!=='private'||!['recent_buffer','persisted'].includes(room.retention_mode)||room.notice_version!=='toktok-risk-v2'||typeof result.invite_url!=='string'||typeof result.read_url!=='string'||typeof result.owner_token!=='string')throw Error('INVALID_CREATE_RESPONSE');
+    const room=result.room;if(!room||typeof room.id!=='string'||typeof room.purpose!=='string'||(state.Session.authenticated?room.expires_at!==null||room.lifetime!=='member_permanent':typeof room.expires_at!=='string'||room.lifetime!=='demo_24h')||room.visibility!=='private'||!['recent_buffer','persisted'].includes(room.retention_mode)||room.notice_version!=='toktok-risk-v2'||typeof result.invite_url!=='string'||typeof result.read_url!=='string'||typeof result.owner_token!=='string')throw Error('INVALID_CREATE_RESPONSE');
     for(const value of [result.invite_url,result.read_url]){const url=new URL(value);if(!['http:','https:'].includes(url.protocol)||url.username||url.password||url.search||url.hash||(origin&&url.origin!==origin)||!url.pathname.startsWith('/r/'+room.id+'/')||url.pathname.slice(('/r/'+room.id+'/').length).includes('/'))throw Error('INVALID_CREATE_RESPONSE');}
     if(room.retention_mode!==(request.persist?'persisted':'recent_buffer')||(request.persist?room.retention_seconds!==request.retention_seconds:!Number.isFinite(room.retention_seconds)||room.retention_seconds<=0))throw Error('INVALID_CREATE_RESPONSE');
-    owner=result.owner_token;state.created={room:{id:room.id,purpose:room.purpose,expires_at:room.expires_at,retention_mode:room.retention_mode,retention_seconds:room.retention_seconds,notice_version:room.notice_version},invite_url:result.invite_url,read_url:result.read_url};state.status='created';state.checked=false;
+    owner=result.owner_token;state.created={room:{id:room.id,purpose:room.purpose,expires_at:room.expires_at,lifetime:room.lifetime,retention_mode:room.retention_mode,retention_seconds:room.retention_seconds,notice_version:room.notice_version},invite_url:result.invite_url,read_url:result.read_url};state.status='created';state.checked=false;
    }catch(error){if(!alive||own!==generation)return;state.error=failure(error);state.status=state.locked?'uncertain':'ready';
     retryAt=now()+Math.max(0,Number(error.retryAfter)||0)*1000;clearTimeout(timer);if(retryAt>now())timer=setTimeout(show,retryAt-now());
    }finally{if(alive&&own===generation){state.pending=false;show();}}

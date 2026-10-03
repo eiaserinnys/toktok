@@ -10,16 +10,23 @@ const session=async(r:Request,e:IdentityEnv)=>r.headers.get('Cookie')?.split(';'
 const ip=(r:Request,o:IdentityOptions)=>normalizeIP((o.trustedIP??trustedIP)(r));
 const cookies=(token:string)=>`${name}=${token}; Secure; HttpOnly; SameSite=Lax; Path=/; Max-Age=600`;
 /** Only confirmation endpoints. Root owns POST /api/v1/rooms and actual initialize/commitSlot dispatch. */
-export async function privateCreateRoute(request:Request,env:IdentityEnv,options:IdentityOptions):Promise<Response|undefined>{
- const path=new URL(request.url).pathname;if(request.method!=='POST'||!['/api/private/create-context','/api/private/create-grants'].includes(path))return;
+export async function privateCreateRoute(request:Request,env:IdentityEnv,options:IdentityOptions,onBudgetScope?:(exempt:boolean)=>void):Promise<Response|undefined>{
+ const path=new URL(request.url).pathname;
+ if(path==='/api/private/create-options'&&request.method==='GET'){
+  const input=request.headers.get('Cookie')?.split(';').some(x=>x.trim().startsWith('__Host-toktok_session='))?await sessionInput(request,env):{};
+  const result=await registry<{session:unknown;config:unknown;demo_budget_exempt:boolean}>(env,'create-options',{...input,now:options.now?.()??Date.now()});onBudgetScope?.(result.demo_budget_exempt===true);return secure(json({session:result.session,config:result.config}));
+ }
+ if(request.method!=='POST'||!['/api/private/create-context','/api/private/create-grants'].includes(path))return;
  requireOrigin(request,env);const rawIp=ip(request,options);if(!(await env.IP_RATE_LIMIT.limit({key:rawIp})).success)limited();
  const caller={...await session(request,env),ip:rawIp,now:options.now?.()??Date.now()};
  if(path==='/api/private/create-context'){
-  await body(request,[]);const browser=cookie(request)??newToken(),nonce=newToken();const data=await registry<{expires_at:number;notice_version:string;authenticated:boolean;can_persist_private:boolean}>(env,'create-context',{...caller,creation_context:{context_hash:await hash(browser),nonce_hash:await hash(nonce)}});
+  await body(request,[]);const browser=cookie(request)??newToken(),nonce=newToken();const data=await registry<{expires_at:number;notice_version:string;authenticated:boolean;can_persist_private:boolean;demo_budget_exempt:boolean}>(env,'create-context',{...caller,creation_context:{context_hash:await hash(browser),nonce_hash:await hash(nonce)}});
+  onBudgetScope?.(data.demo_budget_exempt===true);
   const response=json({...data,nonce,expires_at:new Date(data.expires_at).toISOString()});response.headers.set('Set-Cookie',cookies(browser));return secure(response);
  }
  const b=await body(request,['nonce','risk_ack','risk_ack_version']),browser=cookie(request);if(!browser||typeof b.nonce!=='string'||!/^[\w-]{43}$/.test(b.nonce))bad();const grant=newToken();
- const data=await registry<{expires_at:number;notice_version:string}>(env,'create-grant',{...caller,creation_grant:{context_hash:await hash(browser),nonce_hash:await hash(b.nonce),grant_hash:await hash(grant),risk_ack:b.risk_ack===true,risk_ack_version:String(b.risk_ack_version)}});
+ const data=await registry<{expires_at:number;notice_version:string;demo_budget_exempt:boolean}>(env,'create-grant',{...caller,creation_grant:{context_hash:await hash(browser),nonce_hash:await hash(b.nonce),grant_hash:await hash(grant),risk_ack:b.risk_ack===true,risk_ack_version:String(b.risk_ack_version)}});
+ onBudgetScope?.(data.demo_budget_exempt===true);
  return secure(json({creation_grant:grant,expires_at:new Date(data.expires_at).toISOString(),notice_version:data.notice_version}));
 }
 export interface CreationHashes {invite_hash:string;read_hash:string;owner_hash:string;}

@@ -1,0 +1,12 @@
+heavy verification: running in slot 1/2
+PRIVATE_LIFETIME_EVIDENCE {"existing_snapshot_unchanged":true,"old_expiry":410,"old_budget_metered":true,"anonymous_null_expiry_denied":true}
+PRIVATE_HTTP_EVIDENCE {"case":"existing snapshots keep finite expiry and demo budget; invalid permanent snapshots fail closed","clock":"DI; no actual five-minute idle elapsed","raw":[],"cleanup":true}
+✔ existing snapshots keep finite expiry and demo budget; invalid permanent snapshots fail closed (52.707832ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 536.260998

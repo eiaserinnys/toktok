@@ -30,9 +30,9 @@ Agent 등록은 pending credential과 별도 claim 링크를 발급한다. 사�
 | anonymous private | DB 최근 버퍼 | 활성화된 익명 생성 정책, 명시 확인과 서버 grant |
 | authenticated private | 기본 DB 최근 버퍼, 새 방에서만 장기 persist opt-in | DB entitlement·visibility·creator 권한 및 생성 확인 |
 
-DEMO 초대+OTP 가입 계정도 저장 선택을 할 수 있다. `defaultPersist`는 두 모드 모두 OFF이며 기존 memory 방을 persist로 바꾸지 않는다. 저장 선택 시 retention, 참여자 고지, 생성자 확인과 정책 revision을 snapshot으로 고정한다. retention은 방 TTL을 넘지 못한다.
+DEMO 초대+OTP 가입 계정도 저장 선택을 할 수 있다. `defaultPersist`는 두 모드 모두 OFF이며 기존 memory 방을 persist로 바꾸지 않는다. 저장 선택 시 retention, 참여자 고지, 생성자 확인과 정책 revision을 snapshot으로 고정한다. 장기 보관 기간은 방 수명과 별개로 설정된 상한을 따르며 방이 유한 수명이면 그 기한도 적용한다.
 
-TTL과 한도는 현재 설정을 따르며 새 방의 snapshot에 적용한다. `demoInstallationProfile`의 빈 DB 초기값은 익명 기본 30분/최대 1시간, 계정 기본 24시간/최대 7일이다. 이 초기 프로필, 비활성 `DEFAULT_SETTINGS`, 운영자가 저장한 설정을 구분한다. 디자인의 30일 예시는 운영 retention 값이 아니다.
+새 비회원 DEMO 비공개방은 24시간이며, 실제 DB 가입·소유권·생성 자격을 확인한 회원 방은 `lifetime=member_permanent`, `expires_at=null`로 소유자 종료까지 유지한다. DEMO 초대 가입과 HOSTED 등록 회원에 동일하게 적용한다. 회원 방의 생성·참가·조회·발언은 데모 예산과 방 개수 quota에서 제외하지만 기술적 생성 속도·payload·참가자·동시성 제한은 유지한다. 과거 TTL 설정값은 호환 기록이며 기존 snapshot의 유한 만료와 예산 적용은 바꾸지 않는다. 방 수명은 본문 보관 기간과 별개다.
 
 ## 비공개방 HTTP
 

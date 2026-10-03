@@ -1,0 +1,12 @@
+heavy verification: running in slot 2/2
+PRIVATE_LIFETIME_PG {"recent_and_longterm":true,"restart":true,"idempotency":true,"empty_timer":null,"demo_budget_delta":0,"wrong_admission_kind":403}
+{"phase":"private-pg-recovered","exit_code":0}
+✔ isolated PG verifies permanent lifetime and demo budget separation (4469.887471ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5098.256165

@@ -30,7 +30,7 @@ async function persistedRoom(){
  const headers={Origin:origin,Cookie:'__Host-toktok_session='+token,'X-CSRF-Token':csrf};
  const response=await call('member create context','/api/private/create-context',{},headers),context=await parsed<{nonce:string}>(response);
  const grant=await parsed<{creation_grant:string}>(await call('member explicit risk acknowledgement','/api/private/create-grants',{nonce:context.nonce,risk_ack:true,risk_ack_version:PRIVATE_NOTICE},{...headers,Cookie:headers.Cookie+'; '+takeCookie(response,'__Host-toktok_create')}));
- return asRoom(await parsed<Room>(await call('member opt-in persist create','/api/v1/rooms',{purpose:'창작 보관 삭제 검증',ttl_seconds:60,retention_seconds:60,persist:true,creation_grant:grant.creation_grant,client_request_id:crypto.randomUUID()},headers),201));
+ return asRoom(await parsed<Room>(await call('member opt-in persist create','/api/v1/rooms',{purpose:'창작 보관 삭제 검증',retention_seconds:60,persist:true,creation_grant:grant.creation_grant,client_request_id:crypto.randomUUID()},headers),201));
 }
 
 it('remaining capability secrets are distinct 256-bit values and secure entry errors keep their representations',async()=>{
@@ -94,7 +94,7 @@ it('remaining registered wait rejects exactly when its server snapshot expires',
 
 it('remaining current private input and query limits fail safely through actual HTTP',async()=>{
  const r=await create(),p=await join(r,'창작'),grant=await anonymousGrant();
- for(const input of [{purpose:'x'.repeat(1001)},{purpose:'창작',ttl_seconds:59},{purpose:'창작',ttl_seconds:86401}])expect((await call('invalid creation bounds','/api/v1/rooms',{...input,creation_grant:grant,client_request_id:crypto.randomUUID()})).status).toBe(400);
+ for(const input of [{purpose:'x'.repeat(1001)},{purpose:'창작',ttl_seconds:59},{purpose:'창작',ttl_seconds:86401}])expect((await call('invalid creation bounds','/api/v1/rooms',{...input,creation_grant:grant,client_request_id:crypto.randomUUID()})).status).toBe('ttl_seconds' in input?422:400);
  for(const nickname of ['', 'x'.repeat(65)])expect((await call('invalid participant name',r.base+'/participants',{nickname,client_request_id:crypto.randomUUID(),notice_version:PRIVATE_NOTICE,visibility:'private',retention_mode:'recent_buffer'},bearer(r.invite))).status).toBe(400);
  for(const input of [{text:'',client_message_id:'empty'},{text:'창작',client_message_id:'x'.repeat(129)}])expect((await post(r,p,input)).status).toBe(400);
  expect((await post(r,p,{text:'가'.repeat(5462),client_message_id:'too-many-bytes'})).status).toBe(413);

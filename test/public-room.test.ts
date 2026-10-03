@@ -110,10 +110,15 @@ describe('independent public DB recent engine through Worker HTTP',()=>{
  it('batches reads at 2s, rejects duplicate waits and cleans abort through Worker fetch to DO fetch',async()=>{
   await reset();const p=await join(),w=await watch();
   const control=new AbortController();
-  const pending=SELF.fetch(origin+base+'/wait?timeout=25',{headers:{Authorization:`Bearer ${w.lease_token}`,'x-fixture-ip':w.ip},signal:control.signal}).catch(()=>null);
-  for(let n=0;n<50&&(await stub().diagnostics()).active_waits===0;n++)await new Promise(r=>setTimeout(r,10));
-  expect((await api(base+'/wait',w.lease_token,'GET',undefined,w.ip)).status).toBe(409);
-  control.abort();const canceled=await pending;if(canceled)await canceled.arrayBuffer();
+  // An initial read (no cursor) can finish at the next batch boundary. Pin the
+  // current cursor so this tests a genuinely pending delta wait on any clock.
+  const after=encodeURIComponent((await stub().diagnostics()).epoch+':0');
+  const pending=SELF.fetch(origin+base+'/wait?timeout=25&after='+after,{headers:{Authorization:`Bearer ${w.lease_token}`,'x-fixture-ip':w.ip},signal:control.signal}).catch(()=>null);
+  try {
+   for(let n=0;n<200&&(await stub().diagnostics()).active_waits===0;n++)await new Promise(r=>setTimeout(r,10));
+   expect((await stub().diagnostics()).active_waits).toBe(1);
+   expect((await api(base+'/wait?after='+after,w.lease_token,'GET',undefined,w.ip)).status).toBe(409);
+  } finally {control.abort();const canceled=await pending;if(canceled)await canceled.arrayBuffer();}
   for(let n=0;n<50&&(await stub().diagnostics()).active_handlers!==0;n++)await new Promise(r=>setTimeout(r,10));
   expect((await stub().diagnostics()).active_waits).toBe(0);expect((await stub().diagnostics()).active_handlers).toBe(0);
   await send(p,'batch');const start=Date.now();const first=await api(base+'/messages',w.lease_token,'GET',undefined,w.ip);expect(first.status).toBe(200);

@@ -14,7 +14,7 @@
     "test:public-ui": "vitest run --config vitest.public-ui.node.config.ts && vitest run --config vitest.public-ui.config.ts",
     "test:application": "vitest run",
     "test:auth": "vitest run --config test/control-auth-vitest.config.ts",
-    "test:control": "vitest run --config test/control-port-vitest.config.ts && vitest run --config test/control-budget-estimate-vitest.config.ts && vitest run --config test/control-email-preflight-vitest.config.ts && vitest run --config test/control-recovery-vitest.config.ts",
+    "test:control": "vitest run --config test/control-port-vitest.config.ts && vitest run --config test/control-budget-estimate-vitest.config.ts && vitest run --config test/control-email-preflight-vitest.config.ts && vitest run --config test/control-recovery-vitest.config.ts && vitest run --config test/private-lifetime-vitest.config.ts",
     "test:storage-cf": "vitest run --config test/selfhost.vitest.config.ts",
     "test:public": "vitest run --config vitest.public.config.ts",
     "test:unit": "vitest run --config vitest.unit.config.ts",

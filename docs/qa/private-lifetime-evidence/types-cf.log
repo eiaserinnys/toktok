@@ -1,0 +1,5 @@
+heavy verification: running in slot 2/2
+test/private-lifetime-contract.ts(29,22): error TS18046: 'joined.data' is of type 'unknown'.
+test/private-lifetime-contract.ts(30,90): error TS18046: 'restored.data' is of type 'unknown'.
+test/private-lifetime-contract.ts(30,123): error TS18046: 'posted.data' is of type 'unknown'.
+test/private-lifetime-contract.ts(32,136): error TS18046: 'empty.data' is of type 'unknown'.

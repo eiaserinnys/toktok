@@ -35,6 +35,8 @@
 
 ## 적용 중인 제품·설치 정책
 
+- 새 비회원 DEMO private는 24시간과 데모 한도를 적용한다. 실제 DB 권한을 검증한 DEMO 초대가입·HOSTED 회원의 새 private는 소유자 종료까지 상설이며 데모 예산·방 개수 한도에서 제외한다. 기술적 요청·본문·동시 처리 한도와 보관 정책은 별개로 유지한다. 기존 방의 immutable snapshot은 변경·자동 전환하지 않는다.
+
 - public 및 새 anonymous private의 본문은 정책 v2 DB 최근 버퍼를 사용한다. 최대 500개·직렬화 메시지 합계 2MiB·1시간과 방 TTL 중 먼저 도달하는 상한을 지키며, 이전 v1 private memory snapshot은 저장으로 자동 전환하지 않는다.
 - DEMO에서도 초대 코드와 OTP로 가입을 완료한 계정은 서버가 entitlement·방 visibility·생성 권한을 검증한 뒤 새 private의 장기 보관을 opt-in할 수 있다. 장기 보관 기본 OFF, 생성 시 retention·참여자 고지 snapshot, 기존 memory 방의 persist 전환 금지를 유지한다. 디자인의 30일은 운영 retention 확정값이 아니다.
 - 서버 하나는 설치/시작 때 storage backend 하나를 선택한다. 현재 Cloudflare는 DO SQLite이며 D1 전환은 미확정이다. 다중 DB 연결, dual-write, replication 또는 sync를 추가하지 않는다.

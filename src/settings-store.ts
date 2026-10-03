@@ -5,7 +5,7 @@ import {budgetWindows,validateBudgetOperation} from './control-policy';
 import {C,type Tx,save,read,expire} from './control-records';
 import {CONTROL_ENFORCEMENT_VERSION,enforcementReady,type TrustedEnforcement,type InstallationSeed} from './control-installation';
 import {BUDGET_ESTIMATE_MODEL,estimateState,budgetPreflight} from './control-budget';
-export interface ControlState {bootstrap_consumed:boolean;budget_ready:boolean;lifecycle_ready:boolean;active_private:number;pending_agents:number;}
+export interface ControlState {bootstrap_consumed:boolean;budget_ready:boolean;lifecycle_ready:boolean;active_private:number;member_private?:number;pending_agents:number;}
 export interface SettingsRow {schema_version:number;revision:number;settings:Settings;updated_at:number;updated_by:string|null;}
 /** One transaction is owned by ControlCore. Helpers never open nested transactions. */
 export class SettingsStore {
@@ -25,7 +25,7 @@ export class SettingsStore {
  async publicGenerations():Promise<Record<string,string>> {const row=await this.tx.get(C.settings,'public_generations');if(!row)fail(503,'SETTINGS_INVALID','공개방 세대를 확인하지 못했습니다.');return row as Record<string,string>;}
  private async syncPublicGenerations(settings:Settings){const previous=await this.tx.get(C.settings,'public_generations')??{},next:Record<string,string>={};for(const room of settings.public.catalog)if(room.enabled&&settings.deployment.enabled)next[room.slug]=typeof previous[room.slug]==='string'?String(previous[room.slug]):crypto.randomUUID();await this.tx.put(C.settings,'public_generations',next);}
  async read():Promise<SettingsRow>{try{const row=await read<SettingsRow>(this.tx,C.settings,'config');if(!row||row.schema_version!==1||!Number.isSafeInteger(row.revision)||row.revision<1)throw Error();return {...row,settings:validateSettings(row.settings)};}catch{fail(503,'SETTINGS_INVALID','서버 설정을 확인하지 못했습니다.');}}
- async state():Promise<ControlState>{const s=await read<ControlState>(this.tx,C.settings,'state');if(!s||[s.bootstrap_consumed,s.budget_ready,s.lifecycle_ready].some(v=>typeof v!=='boolean')||[s.active_private,s.pending_agents].some(v=>!Number.isSafeInteger(v)||v<0))fail(503,'CONTROL_STATE_INVALID','서버 상태를 확인하지 못했습니다.');return s;}
+ async state():Promise<ControlState>{const s=await read<ControlState>(this.tx,C.settings,'state');if(!s||(s.member_private??0)>s.active_private||[s.bootstrap_consumed,s.budget_ready,s.lifecycle_ready].some(v=>typeof v!=='boolean')||[s.active_private,s.member_private??0,s.pending_agents].some(v=>!Number.isSafeInteger(v)||v<0))fail(503,'CONTROL_STATE_INVALID','서버 상태를 확인하지 못했습니다.');return s;}
  stateSave(state:ControlState){return save(this.tx,C.settings,'state',state);}
  async projection(){const row=await this.read();return publicConfig(row.settings,row.revision);}
  async audit(actor:string,time:number,action:string,revision:number|null,changes:Record<string,unknown>){await save(this.tx,C.audit,`${String(Number.MAX_SAFE_INTEGER-time).padStart(16,'0')}:${crypto.randomUUID()}`,{actor,time,action,revision,changes});}

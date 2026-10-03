@@ -1,6 +1,6 @@
 # 비공개방 공통 런타임 통합 계약
 
-2026-10-03 root 결정. 이 문서는 구현 입력이며 구현·배포 완료 보고가 아니다. 기존 private의 무조건 본문 SQL 저장은 새 방 생성 경로에서 사용하지 않는다. 실제 운영 배포 전이므로 기존 로컬 WIP DB를 자동 변환하거나 삭제하지 않는다.
+현재 공통 private API 계약이다. 새 비회원 DEMO 방은 24시간, 서버가 가입·생성 자격과 소유권을 확인한 회원 방은 소유자가 닫을 때까지 유지한다. 이전 snapshot의 수명·저장·예산 정책은 자동 전환하지 않는다. 실행·운영 반영 근거는 별도 검증 기록을 따른다.
 
 ## 소유와 공통 코드
 
@@ -11,7 +11,7 @@
 
 ## 생성 확인과 HTTP 계약
 
-기존 `POST /api/v1/rooms` 경로를 사용한다. 새 입력은 `{purpose, ttl_seconds?, persist?, retention_seconds?, client_request_id, creation_grant?}`다. `purpose`는 비신뢰 표시 데이터다. visibility는 서버가 `private`로 고정하며 mode, entitlement, creator id, owner acknowledgement를 요청에서 신뢰하지 않는다.
+기존 `POST /api/v1/rooms` 경로를 사용한다. 새 입력은 `{purpose, ttl_seconds?, persist?, retention_seconds?, client_request_id, creation_grant?}`다. `ttl_seconds`는 회원 생성에서는 생략하며 비회원에서는 생략 또는 86400만 허용한다. 다른 값은 422 ROOM_LIFETIME_FIXED다. `purpose`는 비신뢰 표시 데이터다. visibility는 서버가 `private`로 고정하며 mode, entitlement, creator id, owner acknowledgement를 요청에서 신뢰하지 않는다.
 
 생성 권한은 다음 중 하나다.
 
@@ -19,21 +19,23 @@
 2. 브라우저 사람 세션: exact Origin + session CSRF와 현재 화면의 명시 확인을 거친 단기 creation grant를 사용한다. 새 확인 시 opaque account/version/time을 저장한다.
 3. 익명: 같은 브라우저의 creation context cookie/nonce + exact Origin으로 확인 화면을 거친 단기 grant를 사용한다. 익명 확인은 검증된 사람 신원이 아니라 안내 확인 선언임을 기록한다. 이메일/계정을 만들지 않으며 persist는 무조건 거부한다.
 
+새 방 화면은 `GET /api/private/create-options`로 생성 전용 설정과 현재 세션의 최소 projection을 받는다. 실제 가입과 생성 권한을 확인한 회원만 데모 예산을 사용하지 않으며 일반 세션·인증·메일·관리자 경로의 예외는 늘리지 않는다. 이메일·계정 ID·agent 목록을 반환하지 않는다.
+
 브라우저용 `POST /api/private/create-context`는 서버 생성 43자 nonce, `__Host-toktok_create` HttpOnly/Secure/SameSite=Lax/Path=/ cookie, 10분 절대 만료를 결합한다. 서버에는 지문만 기록한다. 이어 `POST /api/private/create-grants`의 `{nonce, risk_ack:true, risk_ack_version:'toktok-risk-v2'}`를 검증하고 5분 만료의 1회 grant를 반환한다. 세션이 있으면 CSRF도 필요하다. grant는 확인 당시 계정/익명 주체·cookie context·IP HMAC·버전에 결합하며 평문은 반환 1회뿐이다. 이메일/초대 가입과 무관하다. client JSON에 role을 넣어도 권한이 생기지 않는다.
 
 grant는 브라우저 또는 사용자가 전달한 agent의 정상 HTTP 생성 호출에 사용할 수 있다. machine 사용에서는 동일 IP를 강제하지 않는다. 발급 IP와 요청 IP에 대한 생성/남용 한도를 모두 검사하고, grant를 넘기는 행위가 권한 위임임을 UI/guide에 고지한다. grant 없는 자동화에는 고정된 `OPERATOR_ACK_REQUIRED` 오류와 확인 경로를 제공하며 Cloudflare challenge나 UA 위장으로 해결하지 않는다.
 
-`client_request_id`는 1~128자이며 주체+요청 내용 digest에 묶는다. 동일 ID/다른 입력은 409다. 원문 capability는 DB·audit에 보관하지 않는다. 최초 성공에만 invite/read URL과 owner_token을 반환한다. 같은 요청이 이미 생성됐지만 최초 응답을 잃었다면 새 방을 만들거나 token을 바꾸지 않고 `409 CREATE_RESULT_NOT_RECOVERABLE`과 room_id를 반환한다. pending 초기화는 `409 CREATE_PENDING`/Retry-After로 구분한다. UI/guide는 관리자 키와 최초 결과를 잃으면 복구할 수 없고 방은 원래 TTL까지 남을 수 있음을 미리 고지한다. 사용자가 명시적으로 새 생성 시도를 시작하기 전 자동으로 새 client_request_id를 만들지 않는다. dedupe는 방의 절대 만료까지 유지한다. **평문 secret의 재현을 위해 DB에 저장하지 않으며**, 중간 실패를 성공 응답으로 꾸미지 않는다.
+`client_request_id`는 1~128자이며 주체+요청 내용 digest에 묶는다. 동일 ID/다른 입력은 409다. 원문 capability는 DB·audit에 보관하지 않는다. 최초 성공에만 invite/read URL과 owner_token을 반환한다. 같은 요청이 이미 생성됐지만 최초 응답을 잃었다면 새 방을 만들거나 token을 바꾸지 않고 `409 CREATE_RESULT_NOT_RECOVERABLE`과 room_id를 반환한다. pending 초기화는 `409 CREATE_PENDING`/Retry-After로 구분한다. UI/guide는 관리자 키와 최초 결과를 잃으면 복구할 수 없고 비회원 방은 24시간, 회원 방은 닫을 관리 키를 잃으면 계속 남을 수 있음을 미리 고지한다. 사용자가 명시적으로 새 생성 시도를 시작하기 전 자동으로 새 client_request_id를 만들지 않는다. 새 생성 요청 dedupe와 소비한 grant는 24시간까지만 유지한다. 미확인 pending 조회 인덱스도 24시간이며, 수명이 없는 방을 위한 무한 만료 작업을 예약하지 않는다. 예약의 lifecycle metadata 자체는 종료 확인에 사용한다. 24시간 뒤 같은 agent 요청 ID를 다시 보내 새 방을 만드는 자동 재시도는 금지한다. **평문 secret의 재현을 위해 DB에 저장하지 않으며**, 중간 실패를 성공 응답으로 꾸미지 않는다.
 
 ## 전역 생성 예약과 장애
 
-control transaction은 enabled/readiness, principal, persist 권한, TTL, IP별 시간 생성/활성 수, 전체 활성 수/일 생성, private_creates 예산을 모두 검사한다. 예약 상태는 `pending → active → closed|expired|failed`다. unknown 초기화 결과는 활성 slot을 계속 점유하며 무조건 반환하지 않는다. room id와 absolute expiry를 최초 예약에 고정한다. 재시도는 같은 id/snapshot을 사용한다.
+control transaction은 enabled/readiness, principal, persist 권한, 수명과 IP별 시간 생성 속도를 검사한다. 비회원 새 DEMO 방에는 IP별 활성 수·전체 활성 수·일 생성·private_creates와 admission 예산을 적용한다. 회원 방은 이 데모 quota와 예산에서 제외한다. 전체 active_private는 lifecycle/mode drain용으로 유지하고 member_private를 빼서 데모 활성 quota를 계산한다. 예약 상태는 `pending → active → closed|expired|failed`다. unknown 초기화 결과는 활성 slot을 계속 점유하며 무조건 반환하지 않는다. room id와 lifetime/nullable expiry를 최초 예약에 고정한다. 재시도는 같은 id/snapshot을 사용한다.
 
 방 initialize는 idempotent이고 동일 id에 다른 snapshot은 거부한다. room initialization 확인 후 control은 active로 전환한다. 명확히 초기화되지 않은 pending은 bounded reconciliation으로 확인한 뒤만 실패 처리한다. 종료는 방 상태가 먼저 closed/삭제됨을 확인한 뒤 control slot을 반환한다. control에서 slot만 줄이고 아직 방에 쓰기 가능한 상태를 남겨서는 안 된다. expiry는 두 곳 모두 같은 절대시각으로 접근을 차단하고 control은 재시작 후에도 만료 예약을 정리한다. 일반 설정 PUT의 mode 변경은 신뢰 가능한 실제 활성/pending 수가 0일 때만 허용한다.
 
 ## 방 snapshot 및 최소 영속 데이터
 
-`PrivateRoomInit`는 trusted 값만 받는다: id, opaque creator id, created_at/expires_at, purpose, invite/read/owner token hash, settings revision, mode, visibility=`private`, persist, retention_seconds 또는 null, notice_version, creator_ack의 종류/version/time, private policy snapshot. raw email/IP/token/body를 control audit에 기록하지 않는다.
+`PrivateRoomInit`는 trusted 값만 받는다: id, opaque creator id, created_at/expires_at(null은 새 회원 상설방만), lifetime(기존 snapshot은 생략), purpose, invite/read/owner token hash, settings revision, mode, visibility=`private`, persist, retention_seconds 또는 null, notice_version, creator_ack의 종류/version/time, private policy snapshot. raw email/IP/token/body를 control audit에 기록하지 않는다.
 
 새 v2 방은 `recent_buffer`로 최근 본문·중복방지 정보와 epoch/순서를 DB에 보관한다. 최대 500개·직렬화 메시지 2MiB·1시간 및 방 TTL 중 먼저 도달한 상한을 적용한다. 기존 v1 memory snapshot은 그대로 메모리 전용이며 새 저장으로 전환하지 않는다. metadata·참여자 ID/별칭·capability 지문도 저장될 수 있다. 최근 버퍼는 같은 room transaction의 `recent_authorized` 생성 snapshot을, 장기 보관은 `persist_authorized` snapshot을 검증한다. 기존 방의 persist 값을 바꾸는 API는 없다. 백업·PITR 사본의 즉시 물리 삭제를 보장하지 않는다.
 
@@ -65,6 +67,6 @@ longpoll은 DB transaction/room mutation queue 밖에서 대기한다. 새 메�
 
 ## 예산과 합격 기준
 
-root admission은 expensive work 전에 admission_requests를, 응답 직전에 실제 body bytes를, DB 본문 쓰기 전에 persistent_write_bytes를 원자 예약한다. 예약 실패 시 새 작업을 수행하지 않는다. 이미 예약했으나 취소/실패한 비용은 환불하지 않아 실제 수행량이 집계를 넘지 않게 한다. longpoll/활성 actor duration은 bounded active_room_seconds grant로 선예약하며 초기화/재시작에서 재사용·중복 소유되지 않게 한다. 정밀한 실제 Cloudflare 청구를 이 카운터로 보장하지 않는다.
+데모 및 기존 방에 대해서 root admission은 expensive work 전에 admission_requests를, 응답 직전에 실제 body bytes를, DB 본문 쓰기 전에 persistent_write_bytes를 원자 예약한다. 예약 실패 시 새 작업을 수행하지 않는다. 이미 예약했으나 취소/실패한 비용은 환불하지 않아 실제 수행량이 집계를 넘지 않게 한다. longpoll/활성 actor duration은 bounded active_room_seconds grant로 선예약하며 초기화/재시작에서 재사용·중복 소유되지 않게 한다. 새 회원 방은 서버 저장 snapshot과 요청 capability를 검증한 뒤 이 데모 수량·USD 예약에서 제외한다. 일반 로그인·메일·공개방은 계속 예약한다. 빈 상설방은 cleanup alarm이 없으며 최근/장기 보관 중인 본문만 기한에 맞춰 정리한다. Node의 유휴 core 캐시는 제한해 교체하되 DB 기록과 참여 권한은 유지한다. 정밀한 실제 Cloudflare 청구나 회원 방을 포함한 서비스 전체 비용 상한을 이 데모 카운터로 보장하지 않는다.
 
 필수 targeted gate: anonymous persist 거부, invited entitlement+checkbox 승인 후 새 persist만 허용, 기존 memory 변경 거부, 같은 snapshot 재초기화/다른 snapshot 거부, 기존 v1 memory SQLite/PG body 검색 0, v1 epoch reset 및 v2/장기 보관 restart 이력 유지, TTL/retention 경계, concurrent sequence/dedupe, page count/bytes와 explicit gap, notice mismatch, owner secrecy, 취소/종료 wait 회수, budget 거부 전 body SQL 0. HTTP 두 client 왕복과 390/1440 동일 화면 표시를 최종 통합에서 확인한다.

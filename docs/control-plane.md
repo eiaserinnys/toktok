@@ -41,6 +41,7 @@
 | POST /api/admin/invitations | ttl_seconds? → id/expires_at/status/code 201 | exact Origin+session-CSRF+DB admin role; code 1회 반환 |
 | POST /api/admin/invitations/:id/revoke | 빈 object → id/status | exact Origin+session-CSRF+DB admin role |
 | POST /api/admin/bootstrap | confirm=true → bootstrapped=true | exact Origin+session-CSRF+정확 사전 지정 이메일, 최초 1회 |
+| GET /api/private/create-options | 최소 session/config; 실제 회원 생성 권한만 데모 예산 제외 | 일반 로그인·session·메일·공개 경로의 예외가 아님 |
 | POST /api/private/create-context | 빈 object → nonce/expires_at ISO/notice_version/authenticated/can_persist_private | exact Origin+edge; session이 있으면 CSRF, 별도 __Host create cookie |
 | POST /api/private/create-grants | nonce/risk_ack=true/risk_ack_version → creation_grant/expires_at ISO/notice_version | cookie+nonce+명시 확인, session이 있으면 CSRF |
 
@@ -71,9 +72,9 @@ DB account는 opaque UUID, role, admission kind invited/hosted/bootstrap 및 cre
 
 순수 checker는 private visibility, authenticated creator authority, DB entitlement, owner risk ack와 persistenceAllowed를 함께 검사합니다. DEMO의 완료된 invited/bootstrap 계정도 새 private persist opt-in이 가능하며 기본 OFF입니다. public과 새 anonymous private도 DB 최근 버퍼에 저장합니다. 장기 보관 opt-in과는 별개입니다.
 
-익명 TTL은 기본3600/최대86400초, 인증 계정은 기본86400/최대604800초입니다. persist retention은 기본86400/최대604800초이며 room TTL을 넘으면422입니다. 30일은 허용하지 않습니다. 생성 snapshot은 mode/visibility/persist/TTL/retention/notice_version이며 memory→persist 업데이트 API는 없습니다.
+새 비회원 DEMO 비공개방은 86400초입니다. 서버가 가입·생성 자격과 소유권을 확인한 회원 방은 소유자 종료까지 상설이며 nullable expiry를 사용합니다. DEMO 초대 가입과 HOSTED 등록 회원 모두 데모 예산·방 개수 quota에서 제외합니다. payload/rate/concurrency와 본문 보관 한도는 별개입니다. persist retention은 기존 기본86400/최대604800초 설정을 유지하며 방 수명이 보관 기간을 늘리지 않습니다. 생성 snapshot은 mode/visibility/persist/TTL/retention/notice_version이며 memory→persist 업데이트 API는 없습니다.
 
-이 checker 단독으로 익명 생성을 승인하지 않습니다. `create-admission.ts`가 10분 cookie/nonce context와 5분 1회 grant를 확인하고, 발급 IP/요청 IP의 HMAC별 시간·활성 제한과 전역 일 생성·pending/active slot·private_creates 예산을 한 transaction에서 예약합니다. 익명 ack는 신원 확인이 아닌 선언이고 owner_account_id=null입니다. account는 매 생성 화면의 명시 확인 시 DB ack를 갱신하고 agent 생성은 기존 owner ack 시각을 재사용합니다.
+이 checker 단독으로 익명 생성을 승인하지 않습니다. `create-admission.ts`가 10분 cookie/nonce context와 5분 1회 grant를 확인하고, 발급 IP/요청 IP의 HMAC별 시간 생성 속도를 유지합니다. 비회원 방의 활성·일 생성·private_creates 예산과 member 별도 lifecycle 계수를 같은 transaction에서 갱신합니다. 회원 생성 전용 projection/확인/생성과 해당 방의 유효 capability 작업만 데모 예산에서 제외하며 일반 인증 경로로 확대하지 않습니다. 익명 ack는 신원 확인이 아닌 선언이고 owner_account_id=null입니다. account는 매 생성 화면의 명시 확인 시 DB ack를 갱신하고 agent 생성은 기존 owner ack 시각을 재사용합니다.
 
 root의 기존 POST /api/v1/rooms dispatcher가 `reserveCreation()`과 실제 B PrivateRoom initialize 및 `commitSlot()`을 연결해야 합니다. 생성 body는 purpose/ttl_seconds?/persist?/retention_seconds?/client_request_id/creation_grant?이며 mode/visibility/entitlement는 body에서 받지 않습니다. grant 전달은 생성 권한 위임이며 발급 IP와 요청 IP의 한도를 모두 검사합니다. 동일 ID 입력 변경409, pending은 CREATE_PENDING/Retry-After2+room_id, 최초 결과 유실은 CREATE_RESULT_NOT_RECOVERABLE+room_id입니다. raw capability는 DB에 저장하지 않으며 재시도에 다른 방/새 secret을 발급하지 않습니다. root 공통 오류 wrapper는 `controlErrorResponse()`를 사용해 room_id를 보존해야 합니다.
 

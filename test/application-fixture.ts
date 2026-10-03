@@ -41,7 +41,7 @@ async function anonymousGrant(){
  return result.creation_grant;
 }
 async function create(grant?:string){
- return asRoom(await parsed<Room>(await call('anonymous create','/api/v1/rooms',{purpose:'창작 방 <script>비신뢰</script>',ttl_seconds:60,creation_grant:grant??await anonymousGrant(),client_request_id:crypto.randomUUID()}),201));
+ return asRoom(await parsed<Room>(await call('anonymous create','/api/v1/rooms',{purpose:'창작 방 <script>비신뢰</script>',creation_grant:grant??await anonymousGrant(),client_request_id:crypto.randomUUID()}),201));
 }
 async function join(r:OwnedRoom,name:string){return parsed<Participant>(await call('private join',''+r.base+'/participants',{nickname:name,client_request_id:crypto.randomUUID(),notice_version:PRIVATE_NOTICE,visibility:'private',retention_mode:'recent_buffer'},bearer(r.invite)),201);}
 const send=(r:OwnedRoom,p:Participant,id:string,text=id)=>call('private send',r.base+'/messages',{text,client_message_id:id},bearer(p.participant_token));
