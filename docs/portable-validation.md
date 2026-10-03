@@ -121,3 +121,8 @@ SQLite 첫 selected 실행1 PASS(1109ms), 새 격리 Postgres16 컨테이너 첫
 publicBody는 reader cancellation promise를 한 번만 생성하고 최대1초 settling 후 lock을 해제합니다. private는 new Request(signal)로 body를 이전하지 않고 원Request reader에 shutdown signal만 전달합니다. 권한/본문 parsing 순서와 초기 unused finally는 유지하며 무한 drain/무기한 cancel await는 없습니다. CF inspect RPC observation의 직접 cast는 unknown을 거치는 JSON-safe fixture observation으로만 국소 보정했습니다. 새 타입 검사를 반복하지 않았으며 root 통합 검사 범위입니다.
 
 source delta의 읽기 전용 검수는 새 반려 사유 없이 통과했습니다. 그러나 CF 413 upstream producer 취소 전달 gate는 실행 상한 내 모두 실패했으며 native source 회수 성공으로 보고하지 않습니다. source 보완과 실패 fixture/raw evidence는 별도 checkpoint로 분리합니다. 원Request local reader의 bodyUsed/unlocked와 handler/bodyInflight0은 확인했으나 caller producer cancel은 별도 미검증입니다.
+
+
+413 raw는 test/selfhost-oversized.failure.json에 body/secret/IP 없이 보존했습니다. 최초 status413/error BODY_TOO_LARGE, handler0/bodyInflight0이나 bodyLocked true/caller cancelled false였습니다. 허용 보정1회는 원Request reader 사용으로 bodyLocked false가 되었으나 caller cancelled false였습니다. root가 추가 승인한 마지막 관측1회는 제품 추가 변경 없이 최대100회10ms nominal polling으로 여전히 true를 요구했고 실측1145ms 후 false로 실패했습니다. 각 selected 출력의 stream 경고0은 upstream producer 취소 전달 성공을 뜻하지 않습니다.
+
+실패 fixture와 config를 selfhost-oversized-cloudflare-unconfirmed.test.ts/selfhost-oversized.vitest.config.ts로 분리하여 정상 foundation gate의 범위를 바꾸지 않았습니다. assert cancelled=true를 유지하며 알려진 실패를 숨겨 PASS로 바꾸지 않습니다. 원래 명령은 selfhost.vitest.config.ts의 추가 case를 선택했고 별도 config는 동일 case의 보존용 접점입니다. 분리 뒤 재실행하지 않았습니다. 실행 상한에 도달했으므로 새로 승인된 근거가 없으면 `pnpm exec vitest run --config test/selfhost-oversized.vitest.config.ts`를 실행하지 않습니다. root의 Node bridge 별도 gate는 이 CF upstream 관측과 구분합니다.
