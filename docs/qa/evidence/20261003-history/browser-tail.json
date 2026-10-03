@@ -1,0 +1,18 @@
+{
+  "scope": "actual Node24 SQLite product remaining top/end, leave/reenter and paused expiry; fictional records only",
+  "cases": [
+    {
+      "width": 390,
+      "status": "RUNNING",
+      "errors": [],
+      "startReached": true,
+      "leave": {
+        "waits": 0,
+        "watchers": 0
+      },
+      "reentry": true
+    }
+  ],
+  "cleanup": true,
+  "error": "RepositoryError: SCOPE_DENIED\n    at validateScope (/home/eias/workspace/.projects/toktok--feat-release-integration-c8e59900/src/storage/record-transaction.ts:8:163)\n    at SQLiteRepository.transaction (/home/eias/workspace/.projects/toktok--feat-release-integration-c8e59900/src/storage/sqlite.ts:52:75)\n    at RecentBuffer.append (/home/eias/workspace/.projects/toktok--feat-release-integration-c8e59900/src/recent-buffer.ts:42:20)\n    at async <anonymous> (/home/eias/workspace/.local/artifacts/toktok/20261003-history/browser-tail.mjs:15:297)"
+}

@@ -33,6 +33,7 @@ export class ControlDomain {
  async accountById(id:string){return read<Account>(this.tx,C.accounts,'a:'+id);}
  private bootstrapAddress(){try{return this.options.bootstrapEmail?normalizeEmail(this.options.bootstrapEmail):null;}catch{return null;}}
  async bootstrapEligible(email:string){return email===this.bootstrapAddress()&&!(await this.settings.state()).bootstrap_consumed&&!await this.tx.get(C.accounts,'admin');}
+ async canBootstrap(account:Account){return account.role==='member'&&account.email_verified===1&&await this.bootstrapEligible(account.email);}
  async emailEligible(email:string,flow:FlowRow){return signupEligible((await this.settings.read()).settings,flow.purpose,Boolean(await this.account(email)),Boolean(flow.invitation_id&&await this.invitations.valid(flow.invitation_id,this.now)),await this.bootstrapEligible(email));}
  async agent(id:string){const a=await read<AgentRow>(this.tx,C.agents,'a:'+id);if(!a||a.status==='pending'&&a.pending_expiry<=this.now)fail(410,'CLAIM_GONE','등록이 만료되었거나 없습니다.');return a;}
  async claim(id:string,cap:string,pending=false){const a=await this.agent(id);if(a.claim_hash!==cap)fail(403,'CLAIM_DENIED','claim 권한이 올바르지 않습니다.');if(pending&&a.status!=='pending')fail(409,'CLAIM_PROCESSED','이미 처리한 등록입니다.');return a;}
@@ -64,7 +65,7 @@ export class ControlDomain {
    return new AdminRecovery(this.tx).reserve({session_hash:input.session_hash!,csrf:input.csrf,mutation:input.mutation,operation_id:input.operation_id!},now);
   }
   if(action==='admin-bootstrap'){
-   const {account}=await this.session(input,true);if(input.confirm!==true||!await this.bootstrapEligible(account.email))fail(403,'BOOTSTRAP_DENIED','최초 관리자 확인을 진행할 수 없습니다.');
+   const {account}=await this.session(input,true);if(input.confirm!==true||!await this.canBootstrap(account))fail(403,'BOOTSTRAP_DENIED','최초 관리자 확인을 진행할 수 없습니다.');
    await save(this.tx,C.accounts,'a:'+account.id,{...account,role:'admin'});await save(this.tx,C.accounts,'admin',{id:account.id});await this.settings.stateSave({...await this.settings.state(),bootstrap_consumed:true});await this.settings.audit(account.id,now,'admin.bootstrap',null,{});return {bootstrapped:true};
   }
   if(action.startsWith('admin-')){
@@ -92,7 +93,7 @@ export class ControlDomain {
   }
   if(action==='validate'){await this.flow(input);return {};}
   if(action==='session'){
-   const {s,account}=await this.session(input);const agents=(await this.tx.list(C.agents,{prefix:'o:'+s.owner_id+':',limit:50})).map(r=>agentView(r.value as unknown as AgentRow));return {authenticated:true,role:account.role,entitlements:entitlements(settings,account),csrf_token:s.csrf,owner_ack:await this.ack(account.id),agents};
+   const {s,account}=await this.session(input);const agents=(await this.tx.list(C.agents,{prefix:'o:'+s.owner_id+':',limit:50})).map(r=>agentView(r.value as unknown as AgentRow));return {authenticated:true,role:account.role,can_bootstrap_admin:await this.canBootstrap(account),entitlements:entitlements(settings,account),csrf_token:s.csrf,owner_ack:await this.ack(account.id),agents};
   }
   if(action==='logout'){await this.session(input,true);await this.tx.delete(C.sessions,input.session_hash!);return {};}
   if(action==='approve'){

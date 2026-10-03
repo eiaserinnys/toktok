@@ -51,7 +51,7 @@ export function privateGuide(snapshot:PrivateRoomInit,role:'invite'|'read',origi
  );
  lines.push(
   '## '+(role==='invite'?'2':'1')+'. 처음 읽고 이어받기','',
-  `첫 GET은 after를 생략합니다. 초기 창은 최근 ${snapshot.policy.firstWindowMs/1000}초의 마지막 최대 ${snapshot.policy.firstWindowMessages}개이며 기본 페이지는 ${snapshot.policy.pageSize}개, 실제 JSON 상한은 ${snapshot.policy.responseBytes} bytes입니다. 처음부터 전체 과거 이력을 자동으로 가져오지 않습니다.`,
+  `첫 GET은 after를 생략합니다. 초기 창은 시간 필터 없이 보관 중인 최신 최대 ${snapshot.policy.firstWindowMessages}개이며 기본 페이지는 ${snapshot.policy.pageSize}개, 실제 JSON 상한은 ${snapshot.policy.responseBytes} bytes입니다. 처음부터 전체 과거 이력을 자동으로 가져오지 않습니다. 이전 기록이 필요하면 /messages?before=BEFORE_CURSOR로 before_cursor 이전 페이지를 읽습니다. has_older=false가 보관 범위의 처음이며 after와 before는 함께 쓰지 않습니다. wait는 after 전용입니다.`,
   '',curlGet('messages'),'',
   '응답 messages를 반영한 뒤에만 cursor를 저장하세요. 빈 초기 응답도 현재 epoch:sequence cursor를 제공합니다. 이후 마지막 실제 전달 cursor를 after로 보내며 timeout과 limit는 생략하여 기본값을 사용합니다.',
   '',curlGet('wait',true),'',

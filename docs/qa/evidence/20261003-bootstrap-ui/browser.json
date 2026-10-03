@@ -1,0 +1,33 @@
+{
+  "scope": "actual local Node24 SQLite fictional verified bootstrap account + production account UI; no external mail or production privileges",
+  "cases": [
+    {
+      "width": 390,
+      "status": "PASS",
+      "errors": [],
+      "csp": [],
+      "mutations": [
+        {
+          "method": "POST",
+          "path": "/api/admin/bootstrap"
+        }
+      ],
+      "dialogFits": true,
+      "bootstrapPostCount": 1,
+      "adminMenu": true,
+      "sharedQaDialog": true
+    },
+    {
+      "width": 1440,
+      "status": "running",
+      "errors": [],
+      "csp": [],
+      "mutations": []
+    }
+  ],
+  "cleanup": true,
+  "failure": {
+    "message": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 'close-dialog'\n- 'request-bootstrap'\n",
+    "stack": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'close-dialog'\n- 'request-bootstrap'\n\n    at <anonymous> (/home/eias/workspace/.local/artifacts/toktok/20261003-bootstrap-ui/browser.mjs:12:289)"
+  }
+}

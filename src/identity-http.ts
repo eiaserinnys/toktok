@@ -33,7 +33,7 @@ async function authGuard(request:Request,env:IdentityEnv,options:IdentityOptions
  if(Number(request.headers.get('Content-Length'))>32768)fail(413,'BODY_TOO_LARGE','JSON 요청은 최대 32KiB입니다.');
  const ip=normalizeIP((options.trustedIP??trustedIP)(request));if(!(await env.IP_RATE_LIMIT.limit({key:ip})).success)limited();return ip;
 }
-export const anonymousSession=()=>({authenticated:false,role:'anonymous',entitlements:{can_create_private:false,can_persist_private:false},csrf_token:null,owner_ack:null});
+export const anonymousSession=()=>({authenticated:false,role:'anonymous',can_bootstrap_admin:false,entitlements:{can_create_private:false,can_persist_private:false},csrf_token:null,owner_ack:null});
 export async function identityRoute(request:Request,env:IdentityEnv,options:IdentityOptions):Promise<Response|undefined>{
  const path=new URL(request.url).pathname,now=options.now?.()??Date.now();
  if(path==='/api/agents'&&request.method==='POST'){

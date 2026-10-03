@@ -1,3 +1,4 @@
+import {historyQuery,boundHistoryPage} from './history-page';
 import {RecentBuffer,type RecentState} from './recent-buffer';
 import {RoomQueue} from './runtime/room-queue';
 import type {RepositoryPort} from './storage/repository';
@@ -14,7 +15,7 @@ interface Grant {expires:number;nextSend:number;join?:{requestId:string;leaseTok
 interface Lease {id:string;token:string;role:'participant'|'watcher';ip:string;nickname:string;grant?:Grant;activity:number;lastRead:number;}
 interface IpRate {at:number;nextSend:number;admissions:number[];requests:Bucket;}
 interface Waiter {wake:()=>void;lease:Lease;after?:string;deadline:number;}
-interface Page {service:ReturnType<typeof serviceMetadata>;messages:PublicMessage[];epoch:string;cursor:string;earliest_cursor:string;history_status:'ok'|'history_gap'|'history_reset';has_more:boolean;initial_window?:{max_age_seconds:number;max_messages:number;truncated:boolean};notice?:string;}
+interface Page {service:ReturnType<typeof serviceMetadata>;messages:PublicMessage[];epoch:string;cursor:string;earliest_cursor:string;history_status:'ok'|'history_gap'|'history_reset';has_more:boolean;has_older:boolean;before_cursor:string;latest_cursor:string;initial_window?:{max_messages:number;truncated:boolean};notice?:string;}
 export interface PublicRoomOptions {origin:string;catalog:()=>ReadonlyArray<{slug:string;title:string}>;policy:()=>PublicPolicy;clock?:()=>number;budget?:PrivateBudgetPort;repo?:RepositoryPort;scheduleCleanup?:(at:number|null)=>Promise<void>;}
 export class PublicRoomCore {
  private readonly epoch=crypto.randomUUID();
@@ -130,8 +131,8 @@ export class PublicRoomCore {
    if(action==='leave'){this.leases.delete(lease.token);this.waiters.get(lease.id)?.wake();return new Response(null,{status:204});}
    if(action==='metadata'){lease.activity=this.clock();return json({service:serviceMetadata(['title']),slug:this.slug,title:this.catalog.find(r=>r.slug===this.slug)?.title,epoch:this.historyEpoch,connection_epoch:this.epoch,leases:this.leaseCounts(),visibility:'public',retention_mode:'recent_buffer',notice_version:PUBLIC_NOTICE,storage_policy_started_at:new Date(this.historyState!.created_at).toISOString(),recent_buffer:{max_messages:this.policy.messages,max_bytes:2097152,max_age_seconds:this.policy.retentionMs/1000}});}
    if(action==='send'){if(lease.role!=='participant')fail(403,'CAPABILITY_DENIED','발언 권한이 없습니다.');return this.send(request,lease,ip,operation!);}
-   const after=url.searchParams.get('after')??undefined,limit=queryInt(url,'limit',this.policy.pageSize,1,this.policy.pageSize);
-   await this.page(after,limit);return this.read(request,lease,after,limit,action==='wait'?queryInt(url,'timeout',25,0,25)*1000:0);
+   const {after,before}=historyQuery(url,action==='wait'),limit=queryInt(url,'limit',this.policy.pageSize,1,this.policy.pageSize);
+   await this.page(after,limit,before);return this.read(request,lease,after,limit,action==='wait'?queryInt(url,'timeout',25,0,25)*1000:0,before);
   })();}catch(error){if((error as {status?:number})?.status===429)this.rateRejected++;return publicError(error);}
  }
  private lease(token:string):Lease {
@@ -171,28 +172,25 @@ export class PublicRoomCore {
    lease.activity=now;this.maxBufferBytes=Math.max(this.maxBufferBytes,this.bufferBytes());return json({...result.message,service:serviceMetadata(messageFields)},result.replayed?200:201);
   });
  }
- private async page(after:string|undefined,limit:number):Promise<Page> {
-  const result=await this.history().read(this.historyBounds(),this.clock(),after,limit,{ms:this.policy.firstWindowMs,messages:this.policy.firstWindowMessages});const {state,...page}=result;this.applyHistory(state);
+ private async page(after:string|undefined,limit:number,before?:string):Promise<Page> {
+  const result=await this.history().read(this.historyBounds(),this.clock(),after,limit,{ms:this.policy.firstWindowMs,messages:this.policy.firstWindowMessages},before);const {state,...page}=result;this.applyHistory(state);
   return {...page,service:serviceMetadata(pageFields),...(page.history_status!=='ok'?{notice:page.history_status==='history_reset'?'이전 cursor와 기록 세대가 다릅니다. 최근 기록으로 이어집니다.':'요청 cursor 앞부분이 최근 보관 범위를 벗어났습니다.'}:{})};
  }
- private async responsePage(lease:Lease,after:string|undefined,limit:number):Promise<Response> {
+ private async responsePage(lease:Lease,after:string|undefined,limit:number,before?:string):Promise<Response> {
   this.prune();this.lease(lease.token);const now=this.clock();if(now-lease.lastRead<this.policy.batchMs)publicLimited(this.policy.batchMs-(now-lease.lastRead));
-  const page=await this.page(after,limit);let raw=JSON.stringify(page);
-  const beforeFirst=page.messages[0]?this.historyEpoch+':'+(page.messages[0].sequence-1):page.cursor;
-  while(utf8Bytes(raw)>this.policy.responseBytes&&page.messages.length){page.messages.pop();page.has_more=true;page.cursor=page.messages.at(-1)?.cursor??(page.history_status==='ok'&&after?after:beforeFirst);raw=JSON.stringify(page);}
-  const size=utf8Bytes(raw);if(size>this.policy.responseBytes)fail(503,'POLICY_BOUNDS','응답 envelope가 허용된 바이트를 초과합니다.');
+  const page=await this.page(after,limit,before);const raw=boundHistoryPage(page,this.policy.responseBytes,after===undefined||page.history_status!=='ok'),size=utf8Bytes(raw);
   const count=available(this.responses,now,this.policy.responsesPerSecond,this.policy.responseBurst),bytes=available(this.bytes,now,this.policy.bytesPerSecond,this.policy.byteBurst);
   if(count<1||bytes<size)publicLimited(Math.max(count<1?(1-count)*1000/(this.policy.responsesPerSecond||1):0,bytes<size?(size-bytes)*1000/(this.policy.bytesPerSecond||1):0));
   this.responses.tokens--;this.bytes.tokens-=size;lease.lastRead=now;lease.activity=now;this.egressBytes+=size;this.dataResponses++;return new Response(raw,{headers:{'Content-Type':'application/json; charset=utf-8'}});
  }
- private async read(request:Request,lease:Lease,after:string|undefined,limit:number,timeout:number):Promise<Response> {
+ private async read(request:Request,lease:Lease,after:string|undefined,limit:number,timeout:number,before?:string):Promise<Response> {
   if(this.waiters.has(lease.id))fail(409,'WAIT_IN_PROGRESS','이 lease에는 이미 대기 요청이 있습니다.');
   if(this.clock()-lease.lastRead<this.policy.batchMs)publicLimited(this.policy.batchMs-(this.clock()-lease.lastRead));
   if(request.signal.aborted)fail(499,'REQUEST_ABORTED','요청이 취소되었습니다.');if(this.waiters.size>=this.policy.waits)publicLimited();
   let wake!:()=>void;const notification=new Promise<void>(resolve=>{wake=resolve;}),deadline=this.clock()+(timeout>0?Math.min(timeout,this.policy.waitMs):this.policy.batchMs);
   this.waiters.set(lease.id,{wake,lease,after,deadline});this.maxWaits=Math.max(this.maxWaits,this.waiters.size);
   const timer=setTimeout(wake,Math.min(timeout>0?timeout:this.policy.batchMs,this.policy.waitMs));request.signal.addEventListener('abort',wake,{once:true});this.scheduleBatch();
-  try{await notification;if(this.stopped){const response=json({error:{code:'ROOM_SHUTDOWN',message:'서버가 종료 중입니다. 다시 연결하세요.'},cursor:after??this.historyEpoch+':'+this.sequence},503);response.headers.set('Retry-After','1');return response;}if(request.signal.aborted)fail(499,'REQUEST_ABORTED','요청이 취소되었습니다.');return await this.responsePage(lease,after,limit);}
+  try{await notification;if(this.stopped){const response=json({error:{code:'ROOM_SHUTDOWN',message:'서버가 종료 중입니다. 다시 연결하세요.'},cursor:after??this.historyEpoch+':'+this.sequence},503);response.headers.set('Retry-After','1');return response;}if(request.signal.aborted)fail(499,'REQUEST_ABORTED','요청이 취소되었습니다.');return await this.responsePage(lease,after,limit,before);}
   finally{clearTimeout(timer);request.signal.removeEventListener('abort',wake);this.waiters.delete(lease.id);if(!this.waiters.size){clearTimeout(this.batchTimer);this.batchTimer=undefined;}}
  }
  private scheduleBatch() {

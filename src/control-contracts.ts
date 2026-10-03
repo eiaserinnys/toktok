@@ -4,7 +4,7 @@ import type {agentView} from './identity-types';
 import type {ControlState} from './settings-store';
 import type {SettingsStore} from './settings-store';
 export type PublicConfig=ReturnType<typeof publicConfig>;
-export interface SessionProjection {authenticated:boolean;role:'anonymous'|'member'|'admin';entitlements:Entitlements;csrf_token:string|null;owner_ack:OwnerAck|null;agents?:ReturnType<typeof agentView>[];}
+export interface SessionProjection {authenticated:boolean;role:'anonymous'|'member'|'admin';can_bootstrap_admin:boolean;entitlements:Entitlements;csrf_token:string|null;owner_ack:OwnerAck|null;agents?:ReturnType<typeof agentView>[];}
 export interface AuthStartRequest {purpose:'login'|'signup'|'claim';invitation_validation_id?:string;claim_id?:string;claim_token?:string;}
 export interface AuthStartResponse {flow:string;nonce:string;provider_configured:boolean;expires_at:string;}
 export interface InvitationValidation {valid:true;invite_validation_id:string;expires_at:string;}

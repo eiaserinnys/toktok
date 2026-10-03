@@ -1,3 +1,4 @@
+import {historyRange,historyPage} from './history-page';
 import {RecordCollection as C,type RepositoryPort,type RecordTransaction,type RecordValue} from './storage/repository';
 import {fail,hash} from './http';
 
@@ -55,17 +56,14 @@ export class RecentBuffer {
   });
  }
  async cleanup(bounds:RecentBounds,now:number,onCommit?:(tx:RecordTransaction,state:RecentState)=>Promise<void>):Promise<{state:RecentState;next:number|null}>{valid(bounds);return this.repo.transaction(this.scope,async tx=>{const state=await this.state(tx),before=state.count;await this.prune(tx,state,bounds,now);if(before!==state.count){await this.save(tx,state);if(onCommit)await onCommit(tx,state);}const first=state.count?await tx.get(C.recent_messages,recentMessageKey(state.first)):undefined;return {state,next:first?(state.count>bounds.messages||Date.parse(String(first.created_at))<=this.cutoff(bounds,now)?now+1000:Math.min(bounds.expiresAt??Infinity,Date.parse(String(first.created_at))+bounds.retentionMs)):null};});}
- async read(bounds:RecentBounds,now:number,after:string|undefined,limit:number,initial:{ms:number;messages:number}){
+ async read(bounds:RecentBounds,now:number,after:string|undefined,limit:number,initial:{ms:number;messages:number},before?:string){
   valid(bounds);return this.repo.transaction(this.scope,async tx=>{
    const state=await this.state(tx);let first=Math.max(state.first,state.sequence-bounds.messages+1),high=state.sequence+1;const cutoff=this.cutoff(bounds,now);
    while(first<high){const mid=Math.floor((first+high)/2),row=await tx.get(C.recent_messages,recentMessageKey(mid));if(row&&Date.parse(String(row.created_at))>cutoff)high=mid;else first=mid+1;}
-   let sequence=state.sequence,status:'ok'|'history_gap'|'history_reset'='ok';
-   if(after!==undefined){const match=/^([a-f0-9-]{36}):(0|[1-9][0-9]*)$/.exec(after);if(!match||!Number.isSafeInteger(Number(match[2])))fail(400,'INVALID_INPUT','cursor를 확인하세요.');sequence=Number(match[2]);if(match[1]!==state.epoch)status='history_reset';else if(sequence>state.sequence)fail(400,'INVALID_INPUT','cursor가 현재 순서보다 큽니다.');else if(sequence<first-1)status='history_gap';}
-   const reset=after===undefined||status!=='ok',start=reset?Math.max(first-1,state.sequence-initial.messages):Math.max(first-1,sequence);
-   const rows=await tx.list(C.recent_messages,{prefix:'m:',after:recentMessageKey(start),limit:reset?initial.messages:limit+1});
-   const candidates=rows.map(r=>visible(r.value as unknown as Stored)).filter(m=>Date.parse(m.created_at)>cutoff&&(!reset||now-Date.parse(m.created_at)<=initial.ms));
-   const messages=candidates.slice(0,limit),fallback=reset?(candidates[0]?state.epoch+':'+(candidates[0].sequence-1):state.epoch+':'+state.sequence):after!;
-   return {state,messages,epoch:state.epoch,cursor:messages.at(-1)?.cursor??fallback,earliest_cursor:state.epoch+':'+(first-1),history_status:status,has_more:candidates.length>messages.length,...(reset?{initial_window:{max_age_seconds:initial.ms/1000,max_messages:initial.messages,truncated:state.sequence>candidates.length}}:{})};
+   const range=historyRange(state.epoch,state.sequence,first,after,before,limit,initial.messages);
+   const rows=range.start<=range.end?await tx.list(C.recent_messages,{prefix:'m:',after:recentMessageKey(range.start-1),limit:range.count}):[];
+   const messages=rows.map(r=>visible(r.value as unknown as Stored)).filter(m=>Date.parse(m.created_at)>cutoff);
+   return {state,...historyPage(messages,state.epoch,state.sequence,first,after,before,limit,initial.messages)};
   });
  }
 }

@@ -4,7 +4,7 @@ import {loadResource} from '../public/shared/effect-interface.js';
 const anonymous={authenticated:false,role:'anonymous',entitlements:{can_create_private:false,can_persist_private:false},csrf_token:null,owner_ack:null};
 const member={...anonymous,authenticated:true,role:'member',csrf_token:'fictional-csrf'};
 it('projects server identity without secrets, query roles or account-derived entitlements',()=>{
- expect(mapSession({...anonymous,fixtureRole:'admin',email:'fictional@example.com',sessionsecret:'fictional'})).toEqual({authenticated:false,role:'anonymous',entitlements:anonymous.entitlements,owner_ack:null});
+ expect(mapSession({...anonymous,fixtureRole:'admin',email:'fictional@example.com',sessionsecret:'fictional'})).toEqual({authenticated:false,role:'anonymous',can_bootstrap_admin:false,entitlements:anonymous.entitlements,owner_ack:null});
  expect(mapSession(member).entitlements.can_persist_private).toBe(false);
  expect(()=>mapSession({...anonymous,role:'admin'})).toThrow('INVALID_SESSION');
 });

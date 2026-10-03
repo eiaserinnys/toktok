@@ -96,7 +96,7 @@ describe('independent public DB recent engine through Worker HTTP',()=>{
   expect(gap.history_status).toBe('history_gap');expect(gap.notice).toBeTruthy();expect(gap.messages.length).toBeLessThanOrEqual(20);
   await advance(2000);const r=await api(base+'/messages',p.lease_token,'GET',undefined,p.ip);const raw=await r.text();
   expect(new TextEncoder().encode(raw).byteLength).toBeLessThanOrEqual(65536);expect(JSON.parse(raw).messages.length).toBeLessThan(20);
-  expect(JSON.parse(raw).initial_window).toEqual({max_age_seconds:300,max_messages:20,truncated:true});
+  expect(JSON.parse(raw).initial_window).toEqual({max_messages:20,truncated:true});
   expect(JSON.parse(raw).cursor).toBe(JSON.parse(raw).messages.at(-1).cursor);
   await advance(3600001);const w=await watch();const page=await (await api(base+'/messages',w.lease_token,'GET',undefined,w.ip)).json() as any;
   expect(page.messages).toEqual([]);await runInDurableObject(stub(),async i=>{await i.core.maintenance('common-room');});expect((await stub().diagnostics()).buffer_bytes).toBe(0);

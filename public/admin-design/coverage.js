@@ -12,6 +12,7 @@ export function validateCoverage({components,dialogs,screens,routes,fixtures}){
  for(const f of fixtures.screens){
   if(ids.has(f.fixtureId))errors.push(`duplicate:${f.fixtureId}`);ids.add(f.fixtureId);
   if(!screens[f.screenId])errors.push(`screen:${f.screenId}`);
+  if(f.dialog&&!dialogs[f.dialog.dialogId]?.requiredStates.includes(f.dialog.state))errors.push(`screen-dialog:${f.fixtureId}`);
   if(!routes.some(r=>r.routeId===f.routeId&&(r.screenId===f.screenId||r.nestedScreens?.includes(f.screenId))))errors.push(`route-entry:${f.routeId}`);
  }
  const transitions=routes.flatMap(r=>r.transitions);

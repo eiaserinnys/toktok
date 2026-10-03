@@ -32,7 +32,7 @@ interface OwnedRoom extends Room {base:string;invite:string;read:string;}
 function asRoom(r:Room):OwnedRoom {roomIds.add(r.room.id);return {...r,base:'/api/v1/rooms/'+r.room.id,invite:new URL(r.invite_url).pathname.split('/').at(-1)!,read:new URL(r.read_url).pathname.split('/').at(-1)!};}
 interface Participant {participant_token:string;sender:{id:string;nickname:string};}
 interface Message {sequence:number;cursor:string;text:string;sender:{id:string};}
-interface Page {messages:Message[];cursor:string;epoch:string;has_more:boolean;room_status:string;history_status:string;}
+interface Page {messages:Message[];cursor:string;epoch:string;has_more:boolean;has_older:boolean;before_cursor:string;room_status:string;history_status:string;}
 interface Session {authenticated:boolean;role:string;csrf_token:string;}
 async function anonymousGrant(){
  const context=await call('anonymous context','/api/private/create-context',{}, {Origin:origin});

@@ -1,3 +1,4 @@
+import {createHistoryFeed} from './history-feed.js';
 import {mountPublicConnection} from './shared/public-connection-mount.js';
 import {mountCommonHeader} from './shared/common-header-mount.js';
 import {icon,room,terminal,introduction,guide,message,person,empty} from './view.js';
@@ -23,7 +24,7 @@ function move(path){delete document.body.dataset.error;history.pushState(null,''
 const $=(selector)=>active?.root.querySelector(selector);
 function status(copy){const e=$('#watch-status');if(e)e.textContent=copy;}
 function showTerminal(state,code){
- cancel(state);state.gone=true;state.root.innerHTML=terminal(code);state.cursor=null;state.epoch=null;state.senders.clear();commonHeader?.load();
+ cancel(state);state.viewer?.dispose();state.viewer=null;state.historyRequest=null;state.gone=true;state.root.innerHTML=terminal(code);state.cursor=null;state.epoch=null;state.senders.clear();commonHeader?.load();
 }
 function clock(state){
  if(state.mode==='public')return;
@@ -71,7 +72,7 @@ function failState(state,result){
  const code=result.data?.error?.code;
  if(code==='ROOM_GONE'){showTerminal(state,code);return true;}
  if(code==='ROOM_CLOSED'){
-  state.metadata.room.status='closed';metadata(state,state.metadata);status('대화가 종료됐어요. 이전 메시지는 계속 읽을 수 있어요.');$('#empty h2')?.replaceChildren(document.createTextNode('대화가 종료됐어요'));return true;
+  state.historyIdle=true;state.viewer?.setBusy(false);state.metadata.room.status='closed';metadata(state,state.metadata);status('대화가 종료됐어요. 이전 메시지는 계속 읽을 수 있어요.');$('#empty h2')?.replaceChildren(document.createTextNode('대화가 종료됐어요'));return true;
  }
  if([401,403,404].includes(result.response.status)){showTerminal(state,code);return true;}
  status(result.response.status===429?'잠시 기다려주세요. 서버가 안내한 시간 뒤 이어 읽어요.':'연결이 잠시 끊겼어요. 읽던 자리에서 다시 연결해요.');return false;
@@ -84,6 +85,8 @@ async function start(state){
  if(state.mode==='public')return startPublic(state,publicUI);
  cancel(state);
  if(active!==state||state.gone||state.paused)return;
+ state.viewer??=createHistoryFeed(state.root,kind=>{state.historyRequest=kind;if(state.readingLive||state.historyIdle){cancel(state);state.retryTimer=setTimeout(()=>start(state),Math.max(0,(state.lastHistoryRead??0)+2000-Date.now()));}});
+ state.historyIdle=false;
  const controller=new AbortController();state.controller=controller;
  const owned=()=>ownsResponse(state,controller,active);
  try{
@@ -92,23 +95,23 @@ async function start(state){
    if(!result.response.ok){if(!failState(state,result))armRetry(state,controller,result.response);return;}
    metadata(state,result.data);
   }else clock(state);
-  let more=true;
+  let more=false;
   while(owned()&&!state.paused){
-   // Omit limit/timeout so the actual room policy chooses its current safe bounds.
-   const path=privateReadPath(state,more);
+   const direction=state.historyRequest??(!state.cursor?'latest':more?'after':'live');state.historyRequest=null;
+   const model=state.viewer.model,key=direction==='before'?model.messages[0]?.cursor:direction==='after'&&!more?model.messages.at(-1)?.cursor:state.cursor;
+   const path=direction==='latest'?'/messages':direction==='before'?'/messages?before='+encodeURIComponent(key):(direction==='live'?'/wait':'/messages')+(key?'?after='+encodeURIComponent(key):'');
+   state.readingLive=direction==='live';state.viewer.setBusy(!state.readingLive);
    const result=await fetchJSON(state,path,controller);if(!owned())return;
-   if(!result.response.ok){if(!failState(state,result))armRetry(state,controller,result.response);return;}
-   const feed=$('#feed'),top=feed.scrollTop,follow=feed.scrollHeight-feed.clientHeight-top<=1,pageY=scrollY,hidden=$('#chat-panel').hidden;
-   applyPage(state,result.data,{append:m=>append(state,m),notice:copy=>{state.historyNotice=copy;$('.date-rule span').textContent=copy;},reset:()=>{
-    feed.replaceChildren(feed.querySelector('.date-rule'));feed.insertAdjacentHTML('beforeend',empty);state.senders.clear();$('#people').replaceChildren();$('#waiting-people').hidden=false;
-   }});state.attempt=0;feed.dataset.appliedCursor=state.cursor;
-   if(result.data.history_status!=='ok'&&!hidden)feed.scrollTop=follow?feed.scrollHeight:top;
-   if(scrollY!==pageY)scrollTo({top:pageY,behavior:'instant'});
+   if(!result.response.ok){state.readingLive=false;state.viewer.setBusy(false);if(direction!=='live')state.historyRequest=direction;if(!failState(state,result))armRetry(state,controller,result.response);return;}
+   state.readingLive=false;state.viewer.setBusy(false);state.lastHistoryRead=Date.now();
+   const applied=state.viewer.apply(result.data,direction,(state.metadata.room.history_retention_seconds??state.metadata.room.retention_seconds??3600)*1000);
+   if(direction!=='before'&&direction!=='after'||more||applied.reset)state.cursor=result.data.cursor;
+   state.epoch=result.data.epoch;state.attempt=0;more=(direction==='live'||more)&&result.data.has_more;
+   if(applied.gap)state.historyNotice='이전 대화 일부를 더 이상 가져올 수 없습니다. 최근 보관 범위로 다시 이어갑니다.';
    state.metadata.room.status=result.data.room_status;
    if(result.data.room_status==='closed')metadata(state,state.metadata);
    $('#room-status').textContent=result.data.room_status==='closed'?'종료된 방':state.root.querySelector('.message')?'대화 중':'대화를 기다리는 중';
-   more=result.data.has_more;
-   if(result.data.room_status==='closed'&&!more){status('대화가 종료됐어요. 이전 메시지는 계속 읽을 수 있어요.');$('#empty h2')?.replaceChildren(document.createTextNode('대화가 종료됐어요'));return;}
+   if(result.data.room_status==='closed'&&!more&&!state.historyRequest){state.historyIdle=true;status('대화가 종료됐어요. 이전 메시지는 계속 읽을 수 있어요.');$('#empty h2')?.replaceChildren(document.createTextNode('대화가 종료됐어요'));return;}
    status(state.historyNotice??'편하게 지켜보세요. 새 대화를 기다리고 있어요.');
    // The shared engine has a minimum 2s read cadence, also for pagination.
    // Higher policy limits are communicated by Retry-After, not a client override.
@@ -139,7 +142,7 @@ function tab(name,focus=false){
  const feed=$('#feed');
  if(!$('#chat-panel').hidden){active.feedTop=feed.scrollTop;active.follow=feed.scrollHeight-feed.clientHeight-feed.scrollTop<=1;}
  $('#chat-panel').hidden=name!=='chat';$('#connect-panel').hidden=name!=='connect';
- if(name==='chat')feed.scrollTop=active.follow?feed.scrollHeight:active.feedTop;
+ if(name==='chat'){feed.scrollTop=active.follow?feed.scrollHeight:active.feedTop;active.viewer?.refresh();}
  scrollTo({top:y,behavior:'instant'});
 }
 function toast(text){clearTimeout(toastTimer);const e=document.querySelector('#toast');e.textContent=text;e.classList.add('visible');toastTimer=setTimeout(()=>e.classList.remove('visible'),3500);}
@@ -162,7 +165,7 @@ function bind(state){
 }
 function navigate(){
  commonHeader?.dispose();commonHeader=null;
- if(active){active.pageY=scrollY;cancel(active);if(active.mode==='public')leavePublic(active);}clearTimeout(toastTimer);
+ if(active){active.pageY=scrollY;cancel(active);if(active.mode==='public')leavePublic(active);else{active.viewer?.dispose();active.viewer=null;active.cursor=null;active.historyRequest=null;}}clearTimeout(toastTimer);
  document.querySelector('#toast').classList.remove('visible');active=null;
  const error=document.body.dataset.error;
  if(error){app.innerHTML=terminal(error);commonHeader=mountCommonHeader(app,{effects,navigate:move,route:location.pathname});return;}
@@ -235,6 +238,6 @@ window.addEventListener('popstate',()=>{
  }
  navigate();
 });
-window.addEventListener('pagehide',()=>{commonHeader?.dispose();commonHeader=null;if(active){cancel(active);if(active.mode==='public')leavePublic(active);}surface?.dispose();surface=null;surfaceKind=null;clearTimeout(toastTimer);});
+window.addEventListener('pagehide',()=>{commonHeader?.dispose();commonHeader=null;if(active){cancel(active);if(active.mode==='public')leavePublic(active);else{active.viewer?.dispose();active.viewer=null;active.cursor=null;active.historyRequest=null;}}surface?.dispose();surface=null;surfaceKind=null;clearTimeout(toastTimer);});
 window.addEventListener('pageshow',e=>{if(e.persisted)navigate();});
 navigate();

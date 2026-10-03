@@ -43,10 +43,10 @@ it('two private participants exchange three rounds with capability separation, c
  for(let n=0;n<3;n++){await parsed(await send(r,a,'a-'+n,'창작 왕복 '+n),201);await parsed(await send(r,b,'b-'+n,'<script>데이터</script> '+n),201);}
  const original=await parsed<Message>(await send(r,a,'a-0','창작 왕복 0'));expect(original.sequence).toBe(1);
  expect((await send(r,a,'a-0','바뀐 내용')).status).toBe(409);
- const first=await readPage(r,r.read,'?limit=2');expect(first.messages.map(m=>m.sequence)).toEqual([1,2]);expect(first.has_more).toBe(true);
- const second=await readPage(r,a.participant_token,'?after='+encodeURIComponent(first.cursor)+'&limit=2');expect(second.messages.map(m=>m.sequence)).toEqual([3,4]);
- const third=await readPage(r,b.participant_token,'?after='+encodeURIComponent(second.cursor)+'&limit=2');expect(third.messages.map(m=>m.sequence)).toEqual([5,6]);
- await waitCadence();const empty=await parsed<Page>(await call('same cursor timeout',r.base+'/wait?timeout=0&after='+encodeURIComponent(third.cursor),undefined,bearer(r.read)));expect(empty.messages).toHaveLength(0);expect(empty.cursor===third.cursor).toBe(true);
+ const first=await readPage(r,r.read,'?limit=2');expect(first.messages.map(m=>m.sequence)).toEqual([5,6]);expect(first.has_more).toBe(false);expect(first.has_older).toBe(true);
+ const second=await readPage(r,a.participant_token,'?before='+encodeURIComponent(first.before_cursor)+'&limit=2');expect(second.messages.map(m=>m.sequence)).toEqual([3,4]);
+ const third=await readPage(r,b.participant_token,'?before='+encodeURIComponent(second.before_cursor)+'&limit=2');expect(third.messages.map(m=>m.sequence)).toEqual([1,2]);expect(third.has_older).toBe(false);
+ await waitCadence();const empty=await parsed<Page>(await call('same cursor timeout',r.base+'/wait?timeout=0&after='+encodeURIComponent(first.cursor),undefined,bearer(r.read)));expect(empty.messages).toHaveLength(0);expect(empty.cursor===first.cursor).toBe(true);
  expect((await call('participant cannot close',r.base+'/close',{},bearer(a.participant_token))).status).toBe(403);
  expect((await call('owner close',r.base+'/close',{},bearer(r.owner_token))).status).toBe(200);
  expect((await send(r,a,'after-close')).status).toBe(410);expect((await call('closed invite join',r.base+'/participants',{nickname:'새 사람',client_request_id:crypto.randomUUID(),notice_version:PRIVATE_NOTICE,visibility:'private',retention_mode:'recent_buffer'},bearer(r.invite))).status).toBe(410);

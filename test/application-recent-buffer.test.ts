@@ -7,6 +7,7 @@ import {newToken} from '../src/http';
 import {call,parsed,origin,takeCookie,bearer,installApplicationFixture,env} from './application-fixture';
 installApplicationFixture();
 it('Workers SQLite same recent buffer atomic/count/bytes/time contract',async()=>{const stub=env.PUBLIC_ROOMS.getByName('storage-contract');const result=await runInDurableObject(stub,async(_i,state)=>{const repo=new CloudflareRepository(state.storage);await repo.apply();return recentBufferContract(repo);});expect(result.count_ceiling).toBe(500);});
+it('Workers SQLite latest/backward history contract',async()=>{const stub=env.PUBLIC_ROOMS.getByName('storage-contract');const result=await runInDurableObject(stub,async(_i,state)=>{const repo=new CloudflareRepository(state.storage);await repo.apply();return (await import('./history-contract')).historyContract(repo);});expect(result.older_than_five_minutes).toBe(true);});
 it('actual Workers public approval/post survives actor eviction; no restored authority; alarm deletes history',async()=>{
  const base='/api/public/rooms/common-room',stub=env.PUBLIC_ROOMS.getByName('common-room'),input={request_secret:newToken(),client_request_id:crypto.randomUUID(),nickname:'Fictional test',notice_version:'toktok-risk-v2',visibility:'public',retention_mode:'recent_buffer'};
  expect((await call('old notice denied',base+'/connection-requests',{...input,notice_version:'toktok-risk-v1',retention_mode:'memory'})).status).toBe(400);

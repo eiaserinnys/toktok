@@ -1,0 +1,91 @@
+{
+  "scope": "actual local HTTP, SQLite and product UI; fictional 10min-old retained history",
+  "cases": [
+    {
+      "width": 390,
+      "status": "RUNNING",
+      "errors": [],
+      "reads": [
+        {
+          "path": "/api/public/rooms/common-room/messages",
+          "query": ""
+        },
+        {
+          "path": "/api/public/rooms/common-room/messages",
+          "query": "?before=52340b02-3a34-4abb-9e2f-efbdd0e1d33b%3A161"
+        }
+      ],
+      "mutations": [
+        {
+          "method": "POST",
+          "path": "/api/public/rooms/common-room/watchers"
+        }
+      ],
+      "initial": {
+        "cache": 20,
+        "bytes": 11308,
+        "dom": 3,
+        "atBottom": 0,
+        "last": "180"
+      },
+      "prepend": {
+        "before": {
+          "cursor": "52340b02-3a34-4abb-9e2f-efbdd0e1d33b:161",
+          "y": 65.390625
+        },
+        "afterY": null,
+        "layout": {
+          "top": 3387,
+          "height": 6955,
+          "client": 590,
+          "nodes": [
+            {
+              "seq": "162",
+              "y": -361.765625,
+              "h": 136.84375
+            },
+            {
+              "seq": "163",
+              "y": -201.921875,
+              "h": 136.84375
+            },
+            {
+              "seq": "164",
+              "y": -42.078125,
+              "h": 136.84375
+            },
+            {
+              "seq": "165",
+              "y": 117.765625,
+              "h": 664.09375
+            },
+            {
+              "seq": "166",
+              "y": 804.859375,
+              "h": 136.84375
+            },
+            {
+              "seq": "167",
+              "y": 964.703125,
+              "h": 136.84375
+            },
+            {
+              "seq": "168",
+              "y": 1124.546875,
+              "h": 136.84375
+            }
+          ],
+          "spacers": [
+            "2959.84px",
+            "2266.78px"
+          ]
+        }
+      }
+    }
+  ],
+  "cleanup": true,
+  "failure": {
+    "message": "The expression evaluated to a falsy value:\n\n  assert(position!==null&&Math.abs(position-before.y)<3)\n",
+    "stack": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert(position!==null&&Math.abs(position-before.y)<3)\n\n    at <anonymous> (/home/eias/workspace/.local/artifacts/toktok/20261003-history/browser-anchor.mjs:14:1056)"
+  }
+}

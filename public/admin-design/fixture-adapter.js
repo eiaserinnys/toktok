@@ -11,6 +11,7 @@ import {authSettingsFixtures} from './auth-settings-fixtures.js';
 const clone=value=>structuredClone(value);
 const fixtureCatalog={
  components:[
+  ...['loading','older','start','gap','new'].map(state=>({componentId:'history-navigation',state,args:[{state}]})),
   {componentId:'public-conversation-notes',state:'default',args:[]},
   {componentId:'public-conversation-notes',state:'history-gap',args:[{historyNotice:'이전 대화 일부를 더 이상 가져올 수 없습니다. 최근 대화로 다시 이어갑니다.'}]},
   {componentId:'icon',state:'default',args:['eye']},
@@ -37,11 +38,17 @@ const fixtureCatalog={
   {fixtureId:'guide',title:'사용 안내',routeId:'guide',screenId:'guide',state:'anonymous',args:[commonHeaderVm('anonymous','/guide')],path:'/guide'},
   {fixtureId:'public-empty',title:'공개방 관전',routeId:'public-room',screenId:'room',state:'public',args:[commonHeaderVm('anonymous','/public/fictional-room')],path:'/public/fictional-room'},
   ...['history-gap','history-reset','initial-window'].map(state=>({fixtureId:'public-'+state,title:'공개 관전 · '+state,routeId:'public-room',screenId:'room',state:'public-'+state,path:'/public/fictional-room',args:[{...commonHeaderVm('anonymous','/public/fictional-room'),history_status:state==='history-gap'?'history_gap':state==='history-reset'?'history_reset':'ok',initial_window:{truncated:state==='initial-window'}}]})),
+  ...['older','start','gap','new'].map(state=>({fixtureId:'public-scroll-'+state,title:'공개 기록 · '+state,routeId:'public-room',screenId:'room',state:'public-scroll-'+state,path:'/public/fictional-room',args:[{...commonHeaderVm('anonymous','/public/fictional-room'),historyNavigation:{state}}]})),
   {fixtureId:'private-empty',title:'비공개방 관전',routeId:'private-room',screenId:'room',state:'recent_buffer',args:[{...commonHeaderVm('anonymous'),room:privateMemoryFixture}],path:'/r/00000000-0000-4000-8000-000000000001/'+ 'a'.repeat(43)}
  ],
  transitions:[
   {transitionId:'catalog-open',from:'intro',to:'public-empty'},
   ...['history-gap','history-reset','initial-window'].map(state=>({transitionId:'public-'+state,from:'public-empty',to:'public-'+state})),
+  {transitionId:'history-scroll-up',from:'public-empty',to:'public-scroll-older'},
+  {transitionId:'history-reached-start',from:'public-scroll-older',to:'public-scroll-start'},
+  {transitionId:'history-expired',from:'public-scroll-older',to:'public-scroll-gap'},
+  {transitionId:'history-arrives-while-reading',from:'public-scroll-older',to:'public-scroll-new'},
+  {transitionId:'history-back-to-latest',from:'public-scroll-new',to:'public-empty',kind:'reference'},
   {transitionId:'public-back',from:'public-empty',to:'intro'},
   {transitionId:'private-back',from:'private-empty',to:'intro'}
  ]

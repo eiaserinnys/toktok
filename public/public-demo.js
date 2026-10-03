@@ -1,5 +1,5 @@
 import {cancel,ownsResponse,retryDelay} from './session.js';
-import {applyPublicPage} from './public-demo-session.js';
+import {createHistoryFeed} from './history-feed.js';
 import {publicRoom} from './public-demo-view.js';
 import {empty} from './view.js';
 const NOTICE='toktok-risk-v2';
@@ -15,12 +15,16 @@ const delay=(ms,signal)=>new Promise((resolve,reject)=>{
  const timer=setTimeout(()=>{signal.removeEventListener('abort',stop);resolve();},ms);signal.addEventListener('abort',stop,{once:true});if(signal.aborted)stop();
 });
 export function leavePublic(state){
- cancel(state);const token=state.lease;state.lease=null;state.metadata=null;
+ cancel(state);state.viewer?.dispose();state.viewer=null;state.cursor=null;state.historyRequest=null;const token=state.lease;state.lease=null;state.metadata=null;
  if(token)void fetch('/api/public/rooms/'+state.id+'/lease',{method:'DELETE',headers:{Authorization:'Bearer '+token},keepalive:true}).catch(()=>{});
  state.root.querySelector('dialog')?.close();
 }
 export async function startPublic(state,ui){
  cancel(state);if(!ui.current(state)||state.paused)return;
+ state.viewer??=createHistoryFeed(state.root,kind=>{
+  state.historyRequest=kind;
+  if(state.readingLive){cancel(state);state.retryTimer=setTimeout(()=>startPublic(state,ui),Math.max(0,(state.lastHistoryRead??0)+2000-Date.now()));}
+ });
  const controller=new AbortController();state.controller=controller;
  const owned=()=>ownsResponse(state,controller,ui.current(state)?state:null);
  const retry=response=>{state.retryTimer=setTimeout(()=>{state.retryTimer=null;if(owned()&&!state.paused)startPublic(state,ui);},retryDelay(response,state.attempt++)+Math.random()*250);};
@@ -37,18 +41,23 @@ export async function startPublic(state,ui){
    if(!metadata.response.ok){if(['LEASE_EPOCH_RESET','CAPABILITY_DENIED'].includes(metadata.data.error?.code)){state.lease=null;ui.status('관전 연결을 다시 만들고 이전 이력의 소실 여부를 확인해요.');}retry(metadata.response);return;}
    state.metadata=metadata.data;
    state.root.querySelector('#lease-counts').textContent=`참여 연결 ${metadata.data.leases.participants} · 관전 연결 ${metadata.data.leases.watchers} (논리 lease, 사람 수가 아닙니다)`;
-   const after=state.cursor?'?after='+encodeURIComponent(state.cursor):'';
-   const path=(state.cursor&&!more?'/wait':'/messages')+after;
+   const direction=state.historyRequest??(!state.cursor?'latest':more?'after':'live');state.historyRequest=null;
+   const model=state.viewer.model;
+   const key=direction==='before'?model.messages[0]?.cursor:direction==='after'&&!more?model.messages.at(-1)?.cursor:state.cursor;
+   const path=direction==='latest'?'/messages':direction==='before'?'/messages?before='+encodeURIComponent(key): (direction==='live'?'/wait':'/messages')+(key?'?after='+encodeURIComponent(key):'');
+   state.readingLive=direction==='live';state.viewer.setBusy(!state.readingLive);
    const result=await request(state,path,controller);if(!owned())return;
    if(!result.response.ok){
+    state.readingLive=false;state.viewer.setBusy(false);if(direction!=='live')state.historyRequest=direction;
     if(['LEASE_EPOCH_RESET','CAPABILITY_DENIED'].includes(result.data.error?.code))state.lease=null;
     ui.status(result.response.status===429?'잠시 기다려주세요. 서버가 안내한 시간 뒤 이어 읽어요.':'관전 연결을 다시 확인해요. 이전 cursor로 이어 읽어요.');retry(result.response);return;
    }
-   let notice=null;
-   applyPublicPage(state,result.data,{append:m=>ui.append(state,m),notice:n=>{notice=n;state.root.querySelector('#public-history-note').textContent=n;},reset:()=>{
-    const feed=state.root.querySelector('#feed'),rule=feed.querySelector('.date-rule');feed.replaceChildren(rule);feed.insertAdjacentHTML('beforeend',empty);state.senders.clear();state.root.querySelector('#people').replaceChildren();state.root.querySelector('#waiting-people').hidden=false;
-   }});
-   state.attempt=0;more=result.data.has_more;
+   state.readingLive=false;state.viewer.setBusy(false);state.lastHistoryRead=Date.now();
+   const applied=state.viewer.apply(result.data,direction,metadata.data.recent_buffer.max_age_seconds*1000);
+   if(direction!=='before'&&direction!=='after'||more||applied.reset)state.cursor=result.data.cursor;
+   state.epoch=result.data.epoch;state.attempt=0;more=(direction==='live'||more)&&result.data.has_more;
+   const notice=applied.gap?'이전 대화 일부를 더 이상 가져올 수 없습니다. 최근 대화로 다시 이어갑니다.':null;
+   if(notice)state.root.querySelector('#public-history-note').textContent=notice;
    state.root.querySelector('#room-status').textContent=state.root.querySelector('.message')?'공개 대화':'대화를 기다리는 중';
    ui.status(notice??'편하게 지켜보세요. 새 공개 대화를 기다리고 있어요.');
    // Every next read, including pagination, respects the engine's 2s minimum interval.
