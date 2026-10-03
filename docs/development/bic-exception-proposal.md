@@ -2,6 +2,8 @@
 
 승인된 제안이며 **아직 적용되지 않았습니다**. 2026-10-03 승인 후 기존 연결로 custom-rule entrypoint를 조회했으나 `403 / 10000`으로 거절됐습니다. 기존 규칙을 읽지 못해 적용 전에 중단했습니다. 새 자격증명·권한 확대·전역 BIC 변경은 하지 않았습니다.
 
+사용자 대시보드에서 원본의 `ssl eq true` 문법이 거절된 것을 확인했습니다. 복사용 현재 식은 공식 Boolean 표현 `ssl` 단독으로 고쳤습니다. **Skip을 고른 뒤 Browser Integrity Check 항목도 반드시 체크**해야 `action parameters are required` 오류가 없어집니다. 아래 원본 payload는 적용 실패 이력이며 그대로 새로 붙여 넣지 않습니다.
+
 현재 URL 연결 기능까지 포함한 사용자 수동 입력값은 [복사용 expression](bic-agent-connection-expression.txt)입니다. 원본에 `POST connection-requests`, `GET/DELETE connection-request`만 추가했습니다. 사람이 누르는 승인 API는 제외하며 실제 적용 여부는 사용자 대시보드에서 확인해야 합니다. 규칙 이름 `toktok agent HTTP - BIC only`, Action **Skip**, **Browser Integrity Check만 체크**, **Log matching requests 끄기**, **Active**로 저장합니다. 아래 승인 원본과 payload는 이력으로 보존합니다.
 
 이 문서와 [정확한 JSON payload](bic-exception-proposal.json)에는 공개 hostname·API 경로·규칙 조건만 들어 있습니다. API token, account ID, zone ID, 관리자 이메일, 실제 방 ID나 capability는 포함하지 않습니다. 아래 expression은 승인된 원본과 같습니다.
