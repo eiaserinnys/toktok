@@ -2,7 +2,7 @@ import type {ControlDomain} from './control-core';
 import type {RegistryInput} from './identity-types';
 import {C,save,read,digest,expire,required} from './control-records';
 import {authorizePrivatePersistence,entitlements,newBudgetOperation,type CreatorPrincipal} from './control-policy';
-import {PRIVATE_NOTICE,type PrivateCreatorAck,type PrivateRoomInit} from './private-contracts';
+import {PRIVATE_NOTICE,MAX_PRIVATE_PURPOSE_CHARACTERS,type PrivateCreatorAck,type PrivateRoomInit} from './private-contracts';
 import {requireEnforcement} from './control-installation';
 import {HttpError,bad,fail,text,hash} from './http';
 import {CreationResultError} from './control-errors';
@@ -47,7 +47,7 @@ export class CreationAdmissions {
   return {subject:'agent:'+creator.creator_id,creator_id:creator.creator_id,principal:creator.principal,ack,grant:null,grantHash:null};
  }
  async reserve(input:RegistryInput){
-  const creation=input.creation;if(!creation)bad();if([creation.invite_hash,creation.read_hash,creation.owner_hash].some(h=>!/^[a-f0-9]{64}$/.test(h)))bad();const b=creation.body,purpose=text(b.purpose,0,1000),client=text(b.client_request_id,1,128);
+  const creation=input.creation;if(!creation)bad();if([creation.invite_hash,creation.read_hash,creation.owner_hash].some(h=>!/^[a-f0-9]{64}$/.test(h)))bad();const b=creation.body,purpose=text(b.purpose,0,MAX_PRIVATE_PURPOSE_CHARACTERS),client=text(b.client_request_id,1,128);
   const owner=await this.principal(input),requestKey='create:'+await digest(this.tx,owner.subject,client),requestDigest=await hash(JSON.stringify({purpose,ttl_seconds:b.ttl_seconds??null,persist:b.persist??false,retention_seconds:b.retention_seconds??null}));
   const old=await this.tx.get(C.settings,requestKey);if(old&&Number(old.expires_at)>this.now){if(old.request_digest!==requestDigest)fail(409,'IDEMPOTENCY_CONFLICT','같은 생성 요청의 내용이 다릅니다.');const slot=required(await read<Slot>(this.tx,C.settings,'room:'+String(old.room_id)));if(slot.status==='pending')throw new CreationResultError('CREATE_PENDING','방 초기화를 확인하고 있습니다.',slot.id);throw new CreationResultError('CREATE_RESULT_NOT_RECOVERABLE','최초 생성 결과와 관리 키는 복구할 수 없습니다.',slot.id);}
   if(owner.grant&&(owner.grant.consumed||owner.grant.valid_until<=this.now))fail(403,'OPERATOR_ACK_REQUIRED','새 생성 확인이 필요합니다.');
