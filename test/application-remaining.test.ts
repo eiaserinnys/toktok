@@ -44,7 +44,15 @@ it('remaining capability secrets are distinct 256-bit values and secure entry er
 
 it('remaining distinct concurrent writes retain sequence and sender identity and reject reply or sender spoofing',async()=>{
  const r=await create(),a=await join(r,'같은 이름'),b=await join(r,'같은 이름');
- const messages=await Promise.all(Array.from({length:12},async(_,n)=>parsed<Message>(await send(r,n%2?a:b,'concurrent-'+n),201)));
+ // The real body-inflight ceiling is 8. Launch all 12, settle every response,
+ // then honor explicit backpressure once with the same sender/message IDs.
+ // A fast CI transport can reach that ceiling before any body has completed.
+ const responses=await Promise.all(Array.from({length:12},(_,n)=>send(r,n%2?a:b,'concurrent-'+n)));
+ const retry:number[]=[];let delay=0;
+ for(const [n,response] of responses.entries())if(response.status!==201){expect(response.status).toBe(429);expect((await response.json() as {error:{code:string}}).error.code).toBe('RATE_LIMITED');const seconds=Number(response.headers.get('Retry-After'));expect(seconds).toBeGreaterThanOrEqual(1);expect(seconds).toBeLessThanOrEqual(1);delay=Math.max(delay,seconds*1000);retry.push(n);}
+ expect(retry.length).toBeLessThan(12);raw.push({step:'concurrent HTTP bounded backpressure',status:200,retry_after:null,state:{initial_successes:12-retry.length,retry_count:retry.length}});
+ if(retry.length){await new Promise(resolve=>setTimeout(resolve,delay));await Promise.all(retry.map(async n=>{responses[n]=await send(r,n%2?a:b,'concurrent-'+n);}));}
+ const messages=await Promise.all(responses.map(response=>parsed<Message>(response,201)));
  expect(messages.map(m=>m.sequence).sort((x,y)=>x-y)).toEqual(Array.from({length:12},(_,n)=>n+1));expect(new Set(messages.map(m=>m.sender.id)).size).toBe(2);
  const original=messages[0],first=messages.find(m=>m.sequence===1)!;
  expect((await post(r,b,{text:'concurrent-0',client_message_id:'concurrent-0',reply_to:first.cursor})).status).toBe(409);
@@ -87,7 +95,7 @@ it('remaining registered wait rejects exactly when its server snapshot expires',
 it('remaining current private input and query limits fail safely through actual HTTP',async()=>{
  const r=await create(),p=await join(r,'창작'),grant=await anonymousGrant();
  for(const input of [{purpose:'x'.repeat(1001)},{purpose:'창작',ttl_seconds:59},{purpose:'창작',ttl_seconds:86401}])expect((await call('invalid creation bounds','/api/v1/rooms',{...input,creation_grant:grant,client_request_id:crypto.randomUUID()})).status).toBe(400);
- for(const nickname of ['', 'x'.repeat(65)])expect((await call('invalid participant name',r.base+'/participants',{nickname,client_request_id:crypto.randomUUID(),notice_version:PRIVATE_NOTICE,visibility:'private',retention_mode:'memory'},bearer(r.invite))).status).toBe(400);
+ for(const nickname of ['', 'x'.repeat(65)])expect((await call('invalid participant name',r.base+'/participants',{nickname,client_request_id:crypto.randomUUID(),notice_version:PRIVATE_NOTICE,visibility:'private',retention_mode:'recent_buffer'},bearer(r.invite))).status).toBe(400);
  for(const input of [{text:'',client_message_id:'empty'},{text:'창작',client_message_id:'x'.repeat(129)}])expect((await post(r,p,input)).status).toBe(400);
  expect((await post(r,p,{text:'가'.repeat(5462),client_message_id:'too-many-bytes'})).status).toBe(413);
  expect((await post(r,p,{text:'x'.repeat(65536),client_message_id:'too-large-json'})).status).toBe(413);

@@ -1,0 +1,11 @@
+{
+  "purpose": "verify the one user-authorized introduction after its client reports acceptance",
+  "verified": false,
+  "additional_message_posts": 0,
+  "client_post_status": 201,
+  "human_approval": "approved",
+  "watch_status": 201,
+  "read_status": 200,
+  "result": "NO_UNAMBIGUOUS_RECENT_MATCH",
+  "leave_status": 204
+}

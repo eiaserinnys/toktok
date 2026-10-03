@@ -35,12 +35,12 @@ export class PublicConnections {
  get size(){return this.requests.size;}
  private view(r:Connection,room:string,agent=false):Record<string,unknown>{
   return {request_id:r.id,epoch:this.epoch,status:r.status,nickname:r.nickname,
-   participant_connected:!!r.grant&&this.active(r.grant),expires_at:new Date(r.expires).toISOString(),notice_version:PUBLIC_NOTICE,visibility:'public',retention_mode:'memory',
+   participant_connected:!!r.grant&&this.active(r.grant),expires_at:new Date(r.expires).toISOString(),notice_version:PUBLIC_NOTICE,visibility:'public',retention_mode:'recent_buffer',
    verification_uri:this.origin+'/public/'+room+'?connect='+encodeURIComponent(r.id),interval_seconds:5,
    ...(agent&&r.status==='approved'&&r.grant?{operator_grant:r.grant,client_request_id:r.clientId}: {})};
  }
  async create(room:string,input:Record<string,unknown>,ttl:number,capacity:number,onNew:()=>void){
-  if(input.notice_version!==PUBLIC_NOTICE||input.visibility!=='public'||input.retention_mode!=='memory')bad();
+  if(input.notice_version!==PUBLIC_NOTICE||input.visibility!=='public'||input.retention_mode!=='recent_buffer')bad();
   const secret=text(input.request_secret,43,43);if(!tokenShape.test(secret))bad();
   const secretHash=await hash(secret),nickname=text(input.nickname,1,64),clientId=text(input.client_request_id,1,128);
   this.prune();const priorId=this.bySecret.get(secretHash),prior=priorId&&this.requests.get(priorId);

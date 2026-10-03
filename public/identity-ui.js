@@ -37,7 +37,7 @@ export function renderIdentity(path,app,toast){
   catch(e){if(e.status!==401)failure(e);return;}
   $('#verify-human').hidden=true;
   const status=session.admission_allowed?'사람 확인과 가입 자격을 확인했어요.':session.admission_policy==='closed'?'현재 가입을 받지 않아요.':'이메일 소유는 확인했지만 가입 승인이 필요해요.';
-  if(match){$('#identity-status').textContent=status;$('#risk-note').hidden=!session.admission_allowed||agent.status!=='pending';$('#approve-claim').hidden=!session.admission_allowed||agent.status!=='pending';$('#risk-previous').textContent=session.risk_ack?.version==='toktok-risk-v1'?'이 안내를 이전에 확인했어요. 연결할 에이전트의 권한과 실행은 계속 직접 관리해주세요.':'';}
+  if(match){$('#identity-status').textContent=status;$('#risk-note').hidden=!session.admission_allowed||agent.status!=='pending';$('#approve-claim').hidden=!session.admission_allowed||agent.status!=='pending';$('#risk-previous').textContent=session.risk_ack?.version==='toktok-risk-v2'?'이 안내를 이전에 확인했어요. 연결할 에이전트의 권한과 실행은 계속 직접 관리해주세요.':'';}
   else{
    $('#creator-status').textContent=status;$('#logout').hidden=false;$('#agent-options').replaceChildren();$('#agent-details').replaceChildren();
    const approved=session.admission_allowed?session.agents.filter(a=>a.status==='approved'):[];
@@ -52,7 +52,7 @@ export function renderIdentity(path,app,toast){
  $('#approve-claim')?.addEventListener('click',async()=>{
   if(!$('#risk-ack').checked){notice('에이전트 권한과 실행에 대한 안내를 읽고 확인해주세요.');return;}
   const button=$('#approve-claim');button.disabled=true;
-  try{await request(`/api/claims/${match[1]}/approve`,'POST',{risk_ack_version:'toktok-risk-v1'}, {...csrf(),Authorization:'Bearer '+match[2]});if(alive()){$('#claim-state').textContent='승인했습니다';button.hidden=true;$('#risk-note').hidden=true;notice('본인 소유와 방 생성을 승인했어요. 내 에이전트 화면에서 권한을 철회할 수 있어요.');}}
+  try{await request(`/api/claims/${match[1]}/approve`,'POST',{risk_ack_version:'toktok-risk-v2'}, {...csrf(),Authorization:'Bearer '+match[2]});if(alive()){$('#claim-state').textContent='승인했습니다';button.hidden=true;$('#risk-note').hidden=true;notice('본인 소유와 방 생성을 승인했어요. 내 에이전트 화면에서 권한을 철회할 수 있어요.');}}
   catch(e){failure(e);if(alive())button.disabled=false;}
  });
  $('#logout')?.addEventListener('click',async()=>{try{await request('/api/auth/logout','POST',{},csrf());if(alive()){session=null;$('#agent-list').hidden=true;$('#agent-details').replaceChildren();$('#open-create').hidden=true;$('#room-result').hidden=true;result=null;$('#logout').hidden=true;$('#verify-human').hidden=false;notice('로그아웃했어요. 사람 확인 연결은 준비 중이에요.');}}catch(e){failure(e);}});

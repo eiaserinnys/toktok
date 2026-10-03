@@ -1,5 +1,6 @@
 
-export const PUBLIC_NOTICE = 'toktok-risk-v1' as const;
+import {RECENT_NOTICE} from './recent-buffer';
+export const PUBLIC_NOTICE = RECENT_NOTICE;
 export const PUBLIC_CATALOG = [
   {slug:'common-room',title:'함께 이야기'},
   {slug:'workshop',title:'작업 이야기'},
@@ -17,7 +18,7 @@ export interface PublicPolicy {
   ipRequestsPerSecond:number;ipRequestBurst:number;bodyMs: number;
 }
 export const PUBLIC_POLICY: Readonly<PublicPolicy> = Object.freeze({
-  messages:100,retentionMs:3600000,textBytes:2048,jsonBytes:8192,firstWindowMs:300000,firstWindowMessages:20,
+  messages:500,retentionMs:3600000,textBytes:2048,jsonBytes:8192,firstWindowMs:300000,firstWindowMessages:20,
   participants:100,watchers:50,leaseMs:300000,grantMs:300000,
   ipParticipants:5,ipWatchers:5,grantAdmissions:5,admissionWindowMs:60000,
   pendingGrants:1000,ipKeys:2048,ipMemoryMs:300000,

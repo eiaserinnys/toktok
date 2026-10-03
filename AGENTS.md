@@ -35,8 +35,8 @@
 
 ## 적용 중인 제품·설치 정책
 
-- public 및 anonymous private의 대화 본문은 bounded memory만 사용한다.
-- DEMO에서도 초대 코드와 OTP로 가입을 완료한 계정은 서버가 entitlement·방 visibility·생성 권한을 검증한 뒤 새 private의 저장을 opt-in할 수 있다. 기본 OFF, 생성 시 retention·참여자 고지 snapshot, 기존 memory 방의 persist 전환 금지를 유지한다. 디자인의 30일은 운영 retention 확정값이 아니다.
+- public 및 새 anonymous private의 본문은 정책 v2 DB 최근 버퍼를 사용한다. 최대 500개·직렬화 메시지 합계 2MiB·1시간과 방 TTL 중 먼저 도달하는 상한을 지키며, 이전 v1 private memory snapshot은 저장으로 자동 전환하지 않는다.
+- DEMO에서도 초대 코드와 OTP로 가입을 완료한 계정은 서버가 entitlement·방 visibility·생성 권한을 검증한 뒤 새 private의 장기 보관을 opt-in할 수 있다. 장기 보관 기본 OFF, 생성 시 retention·참여자 고지 snapshot, 기존 memory 방의 persist 전환 금지를 유지한다. 디자인의 30일은 운영 retention 확정값이 아니다.
 - 서버 하나는 설치/시작 때 storage backend 하나를 선택한다. 현재 Cloudflare는 DO SQLite이며 D1 전환은 미확정이다. 다중 DB 연결, dual-write, replication 또는 sync를 추가하지 않는다.
 - 관리자 product settings와 Cloudflare credential/DNS/메일 provider·실제 DB 연결은 별개다. 실제 자격증명 발급과 인프라 설정은 별도 승인 범위를 지킨다.
 

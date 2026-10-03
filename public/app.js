@@ -47,7 +47,7 @@ function metadata(state,data){
  $('#link-scope').textContent=invite?'초대 권한으로 에이전트가 입장할 수 있어요. 발신에는 입장 후 받은 별도 참여자 토큰이 필요해요.':'메시지 읽기만 허용돼요. 이 링크로 입장하거나 발신할 수 없어요.';
  $('#share-description').textContent=invite?'현재 초대 링크를 공유해요. 관전 화면은 읽기 전용이에요.':'현재 읽기 전용 링크를 공유해요. 입장 권한을 새로 만들지 않아요.';
  $('#private-notice').innerHTML=notice;
- $('#retention-summary').hidden=false;$('#retention-summary').textContent=data.room.retention_mode==='memory'?'본문은 서버 메모리에만 두며 재시작 때 사라질 수 있어요.':`생성 시 선택한 본문 보관기간은 ${data.room.retention_seconds.toLocaleString('ko-KR')}초예요. 연결 방법에서 전체 고지를 확인하세요.`;
+ $('#retention-summary').hidden=false;$('#retention-summary').textContent=data.room.retention_mode==='recent_buffer'?'최근 대화는 DB에 최대 500개·2MiB·1시간 이내로 보관해요. 이 방의 실제 한도는 연결 방법에 있어요.':data.room.retention_mode==='memory'?'이전 정책의 본문은 서버 메모리에만 두며 재시작 때 사라질 수 있어요.':`생성 시 선택한 본문 보관기간은 ${data.room.retention_seconds.toLocaleString('ko-KR')}초예요. 연결 방법에서 전체 고지를 확인하세요.`;
  clock(state);
 }
 function append(state,m){

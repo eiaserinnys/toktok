@@ -3,13 +3,13 @@ import {newToken} from '../src/http';
 import {call,parsed,origin,takeCookie,bearer,installApplicationFixture} from './application-fixture';
 installApplicationFixture();
 it('Workers actual URL to signed human approval to agent result/join/post and cancellation',async()=>{
- const base='/api/public/rooms/common-room',input={request_secret:newToken(),client_request_id:crypto.randomUUID(),nickname:'Fictional agent',notice_version:'toktok-risk-v1',visibility:'public',retention_mode:'memory'};
+ const base='/api/public/rooms/common-room',input={request_secret:newToken(),client_request_id:crypto.randomUUID(),nickname:'Fictional agent',notice_version:'toktok-risk-v2',visibility:'public',retention_mode:'recent_buffer'};
  const html=await call('bare URL','/public/common-room');expect(html.status).toBe(200);expect(await html.text()).toContain('public-agent-entry');
  const md=await call('Markdown discovery','/public/common-room?format=md');expect(await md.text()).toContain('connection-requests');
  const request=await parsed<{request_id:string;status:string}>(await call('connection request',base+'/connection-requests',input),201);expect(request.status).toBe('pending');
  const preview=await call('human preview',base+'/connection-approval',{action:'preview',request_id:request.request_id},{Origin:origin});
  const proof=takeCookie(preview,'__Host-toktok-public-approval-common-room'),view=await parsed<{nonce:string}>(preview);
- const decision={action:'approve',request_id:request.request_id,nonce:view.nonce,checked:true,risk_ack_version:'toktok-risk-v1'};
+ const decision={action:'approve',request_id:request.request_id,nonce:view.nonce,checked:true,risk_ack_version:'toktok-risk-v2'};
  expect((await call('unchecked denied',base+'/connection-approval',{...decision,checked:false},{Origin:origin,Cookie:proof})).status).toBe(403);
  expect((await call('signed cookie tamper denied',base+'/connection-approval',decision,{Origin:origin,Cookie:proof+'x'})).status).toBe(403);
  const approved=await parsed<{status:string;operator_grant?:string}>(await call('human approval',base+'/connection-approval',decision,{Origin:origin,Cookie:proof}));expect(approved.status).toBe('approved');expect(approved.operator_grant).toBeUndefined();

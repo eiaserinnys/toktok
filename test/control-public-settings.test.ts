@@ -18,3 +18,7 @@ it('first-window message count is an actual bounded schema option and public pro
 it('public settings reject unsafe response, wait and batching relationships',()=>{
  for(const policy of [{responseBytes:65535},{byteBurst:65535},{handlers:1,waits:2},{responseBurst:0},{batchMs:1999},{batchMs:10001},{batchMs:2000,waitMs:1999}])expect(()=>validateSettings(candidate({},policy))).toThrow();
 });
+
+it('recent buffer count/time limits are server enforced with read-only byte ceilings on both policies',()=>{
+ for(const scope of ['public','private'] as const){const policy=field(scope,'policy');expect(policy.recentBufferBounds).toEqual({maxMessages:500,maxBytes:2097152,maxAgeMs:3600000});const count=scope==='public'?'messages':'memoryMessages',time=scope==='public'?'retentionMs':'memoryRetentionMs';for(const [key,value] of [[count,501],[count,0],[time,3600001]]){const v=structuredClone(DEFAULT_SETTINGS);(v[scope].policy as unknown as Record<string,unknown>)[String(key)]=value;expect(()=>validateSettings(v)).toThrow();}}
+});

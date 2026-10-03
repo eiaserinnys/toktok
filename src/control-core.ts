@@ -51,7 +51,7 @@ export class ControlDomain {
   let a:AgentRow;if(input.token_hash){const index=await this.tx.get(C.agents,'t:'+input.token_hash);if(!index)fail(401,'AGENT_REQUIRED','승인된 에이전트 인증정보가 필요합니다.');a=await this.agent(String(index.id));}
   else {const {s,account}=await this.session(input,true);await this.admit(account);a=await this.agent(input.id!);if(a.owner_id!==s.owner_id)fail(403,'OWNER_DENIED','본인 소유 에이전트만 선택할 수 있습니다.');}
   if(a.status!=='approved'||this.now>=a.credential_expiry!)fail(403,'AGENT_NOT_APPROVED','승인된 유효 에이전트만 방을 만들 수 있습니다.');const account=required(await this.accountById(a.owner_id!));await this.admit(account);
-  const ack=await this.ack(account.id);if(ack?.version!=='toktok-risk-v1')fail(403,'RISK_ACK_REQUIRED','소유자의 안내 확인이 필요합니다.');return {creator_id:a.id,owner_account_id:account.id,principal:{authenticated:true,creator_authorized:true,entitlements:entitlements((await this.settings.read()).settings,account),owner_ack:ack}};
+  const ack=await this.ack(account.id);if(ack?.version!=='toktok-risk-v2')fail(403,'RISK_ACK_REQUIRED','소유자의 안내 확인이 필요합니다.');return {creator_id:a.id,owner_account_id:account.id,principal:{authenticated:true,creator_authorized:true,entitlements:entitlements((await this.settings.read()).settings,account),owner_ack:ack}};
  }
  async execute(action:string,input:RegistryInput):Promise<unknown>{
   const settings=(await this.settings.read()).settings,now=this.now;
@@ -96,7 +96,7 @@ export class ControlDomain {
   }
   if(action==='logout'){await this.session(input,true);await this.tx.delete(C.sessions,input.session_hash!);return {};}
   if(action==='approve'){
-   const {s,account}=await this.session(input,true);await this.admit(account);const a=await this.claim(input.id!,input.claim_hash!,true);if(input.risk_ack_version!=='toktok-risk-v1')fail(400,'RISK_ACK_REQUIRED','에이전트 권한과 실행에 대한 안내 확인이 필요합니다.');
+   const {s,account}=await this.session(input,true);await this.admit(account);const a=await this.claim(input.id!,input.claim_hash!,true);if(input.risk_ack_version!=='toktok-risk-v2')fail(400,'RISK_ACK_REQUIRED','에이전트 권한과 실행에 대한 안내 확인이 필요합니다.');
    await save(this.tx,C.accounts,'ack:'+s.owner_id,{version:input.risk_ack_version,confirmed_at:now});const approved={...a,status:'approved',owner_id:s.owner_id,credential_expiry:now+2592000000,expires_at:now+2592000000};
    await save(this.tx,C.agents,'a:'+a.id,approved);await save(this.tx,C.agents,'o:'+s.owner_id+':'+a.id,approved);await this.settings.stateSave({...await this.settings.state(),pending_agents:(await this.settings.state()).pending_agents-1});await expire(this.tx,C.agents,'a:'+a.id,approved.expires_at);return {agent:agentView(approved)};
   }

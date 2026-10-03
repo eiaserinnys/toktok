@@ -1,0 +1,18 @@
+{
+  "diagnostic": "read-only watcher idle, no participant or message POST",
+  "message_posts": 0,
+  "watch_epoch": "89dc4695-bb34-496d-8175-8c6fd35d6b50",
+  "before": {
+    "status": 200,
+    "epoch": "89dc4695-bb34-496d-8175-8c6fd35d6b50",
+    "room": "common-room"
+  },
+  "idle_seconds": 16.0,
+  "after": {
+    "status": 409,
+    "epoch": null,
+    "room": null,
+    "code": "LEASE_EPOCH_RESET"
+  },
+  "leave_status": 409
+}

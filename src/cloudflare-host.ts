@@ -27,7 +27,7 @@ export class ControlPlane extends createControlPlane(env=>({
 export class PublicRoom extends PublicRoomBase {
  private appliedRevision=0;
  constructor(ctx:DurableObjectState,env:CloudflareHostEnv){super(ctx,env,{budgetFactory:cfBudget});}
- applyConfiguration(config:RuntimeConfig){if(config.revision<=this.appliedRevision)return;this.core.configure(config.revision,publicPolicy(config),publicCatalog(config));this.appliedRevision=config.revision;}
+ async applyConfiguration(config:RuntimeConfig){if(config.revision<=this.appliedRevision)return;await this.configure(config.revision,publicPolicy(config),publicCatalog(config));this.appliedRevision=config.revision;}
 }
 export class PrivateRoom extends PrivateRoomBase {
  constructor(ctx:DurableObjectState,env:CloudflareHostEnv){super(ctx,env,{budgetFactory:cfBudget});}

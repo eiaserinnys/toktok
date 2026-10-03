@@ -49,15 +49,15 @@ it('two private participants exchange three rounds with capability separation, c
  await waitCadence();const empty=await parsed<Page>(await call('same cursor timeout',r.base+'/wait?timeout=0&after='+encodeURIComponent(third.cursor),undefined,bearer(r.read)));expect(empty.messages).toHaveLength(0);expect(empty.cursor===third.cursor).toBe(true);
  expect((await call('participant cannot close',r.base+'/close',{},bearer(a.participant_token))).status).toBe(403);
  expect((await call('owner close',r.base+'/close',{},bearer(r.owner_token))).status).toBe(200);
- expect((await send(r,a,'after-close')).status).toBe(410);expect((await call('closed invite join',r.base+'/participants',{nickname:'새 사람',client_request_id:crypto.randomUUID(),notice_version:PRIVATE_NOTICE,visibility:'private',retention_mode:'memory'},bearer(r.invite))).status).toBe(410);
+ expect((await send(r,a,'after-close')).status).toBe(410);expect((await call('closed invite join',r.base+'/participants',{nickname:'새 사람',client_request_id:crypto.randomUUID(),notice_version:PRIVATE_NOTICE,visibility:'private',retention_mode:'recent_buffer'},bearer(r.invite))).status).toBe(410);
  const history=await readPage(r,r.owner_token);expect(history.messages).toHaveLength(6);expect(history.room_status).toBe('closed');
  const state=await records(tx=>tx.get(C.settings,'state'));expect(state?.active_private).toBe(0);
 });
 
-it('memory epoch reset is explicit and expired private data is unreadable through the common route',async()=>{
+it('recent buffer restart restores sequence and expired private data is unreadable through the common route',async()=>{
  const r=await create(),p=await join(r,'창작');await parsed(await send(r,p,'before-restart'),201);
  const old=await readPage(r,r.read);await evictDurableObject(privateRoom(r.room.id));
- const reset=await readPage(r,r.read,'?after='+encodeURIComponent(old.cursor));expect(reset.history_status).toBe('history_reset');expect(reset.messages).toHaveLength(0);expect(reset.epoch===old.epoch).toBe(false);
+ const reset=await readPage(r,r.read,'?after='+encodeURIComponent(old.cursor));expect(reset.history_status).toBe('ok');expect(reset.messages).toHaveLength(0);expect(reset.epoch).toBe(old.epoch);
  // Explicit storage fixture expiration, not a wall-clock TTL elapse claim.
  await runInDurableObject(privateRoom(r.room.id),async(_i,state)=>{await new CloudflareRepository(state.storage).transaction('room:'+r.room.id,async tx=>{const value=(await tx.get(C.private_rooms,r.room.id))!;const snapshot=value.snapshot as {[key:string]:import('../src/storage/repository').JsonValue};snapshot.expires_at=Date.now()-1;await tx.put(C.private_rooms,r.room.id,value);});});
  await evictDurableObject(privateRoom(r.room.id));expect((await call('expired metadata',r.base,undefined,bearer(r.read))).status).toBe(410);
@@ -83,12 +83,12 @@ it('common assets and room entry negotiate HTML, Markdown and JSON with secure e
  expect((await call('deleted shared HTML','/r/'+r.room.id+'/'+r.read,undefined,{Accept:'text/html'})).status).toBe(410);
 });
 
-it('public browser acknowledgement and separate watcher use real common HTTP and the memory actor',async()=>{
+it('public browser acknowledgement and separate watcher use real common HTTP and the recent-buffer actor',async()=>{
  const base='/api/public/rooms/common-room';
  expect((await call('unchecked public grant',base+'/operator-grants',{nonce:'x'.repeat(43),checked:false,risk_ack_version:PUBLIC_NOTICE},{Origin:origin})).status).toBe(403);
  const flow=await call('public acknowledgement context',base+'/ack-flow',{}, {Origin:origin});const {nonce}=await parsed<{nonce:string}>(flow,201);const cookie=takeCookie(flow,'__Host-toktok-public-flow');
  const grant=await parsed<{operator_grant:string}>(await call('public acknowledgement grant',base+'/operator-grants',{nonce,checked:true,risk_ack_version:PUBLIC_NOTICE},{Origin:origin,Cookie:cookie}),201);
- const participant=await parsed<{lease_token:string}>(await call('public participant',base+'/participants',{operator_grant:grant.operator_grant,nickname:'창작 공개참여자',client_request_id:crypto.randomUUID(),notice_version:PUBLIC_NOTICE,visibility:'public',retention_mode:'memory'}),201);
+ const participant=await parsed<{lease_token:string}>(await call('public participant',base+'/participants',{operator_grant:grant.operator_grant,nickname:'창작 공개참여자',client_request_id:crypto.randomUUID(),notice_version:PUBLIC_NOTICE,visibility:'public',retention_mode:'recent_buffer'}),201);
  const watcher=await parsed<{lease_token:string}>(await call('public watcher',base+'/watchers',{notice_version:PUBLIC_NOTICE}),201);
  expect((await call('watcher cannot send',base+'/messages',{text:'거부',client_message_id:crypto.randomUUID()},bearer(watcher.lease_token))).status).toBe(403);
  expect((await call('public participant message',base+'/messages',{text:'공개 창작 데이터',client_message_id:crypto.randomUUID()},bearer(participant.lease_token))).status).toBe(201);

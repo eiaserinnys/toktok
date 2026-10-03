@@ -9,7 +9,7 @@
 | 신규 가입 | admin 일회 초대 선검증 후 OTP 가입, 기본 공개 signup 없음 | closed/invite/open 명시 정책 |
 | 기존 회원 | 초대 없이 OTP 로그인; 유효 session에서 추가 claim/생성에 메일0 | 동일 |
 | 인증 private | completed invited/bootstrap account의 권한 있는 새 방에서 persist opt-in, 기본 OFF | DB account entitlement에 따른 persist opt-in, 기본 OFF |
-| public/anonymous private | body memory only | body memory only |
+| public/anonymous private | bounded DB recent buffer | bounded DB recent buffer |
 
 DEMO의 open signup을 거부합니다. persistenceAllowed=true는 DEMO에서도 가능하지만 account entitlement/creator/risk ack를 대체하지 않습니다. defaultPersist=false는 두 mode의 안전 불변 조건이고 관리자 schema의 readOnly/constant false로 표시합니다. 생성 생략=OFF, 명시 persist:true만 권한 검사를 거쳐 허용합니다. 모드 전환이 다른 옵션을 자동 완화하지 않습니다. 일반 settings PUT에서 readiness나 active room count를 쓰지 못하며 lifecycle readiness와 pending을 포함한 active private=0인 drain guard를 요구합니다.
 
@@ -42,9 +42,9 @@ runtime rate/cap/catalog 변경은 최종 policy revision 갱신 최대10초부�
 
 ## Private snapshot
 
-인증 private TTL 기본24h/최대7d와 anonymous 기본1h/최대24h를 별도 schema로 구분합니다. persist retention 기본24h/최대7d이면서 retention<=room TTL입니다(초과422). memory room은 persist retention 필드를 사용하지 않습니다. 30days UI 시나리오는 production 허용 옵션이 아닙니다.
+인증 private TTL 기본24h/최대7d와 anonymous 기본1h/최대24h를 별도 schema로 구분합니다. persist retention 기본24h/최대7d이면서 retention<=room TTL입니다(초과422). 최근 버퍼와 기존 v1 memory room은 장기 보관 retention 필드를 사용하지 않습니다. 30days UI 시나리오는 production 허용 옵션이 아닙니다.
 
-저장은 private+인증된 creator+DB account entitlement+owner risk ack+현재 persistenceAllowed를 함께 검사합니다. 미소비 invite/client entitlement는 근거가 아닙니다. mode/TTL/retention/저장/participant notice는 새 room snapshot이고 기존 memory→persist API는 없습니다. context/grant/생성 slot 도메인은 구현했지만 실제 Room initialize/저장/삭제 연결은 root/B 후속입니다.
+추가 장기 보관 선택은 private+인증된 creator+DB account entitlement+owner risk ack+현재 persistenceAllowed를 함께 검사합니다. 최근 DB 버퍼는 공개·익명에도 적용하며 이 opt-in과 별개입니다. 미소비 invite/client entitlement는 근거가 아닙니다. mode/TTL/retention/저장/participant notice는 새 room snapshot이고 기존 memory→persist API는 없습니다. context/grant/생성 slot 도메인은 구현했지만 실제 Room initialize/저장/삭제 연결은 root/B 후속입니다.
 
 PrivatePolicy 정본은 B의 src/private-contracts.ts입니다. settings.private.policy에 새 방 snapshot으로 저장합니다. handler 기본64/상한160, bodyInflight 기본8/상한16, wait 기본32를 사용하고 waits<=handlers/bodyInflight<=handlers를 검사합니다. responseBytes는65536 고정, readCadence는2000..10000ms이며 waitMs를 넘지 않습니다. 임의 client policy나 기존 memory snapshot 변경으로 한도를 넓히지 않습니다.
 

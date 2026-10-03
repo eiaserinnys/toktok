@@ -55,3 +55,7 @@ it('shows invalid ordinary TTL input and an associated error instead of the last
  expect(html).toMatch(/data-setting="private.anonymousDefaultTtlSeconds"[^>]*value="0"[^>]*aria-invalid="true"/);
  expect(html).toContain('id="setting-private-anonymousDefaultTtlSeconds-error"');expect(html).toContain('허용 범위를 확인해주세요.');
 });
+
+it('renders policy integer inputs with native numeric min and max attributes',()=>{
+ const html=renderSettingsFields(envelope(),'public');expect(html).toMatch(/data-schema-field="public.policy.batchMs" type="number"[^>]*min="2000" max="10000"/);expect(html).not.toContain('type="integer"');
+});

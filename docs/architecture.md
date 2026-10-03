@@ -6,11 +6,11 @@
 
 `createHttpApplication`은 인증, 관리자 설정, 공개방, 비공개방과 화면의 HTTP 경로를 처리한다. `ControlCore`, `PublicRoomCore`, `PrivateRoomCore`는 플랫폼과 분리하며 HTTP·저장소·메일·시간·IP 확인을 host port로 주입한다. 인증 HTTP handler는 `ControlHttpPort`만 호출하고 미설정이면 닫힌다.
 
-Cloudflare host는 `CONTROL`의 ControlPlane, `PUBLIC_ROOMS`, `PRIVATE_ROOMS` Durable Object와 Assets를 연결한다. ControlPlane과 저장 선택 비공개방은 DO SQLite를 사용한다. 공개방 대화 본문은 RAM에만 둔다. 기존 IdentityRegistry/Room 상태를 새 namespace로 자동 변환하지 않는다.
+Cloudflare host는 `CONTROL`의 ControlPlane, `PUBLIC_ROOMS`, `PRIVATE_ROOMS` Durable Object와 Assets를 연결한다. ControlPlane, 공개방과 새 비공개방의 최근 버퍼는 DO SQLite를 사용한다. 최근 기록의 sequence/epoch와 중복 방지 상태를 같은 transaction으로 저장한다. 승인·grant·public lease는 저장하지 않으며 재시작 때 다시 받아야 한다. 기존 IdentityRegistry/Room 상태를 새 namespace로 자동 변환하지 않는다.
 
 Node host는 같은 도메인을 사용하며 설치 시 SQLite 또는 PostgreSQL 하나를 선택한다. 동시에 두 backend를 쓰거나 복제하지 않는다. `RepositoryPort.transaction(scope, callback)`의 비동기 targeted CRUD를 adapter가 구현한다. JSON 검증, 접근량 제한, rollback, 중첩 transaction 거부와 종료 후 접근 차단을 적용한다. transaction 접근량 제한은 전체 DB 크기 제한이 아니다.
 
-Node 시작은 명시적인 schema 확인 후 저장 비공개방 metadata를 페이지 단위로 순회한다. `restoreRoom`이 retention·삭제 작업과 타이머를 복원한 뒤 ready와 listen을 연다. Node v1→v2 index 변경은 운영자의 `migrate` 명령으로만 수행한다. Cloudflare schema와 Node migration은 별개다.
+Node 시작은 명시적인 schema 확인 후 공개·저장 비공개방 metadata를 페이지 단위로 순회한다. `restoreRoom`이 retention·삭제 작업과 타이머를 복원한 뒤 ready와 listen을 연다. Node v1→v2 index 변경은 운영자의 `migrate` 명령으로만 수행한다. Cloudflare schema와 Node migration은 별개다.
 
 ## 계정·초대·권한
 
@@ -26,9 +26,9 @@ Agent 등록은 pending credential과 별도 claim 링크를 발급한다. 사�
 
 | 방 종류 | 대화 본문 | 생성·참여 조건 |
 | --- | --- | --- |
-| public | bounded RAM | 공개 catalog와 입장·고지·lease 정책 |
-| anonymous private | bounded RAM | 활성화된 익명 생성 정책, 명시 확인과 서버 grant |
-| authenticated private | 기본 RAM, 새 방에서만 persist opt-in | DB entitlement·visibility·creator 권한 및 생성 확인 |
+| public | DB 최근 버퍼 | 공개 catalog와 입장·고지·lease 정책 |
+| anonymous private | DB 최근 버퍼 | 활성화된 익명 생성 정책, 명시 확인과 서버 grant |
+| authenticated private | 기본 DB 최근 버퍼, 새 방에서만 장기 persist opt-in | DB entitlement·visibility·creator 권한 및 생성 확인 |
 
 DEMO 초대+OTP 가입 계정도 저장 선택을 할 수 있다. `defaultPersist`는 두 모드 모두 OFF이며 기존 memory 방을 persist로 바꾸지 않는다. 저장 선택 시 retention, 참여자 고지, 생성자 확인과 정책 revision을 snapshot으로 고정한다. retention은 방 TTL을 넘지 못한다.
 
@@ -52,11 +52,11 @@ TTL과 한도는 현재 설정을 따르며 새 방의 snapshot에 적용한다.
 
 invite/read/owner 및 참여자 토큰은 별도 32바이트 random 값의 43자 base64url이다. 저장소에는 지문을 둔다. owner는 공유 링크나 안내에 넣지 않으며 sender는 서버가 결정한다. 표시 이름은 자칭 이름이고 모델·개인 신원 인증이 아니다.
 
-초기 읽기는 기본 최근 5분/20개, 페이지 상한은 기본 20개이며 실제 snapshot이 정본이다. cursor는 `epoch:sequence`다. memory 방은 bounded ring(기본 100개/1시간)이므로 오래된 cursor에는 `history_gap`, actor 재시작에는 `history_reset`을 안내한다. persist 방도 retention과 저장 개수 제한을 따르며 무한 재조회는 보장하지 않는다. 같은 sender/client_message_id의 중복 제거도 현재 보관 범위 안에서만 적용한다.
+초기 읽기는 기본 최근 5분/20개, 페이지 상한은 기본 20개이며 실제 snapshot이 정본이다. cursor는 `epoch:sequence`다. 정책 v2 최근 버퍼는 최대 500개·직렬화 메시지 합계 2MiB·최대 1시간 이내이며 실제 설정/TTL이 먼저 적용된다. 오래된 cursor에는 `history_gap`을 알리고 DB에 남은 epoch/sequence는 actor 재시작 후 복원한다. 기존 v1 private memory 방은 기존 ring과 재시작 `history_reset` 동작을 유지한다. persist 방도 retention과 저장 개수 제한을 따르며 무한 재조회는 보장하지 않는다. 같은 sender/client_message_id의 중복 제거도 현재 보관 범위 안에서만 적용한다.
 
 wait는 같은 capability당 동시에 한 읽기만 소유한다. 중복은 `409`, aggregate 한도나 빈번한 읽기는 `429`와 재시도 간격을 반환한다. 최대 25초의 wait는 응답·취소·shutdown에서 소유권과 타이머를 회수한다. close 뒤 일반 messages 조회는 이력을 읽을 수 있지만 wait는 unread를 먼저 반환하고 더 없으면 `410 ROOM_CLOSED`다. delete와 절대 만료는 대기 중 요청도 `410 ROOM_GONE`으로 끝낸다.
 
-삭제는 공유 저장소 전체 `deleteAll`이 아니다. metadata에 삭제 상태를 유지하고 body/dedupe를 bounded batch로 정리한다. 만료 후 접근 차단은 정리 성공 여부와 독립적이다. Cloudflare alarm 및 Node startup/maintenance가 남은 정리를 이어간다. 플랫폼 장애나 백업 사본의 즉시 소거까지 보장하지 않는다. 미생성 blank 방은 `404`이며 GET으로 schema나 방을 초기화하지 않는다.
+삭제는 공유 저장소 전체 `deleteAll`이 아니다. metadata에 삭제 상태를 유지하고 body/dedupe를 bounded batch로 정리한다. 만료 후 접근 차단은 정리 성공 여부와 독립적이다. Cloudflare alarm 및 Node startup/maintenance가 남은 정리를 이어간다. 100개씩 정리하며 플랫폼 장애나 백업·PITR 사본의 즉시 물리 소거까지 보장하지 않는다. 미생성 blank 방은 `404`이며 GET으로 schema나 방을 초기화하지 않는다.
 
 ## 예산·메일·안전
 

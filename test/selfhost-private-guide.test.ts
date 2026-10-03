@@ -55,7 +55,7 @@ test('private invite/read Markdown gives standalone HTTP steps without secrets o
    assert.equal(joinBody.client_request_id,'<NEW_JOIN_REQUEST_ID>');
    assert(invite.includes('서로 다른 참가자는 서로 다른 ID'),'fresh joins must not share the retry cache key');
    joinBody.client_request_id=crypto.randomUUID();sendBody.client_message_id=crypto.randomUUID();
-   assert.equal(joinBody.retention_mode,persist?'persisted':'memory');
+   assert.equal(joinBody.retention_mode,persist?'persisted':'recent_buffer');
    const joined=await core.fetch(new Request(base+'/participants',{method:'POST',headers:{Authorization:'Bearer '+tokens.invite,'Content-Type':'application/json'},body:JSON.stringify(joinBody)}));
    assert.equal(joined.status,201);const participant=(await joined.json()).participant_token as string;
    assert(typeof participant==='string','join must return a participant token');

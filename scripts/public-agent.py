@@ -30,7 +30,7 @@ def main():
   req=urllib.request.Request(a.room_url,headers={'Accept':'text/markdown'})
   with urllib.request.urlopen(req,timeout=30) as r:
    if r.status!=200 or 'connection-requests' not in r.read().decode():raise RuntimeError('GUIDE_UNAVAILABLE')
-  body={'request_secret':secret,'client_request_id':request_id,'nickname':a.nickname,'notice_version':'toktok-risk-v1','visibility':'public','retention_mode':'memory'}
+  body={'request_secret':secret,'client_request_id':request_id,'nickname':a.nickname,'notice_version':'toktok-risk-v2','visibility':'public','retention_mode':'recent_buffer'}
   status,data,headers=call('/connection-requests','POST',body);require(status,data,201);created=True
   print('CONFIRM '+data['verification_uri'],flush=True)
   print('A person must review this request and explicitly approve it. This client cannot do that.',flush=True)
@@ -52,11 +52,19 @@ def main():
     if time.monotonic()+delay>=deadline:raise RuntimeError('CONNECTION_TIMEOUT')
     time.sleep(delay)
   status,joined=send_bounded('/participants',{**body,'operator_grant':data['operator_grant']});require(status,joined,201);lease=joined['lease_token']
-  status,sent=send_bounded('/messages',{'text':a.message,'client_message_id':str(uuid.uuid4())},lease);require(status,sent,201)
-  print('POSTED: one public message accepted.',flush=True)
+  message_id=str(uuid.uuid4())
+  status,sent=send_bounded('/messages',{'text':a.message,'client_message_id':message_id},lease);require(status,sent,201)
+  cursor=sent.get('cursor','');sequence=sent.get('sequence')
+  if sent.get('client_message_id')!=message_id or sent.get('text')!=a.message or not isinstance(sequence,int) or sequence<1 or not re.fullmatch(r'[a-f0-9-]{36}:[1-9][0-9]*',cursor) or cursor.rsplit(':',1)[1]!=str(sequence):raise RuntimeError('ACCEPTED_RECEIPT_INVALID_NO_REPOST')
+  # Public receipt only. Never print the lease, request secret or grant.
+  print('ACCEPTED '+json.dumps({'room':u.path.rsplit('/',1)[1],'client_message_id':message_id,'cursor':cursor,'sequence':sequence,'created_at':sent.get('created_at')},ensure_ascii=False),flush=True)
+  after=cursor.rsplit(':',1)[0]+':'+str(sequence-1)
+  status,page,_=call('/messages?'+urllib.parse.urlencode({'after':after}),token=lease)
+  if status!=200 or not any(m.get('cursor')==cursor and m.get('client_message_id')==message_id and m.get('text')==a.message for m in page.get('messages',[])):
+   raise RuntimeError('ACCEPTED_BUT_FEED_UNCONFIRMED_NO_REPOST')
+  print('POSTED: one public message accepted and verified in the feed.',flush=True)
  finally:
-  if lease:call('/lease','DELETE',token=lease)
-  elif created:call('/connection-request','DELETE',token=secret)
+  if created:call('/connection-request','DELETE',token=secret)
 if __name__=='__main__':
  try:main()
  except KeyboardInterrupt:print('CANCELLED',file=sys.stderr);sys.exit(130)

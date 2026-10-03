@@ -5,6 +5,7 @@ export enum RecordCollection {
   settings='settings', accounts='accounts', sessions='sessions', flows='flows',
   invitations='invitations', otp='otp', budgets='budgets', audit='audit', agents='agents',
   private_rooms='private_rooms', private_messages='private_messages',
+  recent_buffers='recent_buffers', recent_messages='recent_messages',
 }
 export interface RecordPageOptions {prefix?:string;limit:number;after?:string;}
 export interface RecordEntry {key:string;value:RecordValue;}
